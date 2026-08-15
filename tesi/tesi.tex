@@ -232,15 +232,17 @@ seminale di Byrd, Chin, Nocedal e Wu~\cite{byrd2012}. L'idea centrale è la
 seguente: anziché scegliere a priori una dimensione fissa del batch (il
 sottoinsieme di dati usato ad ogni iterazione), è possibile decidere
 durante l'algoritmo se e quando aumentarla, guidandosi da stime
-statistiche della varianza del gradiente stocastico. Vengono trattati tre
-contributi principali: (i) un metodo del gradiente a campione dinamico con
-analisi di convergenza lineare e stima di complessità; (ii) un metodo di
-Newton con gradiente coniugato e Hessiana sottocampionata, con un criterio di
-arresto adattivo per il risolutore interno; (iii) un'estensione ai problemi
-con regolarizzazione $L_1$ per la produzione di soluzioni sparse. Il documento
-è organizzato (placeholder) in sette capitoli: dopo l'introduzione e il background
+statistiche della varianza del gradiente stocastico. I contributi di questo
+lavoro sono un'analisi teorica completa dei metodi a campione dinamico
+(convergenza lineare deterministica e in aspettativa, stima della complessità
+totale), il miglioramento di alcuni risultati di convergenza mediante
+disuguaglianze più strette, e un'implementazione Python dei tre algoritmi
+(gradiente a campione dinamico, Newton-CG con Hessiana sottocampionata,
+estensione ai problemi con regolarizzazione $L_1$) con un'applicazione web
+interattiva per la sperimentazione. Il documento
+è organizzato in sette capitoli: dopo l'introduzione e il background
 necessario, si formula il problema di ottimizzazione, si passano in rassegna i
-lavori correlati, si descrivono gli algoritmi proposti, se ne discute
+lavori correlati, si descrivono gli algoritmi studiati, se ne discute
 l'implementazione interattiva con i risultati sperimentali e si traggono le
 conclusioni con le prospettive di lavoro futuro. I dettagli dimostrativi e i
 listati Python completi sono raccolti in appendice.
@@ -301,32 +303,41 @@ avvicina a zero, il rumore relativo cresce e la CCV impone un batch più grande.
 In questo modo la risorsa computazionale viene concentrata dove è realmente
 necessaria, con un adattamento automatico alla difficoltà del problema.
 
-Questa idea, introdotta da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}, viene
-qui sviluppata in tre direzioni: un'analisi teorica completa del metodo del
-gradiente a campione dinamico, l'estensione a un metodo di Newton-CG con
-Hessiana sottocampionata, e un'estensione ai problemi con regolarizzazione
-$L_1$, accompagnate da un'applicazione web interattiva che ne permette la
+Questa idea, introdotta da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}, è qui
+approfondita sotto tre aspetti: un'analisi teorica completa del metodo del
+gradiente a campione dinamico e della sua variante Newton-CG con Hessiana
+sottocampionata (convergenza lineare deterministica e in aspettativa,
+complessità totale); il raffinamento di alcuni risultati di convergenza
+mediante disuguaglianze più strette; e l'implementazione degli algoritmi in
+Python, accompagnata da un'applicazione web interattiva che ne permette la
 sperimentazione diretta.
 
 \subsection{Contributi del lavoro}
 
-I contributi principali di questo lavoro sono i seguenti:
+I metodi qui analizzati -- gradiente a campione dinamico, Newton-CG con
+Hessiana sottocampionata ed estensione ai problemi con regolarizzazione
+$L_1$ -- sono stati introdotti da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}.
+I contributi di questa tesi riguardano l'analisi, il miglioramento di alcuni
+risultati di convergenza e l'implementazione:
 
 \begin{enumerate}
-  \item \textbf{Analisi teorica del metodo del gradiente a campione dinamico.}
-  Trattazione completa della dinamica del batch basata sul controllo della
-  varianza, con convergenza lineare in aspettativa e stima di complessità
-  totale competitiva con quella di SGD per problemi mal condizionati.
-  \item \textbf{Estensione al metodo Newton-CG con sottocampionamento
-  dell'Hessiana.} Metodo di secondo ordine che usa due campioni distinti per
-  gradiente e Hessiana, con un criterio di arresto adattivo per il gradiente
-  coniugato interno basato sulla varianza campionaria dei prodotti
-  Hessiana-vettore.
-  \item \textbf{Estensione ai problemi con regolarizzazione $L_1$ e
-  applicazione interattiva.} Il campionamento dinamico viene esteso al caso
-  non liscio mediante gradiente generalizzato, active set e ricerca lineare
-  proiettata; gli algoritmi sono inoltre implementati in un'applicazione web
-  interattiva per la visualizzazione e la sperimentazione.
+  \item \textbf{Analisi teorica.} Viene fornita una trattazione completa della
+  dinamica del batch basata sul controllo della varianza: si dimostra la
+  convergenza lineare del metodo del gradiente a campione dinamico, in forma
+  deterministica e in aspettativa, e si ricava una stima della complessità
+  totale competitiva con quella di SGD e migliore sui problemi mal
+  condizionati.
+  \item \textbf{Miglioramento dei teoremi di convergenza.} Alcuni risultati
+  vengono raffinati mediante l'uso di disuguaglianze più strette. In
+  particolare, il fattore di contrazione del metodo del gradiente a campione
+  dinamico passa da $1-\frac{(1-\theta)\lambda}{2L}$ a
+  $1-\frac{(1-\theta)\lambda}{L}$ usando la disuguaglianza di
+  Polyak--Lojasiewicz nella forma forte
+  (Sezione~\ref{sec:convergenza-deterministica}).
+  \item \textbf{Implementazioni.} I tre algoritmi (gradiente a campione
+  dinamico, Newton-CG e variante $L_1$) sono implementati in Python e resi
+  disponibili in un'applicazione web interattiva, con esperimenti numerici
+  (Capitolo~\ref{sec:esperimenti}) e listati completi (Appendice~B).
 \end{enumerate}
 
 \subsection{Struttura della tesi}
@@ -2595,8 +2606,8 @@ $O(m L/(\lambda\varepsilon))$, un bound competitivo con quelli noti per SGD e
 significativamente migliore su problemi mal condizionati, dove il termine
 $\kappa^2$ di SGD diventa $\kappa$.
 
-In secondo luogo, abbiamo esteso la strategia dinamica a un metodo di
-Newton-CG con sottocampionamento dell'Hessiana, nel quale due campioni distinti
+In secondo luogo, abbiamo analizzato e implementato il metodo di Newton-CG
+con sottocampionamento dell'Hessiana, nel quale due campioni distinti
 vengono usati per il gradiente e per l'Hessiana. Il criterio di arresto del
 gradiente coniugato interno è adattivo: il CG viene fermato quando il suo
 residuo è dello stesso ordine di grandezza dell'errore di approssimazione
@@ -2605,7 +2616,7 @@ Hessiana-vettore. Questo evita iterazioni interne inutili e rende il metodo
 particolarmente efficace su problemi mal condizionati, come confermato dagli
 esperimenti del Capitolo~\ref{sec:esperimenti}.
 
-In terzo luogo, abbiamo esteso il campionamento dinamico ai problemi con
+In terzo luogo, abbiamo studiato il campionamento dinamico per i problemi con
 regolarizzazione $L_1$, utilizzando il gradiente generalizzato, l'identificazione
 dell'active set e la ricerca lineare proiettata. Abbiamo infine realizzato
 un'applicazione web interattiva che implementa i tre algoritmi e ne permette la

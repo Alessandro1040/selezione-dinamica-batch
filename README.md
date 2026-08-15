@@ -107,6 +107,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   sapthesis) e script `tesi/compila_tesi.sh` che compila frontespizio +
   documento e produce `tesi_finale.pdf` (74 pp = frontespizio + verso +
   documento senza la vecchia copertina custom, che resta nel sorgente).
+  Riformulati anche i "Contributi del lavoro" (e Abstract, Sez. 1.3 e
+  Conclusioni) per attribuire i metodi a byrd2012 e descrivere i contributi
+  propri: analisi teorica, miglioramento di alcuni teoremi di convergenza
+  (fattore di contrazione via disuguaglianza di PL nella forma forte) e
+  implementazioni.
 - **Intervento precedente.** Snellite le Sezioni 1–2 (Introduzione, Background e
   Notazione) per adattarle a una tesi triennale: eliminati i paragrafi
   "A chi è rivolto" e "Il problema, in parole semplici" (ridondanti con
