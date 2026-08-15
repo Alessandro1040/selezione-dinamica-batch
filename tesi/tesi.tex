@@ -352,9 +352,7 @@ di esecuzione sono raccolti nelle Appendici~A,~B e~C.
 \section{Background e Notazione}\label{sec:background}
 % ═══════════════════════════════════════════════════════════════════════════
 
-Questo capitolo richiama la notazione usata nel resto del lavoro. Le nozioni
-matematiche di base (convessità, gradiente, Hessiana, norme, valore atteso e
-varianza) sono date per note.
+Questo capitolo richiama la notazione usata nel resto del lavoro.
 
 \subsection{Glossario dei simboli ricorrenti}
 
@@ -374,8 +372,8 @@ $\ell(w; i)$ & perdita sull'esempio $i$ \\
 $J(w)$ & perdita media sul dataset \\
 $J_{\mathcal{S}}(w)$ & perdita media sul campione $\mathcal{S}$ \\
 $\lambda, L$ & costanti di convessità forte e di Lipschitz del gradiente \\
-$\kappa = L/\lambda$ & sovrastima del numero di condizionamento (il numero di condizionamento della Hessiana è $\lambda_{\max}/\lambda_{\min}$, cfr. Sez.~\ref{sec:formulazione}) \\
-$\theta \in (0,1)$ & tolleranza della condizione di controllo della varianza \\
+$\kappa = L/\lambda$ & sovrastima del numero di condizionamento (che, in norma 2 e per matrici simmetriche, è $\lambda_{\max}/\lambda_{\min}$; cfr. Sez.~\ref{sec:formulazione}) \\
+$\theta \in (0,1)$ & tolleranza sull'errore relativo del gradiente stimato (errore quadratico) \\
 $\alpha_k$ & passo all'iterazione $k$ \\
 $\mathcal{V}$ & varianza della popolazione, componente per componente \\
 $\widehat{\mathcal{V}}$ & stima campionaria di $\mathcal{V}$ sul batch \\
@@ -494,7 +492,7 @@ Per garantire le propriet\`a teoriche degli algoritmi, si assumono le seguenti c
   \begin{itemize}
     \item $\lambda > 0$: costante di convessità forte. Impone che $\nabla^2 J(w) \succeq \lambda I$ per ogni $w$, il che garantisce che $J$ abbia un unico minimizzatore $w^*$.
     \item $L$: costante di Lipschitz del gradiente. Impone che $\|\nabla J(x) - \nabla J(y)\|_2 \leq L\|x - y\|_2$ per ogni $x,y$, il che equivale a $\nabla^2 J(w) \preceq LI$ per ogni $w$.
-    \item $\kappa = L/\lambda$: numero di condizionamento (stima superiore). Per una data Hessiana $\nabla^2 J(w)$, il numero di condizionamento in norma 2 sarebbe $\lambda_{\max}(\nabla^2 J(w))/\lambda_{\min}(\nabla^2 J(w))$. Dato che gli autovalori sono ovunque compresi tra $\lambda$ e $L$, si ha $\kappa \leq L/\lambda$, $\kappa = L/\lambda$ viene usato come stima superiore uniforme. Se $\kappa \gg 1$, il problema è mal condizionato e più difficile da ottimizzare.
+    \item $\kappa = L/\lambda$: numero di condizionamento (stima superiore). Per una data Hessiana $\nabla^2 J(w)$ (matrice simmetrica), il numero di condizionamento in norma 2 sarebbe $\lambda_{\max}(\nabla^2 J(w))/\lambda_{\min}(\nabla^2 J(w))$. Dato che gli autovalori sono ovunque compresi tra $\lambda$ e $L$, si ha $\kappa \leq L/\lambda$, $\kappa = L/\lambda$ viene usato come stima superiore uniforme. Se $\kappa \gg 1$, il problema è mal condizionato e più difficile da ottimizzare.
 \end{itemize}
   
 
