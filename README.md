@@ -72,11 +72,12 @@ cd tesi
 ./compila_tesi.sh tesi    # compila frontespizio.tex + tesi.tex -> tesi_finale.pdf
 ```
 
-`tesi_finale.pdf` è composto da `frontespizio.pdf` (pag. 1 = frontespizio,
-pag. 2 = verso) più `tesi.pdf` **saltando** la vecchia copertina
-custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel sorgente; per
-ripristinarla nel PDF basta rimuovere lo slicing `body.pages[1:]` nello
-script. Nella copia di lavoro usare `./compila_tesi.sh main`.
+`tesi_finale.pdf` è composto da `frontespizio.pdf` (sola pag. 1 = frontespizio;
+la pagina del verso non è generata) più `tesi.pdf` **saltando** la vecchia
+copertina custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel
+sorgente; per ripristinarla nel PDF basta rimuovere lo slicing
+`body.pages[1:]` nello script. Nella copia di lavoro usare
+`./compila_tesi.sh main`.
 
 ## Note operative e stato corrente (15/08/2026)
 
@@ -105,10 +106,10 @@ Da tenere presente nelle sessioni di lavoro successive:
   sottotitolo, autore, matricola, corso, relatore, A.A. 2025/2026, tipo "Tesi
   di Laurea Triennale"; l'opzione `lam` non esiste in questa versione di
   sapthesis) e script `tesi/compila_tesi.sh` che compila frontespizio +
-  documento e produce `tesi_finale.pdf` (72 pp = frontespizio + verso +
-  documento senza la vecchia copertina custom, che resta nel sorgente).
-  Il verso del frontespizio è ripulito (ridefinito `\SAP@composebacktitlepage`):
-  niente "Tesi non ancora discussa", © né "Tutti i diritti riservati".
+  documento e produce `tesi_finale.pdf` (71 pp = frontespizio + documento
+  senza la vecchia copertina custom, che resta nel sorgente).
+  La pagina del verso non è generata (`\SAP@composebacktitlepage` svuotata):
+  niente copyright, "Tesi non ancora discussa" né email dell'autore.
   Riformulati anche i "Contributi del lavoro" (e Abstract, Sez. 1.3 e
   Conclusioni) per attribuire i metodi a byrd2012 e descrivere i contributi
   propri: analisi teorica, miglioramento di alcuni teoremi di convergenza
@@ -132,7 +133,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 72 pp (definitiva, con
+- **PDF di riferimento.** `tesi_finale.pdf` 71 pp (definitiva, con
   frontespizio), `tesi.pdf` 71 pp (documento), `main.pdf` 71 pp (copia di
   lavoro), `bozza.pdf` 56 pp.
 

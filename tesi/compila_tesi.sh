@@ -43,7 +43,7 @@ doc = sys.argv[1]
 fe = PdfReader('frontespizio.pdf')
 body = PdfReader(doc + '.pdf')
 out = PdfWriter()
-for p in fe.pages:
+for p in fe.pages[:1]:            # solo il frontespizio (il verso non è generato)
     out.add_page(p)
 for p in body.pages[1:]:            # salta la vecchia copertina custom (pag. 1)
     out.add_page(p)
