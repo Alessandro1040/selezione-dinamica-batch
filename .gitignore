@@ -7,6 +7,7 @@ tesi/*.toc
 tesi/*.listing
 tesi/*.fdb_latexmk
 tesi/_minted/
+tesi/_minted-*/
 tesi/*.bak
 tesi/figtest.*
 

@@ -14,10 +14,13 @@ Roma (A.A. 2025–2026).
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 └── tesi/                          sorgenti LaTeX e PDF della tesi
-    ├── main.tex                   documento principale
-    ├── main.pdf                   PDF compilato
+    ├── tesi.tex                   documento principale (versione DEFINITIVA)
+    ├── tesi.pdf                   PDF compilato del definitivo
+    ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
+    ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
     ├── figure/                    figure usate nella tesi (PDF/PNG)
+    ├── conodiscesa2.jpeg          figura del cono di discesa
     ├── sim_exp.py                 suite completa di esperimenti (rigenera tabelle e figure)
     └── ... (script di supporto, frammenti di tabelle)
 ```
