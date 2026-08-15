@@ -1,0 +1,2710 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Selezione Dinamica della Dimensione del Campione — Visualizzazione Interattiva</title>
+<script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/pyodide/v0.24.1/full/pyodide.js"></script>
+<script>
+MathJax = {
+  tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] },
+  options: { skipHtmlTags: ['script','noscript','style','textarea'] },
+  startup: {
+    typeset: false,
+    ready: () => {
+      MathJax.startup.defaultReady();
+      MathJax.startup.promise.then(() => {
+        // Typeset all theory content once MathJax is fully loaded
+        MathJax.typesetPromise().catch(()=>{});
+      });
+    }
+  }
+};
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0B1222;--surface:#111827;--surface-2:#1A2540;--surface-3:#1E2D4A;
+  --border:#243354;--border-soft:#1C2A42;
+  --gold:#C8A96E;--gold-dim:#8A7050;--gold-glow:rgba(200,169,110,0.12);
+  --blue:#4A9EFF;--blue-dim:#2A5E99;--blue-glow:rgba(74,158,255,0.10);
+  --green:#3EC97A;--green-dim:rgba(62,201,122,0.12);
+  --amber:#F5A623;--red:#E55555;
+  --text-1:#E8EDF5;--text-2:#A8B8D0;--text-3:#607090;--text-code:#7EC8E3;
+  --font-ui:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono','Fira Code',monospace;
+  --font-display:'Playfair Display',Georgia,serif;
+  --radius-sm:4px;--radius:8px;--radius-lg:14px;
+  --shadow:0 4px 24px rgba(0,0,0,0.5);
+}
+html{font-size:14px}
+body{font-family:var(--font-ui);background:var(--bg);color:var(--text-1);min-height:100vh;padding:24px 20px 40px;line-height:1.5;-webkit-font-smoothing:antialiased}
+
+.masthead{max-width:1400px;margin:0 auto 24px;border-bottom:1px solid var(--border);padding-bottom:20px}
+.masthead-meta{font-family:var(--font-mono);font-size:10px;color:var(--text-3);letter-spacing:.08em;text-transform:uppercase;line-height:1.8}
+.masthead-meta .inst{color:var(--gold);font-weight:600}
+.masthead-title{font-family:var(--font-display);font-size:clamp(18px,2.5vw,26px);font-weight:700;color:var(--text-1);letter-spacing:-.02em;line-height:1.2;margin-top:12px}
+.masthead-title em{color:var(--gold);font-style:normal}
+.masthead-subtitle{font-size:12px;color:var(--text-3);margin-top:6px;font-style:italic}
+.masthead-badge{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:14px}
+.badge-pill{padding:3px 10px;border-radius:20px;font-family:var(--font-mono);font-size:9.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+.bp-gold{background:var(--gold-glow);color:var(--gold);border:1px solid var(--gold-dim)}
+.bp-blue{background:var(--blue-glow);color:var(--blue);border:1px solid var(--blue-dim)}
+.bp-green{background:var(--green-dim);color:var(--green);border:1px solid rgba(62,201,122,.3)}
+.masthead-legend{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:14px;padding-top:14px;border-top:1px solid var(--border-soft)}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3)}
+.legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.legend-sep{width:1px;height:14px;background:var(--border)}
+
+.app{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:400px 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.app{grid-template-columns:1fr}}
+
+.sidebar{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.sidebar-section{padding:16px 18px;border-bottom:1px solid var(--border-soft)}
+.sidebar-section:last-child{border-bottom:none}
+.section-label{font-family:var(--font-mono);font-size:9px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.12em;display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border-soft)}
+
+.field-row{margin-bottom:10px}
+.field-label{display:block;font-size:10.5px;font-weight:600;color:var(--text-2);margin-bottom:5px}
+.field-hint{font-size:10px;color:var(--text-3);margin-top:4px;line-height:1.5;font-style:italic}
+select,input[type="number"]{width:100%;padding:7px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-1);font-family:var(--font-ui);font-size:12.5px;appearance:none;transition:border-color .15s,box-shadow .15s}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23607090'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;cursor:pointer}
+select:focus,input:focus{outline:none;border-color:var(--blue-dim);box-shadow:0 0 0 3px var(--blue-glow)}
+select:hover,input:hover{border-color:var(--text-3)}
+.param-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px 12px}
+.param-item{display:flex;flex-direction:column;gap:4px}
+.param-item .param-label{font-family:var(--font-mono);font-size:10px;color:var(--text-3)}
+.param-item input{padding:5px 8px;font-size:12px}
+#gdParams,#newtonParams,#l1Params{display:none}
+#gdParams.visible,#newtonParams.visible,#l1Params.visible{display:block}
+
+.code-editor-header{display:flex;align-items:center;justify-content:space-between;background:var(--surface-3);border:1px solid var(--border);border-bottom:none;border-radius:var(--radius-sm) var(--radius-sm) 0 0;padding:6px 10px}
+.code-lang-tag{font-family:var(--font-mono);font-size:9.5px;color:var(--text-code);font-weight:600;letter-spacing:.05em}
+.code-lang-tag::before{content:'🐍 '}
+textarea.code-area{width:100%;padding:10px 12px;background:#0A0F1A;border:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);border-top:none;color:#C8D8F0;font-family:var(--font-mono);font-size:10.5px;line-height:1.65;resize:vertical;white-space:pre;tab-size:4;transition:border-color .15s}
+textarea.code-area:focus{outline:none;border-color:var(--blue-dim)}
+#pythonCode{min-height:200px}
+#lossCode{min-height:130px}
+#pyStatus{font-family:var(--font-mono);font-size:10px;color:var(--text-3);margin-top:5px;min-height:14px}
+
+.btn-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.btn{padding:8px 6px;border:none;border-radius:var(--radius-sm);font-family:var(--font-ui);font-size:11.5px;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap}
+.btn-primary{background:linear-gradient(135deg,#1B5E35,#2D8B4E);color:#fff;border:1px solid rgba(62,201,122,.3)}
+.btn-primary:hover{background:linear-gradient(135deg,#1F6B3C,#35A05C);transform:translateY(-1px);box-shadow:0 4px 12px rgba(62,201,122,.2)}
+.btn-secondary{background:var(--surface-2);color:var(--text-2);border:1px solid var(--border)}
+.btn-secondary:hover{background:var(--surface-3);border-color:var(--text-3)}
+.btn-accent{background:linear-gradient(135deg,#1A3A6B,#2B5CA8);color:#fff;border:1px solid rgba(74,158,255,.3)}
+.btn-accent:hover{background:linear-gradient(135deg,#1E4580,#3268BF);transform:translateY(-1px)}
+.btn-icon-sm{padding:4px 10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);font-family:var(--font-mono);font-size:10px;color:var(--text-3);cursor:pointer;transition:all .15s}
+.btn-icon-sm:hover{color:var(--gold);border-color:var(--gold-dim)}
+
+.anim-bar{display:flex;gap:6px;margin-top:8px}
+.anim-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);border:1px solid var(--border);background:var(--surface-2);color:var(--text-2);font-size:12px;cursor:pointer;transition:all .12s;flex-shrink:0}
+.anim-btn:hover{background:var(--surface-3);color:var(--text-1);border-color:var(--text-3)}
+.anim-btn.active{background:var(--blue-glow);color:var(--blue);border-color:var(--blue-dim)}
+input[type="range"]{-webkit-appearance:none;height:3px;border-radius:2px;background:var(--surface-3);border:none;padding:0;cursor:pointer;flex:1}
+input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--gold);border:2px solid var(--bg);box-shadow:0 0 0 1px var(--gold-dim),0 0 10px var(--gold-glow);cursor:pointer}
+.iter-display-row{display:flex;gap:6px;align-items:center}
+.iter-num-input{width:60px!important;font-family:var(--font-mono)!important;font-size:12px!important;text-align:center}
+.checkbox-row{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text-3);margin-top:8px;cursor:pointer}
+.checkbox-row input[type="checkbox"]{width:14px;height:14px;accent-color:var(--gold);cursor:pointer}
+
+.metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.metric-card{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:8px 10px}
+.metric-label{font-family:var(--font-mono);font-size:9px;color:var(--text-3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+.metric-value{font-family:var(--font-mono);font-size:12.5px;font-weight:600;color:var(--gold);word-break:break-all}
+.metric-value.blue{color:var(--blue)}.metric-value.green{color:var(--green)}.metric-value.amber{color:var(--amber)}
+.convergence-result{margin-top:10px;border-radius:var(--radius-sm);overflow:hidden}
+.conv-table{width:100%;font-family:var(--font-mono);font-size:10px;border-collapse:collapse}
+.conv-table th{background:var(--surface-3);color:var(--text-3);padding:4px 8px;text-align:left;border-bottom:1px solid var(--border);font-size:9px;text-transform:uppercase;letter-spacing:.06em}
+.conv-table td{padding:3px 8px;border-bottom:1px solid var(--border-soft);color:var(--text-2)}
+.conv-table td:first-child{color:var(--text-3)}
+.conv-table td.good{color:var(--green)}.conv-table td.warn{color:var(--amber)}
+.conv-summary{padding:8px 10px;font-size:11px;border-top:1px solid var(--border-soft)}
+.conv-ok{color:var(--green);background:rgba(62,201,122,.06)}.conv-warn{color:var(--amber);background:rgba(245,166,35,.06)}
+
+.plot-column{display:flex;flex-direction:column;gap:16px}
+.plot-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;box-shadow:var(--shadow)}
+.plot-card-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border-soft);background:var(--surface-2)}
+.plot-card-title{font-family:var(--font-mono);font-size:10.5px;color:var(--text-2);font-weight:600;display:flex;align-items:center;gap:8px}
+.plot-card-title .dot{width:7px;height:7px;border-radius:50%;background:var(--gold);box-shadow:0 0 6px var(--gold);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.iter-status{display:flex;align-items:center;gap:10px}
+.iter-counter{font-family:var(--font-mono);font-size:13px;font-weight:700;color:var(--text-1)}
+.iter-counter span{color:var(--gold)}
+.status-chip{padding:2px 8px;border-radius:12px;font-family:var(--font-mono);font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase}
+.chip-ready{background:rgba(62,201,122,.12);color:var(--green);border:1px solid rgba(62,201,122,.25)}
+.chip-run{background:rgba(74,158,255,.12);color:var(--blue);border:1px solid rgba(74,158,255,.25)}
+.chip-pause{background:rgba(245,166,35,.12);color:var(--amber);border:1px solid rgba(245,166,35,.25)}
+.chip-error{background:rgba(229,85,85,.12);color:var(--red);border:1px solid rgba(229,85,85,.25)}
+#plot{width:100%;height:560px;background:transparent}
+.debug-strip{padding:6px 18px;border-top:1px solid var(--border-soft);font-family:var(--font-mono);font-size:9.5px;color:var(--text-3);background:rgba(0,0,0,.2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.theory-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+.theory-card-header{background:var(--surface-2);padding:12px 18px;border-bottom:1px solid var(--border-soft)}
+.theory-card-title{font-family:var(--font-mono);font-size:10px;font-weight:700;color:var(--text-3);text-transform:uppercase;letter-spacing:.1em}
+.theory-body{padding:16px 18px;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.theory-block{background:var(--surface-2);border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:12px 14px}
+.theory-block h4{font-family:var(--font-mono);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;font-weight:700}
+.theory-block p{font-size:11.5px;color:var(--text-2);line-height:1.65}
+.theory-block code{font-family:var(--font-mono);font-size:10.5px;color:var(--text-code);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px}
+.theory-block .MathJax{color:var(--text-1)!important}
+.theory-block mjx-container{color:var(--text-1)!important}
+.theory-content{display:none}
+.theory-content.active{display:block}
+.theory-content h3{font-family:var(--font-display);font-size:18px;font-weight:700;color:var(--gold);margin:0 0 8px 0;letter-spacing:-.02em}
+.theory-content h4{font-family:var(--font-mono);font-size:11px;font-weight:700;color:var(--text-2);text-transform:uppercase;letter-spacing:.08em;margin:16px 0 6px 0}
+.theory-content p{font-size:13px;color:var(--text-2);line-height:1.8;margin:0 0 10px 0}
+.theory-content ul, .theory-content ol{margin:4px 0 10px 20px;color:var(--text-2);font-size:13px;line-height:1.8}
+.theory-content li{margin-bottom:4px}
+.theory-content code{font-family:var(--font-mono);font-size:11px;color:var(--text-code);background:rgba(0,0,0,.3);padding:1px 5px;border-radius:3px}
+.theory-content .python-block{margin:12px 0;background:#0A0F1A;border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px;font-family:var(--font-mono);font-size:10.5px;color:#C8D8F0;white-space:pre-wrap;overflow-x:auto}
+.theory-content .highlight-box{background:var(--surface-2);border-left:3px solid var(--gold);padding:8px 12px;margin:8px 0;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
+
+.app-footer{max-width:1400px;margin:24px auto 0;padding-top:16px;border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-family:var(--font-mono);font-size:9.5px;color:var(--text-3)}
+.footer-ref em{color:var(--gold);font-style:normal}
+.hidden{display:none!important}
+</style>
+<base target="_blank">
+</head>
+<body>
+
+<header class="masthead">
+  <div>
+    <div class="masthead-meta">
+      <span class="inst">Università degli Studi La Sapienza, Roma</span><br>
+      Corso di Laurea in Scienze Matematiche per l'Intelligenza Artificiale<br>
+      Alessandro Lo Curcio · Anno Accademico 2025–2026
+    </div>
+    <h1 class="masthead-title">
+      Selezione Dinamica della Dimensione del Campione<br>
+      in Metodi di Ottimizzazione per il <em>Machine Learning</em>
+    </h1>
+    <p class="masthead-subtitle">Algoritmi batch adattivi e sottocampionamento dell'Hessiana per problemi su larga scala · Byrd, Chin, Nocedal &amp; Wu (2012)</p>
+    <div class="masthead-badge">
+      <span class="badge-pill bp-gold">Visualizzazione Interattiva</span>
+      <span class="badge-pill bp-blue">Python</span>
+    </div>
+  </div>
+  <div class="masthead-legend">
+      <div class="legend-item"><div class="legend-dot" style="background:#3EC97A"></div><span>w<sub>0</sub> (pesi iniziali)</span></div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#E8EDF5;box-shadow:0 0 6px rgba(232,237,245,.6)"></div><span>w<sub>k</sub> (pesi al passo k)</span></div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><span style="color:var(--amber);font-size:12px">★</span><span>w* (pesi ottimali) </span></div>
+    <div class="legend-sep"></div>
+    <div class="legend-item"><div class="legend-dot" style="background:#4A9EFF"></div><span>percorso</span></div>
+</div>
+  </div>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+
+    <!-- LOSS -->
+    <div class="sidebar-section">
+      <div class="section-label">Funzione di Loss</div>
+      <div class="field-row">
+        <label class="field-label" for="lossPreset">Preset J(w)</label>
+        <select id="lossPreset">
+          <option value="quad_well">Quadratica ben condizionata (κ ≈ 1.1)</option>
+          <option value="quad_ill">Quadratica mal condizionata (κ ≈ 20)</option>
+          <option value="quad_very_ill">Quadratica molto mal condizionata (κ ≈ 100)</option>
+          <option value="quad_offdiag">Quadratica con termine incrociato</option>
+          <option value="1d_quad">1D Quadratica</option>
+          <option value="1d_quartic">1D Quartica + quadratica</option>
+          <option value="1d_sin">1D Sinusoidale + quadratica</option>
+          <option value="1d_exp">1D Esponenziale + quadratica</option>
+          <option value="custom">✏️ Custom</option>
+        </select>
+        <p class="field-hint" id="lossHint">Carica un preset o modifica direttamente il codice Python sotto.</p>
+      </div>
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="diffMode">Modalità gradiente / Hessiana</label>
+        <select id="diffMode">
+          <option value="preset">Predefinite (formule chiuse)</option>
+          <option value="autodiff">Autodiff numerica (automatica)</option>
+        </select>
+        <p class="field-hint" id="diffHint">Per i preset quadratici puoi scegliere; per Custom è sempre autodiff.</p>
+      </div>
+      <div class="field-row" style="margin-top:10px; text-align:right;">
+        <button class="btn-icon-sm" id="resetLossBtn">↻ Ripristina</button>
+      </div>
+      <div class="code-editor-header" style="margin-top:8px">
+        <div class="code-lang-tag">J(w), gradJ(w), hessJ(w) — modificabile</div>
+      </div>
+      <textarea id="lossCode" class="code-area" spellcheck="false"></textarea>
+      <p class="field-hint" style="margin-top:4px">Modifica la loss e premi <strong>Ricalcola</strong>. Il plot usa <em>esattamente</em> questo codice.</p>
+    </div>
+
+    <!-- ALGORITHM -->
+    <div class="sidebar-section">
+      <div class="section-label">Algoritmo</div>
+      <div class="field-row">
+        <label class="field-label" for="algoSelect">Seleziona metodo</label>
+        <select id="algoSelect">
+          <option value="gd">Gradiente a Campione Dinamico (GD)</option>
+          <option value="newton_cg">Newton-CG con Campionamento Dinamico</option>
+          <option value="newton_l1">Newton-CG con Regolarizzazione L1</option>
+          <option value="custom">✏️ Algoritmo personalizzato</option>
+        </select>
+        <p class="field-hint" id="algoHint">GD con campione dinamico e controllo della varianza.</p>
+      </div>
+    </div>
+
+    <!-- PARAMS -->
+    <div class="sidebar-section">
+      <div class="section-label">Parametri</div>
+      <div class="param-grid">
+        <div class="param-item" id="w0xContainer">
+          <span class="param-label" id="w0xLabel">w₁₀</span>
+          <input type="number" id="w0x" value="2.0" step="0.1">
+        </div>
+        <div class="param-item" id="w0yContainer">
+          <span class="param-label">w₂₀</span>
+          <input type="number" id="w0y" value="-3.0" step="0.1">
+        </div>
+        <div class="param-item">
+          <span class="param-label">Max iter</span>
+          <input type="number" id="maxIter" value="30" step="5" min="5" max="200">
+        </div>
+        <div class="param-item">
+          <span class="param-label">α (passo)</span>
+          <input type="number" id="alpha" value="0.1" step="0.01" min="0.001" max="2">
+        </div>
+        <div class="param-item">
+          <span class="param-label">N (totale esempi)</span>
+          <input type="number" id="totalN" value="200" step="10" min="10" max="2000">
+        </div>
+        <div class="param-item">
+          <span class="param-label">Seed</span>
+          <input type="number" id="seedVal" value="42" step="1" min="0" max="9999">
+        </div>
+
+      </div>
+      <div id="gdParams" style="margin-top:10px">
+        <div class="param-grid">
+          <div class="param-item"><span class="param-label">θ (tolleranza)</span><input type="number" id="theta" value="0.5" step="0.05" min="0.01" max="0.99"></div>
+          <div class="param-item"><span class="param-label">batch₀</span><input type="number" id="batch0" value="5" step="1" min="1" max="50"></div>
+        </div>
+      </div>
+      <div id="newtonParams" style="margin-top:10px">
+        <div class="param-grid">
+          <div class="param-item"><span class="param-label">R (|H|/|S|)</span><input type="number" id="R" value="0.2" step="0.05" min="0.05" max="0.9"></div>
+          <div class="param-item"><span class="param-label">max CG iter</span><input type="number" id="maxcg" value="10" step="1" min="1" max="50"></div>
+        </div>
+      </div>
+      <div id="l1Params" style="margin-top:10px">
+        <div class="param-grid">
+          <div class="param-item"><span class="param-label">ν (penalità L1)</span><input type="number" id="nu" value="0.1" step="0.01" min="0.001" max="1"></div>
+          <div class="param-item"><span class="param-label">σ (Armijo)</span><input type="number" id="sigma" value="0.1" step="0.01" min="0.001" max="0.5"></div>
+          <div class="param-item"><span class="param-label">η (toll. CG)</span><input type="number" id="eta" value="0.5" step="0.05" min="0.01" max="0.99"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALGO CODE -->
+    <div class="sidebar-section">
+      <div class="section-label">Codice Python dell'algoritmo</div>
+      
+      <!-- Controlli che influenzano TUTTI gli algoritmi -->
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="dynamicBatchMode">Batch dinamico (CCV) — tutti gli algoritmi</label>
+        <select id="dynamicBatchMode">
+          <option value="dynamic">Attivo (default)</option>
+          <option value="fixed">Disattivato (batch fisso)</option>
+        </select>
+        <p class="field-hint" id="dynamicBatchHint">Default: la dimensione del batch cresce automaticamente quando la varianza supera la soglia.</p>
+      </div>
+      
+      <!-- Controlli che influenzano solo ALCUNI algoritmi -->
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="lineSearchMode">Line search — GD, Newton-CG, BB</label>
+        <select id="lineSearchMode">
+          <option value="wolfe">Condizioni di Wolfe (default)</option>
+          <option value="armijo">Solo Armijo</option>
+        </select>
+        <p class="field-hint" id="lineSearchHint">Default: Wolfe (sufficienza discesa + curvatura), come da pseudocodice LaTeX.</p>
+      </div>
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="hkSubsetMode">Sottocampionamento Hessiana — Newton-CG, Newton-L1</label>
+        <select id="hkSubsetMode">
+          <option value="subset">H_k ⊆ S_k (default teoria)</option>
+          <option value="independent">H_k indipendente da S_k</option>
+        </select>
+        <p class="field-hint" id="hkSubsetHint">Default: H_k è estratto come sottoinsieme di S_k, coerente con il paper.</p>
+      </div>
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="hessianFreeL1Mode">Hessian-free in Newton L1 — Newton-L1</label>
+        <select id="hessianFreeL1Mode">
+          <option value="free">Attivo (default teoria)</option>
+          <option value="explicit">Hessiana esplicita</option>
+        </select>
+        <p class="field-hint" id="hessianFreeL1Hint">Default: CG Hessian-free anche per L1, senza costruire H esplicita.</p>
+      </div>
+      
+      <div class="field-row" style="margin-top:10px; text-align:right;">
+        <button class="btn-icon-sm" id="resetAlgoBtn">↻ Ripristina</button>
+      </div>
+      
+      <div class="code-editor-header" style="margin-top:8px">
+        <div class="code-lang-tag">Algoritmo (modificabile)</div>
+      </div>
+      <textarea id="pythonCode" class="code-area" spellcheck="false"></textarea>
+      <div id="pyStatus"></div>
+    </div>
+
+    <!-- ANIMATION -->
+    <div class="sidebar-section">
+      <div class="section-label">Animazione</div>
+      <div class="iter-display-row" style="margin-bottom:8px">
+        <input type="range" id="iterSlider" min="0" max="30" step="1" value="0" style="flex:1">
+        <input type="number" class="iter-num-input" id="iterNum" value="0" min="0" step="1">
+      </div>
+      <div class="anim-bar">
+        <button class="anim-btn" id="playBtn">▶</button>
+        <button class="anim-btn" id="pauseBtn">⏸</button>
+        <button class="anim-btn" id="resetBtn">⟲</button>
+      </div>
+      <div class="checkbox-row"><input type="checkbox" id="loopChk" checked><label for="loopChk">Loop automatico</label></div>
+      <div class="checkbox-row"><input type="checkbox" id="showPathChk" checked><label for="showPathChk">Mostra percorso</label></div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="sidebar-section">
+      <div class="btn-row">
+        <button class="btn btn-primary" id="runBtn">⟳ Ricalcola</button>
+        <button class="btn btn-secondary" id="defaultBtn">⟲ Default</button>
+        <button class="btn btn-accent" id="convergenceBtn">🧪 Analisi</button>
+      </div>
+    </div>
+
+    <!-- METRICS -->
+    <div class="sidebar-section">
+      <div class="section-label">Metriche <span id="iterBadge" class="status-chip chip-ready" style="margin-left:4px">pronto</span></div>
+      <div class="metrics-grid">
+        <div class="metric-card"><div class="metric-label">w corrente</div><div class="metric-value" id="wDisplay">—</div></div>
+        <div class="metric-card"><div class="metric-label">J(w)</div><div class="metric-value blue" id="jDisplay">—</div></div>
+        <div class="metric-card"><div class="metric-label">‖∇J‖</div><div class="metric-value amber" id="gradDisplay">—</div></div>
+        <div class="metric-card"><div class="metric-label">‖w − w*‖</div><div class="metric-value" id="errDisplay">—</div></div>
+        <div class="metric-card" style="grid-column:1/-1"><div class="metric-label">Batch size nₖ</div><div class="metric-value green" id="batchDisplay">—</div></div>
+      </div>
+      <div id="convergenceResult" class="convergence-result"></div>
+    </div>
+
+  </aside>
+
+  <div class="plot-column">
+    <div class="plot-card">
+      <div class="plot-card-header">
+        <div class="plot-card-title">
+          <div class="dot"></div>
+          <span>Superficie J(w) e percorso J(w<sub>k</sub>)</span>
+        </div>
+        <div class="iter-status">
+          <span class="iter-counter">iter = <span id="iterDisplay">0</span></span>
+          <span class="status-chip chip-ready" id="statusBadge">pronto</span>
+        </div>
+      </div>
+      <div id="plot"></div>
+      <div class="debug-strip" id="debugInfo">Premi <strong>Ricalcola</strong> per eseguire l'algoritmo.</div>
+    </div>
+
+    <div class="theory-card">
+      <div class="theory-card-header"><div class="theory-card-title">📘 Teoria dell'algoritmo selezionato</div></div>
+      <div class="theory-body" id="theoryContainer">
+        <!-- ============ GD ============ -->
+        <div id="theory-gd" class="theory-content">
+          <h3>Gradiente a Campione Dinamico</h3>
+          <p>
+            \[
+            \begin{aligned}
+            &\min_{w\in\mathbb{R}^d}\;J(w)=\frac{1}{N}\sum_{i=1}^{N}\ell_i(w)\\
+            &\mathcal{S}_k\subset\{1,\dots,N\},\qquad n_k=|\mathcal{S}_k|\\
+            &g_k=\frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k)\\
+            &\widehat{\mathcal{V}}_k=\frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}\bigl(\nabla\ell_i(w_k)-g_k\bigr)\bigl(\nabla\ell_i(w_k)-g_k\bigr)^{\!\top}
+            \end{aligned}
+            \]
+          </p>
+          <h4>Condizione di Controllo della Varianza (CCV)</h4>
+          <p>
+            \[
+            \frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k}\;\le\;\theta^{2}\|g_k\|^{2}
+            \]
+          </p>
+          <h4>Aggiornamento batch</h4>
+          <p>
+            \[
+            n_{k+1}\;=\;\min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}_k\|_1}{\theta^{2}\|g_k\|^{2}}\right\rceil+1\right\}
+            \]
+          </p>
+          <h4>Iterazione</h4>
+          <p>
+            \[
+            w_{k+1}=w_k-\alpha_k g_k,\qquad \alpha_k\;\text{da Armijo:}\;J(w_k-\alpha_k g_k)\le J(w_k)-c_1\alpha_k\|g_k\|^{2}
+            \]
+          </p>
+          <h4>Pseudocodice</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
+            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1 \\
+            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
+            \quad w_{k+1} = w_k - \alpha_k g_k
+            \end{array}
+            \]
+          </p>
+
+          <h3>Formule</h3>
+          <p>
+            Di seguito raccogliamo le formule chiave del metodo, con il contesto necessario per interpretarle.
+            Ricordiamo che \(J(w)=\frac{1}{N}\sum_{i=1}^{N}\ell(w;i)\) è la loss empirica, \(w_*\in\mathbb{R}^d\) il suo minimo,
+            \(\lambda\) e \(L\) le costanti di convessità forte e di Lipschitz del gradiente
+            (\(\lambda I\preceq\nabla^2 J(w)\preceq LI\) per ogni \(w\)), e \(\theta\in(0,1)\) la tolleranza sulla varianza.
+          </p>
+
+          <h4>1. Controllo della varianza (CCV)</h4>
+          <p>
+            Il gradiente stimato sul batch \(g_k=\nabla J_{\mathcal{S}_k}(w_k)\) è uno stimatore non distorto di \(\nabla J(w_k)\).
+            La sua varianza (componente per componente) è \(\operatorname{Var}(g_k)=\mathcal{V}/n_k\), dove
+            \(\mathcal{V}=\operatorname{Var}_{i}(\nabla\ell(w_k;i))\) è la varianza dei gradienti individuali.
+            Poiché \(\mathcal{V}\) è ignota, la si stima con la varianza campionaria \(\widehat{\mathcal{V}}\) sul batch corrente.
+            La <strong>Condizione di Controllo della Varianza</strong> richiede che la varianza stimata dello stimatore
+            sia piccola rispetto al quadrato del gradiente:
+          </p>
+          \[
+            \frac{\|\widehat{\mathcal{V}}\|_{1}}{n_{k}} \;\le\; \theta^{2}\|g_{k}\|_{2}^{2},\qquad
+            \widehat{\mathcal{V}}:=\operatorname{Var}_{i\in\mathcal{S}_{k}}\bigl(\nabla\ell(w_{k};i)\bigr).
+          \]
+          <p>
+            Intuitivamente: se i gradienti dei singoli esempi nel batch sono coerenti tra loro (bassa varianza),
+            la loro media è una buona approssimazione di \(\nabla J(w_k)\). Se la varianza è troppo alta, il batch va aumentato.
+          </p>
+
+          <h4>2. Regola di aggiornamento del batch</h4>
+          <p>
+            Se la CCV non è soddisfatta, si stima la nuova dimensione minima del batch risolvendo la CCV per \(n_k\).
+            Assumendo che la varianza e il gradiente non cambino significativamente tra iterazioni consecutive:
+          </p>
+          \[
+            n_{k}^{\text{new}}=\left\lceil\frac{\|\widehat{\mathcal{V}}\|_{1}}{\theta^{2}\|g_{k}\|_{2}^{2}}\right\rceil.
+          \]
+          <p>
+            Quando siamo lontani dal minimo, \(\|g_k\|^2\) è grande e il batch resta piccolo.
+            Avvicinandoci al minimo, il gradiente si azzera e il denominatore diventa piccolo: il batch cresce automaticamente dove serve precisione.
+          </p>
+
+          <h4>3. Condizione di discesa</h4>
+          <p>
+            La direzione \(-g_k\) è di discesa per \(J\) se l'errore relativo del gradiente stimato è controllato:
+          </p>
+          \[
+            \|g_{k}-\nabla J(w_{k})\|_{2}\le\theta\|g_{k}\|_{2},\quad \theta\in[0,1).
+          \]
+          <p>
+            Questa condizione è quella usata nell'analisi deterministica per garantire la discesa a ogni passo.
+            La CCV è la sua versione in aspettativa, calcolabile in pratica.
+          </p>
+
+          <h4>4. Convergenza deterministica</h4>
+          <p>
+            Sotto la condizione di discesa e con passo fisso \(\alpha=(1-\theta)/L\), l'errore \(J(w_k)-J(w_*)\)
+            si riduce linearmente a ogni iterazione:
+          </p>
+          \[
+            J(w_{k+1})-J(w_{*})\le\left(1-\frac{(1-\theta)\lambda}{L}\right)\bigl(J(w_{k})-J(w_{*})\bigr).
+          \]
+          <p>
+            Il fattore di contrazione \(\rho=1-\frac{(1-\theta)\lambda}{L}\in(0,1)\) dipende dal condizionamento
+            \(\kappa=L/\lambda\) e dalla tolleranza \(\theta\): più il problema è mal condizionato, più lenta è la convergenza.
+          </p>
+
+          <h4>5. Iterazioni per precisione \(\varepsilon\)</h4>
+          <p>
+            Qui \(\varepsilon>0\) è la <strong>precisione desiderata</strong>: vogliamo ottenere
+            \(J(w_k)-J(w_*)\le\varepsilon\). Il numero di iterazioni necessarie è:
+          </p>
+          \[
+            k\ge\frac{L}{(1-\theta)\lambda}\;\log\!\left(\frac{J(w_{0})-J(w_{*})}{\varepsilon}\right)=O\!\left(\frac{L}{\lambda}\log\frac{1}{\varepsilon}\right).
+          \]
+          <p>
+            La convergenza è <em>lineare</em>: l'errore decresce esponenzialmente, e il numero di iterazioni
+            cresce solo logaritmicamente con \(1/\varepsilon\).
+          </p>
+
+          <h4>6. Ipotesi di limitatezza della varianza</h4>
+          <p>
+            Per l'analisi stocastica di complessità, si assume che la varianza dei gradienti individuali sia
+            <strong>uniformemente limitata</strong>: esiste \(\omega>0\) tale che per ogni \(w_k\)
+          </p>
+          \[
+            \|\operatorname{Var}(\nabla\ell(w_k;I))\|_1 \le \omega.
+          \]
+          <p>
+            Questa ipotesi garantisce che la varianza dello stimatore \(g_k\) decada come \(\|\operatorname{Var}(g_k)\|_1\le\omega/n_k\),
+            rendendo il rumore controllabile aumentando il batch. In pratica può essere rilassata richiedendo la limitatezza
+            solo in un intorno del minimo.
+          </p>
+
+          <h4>7. Convergenza stocastica</h4>
+          <p>
+            Il Teorema di Convergenza Deterministica (sezione 4) assume che la condizione di accuratezza
+            \(\|g_k-\nabla J(w_k)\|_2\le\theta\|g_k\|_2\) valga <em>puntualmente a ogni iterazione</em>.
+            Nel caso stocastico, \(g_k=\nabla J_{\mathcal{S}_k}(w_k)\) è calcolato su un campione casuale
+            \(\mathcal{S}_k\) di dimensione \(n_k\), quindi \(g_k\) è una <strong>variabile aleatoria</strong>.
+            La condizione di accuratezza non può essere garantita con probabilità 1 per ogni iterazione:
+            anche se la CCV è soddisfatta <em>in aspettativa</em>, una particolare realizzazione del campione
+            può produrre un errore \(e_k=g_k-\nabla J(w_k)\) più grande del previsto.
+            Dobbiamo quindi sviluppare un'analisi <em>in aspettativa</em>, che tiene conto della variabilità
+            di \(g_k\) e della crescita del batch \(n_k\).
+          </p>
+          <p>
+            <strong>Iterazione stocastica.</strong> Nell'analisi stocastica si usa il passo fisso \(1/L\)
+            (più lungo del passo deterministico \((1-\theta)/L\), poiché il controllo dell'errore è affidato
+            alla crescita del batch):
+          </p>
+          \[
+            w_{k+1}=w_k-\frac{1}{L}g_k.
+          \]
+          <p>
+            Poiché \(\mathbb{E}[g_k\mid w_k]=\nabla J(w_k)\) (stimatore non distorto), usando l'espansione
+            di Taylor e l'identità \(\mathbb{E}[\|X\|^2]=\|\operatorname{Var}(X)\|_1+\|\mathbb{E}[X]\|^2\),
+            si ottiene la <strong>ricorrenza fondamentale in aspettativa</strong>:
+          </p>
+          \[
+            \varepsilon_{k+1}\le\left(1-\frac{\lambda}{L}\right)\varepsilon_k+\frac{\omega}{2L\,n_k},
+            \qquad \varepsilon_k:=\mathbb{E}[J(w_k)-J(w_*)].
+          \]
+          <p>
+            Il primo termine \(\left(1-\frac{\lambda}{L}\right)\varepsilon_k\) è la contrazione deterministica
+            (con passo \(1/L\) invece di \((1-\theta)/L\)). Il secondo termine \(\frac{\omega}{2L n_k}\)
+            è il <strong>rumore residuo</strong>: la varianza dello stimatore \(g_k\), che decresce come
+            \(\omega/n_k\) grazie all'ipotesi di limitatezza (sezione 6). Se \(n_k\) non crescesse,
+            questo termine non si annullerebbe e l'errore non convergerebbe a zero.
+          </p>
+          <p>
+            <strong>Batch geometrico.</strong> Per garantire la convergenza, si impone una crescita geometrica
+            del batch: \(n_k=\lceil a^k\rceil\) con \(a>1\). Risolvendo la ricorrenza si ottiene la
+            <strong>convergenza in aspettativa</strong>:
+          </p>
+          \[
+            \mathbb{E}[J(w_k)-J(w_*)]\le C\rho^k,
+            \qquad \rho:=\max\!\left\{1-\frac{\lambda}{L},\;\frac{1}{a}\right\},
+          \]
+          <p>
+            per una costante \(C=C(\varepsilon_0,\omega,\lambda,L,a)\). Il tasso \(\rho\) è il massimo tra
+            la contrazione deterministica \(\alpha=1-\lambda/L\) e il decadimento del rumore \(1/a\).
+            Se \(a\) è scelto nell'intervallo \(a\in(1,(1-\lambda/L)^{-1}]\), il rumore decade almeno
+            quanto l'errore deterministico e \(\rho=1/a\).
+          </p>
+          <p>
+            La convergenza stocastica è più debole di quella deterministica:
+            non garantisce che \(J(w_k)-J(w_*)\) decresca a ogni iterazione, ma solo che il suo
+            <em>valore atteso</em> decresca geometricamente. In pratica, la traiettoria può oscillare
+            (il rumore può temporaneamente far aumentare la loss), ma in media converge al minimo.
+          </p>
+
+          <h4>8. Complessità totale</h4>
+
+          <p>
+            Con batch geometrico \(n_k=\lceil a^k\rceil\) con \(a\in(1,(1-\lambda/L)^{-1}]\), il lavoro totale
+            (numero di valutazioni di \(\nabla\ell\) moltiplicato per il costo \(O(d)\) di ciascuna) per ottenere
+            precisione \(\varepsilon\) è:
+          </p>
+          \[
+            \mathcal{T}_{\text{tot}}=O\!\left(\frac{L\,d}{\lambda\,\varepsilon}\max\!\left\{J(w_{0})-J(w_{*}),\;\frac{\omega}{\lambda}\right\}\right),
+          \]
+          <p>
+            dove \(d\) è la dimensione di \(w\). Il termine \(\max\{J(w_0)-J(w_*),\omega/\lambda\}\) riflette il fatto che
+            il costo dipende sia dall'errore iniziale sia dalla varianza dei dati: se i dati sono molto rumorosi (\(\omega\) grande),
+            servono batch più grandi e il costo cresce.
+          </p>
+
+          <h4>9. Line search (Armijo)</h4>
+          <p>
+            Il passo \(\alpha_k\) è scelto con backtracking di Armijo sulla loss del batch:
+          </p>
+          \[
+            J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2},\qquad c_{1}=10^{-4}.
+          \]
+          <p>
+            La costante \(c_1\in(0,1)\) è tipicamente \(10^{-4}\): la condizione richiede che la riduzione della loss
+            sia almeno proporzionale al passo e al quadrato della norma del gradiente.
+          </p>
+
+        </div>
+
+        <!-- ============ Newton-CG ============ -->
+        <div id="theory-newton_cg" class="theory-content">
+          <h3>Newton-CG con Campionamento Dinamico</h3>
+          <p>
+            \[
+            \begin{aligned}
+            &\min_{w\in\mathbb{R}^d}\;J(w)=\frac{1}{N}\sum_{i=1}^{N}\ell_i(w)\\
+            &\mathcal{S}_k,\;\mathcal{H}_k\subset\{1,\dots,N\},\qquad |\mathcal{H}_k|=R\cdot|\mathcal{S}_k|,\;R\ll1\\
+            &g_k=\frac{1}{|\mathcal{S}_k|}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k),\qquad
+            H_k=\frac{1}{|\mathcal{H}_k|}\sum_{i\in\mathcal{H}_k}\nabla^{2}\ell_i(w_k)\\
+            &H_k\,d=-g_k\;\;\text{tramite CG troncato}
+            \end{aligned}
+            \]
+          </p>
+          <h4>Residuo del CG vs errore di Hessiana</h4>
+          <p>
+            \[
+            \underbrace{\nabla^{2}J_{\mathcal{S}_{k}}(w_{k})d+\nabla J_{\mathcal{S}_{k}}(w_{k})}_{\text{residuo sistema esatto}}
+            =\underbrace{r_{j}}_{\text{residuo CG}}+\underbrace{\Delta_{\mathcal{H}_{k}}(w_{k};d)}_{\text{errore Hessiana}}.
+            \]
+          </p>
+          <h4>Stima dell'errore di Hessiana</h4>
+          <p>
+            \[
+            \mathbb{E}[\|\Delta_{\mathcal{H}_{k}}(w_{k};d)\|^{2}]\approx
+            \frac{\|\operatorname{Var}_{i\in\mathcal{H}_{k}}(\nabla^{2}\ell(w_{k};i)\,d)\|_{1}}{|\mathcal{H}_{k}|}.
+            \]
+          </p>
+          <h4>Coefficiente \(\gamma\) e soglia adattiva</h4>
+          <p>
+            \[
+            \gamma=\frac{\|\operatorname{Var}_{i\in\mathcal{H}_{k}}(\nabla^{2}\ell(w_{k};i)\,p_{0})\|_{1}}{|\mathcal{H}_{k}|\,\|p_{0}\|_{2}^{2}},\qquad
+            \Psi(d_{j})=\gamma\|d_{j}\|_{2}^{2},\qquad p_{0}=-\nabla J_{\mathcal{S}_{k}}(w_{k}).
+            \]
+          </p>
+          <h4>Test di arresto del CG</h4>
+          <p>
+            \[
+            \|r_{j+1}\|_{2}^{2}\le\Psi(d_{j})=\gamma\|d_{j}\|_{2}^{2}.
+            \]
+          </p>
+          <h4>Line search e aggiornamento</h4>
+          <p>
+            \[
+            \begin{aligned}
+            J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
+            \nabla J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})^{\!T}d_{k}&\ge c_{2}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
+            w_{k+1}&=w_k+\alpha_k d_k.
+            \end{aligned}
+            \]
+          </p>
+          <h4>Aggiornamento batch (CCV sul gradiente)</h4>
+          <p>
+            \[
+            \frac{\|\widehat{\mathcal{V}}\|_{1}}{|\mathcal{S}_{k+1}|}\le\theta^{2}\|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_{2}^{2}.
+            \]
+          </p>
+          <h4>Pseudocodice</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil) \\
+            \quad p_0 = -g_k \\
+            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
+            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
+            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
+            \quad\quad s_j = H_k\,p_j \\
+            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
+            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
+            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
+            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
+            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
+            \quad\quad j = j+1 \\
+            \quad d_k = d_j \\
+            \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
+            \quad w_{k+1} = w_k + \alpha_k d_k \\
+            \quad n_{k+1} = \operatorname{CCV}(w_{k+1},n_k,\theta) \\
+            \textbf{end for}
+            \end{array}
+            \]
+          </p>
+
+          <h3>Formule</h3>
+          <p>
+            Di seguito raccogliamo le formule chiave del metodo, con il contesto necessario per interpretarle.
+            Ricordiamo che \(J(w)=\frac{1}{N}\sum_{i=1}^{N}\ell(w;i)\) è la loss empirica, \(\mathcal{S}_k\) e \(\mathcal{H}_k\) i campioni per gradiente e Hessiana, \(R=|\mathcal{H}_k|/|\mathcal{S}_k|<1\) il rapporto fisso, e \(\theta\in(0,1)\) la tolleranza sulla varianza.
+          </p>
+
+          <h4>1. Sistema lineare (Hessian-free)</h4>
+          <p>
+            La direzione di Newton \(d_k\) è la soluzione approssimata del sistema lineare che usa l'Hessiana sul campione piccolo \(\mathcal{H}_k\) e il gradiente sul campione grande \(\mathcal{S}_k\):
+          </p>
+          \[
+            \nabla^{2}J_{\mathcal{H}_{k}}(w_{k})\,d=-\nabla J_{\mathcal{S}_{k}}(w_{k}),\qquad |\mathcal{H}_{k}|=R\cdot|\mathcal{S}_{k}|,\;R\ll1.
+          \]
+          <p>
+            La matrice \(\nabla^{2}J_{\mathcal{H}_{k}}(w_k)\) non viene mai costruita esplicitamente: si calcola direttamente il prodotto Hessiana-vettore \(\nabla^{2}J_{\mathcal{H}_{k}}(w_k)\,p\) per ogni direzione \(p\) richiesta dal CG.
+          </p>
+
+          <h4>2. Residuo del CG vs errore di approssimazione dell'Hessiana</h4>
+          <p>
+            Il residuo del sistema di Newton che userebbe il campione grande \(\mathcal{S}_k\) per entrambi si decompone nel residuo del CG più l'errore di Hessiana:
+          </p>
+          \[
+            \underbrace{\nabla^{2}J_{\mathcal{S}_{k}}(w_{k})d+\nabla J_{\mathcal{S}_{k}}(w_{k})}_{\text{residuo sistema esatto}}
+            =\underbrace{r_{j}}_{\text{residuo CG}}+\underbrace{\Delta_{\mathcal{H}_{k}}(w_{k};d)}_{\text{errore Hessiana}}.
+          \]
+          <p>
+            Se l'errore di Hessiana \(\Delta_{\mathcal{H}_k}\) non si può eliminare, non serve ridurre \(r_k\) fino a zero: basta ridurlo finché è comparabile a \(\Delta_{\mathcal{H}_k}\). Oltre quel punto, il tempo speso è sprecato.
+          </p>
+
+          <h4>3. Stima dell'errore di Hessiana</h4>
+          <p>
+            Analogamente all'errore del gradiente, \(\Delta_{\mathcal{H}_k}(w_k;d)\) non è calcolabile esattamente. Lo si stima con la varianza campionaria dei prodotti Hessiana-vettore individuali sul sottocampione \(\mathcal{H}_k\):
+          </p>
+          \[
+            \mathbb{E}[\|\Delta_{\mathcal{H}_{k}}(w_{k};d)\|^{2}]\approx
+            \frac{\|\operatorname{Var}_{i\in\mathcal{H}_{k}}(\nabla^{2}\ell(w_{k};i)\,d)\|_{1}}{|\mathcal{H}_{k}|}.
+          \]
+          <p>
+            Poiché \(|\mathcal{H}_k|\ll|\mathcal{S}_k|\), il fattore di correzione per popolazione finita \(\frac{|\mathcal{S}_k|-|\mathcal{H}_k|}{|\mathcal{S}_k|-1}\) è circa \(1\) e viene trascurato.
+          </p>
+
+          <h4>4. Coefficiente \(\gamma\) e soglia adattiva</h4>
+          <p>
+            La mappa \(d\mapsto\nabla^{2}\ell(w_k;i)\,d\) è lineare in \(d\), quindi la sua varianza scala con \(\|d\|^2\). Calcolando la varianza una sola volta per \(d=p_0=-g_k\), si ricava il coefficiente \(\gamma\):
+          </p>
+          \[
+            \gamma=\frac{\|\operatorname{Var}_{i\in\mathcal{H}_{k}}(\nabla^{2}\ell(w_{k};i)\,p_{0})\|_{1}}{|\mathcal{H}_{k}|\,\|p_{0}\|_{2}^{2}},\qquad
+            \Psi(d_{j})=\gamma\|d_{j}\|_{2}^{2},\qquad p_{0}=-\nabla J_{\mathcal{S}_{k}}(w_{k}).
+          \]
+          <p>
+            La soglia \(\Psi(d_j)\) cresce con \(\|d_j\|^2\): se il CG produce vettori molto lunghi (Hessiana mal condizionata), il test si attiva prima, prevenendo instabilità numeriche.
+          </p>
+
+          <h4>5. Test di arresto del CG</h4>
+          <p>
+            Ad ogni iterazione \(j\) del CG, si verifica se il residuo \(r_{j+1}\) è dominato dalla soglia adattiva:
+          </p>
+          \[
+            \|r_{j+1}\|_{2}^{2}\le\Psi(d_{j})=\gamma\|d_{j}\|_{2}^{2}.
+          \]
+          <p>
+            Se la condizione è verificata, il CG termina e la soluzione corrente \(d_{j+1}\) viene accettata come direzione di Newton approssimata. In caso contrario, si prosegue con la successiva iterazione.
+          </p>
+
+          <h4>6. Line search (Wolfe)</h4>
+          <p>
+            Il passo \(\alpha_k\) è scelto con le condizioni di Wolfe, che combinano sufficienza di discesa e curvatura:
+          </p>
+          \[
+            \begin{aligned}
+            J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
+            \nabla J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})^{\!T}d_{k}&\ge c_{2}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k}.
+            \end{aligned}
+          \]
+          <p>
+            La prima condizione (Armijo) garantisce una riduzione sufficiente della loss; la seconda (curvatura) garantisce che il passo non sia troppo piccolo. Tipicamente \(c_1=10^{-4}\) e \(c_2=0.9\).
+          </p>
+
+          <h4>7. Aggiornamento batch (CCV sul gradiente)</h4>
+          <p>
+            Come nel GD, la dimensione del batch per il gradiente viene aggiornata dinamicamente verificando la CCV su un nuovo campione:
+          </p>
+          \[
+            \frac{\|\widehat{\mathcal{V}}\|_{1}}{|\mathcal{S}_{k+1}|}\le\theta^{2}\|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_{2}^{2}.
+          \]
+          <p>
+            Se la condizione non è soddisfatta, si aumenta il batch secondo la regola \(n_{k+1}=\lceil\|\widehat{\mathcal{V}}\|_1/(\theta^{2}\|g_{k+1}\|^{2})\rceil\), e \(\mathcal{H}_{k+1}\) viene aggiornato come \(|\mathcal{H}_{k+1}|=\lceil R\cdot|\mathcal{S}_{k+1}|\rceil\).
+          </p>
+        </div>
+
+        <!-- ============ L1 ============ -->
+        <div id="theory-newton_l1" class="theory-content">
+          <h3>Newton-CG con Regolarizzazione \(L_1\)</h3>
+          <p>
+            \[
+            \begin{aligned}
+            &\min_{w\in\mathbb{R}^d}\;F(w)=J(w)+\nu\|w\|_1\\
+            &F_{\mathcal{S}}(w)=J_{\mathcal{S}}(w)+\nu\|w\|_1
+            \end{aligned}
+            \]
+          </p>
+          <h4>Gradiente generalizzato (subgradiente)</h4>
+          <p>
+            \[
+            [\widetilde{\nabla}F_{\mathcal{S}}(w)]^i=
+            \begin{cases}
+            \partial_i J_{\mathcal{S}}(w)+\nu, & w_i>0\;\text{oppure}\;\bigl(w_i=0\;\text{e}\;\partial_i J_{\mathcal{S}}(w)<-\nu\bigr),\\
+            \partial_i J_{\mathcal{S}}(w)-\nu, & w_i<0\;\text{oppure}\;\bigl(w_i=0\;\text{e}\;\partial_i J_{\mathcal{S}}(w)>\nu\bigr),\\
+            0, & w_i=0\;\text{e}\;-\nu\le\partial_i J_{\mathcal{S}}(w)\le\nu.
+            \end{cases}
+            \]
+          </p>
+          <h4>Faccia ortante e active set</h4>
+          <p>
+            \[
+            z_k^i=
+            \begin{cases}
+            +1, & w_k^i>0\;\text{oppure}\;\bigl(w_k^i=0\;\text{e}\;\partial_i J_{\mathcal{S}_k}(w_k)<-\nu\bigr),\\
+            -1, & w_k^i<0\;\text{oppure}\;\bigl(w_k^i=0\;\text{e}\;\partial_i J_{\mathcal{S}_k}(w_k)>\nu\bigr),\\
+            0, & \text{altrimenti},
+            \end{cases}
+            \qquad
+            \mathcal{A}_k=\{i\mid z_k^i=0\}.
+            \]
+          </p>
+          <h4>Minimizzazione nel sottospazio libero</h4>
+          <p>
+            \[
+            \bigl[Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k\bigr]d^Y=-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\qquad
+            \|r_k\|\le\eta\,\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|.
+            \]
+          </p>
+          <h4>Proiezione ortante e aggiornamento</h4>
+          <p>
+            \[
+            w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k),\qquad
+            P_{\Omega_k}(w^i)=
+            \begin{cases}
+            w^i, & \operatorname{sign}(w^i)=z_k^i,\\
+            0, & \text{altrimenti}.
+            \end{cases}
+            \]
+          </p>
+          <h4>Pseudocodice</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\mathcal{H}_0,\;\mathcal{S}_0\;(|\mathcal{H}_0|<|\mathcal{S}_0|),\;\nu,\;\eta,\;\sigma,\;\text{maxcg},\;K \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k \\
+            \quad z_k=\operatorname{faccia\_ortante}(w_k,\nabla J_{\mathcal{S}_k}(w_k),\nu) \\
+            \quad \mathcal{A}_k=\{i\mid z_k^i=0\} \\
+            \quad d^Y=\operatorname{CG}\bigl(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k,\;-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\;\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\bigr) \\
+            \quad d_k=Y_k d^Y \\
+            \quad \alpha_k=\operatorname{Armijo}_{\text{proj}}(w_k,d_k,z_k,\sigma) \\
+            \quad w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k) \\
+            \quad \text{re-campiona:}\; \mathcal{H}_{k+1},\mathcal{S}_{k+1}\;\text{con}\;|\mathcal{H}_{k+1}|=|\mathcal{H}_0|,\;|\mathcal{S}_{k+1}|=|\mathcal{S}_0| \\
+            \textbf{end for}
+            \end{array}
+            \]
+          </p>
+          <h3>Formule</h3>
+          <p>
+            Di seguito raccogliamo le formule chiave del metodo, con il contesto necessario per interpretarle.
+            Ricordiamo che \(F(w)=J(w)+\nu\|w\|_1\) è la funzione obiettivo regolarizzata, \(\nu>0\) il parametro di penalità,
+            \(\mathcal{S}_k\) e \(\mathcal{H}_k\) i campioni per gradiente e Hessiana, e \(\eta,\sigma\in(0,1)\) le tolleranze.
+          </p>
+
+          <h4>1. Funzione obiettivo</h4>
+          <p>
+            Nei modelli con un numero molto elevato di parametri, l'aggiunta di un termine di regolarizzazione \(L_1\)
+            produce soluzioni <strong>sparse</strong>: molti coefficienti vengono automaticamente portati a zero,
+            semplificando il modello e migliorandone l'interpretabilità. La funzione obiettivo è:
+          </p>
+          \[
+            F(w)=J(w)+\nu\|w\|_{1}=\frac{1}{N}\sum_{i=1}^{N}\ell(w;i)+\nu\sum_{j=1}^{m}|w_{j}|.
+          \]
+          <p>
+            Nel contesto mini-batch, si sceglie un sottoinsieme \(\mathcal{S}\subseteq\{1,\dots,N\}\) e si risolve il problema approssimato
+            \(F_{\mathcal{S}}(w)=J_{\mathcal{S}}(w)+\nu\|w\|_1\).
+          </p>
+
+          <h4>2. Gradiente generalizzato (subgradiente)</h4>
+          <p>
+            La parte non liscia \(\nu\|w\|_1\) non è differenziabile in \(w_i=0\). Per la funzione \(\phi(x)=\nu|x|\) in una variabile,
+            il subgradiente in \(x=0\) è l'intervallo \(\partial\phi(0)=[-\nu,+\nu]\). Nel caso multidimensionale, la somma si decompone
+            componente per componente: per ogni \(i\), il gradiente generalizzato è la somma del gradiente di \(J_{\mathcal{S}}\) e del
+            subgradiente di \(\nu|w_i|\). Quando \(w_i=0\), si sceglie il subgradiente che rende il gradiente generalizzato il più vicino
+            possibile a zero, tramite la regola di proiezione \(g_i=\arg\min_{g\in[-\nu,\nu]}|d_i+g|\). Si ottengono così tre casi:
+          </p>
+          \[
+            [\widetilde{\nabla}F_{\mathcal{S}}(w)]^i=
+            \begin{cases}
+            \partial_i J_{\mathcal{S}}(w)+\nu, & w_i>0\;\text{oppure}\;\bigl(w_i=0\;\text{e}\;\partial_i J_{\mathcal{S}}(w)<-\nu\bigr),\\
+            \partial_i J_{\mathcal{S}}(w)-\nu, & w_i<0\;\text{oppure}\;\bigl(w_i=0\;\text{e}\;\partial_i J_{\mathcal{S}}(w)>\nu\bigr),\\
+            0, & w_i=0\;\text{e}\;-\nu\le\partial_i J_{\mathcal{S}}(w)\le\nu.
+            \end{cases}
+          \]
+          <p>
+            La regola di proiezione garantisce che, nel punto di minimo \(w^*\), si abbia esattamente \(\widetilde{\nabla}F(w^*)=0\)
+            per tutte le coordinate in cui \(|d_i|\le\nu\), mentre per le altre il gradiente viene reso il più piccolo possibile in valore assoluto.
+          </p>
+
+          <h4>3. Identificazione dell'active set e della faccia ortante</h4>
+          <p>
+            Poiché \(\nu|w_i|\) ha un angolo in \(w_i=0\), l'algoritmo deve fare una scelta esplicita: se la pendenza della parte liscia \(J\)
+            è più forte del costo \(\nu\), conviene "liberare" \(w_i\) (spostarla da zero); altrimenti conviene "attivarla" (tenerla bloccata a zero
+            per ottenere una soluzione sparsa). Si compie un passo infinitesimo lungo la direzione di massima discesa \(-\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\)
+            e si osserva il segno di ogni componente, definendo il vettore \(z_k\in\{-1,0,+1\}^m\):
+          </p>
+          \[
+            z_k^i=
+            \begin{cases}
+            +1, & w_k^i>0\;\text{oppure}\;\bigl(w_k^i=0\;\text{e}\;\partial_i J_{\mathcal{S}_k}(w_k)<-\nu\bigr),\\
+            -1, & w_k^i<0\;\text{oppure}\;\bigl(w_k^i=0\;\text{e}\;\partial_i J_{\mathcal{S}_k}(w_k)>\nu\bigr),\\
+            0, & \text{altrimenti}.
+            \end{cases}
+          \]
+          <p>
+            Il vettore \(z_k\) definisce l'ortante \(\Omega_k=\{d\in\mathbb{R}^m:\operatorname{sign}(d^i)=\operatorname{sign}(z_k^i)\}\),
+            all'interno del quale \(\|w\|_1\) è differenziabile e il suo gradiente è esattamente \(z_k\). Le variabili con \(z_k^i=0\)
+            costituiscono l'<strong>active set</strong> \(\mathcal{A}_k=\{i\mid z_k^i=0\}\), mantenute a zero durante la minimizzazione;
+            le rimanenti sono dette <em>libere</em>.
+          </p>
+
+          <h4>4. Minimizzazione nel sottospazio</h4>
+          <p>
+            Una volta identificata la faccia ortante, si costruisce un modello quadratico della funzione obiettivo ristretto alle variabili libere.
+            Sia \(Y_k\) la matrice \(n\times(n-|\mathcal{A}_k|)\) le cui colonne sono i versori delle coordinate libere; il sistema da risolvere è:
+          </p>
+          \[
+            \bigl[Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k\bigr]d^Y=-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),
+          \]
+          <p>
+            dove \(d^Y\in\mathbb{R}^{n-|\mathcal{A}_k|}\) è il vettore delle componenti libere. La direzione di ricerca è \(d_k=Y_k d^Y\).
+            Il sistema viene risolto con il gradiente coniugato Hessian-free, terminando quando il residuo soddisfa
+            \(\|r_k\|\le\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\) oppure dopo \(\text{maxcg}\) iterazioni.
+          </p>
+
+          <h4>5. Ricerca lineare proiettata</h4>
+          <p>
+            Per garantire che il nuovo iterato rimanga all'interno della stessa faccia ortante \(\Omega_k\), si usa una proiezione ortogonale
+            \(P(\cdot)\) su \(\Omega_k\):
+          </p>
+          \[
+            P(w^i)=
+            \begin{cases}
+            w^i, & \operatorname{sign}(w^i)=z_k^i,\\
+            0, & \text{altrimenti}.
+            \end{cases}
+          \]
+          <p>
+            La ricerca lineare determina il passo \(\alpha_k\) come il più grande valore nella sequenza \(1,\frac{1}{2},\frac{1}{4},\dots\)
+            tale che:
+          </p>
+          \[
+            F_{\mathcal{S}_k}\bigl(P[w_k+\alpha_k d_k]\bigr)\le F_{\mathcal{S}_k}(w_k)+\sigma\,\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)^{\top}\bigl(P[w_k+\alpha_k d_k]-w_k\bigr),
+          \]
+          <p>
+            dove \(\sigma\in(0,1)\) è una costante prefissata. Il nuovo iterato è \(w_{k+1}=P[w_k+\alpha_k d_k]\).
+          </p>
+
+          <h4>6. Re-campionamento</h4>
+          <p>
+            A differenza dei metodi dinamici precedenti, nel caso \(L_1\) il paper assume la dimensione del campione <strong>fissa</strong>:
+            a ogni iterazione si scelgono \(\mathcal{H}_{k+1},\mathcal{S}_{k+1}\) tali che \(|\mathcal{H}_{k+1}|=|\mathcal{H}_0|\) e
+            \(|\mathcal{S}_{k+1}|=|\mathcal{S}_0|\). L'estensione al caso dinamico (CCV) è lasciata come lavoro futuro dagli autori.
+          </p>
+        </div>
+
+        <!-- ============ custom ============ -->
+        <div id="theory-custom" class="theory-content">
+          <h3>Algoritmo Personalizzato</h3>
+          <p>
+            \[
+            \begin{aligned}
+            &\text{Modalit\`a }\texttt{custom}\text{: l'utente fornisce }f:\mathbb{R}^{d}\to\mathbb{R}\text{ e un iteratore}\\
+            &w_{k+1}=\Phi(w_k,\nabla f(w_k),\nabla^{2}f(w_k),\dots)
+            \end{aligned}
+            \]
+          </p>
+          <h4>Interfaccia richiesta</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{def}\;\text{algoritmo}(w_0,\alpha,\text{max\_iter},\dots)\to(\text{history},\text{batch\_sizes})\\
+            \text{history}=[w_0,w_1,\dots,w_K],\qquad\text{batch\_sizes}=[n_0,n_1,\dots,n_K]
+            \end{array}
+            \]
+          </p>
+          <h4>Variabili disponibili</h4>
+          <p>
+            \[
+            w_0,\;\alpha,\;\text{max\_iter},\;\theta,\;\text{batch}_0,\;N,\;\ell_i,\;\nabla\ell_i,\;\nabla^{2}\ell_i,\;\nabla J,\;J
+            \]
+          </p>
+          <h3>Formule</h3>
+          <p>Interfaccia richiesta:</p>
+
+          <div class="python-block">
+def mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...):
+    ...
+    return history, batch_sizes
+
+history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
+          </div>
+          <p>Variabili disponibili: <code>w0</code>, <code>alpha</code>, <code>max_iter</code>, <code>theta</code>, <code>batch0</code>, <code>N</code>, <code>loss_i</code>, <code>grad_i</code>, <code>hess_i</code>, <code>hessvec_i</code>, <code>grad_full</code>, <code>J</code>.</p>
+          <p>Output: <code>history</code> (lista di <code>w_k</code>) e <code>batch_sizes</code> (lista di <code>n_k</code>).</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============ PLOT 2D: n_k vs a^k (in fondo) ============ -->
+    <div class="plot-card" id="batchPlotCard">
+      <div class="plot-card-header">
+        <div class="plot-card-title">
+          <div class="dot" style="background:var(--blue);box-shadow:0 0 6px var(--blue)"></div>
+          <span>Analisi stocastica: n<sub>k</sub> vs a<sup>k</sup></span>
+        </div>
+        <div class="iter-status">
+          <span class="iter-counter">iter = <span id="batchIterDisplay">0</span></span>
+        </div>
+      </div>
+      <div id="batchPlot" style="width:100%;height:420px;background:transparent"></div>
+      <div class="debug-strip" id="batchDebugInfo">Premi <strong>Ricalcola</strong> per generare il confronto.</div>
+    </div>
+
+    <!-- ============ TEORIA: analisi stocastica (in fondo) ============ -->
+    <div class="theory-card">
+      <div class="theory-card-header"><div class="theory-card-title">📘 Analisi stocastica: n<sub>k</sub> vs a<sup>k</sup></div></div>
+      <div class="theory-body">
+        <div class="theory-block">
+          <p>
+            La regola CCV genera una crescita esponenziale di \(n_k\). Dall'analisi deterministica,
+            \(\|g_k\|^2 \le C\rho^k\) con \(\rho = 1-(1-\theta)\lambda/L\) (Eq. 3.5). La CCV richiede
+            \(n_k \ge \omega/(\theta^2\|g_k\|^2)\); sostituendo il bound superiore si ottiene
+            \(n_k \ge \text{cost.} \cdot a^k\) con \(a = \rho^{-1} = (1-(1-\theta)\lambda/L)^{-1}\) (Eq. 3.8–3.9).
+            La scelta \(n_k = \lceil a^k \rceil\) con \(a \in (1, (1-\lambda/L)^{-1}]\) garantisce convergenza
+            in aspettativa con tasso \(\rho = \max\{1-\lambda/L,\, 1/a\}\) e complessità totale
+            \(O(Lm/\lambda\varepsilon)\) (Corollario 3.2).
+          </p>
+          <p>
+            Il plot mostra i valori effettivi di \(n_k\) confrontati con \(a^k\), dove \(a\) è scelto
+            per minimizzare la distanza. Se i punti seguono la curva, la crescita geometrica è verificata empiricamente.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="app-footer">
+
+  <div>🐍 Python via <strong>Pyodide</strong> · Grafici via <strong>Plotly.js</strong></div>
+  <div class="footer-ref">Basato su: <em>Byrd, R.H., Chin, G.M., Nocedal, J. &amp; Wu, Y. (2012)</em></div>
+</footer>
+
+<script>
+'use strict';
+
+const LOSS_PRESETS = {
+  quad_well: {
+    label: 'Quadratica ben condizionata (κ≈1.1)', dim: 2,
+    hint: 'J(w₁,w₂) = (w₁−1)² + (w₂+2)² + 0.1·w₁·w₂',
+    code: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return (x - 1)**2 + (y + 2)**2 + 0.1*x*y
+
+def gradJ(w):
+    x, y = w[0], w[1]
+    return np.array([2*(x - 1) + 0.1*y,
+                     2*(y + 2) + 0.1*x])
+
+def hessJ(w):
+    return np.array([[2.0, 0.1],
+                     [0.1, 2.0]])
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+raw_c = 0.1 + 0.05 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+c_i = raw_c - np.mean(raw_c) + 0.1
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return (x - a_i[i])**2 + (y - b_i[i])**2 + c_i[i] * x * y
+
+def grad_i(w, i):
+    x, y = w[0], w[1]
+    return np.array([2*(x - a_i[i]) + c_i[i] * y,
+                     2*(y - b_i[i]) + c_i[i] * x])
+
+def hess_i(w, i):
+    return np.array([[2.0, c_i[i]],
+                     [c_i[i], 2.0]])
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5,  3.5
+YMIN, YMAX = -4.0,  0.0`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return (x - 1)**2 + (y + 2)**2 + 0.1*x*y
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+raw_c = 0.1 + 0.05 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+c_i = raw_c - np.mean(raw_c) + 0.1
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return (x - a_i[i])**2 + (y - b_i[i])**2 + c_i[i] * x * y
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5,  3.5
+YMIN, YMAX = -4.0,  0.0`
+
+  },
+
+  quad_ill: {
+    label: 'Quadratica mal condizionata (κ≈20)', dim: 2,
+    hint: 'J(w₁,w₂) = 20(w₁−1)² + (w₂+2)²',
+    code: `def J(w):
+    x, y = w[0], w[1]
+    return 20*(x - 1)**2 + (y + 2)**2
+
+def gradJ(w):
+    x, y = w[0], w[1]
+    return np.array([40*(x - 1), 2*(y + 2)])
+
+def hessJ(w):
+    return np.array([[40.0, 0.0],
+                     [ 0.0, 2.0]])
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return 20*(x - a_i[i])**2 + (y - b_i[i])**2
+
+def grad_i(w, i):
+    x, y = w[0], w[1]
+    return np.array([40*(x - a_i[i]), 2*(y - b_i[i])])
+
+def hess_i(w, i):
+    return np.array([[40.0, 0.0],
+                     [ 0.0, 2.0]])
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -0.5, 2.5
+YMIN, YMAX = -3.5, -0.5`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return 20*(x - 1)**2 + (y + 2)**2
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return 20*(x - a_i[i])**2 + (y - b_i[i])**2
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -0.5, 2.5
+YMIN, YMAX = -3.5, -0.5`
+
+  },
+  quad_very_ill: {
+    label: 'Quadratica molto mal condizionata (κ≈100)', dim: 2,
+    hint: 'J(w₁,w₂) = 100(w₁−1)² + (w₂+2)²',
+    code: `def J(w):
+    x, y = w[0], w[1]
+    return 100*(x - 1)**2 + (y + 2)**2
+
+def gradJ(w):
+    x, y = w[0], w[1]
+    return np.array([200*(x - 1), 2*(y + 2)])
+
+def hessJ(w):
+    return np.array([[200.0, 0.0],
+                     [  0.0, 2.0]])
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return 100*(x - a_i[i])**2 + (y - b_i[i])**2
+
+def grad_i(w, i):
+    x, y = w[0], w[1]
+    return np.array([200*(x - a_i[i]), 2*(y - b_i[i])])
+
+def hess_i(w, i):
+    return np.array([[200.0, 0.0],
+                     [  0.0, 2.0]])
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -0.2, 2.2
+YMIN, YMAX = -3.5, -0.5`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return 100*(x - 1)**2 + (y + 2)**2
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+
+def loss_i(w, i):
+    x, y = w[0], w[1]
+    return 100*(x - a_i[i])**2 + (y - b_i[i])**2
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -0.2, 2.2
+YMIN, YMAX = -3.5, -0.5`
+
+  },
+  quad_offdiag: {
+    label: 'Quadratica con termine incrociato', dim: 2,
+    hint: 'J = (w₁−1)² + (w₂+2)² + 0.5(w₁−1)(w₂+2)',
+    code: `def J(w):
+    x, y = w[0] - 1, w[1] + 2
+    return x*x + y*y + 0.5*x*y
+
+def gradJ(w):
+    x, y = w[0] - 1, w[1] + 2
+    return np.array([2*x + 0.5*y, 2*y + 0.5*x])
+
+def hessJ(w):
+    return np.array([[2.0, 0.5],
+                     [0.5, 2.0]])
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+raw_c = 0.5 + 0.05 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+c_i = raw_c - np.mean(raw_c) + 0.5
+
+def loss_i(w, i):
+    x, y = w[0] - a_i[i], w[1] - b_i[i]
+    return x*x + y*y + c_i[i]*x*y
+
+def grad_i(w, i):
+    x, y = w[0] - a_i[i], w[1] - b_i[i]
+    return np.array([2*x + c_i[i]*y, 2*y + c_i[i]*x])
+
+def hess_i(w, i):
+    return np.array([[2.0, c_i[i]],
+                     [c_i[i], 2.0]])
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5, 3.5
+YMIN, YMAX = -4.0, 0.0`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x, y = w[0] - 1, w[1] + 2
+    return x*x + y*y + 0.5*x*y
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+raw_c = 0.5 + 0.05 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+c_i = raw_c - np.mean(raw_c) + 0.5
+
+def loss_i(w, i):
+    x, y = w[0] - a_i[i], w[1] - b_i[i]
+    return x*x + y*y + c_i[i]*x*y
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5, 3.5
+YMIN, YMAX = -4.0, 0.0`
+
+  },
+  '1d_quad': {
+    label: '1D Quadratica', dim: 1,
+    hint: 'J(w) = (w−1)²',
+    code: `def J(w):
+    return (w[0] - 1)**2
+
+def gradJ(w):
+    return np.array([2*(w[0] - 1), 0.0])
+
+def hessJ(w):
+    return np.array([[2.0, 0.0],
+                     [0.0, 0.0]])
+
+def loss_i(w, i):
+    return J(w)
+
+def grad_i(w, i):
+    return gradJ(w)
+
+def hess_i(w, i):
+    return hessJ(w)
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return J(w)
+
+def grad_full(w):
+    return gradJ(w)
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.0, 3.0
+YMIN, YMAX = 0.0,  4.0`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    return (w[0] - 1)**2
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.0, 3.0
+YMIN, YMAX = 0.0,  4.0`
+  },
+  '1d_quartic': {
+    label: '1D Quartica + quadratica', dim: 1,
+    hint: 'J(w) = (w−1)⁴ + 0.1(w−1)²',
+    code: `def J(w):
+    x = w[0] - 1
+    return x**4 + 0.1*x**2
+
+def gradJ(w):
+    x = w[0] - 1
+    return np.array([4*x**3 + 0.2*x, 0.0])
+
+def hessJ(w):
+    x = w[0] - 1
+    return np.array([[12*x**2 + 0.2, 0.0],
+                     [0.0, 0.0]])
+
+def loss_i(w, i):
+    return J(w)
+
+def grad_i(w, i):
+    return gradJ(w)
+
+def hess_i(w, i):
+    return hessJ(w)
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return J(w)
+
+def grad_full(w):
+    return gradJ(w)
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -0.5, 2.5
+YMIN, YMAX = 0.0,  1.5`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x = w[0] - 1
+    return x**4 + 0.1*x**2
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -0.5, 2.5
+YMIN, YMAX = 0.0,  1.5`
+  },
+  '1d_sin': {
+    label: '1D Sinusoidale + quadratica', dim: 1,
+    hint: 'J(w) = 1 − cos(w−1) + 0.1(w−1)²',
+    code: `def J(w):
+    x = w[0] - 1
+    return 1 - np.cos(x) + 0.1*x**2
+
+def gradJ(w):
+    x = w[0] - 1
+    return np.array([np.sin(x) + 0.2*x, 0.0])
+
+def hessJ(w):
+    x = w[0] - 1
+    return np.array([[np.cos(x) + 0.2, 0.0],
+                     [0.0, 0.0]])
+
+def loss_i(w, i):
+    return J(w)
+
+def grad_i(w, i):
+    return gradJ(w)
+
+def hess_i(w, i):
+    return hessJ(w)
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return J(w)
+
+def grad_full(w):
+    return gradJ(w)
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.5, 3.5
+YMIN, YMAX = 0.0,  2.0`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x = w[0] - 1
+    return 1 - np.cos(x) + 0.1*x**2
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.5, 3.5
+YMIN, YMAX = 0.0,  2.0`
+  },
+  '1d_exp': {
+    label: '1D Esponenziale + quadratica', dim: 1,
+    hint: 'J(w) = exp(0.5(w−1)²) − 1',
+    code: `def J(w):
+    x = w[0] - 1
+    return np.exp(0.5*x**2) - 1
+
+def gradJ(w):
+    x = w[0] - 1
+    return np.array([x * np.exp(0.5*x**2), 0.0])
+
+def hessJ(w):
+    x = w[0] - 1
+    e = np.exp(0.5*x**2)
+    return np.array([[(x**2 + 1)*e, 0.0],
+                     [0.0, 0.0]])
+
+def loss_i(w, i):
+    return J(w)
+
+def grad_i(w, i):
+    return gradJ(w)
+
+def hess_i(w, i):
+    return hessJ(w)
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return J(w)
+
+def grad_full(w):
+    return gradJ(w)
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.0, 3.0
+YMIN, YMAX = 0.0,  2.5`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x = w[0] - 1
+    return np.exp(0.5*x**2) - 1
+
+DIM    = 1
+W_STAR = np.array([1.0, 0.0])
+XMIN, XMAX = -1.0, 3.0
+YMIN, YMAX = 0.0,  2.5`
+  },
+  custom: {
+    label: '✏️ Custom', dim: 2,
+    hint: 'Definisci J(w), DIM, W_STAR e i bound. In modalità autodiff grad/hess vengono calcolati automaticamente.',
+    code: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return (x - 1)**2 + (y + 2)**2
+
+def gradJ(w):
+    x, y = w[0], w[1]
+    return np.array([2*(x - 1), 2*(y + 2)])
+
+def hessJ(w):
+    return np.array([[2.0, 0.0],
+                     [0.0, 2.0]])
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5,  3.5
+YMIN, YMAX = -4.0,  0.0`,
+    code_autodiff: `import numpy as np
+
+def J(w):
+    x, y = w[0], w[1]
+    return (x - 1)**2 + (y + 2)**2
+
+DIM    = 2
+W_STAR = np.array([1.0, -2.0])
+XMIN, XMAX = -1.5,  3.5
+YMIN, YMAX = -4.0,  0.0`
+  },
+};
+
+function getAlgoOptions() {
+  return {
+    hkSubset: document.getElementById('hkSubsetMode').value === 'subset',
+    lineSearch: document.getElementById('lineSearchMode').value,
+    dynamicBatch: document.getElementById('dynamicBatchMode').value === 'dynamic',
+    hessianFreeL1: document.getElementById('hessianFreeL1Mode').value === 'free'
+  };
+}
+
+function generateAlgoCode(algo, opts) {
+  switch(algo) {
+    case 'gd': return generateGD(opts);
+    case 'newton_cg': return generateNewtonCG(opts);
+    case 'newton_l1': return generateNewtonL1(opts);
+    case 'custom': return ALGO_PRESETS_CUSTOM;
+    default: return ALGO_PRESETS_CUSTOM;
+  }
+}
+
+function generateGD(opts) {
+  const dyn = opts.dynamicBatch;
+  const wolfe = opts.lineSearch === 'wolfe';
+  return `import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+` + (dyn ? `
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+` : `        # Batch dinamico disattivato: n rimane costante a batch0\n`) +
+`        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+` + (wolfe ? `
+        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices], axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+` : `
+        # Line search Armijo
+        c1 = 1e-4
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w - step * g
+`) +
+`        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+    return history, batch_sizes
+
+history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
+`;
+}
+
+function generateNewtonCG(opts) {
+  const dyn = opts.dynamicBatch;
+  const wolfe = opts.lineSearch === 'wolfe';
+  const subset = opts.hkSubset;
+  return `import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history, batch_sizes = [w.copy().tolist()], [n]
+    for k in range(max_iter):
+        indices_S = np.random.choice(N, size=n, replace=False)
+        g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
+        n_h = min(max(1, int(round(R * n))), N)
+` + (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `        indices_H = np.random.choice(N, size=n_h, replace=False)
+`) +
+`        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
+        p0 = -g
+        p0_norm2 = np.dot(p0, p0)
+        gamma = 0.0
+        if p0_norm2 > 1e-16 and n_h > 1:
+            Hp0 = np.array([hessvec_i(w, i, p0) for i in indices_H])
+            gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
+        d = cg(Hv, -g, gamma, maxcg)
+        J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+` + (wolfe ? `
+        c1, c2 = 1e-4, 0.9
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                g_new = np.mean([grad_i(w_new, i) for i in indices_S], axis=0)
+                if np.dot(g_new, d) >= c2 * gd:
+                    break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+` : `
+        c1 = 1e-4
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+`) +
+`        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+` + (dyn ? `
+        indices_new = np.random.choice(N, size=n, replace=False)
+        g_new = np.mean([grad_i(w, i) for i in indices_new], axis=0)
+        var_vec = np.var([grad_i(w, i) for i in indices_new], axis=0, ddof=1) if n > 1 else np.zeros_like(g_new)
+        V_norm1, gg_new = np.sum(var_vec), np.dot(g_new, g_new)
+        if gg_new > 1e-16 and V_norm1 / n > theta**2 * gg_new:
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1, N)
+` : `        # Batch dinamico disattivato\n`) +
+`        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes
+
+history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
+`;
+}
+
+function generateNewtonL1(opts) {
+  const dyn = opts.dynamicBatch;
+  const subset = opts.hkSubset;
+  const hf = opts.hessianFreeL1;
+  return `import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    def F_batch(v, indices):
+        Jb = np.mean([loss_i(v, i) for i in indices])
+        return Jb + nu * np.sum(np.abs(v))
+    def subgrad_batch(v, indices):
+        grads = np.array([grad_i(v, i) for i in indices])
+        gJ = np.mean(grads, axis=0)
+        g = np.zeros_like(v)
+        for i in range(len(v)):
+            if v[i] > 0:
+                g[i] = gJ[i] + nu
+            elif v[i] < 0:
+                g[i] = gJ[i] - nu
+            else:
+                if gJ[i] < -nu:
+                    g[i] = gJ[i] + nu
+                elif gJ[i] > nu:
+                    g[i] = gJ[i] - nu
+                else:
+                    g[i] = 0.0
+        return g
+    def project_orthant(v, z):
+        res = v.copy()
+        for i in range(len(v)):
+            if z[i] != 0 and np.sign(res[i]) != z[i]:
+                res[i] = 0.0
+        return res
+    for k in range(max_iter):
+        indices_S = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices_S])
+        g_batch = np.mean(grads, axis=0)
+        z = np.where(w > 0, 1,
+            np.where(w < 0, -1,
+                np.where(g_batch < -nu, 1,
+                    np.where(g_batch > nu, -1, 0))))
+        sg = subgrad_batch(w, indices_S)
+        sgn = np.linalg.norm(sg)
+        if sgn < 1e-10:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        n_h = max(1, int(round(R * n)))
+        n_h = min(n_h, N)
+` + (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `        indices_H = np.random.choice(N, size=n_h, replace=False)
+`) +
+`        free = (z != 0)
+        d = np.zeros_like(w)
+        if np.any(free):
+            g_free = sg[free]
+` + (hf ? `
+            # Hessian-free: prodotto H·v senza costruire H esplicita
+            def Hv(v_full):
+                return np.mean([hessvec_i(w, i, v_full) for i in indices_H], axis=0)
+            def Hv_free(v_free):
+                v_full = np.zeros_like(w)
+                v_full[free] = v_free
+                Hv_full = Hv(v_full)
+                return Hv_full[free]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = Hv_free(p)
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+` : `
+            # Hessiana esplicita (versione precedente)
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+`) +
+`
+        step = alpha
+        F_w = F_batch(w, indices_S)
+        sg_d = np.dot(sg, d)
+        if sg_d >= 0:
+            d = -sg
+            sg_d = -np.dot(sg, sg)
+        w_new = w.copy()
+        for _ in range(20):
+            w_trial = project_orthant(w + step * d, z)
+            if F_batch(w_trial, indices_S) <= F_w + sigma * step * sg_d:
+                w_new = w_trial
+                break
+            step *= 0.5
+            if step < 1e-12:
+                w_new = w.copy()
+                break
+        w = w_new
+` + (dyn ? `
+        indices_new = np.random.choice(N, size=n, replace=False)
+        grads_new = np.array([grad_i(w, i) for i in indices_new])
+        g_new = np.mean(grads_new, axis=0)
+        if n > 1:
+            var_vec = np.var(grads_new, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_new)
+        V_norm1 = np.sum(var_vec)
+        gg_new = np.dot(g_new, g_new)
+        if gg_new > 1e-16:
+            if V_norm1 / n > theta**2 * gg_new:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1
+                n = min(n_new, N)
+` : `        # Batch dinamico disattivato\n`) +
+`        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes
+
+history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
+`;
+}
+
+const ALGO_PRESETS_CUSTOM = `import numpy as np
+
+def my_algorithm(w0, alpha, max_iter):
+    w = np.array(w0, dtype=float)
+    history     = [w.copy().tolist()]
+    batch_sizes = [1]
+    for k in range(max_iter):
+        g = gradJ(w)
+        if np.linalg.norm(g) < 1e-10: break
+        w = w - alpha * g
+        history.append(w.copy().tolist())
+        batch_sizes.append(1)
+    return history, batch_sizes
+
+history, batch_sizes = my_algorithm(w0, alpha, max_iter)
+`;
+
+let pyodide = null, pyodideReady = false;
+let currentData = null, currentIter = 0;
+let isPlaying = false, animId = null, savedCamera = null;
+
+const plotDiv      = document.getElementById('plot');
+const lossPreset   = document.getElementById('lossPreset');
+const lossHint     = document.getElementById('lossHint');
+const lossCode     = document.getElementById('lossCode');
+const resetLossBtn = document.getElementById('resetLossBtn');
+const algoSelect   = document.getElementById('algoSelect');
+const algoHint     = document.getElementById('algoHint');
+const pythonCode   = document.getElementById('pythonCode');
+const resetAlgoBtn = document.getElementById('resetAlgoBtn');
+const runBtn       = document.getElementById('runBtn');
+const defaultBtn   = document.getElementById('defaultBtn');
+const convergenceBtn = document.getElementById('convergenceBtn');
+const w0x          = document.getElementById('w0x');
+const w0y          = document.getElementById('w0y');
+const w0xContainer = document.getElementById('w0xContainer');
+const w0yContainer = document.getElementById('w0yContainer');
+const w0xLabel     = document.getElementById('w0xLabel');
+const maxIterEl    = document.getElementById('maxIter');
+const alphaEl      = document.getElementById('alpha');
+const thetaEl      = document.getElementById('theta');
+const batch0El     = document.getElementById('batch0');
+const REl          = document.getElementById('R');
+const maxcgEl      = document.getElementById('maxcg');
+const nuEl         = document.getElementById('nu');
+const sigmaEl      = document.getElementById('sigma');
+const etaEl        = document.getElementById('eta');
+
+const iterSlider   = document.getElementById('iterSlider');
+const iterNum      = document.getElementById('iterNum');
+const playBtn      = document.getElementById('playBtn');
+const pauseBtn     = document.getElementById('pauseBtn');
+const resetBtn     = document.getElementById('resetBtn');
+const loopChk      = document.getElementById('loopChk');
+const showPathChk  = document.getElementById('showPathChk');
+const iterDisplay  = document.getElementById('iterDisplay');
+const statusBadge  = document.getElementById('statusBadge');
+const debugInfo    = document.getElementById('debugInfo');
+const wDisplay     = document.getElementById('wDisplay');
+const jDisplay     = document.getElementById('jDisplay');
+const gradDisplay  = document.getElementById('gradDisplay');
+const errDisplay   = document.getElementById('errDisplay');
+const batchDisplay = document.getElementById('batchDisplay');
+const iterBadge    = document.getElementById('iterBadge');
+const convergenceResult = document.getElementById('convergenceResult');
+const pyStatus     = document.getElementById('pyStatus');
+const diffMode     = document.getElementById('diffMode');
+const diffHint     = document.getElementById('diffHint');
+const theoryContainer = document.getElementById('theoryContainer');
+const batchPlotDiv    = document.getElementById('batchPlot');
+const batchIterDisplay = document.getElementById('batchIterDisplay');
+const batchDebugInfo  = document.getElementById('batchDebugInfo');
+
+
+function loadLossPreset(key) {
+  const p = LOSS_PRESETS[key];
+  if (!p) return;
+  const mode = diffMode.value;
+  let code = (mode === 'autodiff' && p.code_autodiff) ? p.code_autodiff : p.code;
+  // Sostituisci i placeholder con i valori correnti di N e seed
+  const Nval = parseInt(document.getElementById('totalN').value) || 200;
+  const seedVal = parseInt(document.getElementById('seedVal').value) || 42;
+  code = code.replace(/__N__/g, Nval).replace(/__SEED__/g, seedVal);
+  lossCode.value = code;
+  lossHint.textContent = p.hint;
+  const is1D = p.dim === 1;
+  w0yContainer.classList.toggle('hidden', is1D);
+  w0xLabel.textContent = is1D ? 'w₀' : 'w₁₀';
+  if (is1D) w0y.value = '0';
+  diffHint.textContent = mode === 'autodiff'
+    ? 'Autodiff attiva: grad/hess calcolati automaticamente da J(w).'
+    : 'Formule chiuse: grad/hess definiti esplicitamente nel codice.';
+}
+
+
+function updateParamsVisibility() {
+  const algo = algoSelect.value;
+  document.getElementById('gdParams').className     = (algo === 'gd') ? 'visible' : '';
+  document.getElementById('newtonParams').className = algo === 'newton_cg' ? 'visible' : '';
+  document.getElementById('l1Params').className     = algo === 'newton_l1' ? 'visible' : '';
+}
+
+function updateTheory() {
+  const algo = algoSelect.value;
+  const contents = theoryContainer.querySelectorAll('.theory-content');
+  contents.forEach(el => el.classList.remove('active'));
+  const target = document.getElementById('theory-' + algo);
+  if (target) target.classList.add('active');
+  // Typeset the newly visible theory content
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([target]).catch(()=>{});
+  }
+}
+
+function loadAlgoPreset() {
+  const algo = algoSelect.value;
+  const opts = getAlgoOptions();
+  pythonCode.value = generateAlgoCode(algo, opts);
+  updateTheory();
+  const hints = {
+    gd: 'GD con batch dinamico: il campione cresce quando la varianza supera θ.',
+    newton_cg: 'Newton-CG Hessian-free: due campioni (|H| ≪ |S|), stop CG adattivo.',
+    newton_l1: 'Newton-CG con L₁: subgradiente + active set + proiezione ortante.',
+    custom: 'Personalizzato: scrivi liberamente il tuo algoritmo.'
+  };
+  algoHint.textContent = hints[algo] || '';
+}
+
+function setStatus(text, cls) {
+  statusBadge.textContent = text;
+  statusBadge.className = 'status-chip ' + cls;
+}
+
+async function initPyodide() {
+  try {
+    pyodide = await loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.24.1/full/' });
+    await pyodide.loadPackage('numpy');
+    pyodideReady = true;
+    debugInfo.textContent = 'Runtime Python pronto. Premi Ricalcola.';
+  } catch (e) {
+    pyStatus.innerHTML = '<span style="color:var(--red)">✗ ' + e.message + '</span>';
+  }
+}
+
+async function runAlgorithm() {
+  if (!pyodideReady) { alert('Attendi il caricamento di Pyodide.'); return; }
+
+  const lossPy = lossCode.value.trim();
+  const algoPy = pythonCode.value.trim();
+
+  const dimMatch = lossPy.match(/DIM\s*=\s*([12])/);
+  const dim = dimMatch ? parseInt(dimMatch[1]) : 2;
+
+  const w0xVal = parseFloat(w0x.value) || 2.0;
+  const w0yVal = dim === 1 ? 0.0 : (parseFloat(w0y.value) || -3.0);
+  const w0     = dim === 1 ? [w0xVal, 0.0] : [w0xVal, w0yVal];
+
+  const params = {
+    alpha:    parseFloat(alphaEl.value)  || 0.1,
+    max_iter: parseInt(maxIterEl.value)  || 30,
+    theta:    parseFloat(thetaEl.value)  || 0.5,
+    batch0:   parseInt(batch0El.value)   || 5,
+    R:        parseFloat(REl.value)      || 0.2,
+    maxcg:    parseInt(maxcgEl.value)    || 10,
+    nu:       parseFloat(nuEl.value)     || 0.1,
+    sigma:    parseFloat(sigmaEl.value)  || 0.1,
+    eta:      parseFloat(etaEl.value)    || 0.5,
+  };
+
+  const gridCode = dim === 1 ? `
+_w_hist = np.array(history)
+_w_min  = min(XMIN, np.min(_w_hist[:, 0]) - 0.5)
+_w_max  = max(XMAX, np.max(_w_hist[:, 0]) + 0.5)
+_N = 300
+_xs = np.linspace(_w_min, _w_max, _N)
+surf_x  = _xs.tolist()
+surf_y  = [float(J(np.array([x, 0.0]))) for x in _xs]
+surf_z  = []
+` : `
+_w_hist = np.array(history)
+_w1_min = min(XMIN, np.min(_w_hist[:, 0]) - 0.5)
+_w1_max = max(XMAX, np.max(_w_hist[:, 0]) + 0.5)
+_w2_min = min(YMIN, np.min(_w_hist[:, 1]) - 0.5)
+_w2_max = max(YMAX, np.max(_w_hist[:, 1]) + 0.5)
+_N = 55
+_xi = np.linspace(_w1_min, _w1_max, _N)
+_yi = np.linspace(_w2_min, _w2_max, _N)
+surf_x  = _xi.tolist()
+surf_y  = _yi.tolist()
+surf_z  = [[float(J(np.array([x, y]))) for x in _xi] for y in _yi]
+`;
+
+  const evalCode = `
+import json as _json
+_pts_J  = [float(J(np.array(w))) for w in history]
+_pts_gN = [float(np.linalg.norm(gradJ(np.array(w)))) for w in history]
+_w_star = W_STAR.tolist()
+_J_star = float(J(W_STAR))
+_errs   = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
+_out = _json.dumps({
+  "history":     [list(map(float, w)) for w in history],
+  "batch_sizes": [int(b) for b in batch_sizes],
+  "pts_J":       _pts_J,
+  "pts_gN":      _pts_gN,
+  "w_star":      _w_star,
+  "J_star":      _J_star,
+  "errs":        _errs,
+  "surf_x":      surf_x,
+  "surf_y":      surf_y,
+  "surf_z":      surf_z,
+})
+`;
+
+  const useAutodiff = diffMode.value === 'autodiff' || lossPreset.value === 'custom';
+
+  const diffBlock = useAutodiff ? `
+def _grad_fd(f, w, h=1e-6):
+    w = np.array(w, dtype=float)
+    g = np.zeros_like(w)
+    for i in range(len(w)):
+        wp = w.copy(); wp[i] += h
+        wm = w.copy(); wm[i] -= h
+        g[i] = (f(wp) - f(wm)) / (2*h)
+    return g
+
+def _hess_fd(f, w, h=1e-5):
+    n = len(w)
+    H = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            wpp = w.copy(); wpp[i] += h; wpp[j] += h
+            wpm = w.copy(); wpm[i] += h; wpm[j] -= h
+            wmp = w.copy(); wmp[i] -= h; wmp[j] += h
+            wmm = w.copy(); wmm[i] -= h; wmm[j] -= h
+            H[i,j] = (f(wpp) - f(wpm) - f(wmp) + f(wmm)) / (4*h*h)
+    return H
+
+def _hessvec_fd(f, w, v, h=1e-5):
+    return (_grad_fd(f, w + h*v) - _grad_fd(f, w - h*v)) / (2*h)
+
+if 'gradJ' not in globals():
+    def gradJ(w): return _grad_fd(J, w)
+if 'hessJ' not in globals():
+    def hessJ(w): return _hess_fd(J, w)
+if 'loss_i' not in globals():
+    def loss_i(w, i): return J(w)
+if 'N' not in globals():
+    N = ${parseInt(document.getElementById('totalN').value) || 200}
+if 'grad_i' not in globals():
+
+    def grad_i(w, i): return _grad_fd(lambda ww: loss_i(ww, i), w)
+if 'hess_i' not in globals():
+    def hess_i(w, i): return _hess_fd(lambda ww: loss_i(ww, i), w)
+def hessvec_i(w, i, v): return _hessvec_fd(lambda ww: loss_i(ww, i), w, v)
+if 'J_full' not in globals():
+    def J_full(w): return J(w)
+if 'grad_full' not in globals():
+    def grad_full(w): return _grad_fd(J, w)
+` : `
+def hessvec_i(w, i, v): return hess_i(w, i) @ v
+`;
+
+  const preamble = [
+    'import numpy as np',
+    lossPy,
+    diffBlock,
+    `w0       = ${JSON.stringify(w0)}`,
+    `alpha    = ${params.alpha}`,
+    `max_iter = ${params.max_iter}`,
+    `theta    = ${params.theta}`,
+    `batch0   = ${params.batch0}`,
+    `R        = ${params.R}`,
+    `maxcg    = ${params.maxcg}`,
+    `nu       = ${params.nu}`,
+    `sigma    = ${params.sigma}`,
+    `eta      = ${params.eta}`,
+  ].join('\n');
+
+  const fullCode = preamble + '\n' + algoPy + '\n' + gridCode + '\n' + evalCode;
+
+  try {
+    setStatus('esecuzione…', 'chip-run');
+    debugInfo.textContent = 'Esecuzione in Python…';
+
+    pyodide.runPython(fullCode);
+
+    const out = JSON.parse(pyodide.runPython('_out'));
+    const history     = out.history;
+    const batch_sizes = out.batch_sizes;
+    const pts_J       = out.pts_J;
+    const pts_gN      = out.pts_gN;
+    const errs        = out.errs;
+    const w_star      = out.w_star;
+    const J_star      = out.J_star;
+    const surf        = { x: out.surf_x, y: out.surf_y, z: out.surf_z };
+
+    currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf };
+
+    const maxIdx = history.length - 1;
+    iterSlider.max = maxIdx; iterNum.max = maxIdx;
+    currentIter = 0; iterSlider.value = 0; iterNum.value = 0;
+
+    setStatus('✓ ok', 'chip-ready');
+    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}`;
+
+    renderPlot(0);
+    updateInfo(0);
+    convergenceResult.innerHTML = '';
+
+  } catch(e) {
+    setStatus('✗ errore', 'chip-error');
+    debugInfo.textContent = 'Errore: ' + e.message;
+    console.error(e);
+  }
+}
+
+const BASE = {
+  template: 'plotly_dark',
+  paper_bgcolor: 'transparent',
+  plot_bgcolor:  'rgba(10,15,26,0.5)',
+  font: { family: "'Inter',sans-serif", color: '#A8B8D0', size: 11 },
+};
+const CFG = { responsive: true, displaylogo: false, displayModeBar: 'hover',
+              modeBarButtonsToRemove: ['toImage','sendDataToCloud'] };
+
+function renderPlot(iter) {
+  if (!currentData) return;
+  const { history, surf, pts_J, w_star, J_star, dim } = currentData;
+  const idx      = Math.min(iter, history.length - 1);
+  const currentW = history[idx];
+  const currentJ = pts_J[idx];
+  const showPath = showPathChk.checked;
+
+  if (dim === 1) {
+    const traces = [
+      { x: surf.x, y: surf.y, type: 'scatter', mode: 'lines', name: 'J(w)',
+        line: { color: '#4A9EFF', width: 2.5 } },
+      showPath && { x: history.map(p=>p[0]), y: pts_J,
+        type: 'scatter', mode: 'lines+markers', name: 'Percorso',
+        line: { color: '#3EC97A', width: 1.5, dash: 'dot' },
+        marker: { color: '#3EC97A', size: 4 } },
+      { x: [currentW[0]], y: [currentJ], type: 'scatter', mode: 'markers',
+        name: `w\u2096`, marker: { color: '#FFFFFF', size: 13, symbol: 'circle',
+        line: { color: '#0B1222', width: 2 } } },
+      { x: [w_star[0]], y: [J_star], type: 'scatter', mode: 'markers',
+        name: 'w\u002A', marker: { color: '#F5A623', size: 13, symbol: 'star',
+        line: { color: '#0B1222', width: 1 } } },
+    ].filter(Boolean);
+
+    Plotly.react(plotDiv, traces, {
+      ...BASE,
+      title: { text: `iter ${idx} · w = ${currentW[0].toFixed(5)} · J(w) = ${currentJ.toFixed(6)}`,
+               font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
+      xaxis: { title: 'w', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090',
+               range: [surf.x[0], surf.x[surf.x.length-1]] },
+      yaxis: { title: 'J(w)', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
+      legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
+      margin: { l: 60, r: 20, t: 50, b: 50 },
+    }, CFG);
+
+  } else {
+    const traces = [
+      { type: 'surface',
+        x: surf.x, y: surf.y, z: surf.z,
+        colorscale: [[0,'#0B1F4A'],[0.2,'#1A4080'],[0.4,'#2B6CB8'],
+                     [0.6,'#4A9EFF'],[0.8,'#C8A96E'],[1,'#FFFFFF']],
+        opacity: 0.82, showscale: true,
+        colorbar: { title: { text: 'J(w)', font: { color: '#607090', size: 10 } },
+                    tickfont: { color: '#607090', size: 9 }, len: 0.6, thickness: 12 },
+        contours: { z: { show: true, usecolormap: true, project: { z: true }, width: 1 } },
+        hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>J=%{z:.5f}<extra></extra>' },
+      showPath && { type: 'scatter3d', mode: 'lines+markers',
+        x: history.map(p=>p[0]), y: history.map(p=>p[1]), z: pts_J,
+        line: { color: '#4A9EFF', width: 5 },
+        marker: { color: pts_J, colorscale: 'Viridis', size: 4, opacity: 0.8 },
+        name: 'Percorso' },
+      { type: 'scatter3d', mode: 'markers',
+        x: [history[0][0]], y: [history[0][1]], z: [pts_J[0]],
+        marker: { color: '#3EC97A', size: 7 }, name: 'w₀' },
+      { type: 'scatter3d', mode: 'markers',
+        x: [currentW[0]], y: [currentW[1]], z: [currentJ],
+        marker: { color: '#FFFFFF', size: 9, symbol: 'circle', line: { color: '#0B1222', width: 2 } },
+        name: `w\u2096` },
+      { type: 'scatter3d', mode: 'markers',
+        x: [w_star[0]], y: [w_star[1]], z: [J_star],
+        marker: { color: '#F5A623', size: 10, symbol: 'diamond', line: { color: '#0B1222', width: 1 } },
+        name: 'w\u002A' },
+    ].filter(Boolean);
+
+    Plotly.react(plotDiv, traces, {
+      ...BASE,
+      title: { text: `iter ${idx} · w=(${currentW[0].toFixed(3)},${currentW[1].toFixed(3)}) · J=${currentJ.toFixed(5)}`,
+               font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
+      scene: {
+        xaxis: { title: 'w₁', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.8)',
+                 range: [surf.x[0], surf.x[surf.x.length-1]] },
+        yaxis: { title: 'w₂', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.8)',
+                 range: [surf.y[0], surf.y[surf.y.length-1]] },
+        zaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.7)' },
+        bgcolor: 'rgba(0,0,0,0)',
+        camera: savedCamera || { eye: { x: 1.7, y: -1.9, z: 1.1 } }
+      },
+      legend: { bgcolor: 'rgba(10,15,26,.88)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
+      margin: { l: 0, r: 0, t: 50, b: 0 },
+    }, CFG);
+
+    plotDiv.on('plotly_relayout', d => { if (d['scene.camera']) savedCamera = d['scene.camera']; });
+  }
+
+  iterDisplay.textContent = idx;
+  updateInfo(idx);
+  renderBatchPlot(idx);
+}
+
+function updateInfo(idx) {
+
+  if (!currentData) return;
+  const { history, batch_sizes, pts_J, pts_gN, errs, w_star, dim } = currentData;
+  const w = history[idx];
+  wDisplay.textContent    = dim===1 ? w[0].toFixed(6) : `(${w[0].toFixed(4)}, ${w[1].toFixed(4)})`;
+  jDisplay.textContent    = pts_J[idx].toExponential(4);
+  gradDisplay.textContent = pts_gN[idx].toExponential(4);
+  errDisplay.textContent  = errs[idx].toExponential(4);
+  batchDisplay.textContent= batch_sizes[idx] ?? '—';
+  iterBadge.textContent   = `iter ${idx} / ${history.length-1}`;
+  iterBadge.className     = 'status-chip chip-ready';
+}
+
+// ── PLOT 2D: n_k vs a^k ──────────────────────────────────────────────
+function computeBestFitA(batch_sizes) {
+  // Trova a > 1 che minimizza Σ_k (n_k - a^k)²
+  // Usiamo log: minimizzare Σ (log n_k - k·log a)²  →  log a = Σ(k·log n_k)/Σ(k²)
+  const ks = [], logs = [];
+  for (let k = 0; k < batch_sizes.length; k++) {
+    const nk = batch_sizes[k];
+    if (nk > 0) { ks.push(k); logs.push(Math.log(nk)); }
+  }
+  if (ks.length < 2) return 1.0;
+  let num = 0, den = 0;
+  for (let i = 0; i < ks.length; i++) {
+    num += ks[i] * logs[i];
+    den += ks[i] * ks[i];
+  }
+  if (den === 0) return 1.0;
+  const logA = num / den;
+  return Math.exp(logA);
+}
+
+function renderBatchPlot(iter) {
+  if (!currentData) return;
+  const { batch_sizes } = currentData;
+  const idx = Math.min(iter, batch_sizes.length - 1);
+
+  // Calcola a ottimale (minimizza distanza tra n_k e a^k)
+  const a = computeBestFitA(batch_sizes);
+
+  // Punti n_k (fino all'iterazione corrente)
+  const kPts = [], nPts = [];
+  for (let k = 0; k <= idx; k++) {
+    kPts.push(k);
+    nPts.push(batch_sizes[k]);
+  }
+
+  // Curva a^k (fino all'iterazione corrente)
+  const kCurve = [], aCurve = [];
+  for (let k = 0; k <= idx; k++) {
+    kCurve.push(k);
+    aCurve.push(Math.pow(a, k));
+  }
+
+  // Calcola errore medio relativo
+  let sumRel = 0, cnt = 0;
+  for (let k = 0; k <= idx; k++) {
+    const ak = Math.pow(a, k);
+    if (ak > 0) { sumRel += Math.abs(batch_sizes[k] - ak) / ak; cnt++; }
+  }
+  const meanRelErr = cnt > 0 ? (sumRel / cnt) : 0;
+
+  const traces = [
+    {
+      x: kPts, y: nPts,
+      type: 'scatter', mode: 'markers+lines',
+      name: 'n\u2096 (batch effettivo)',
+      line: { color: '#4A9EFF', width: 1.5, dash: 'dot' },
+      marker: { color: '#4A9EFF', size: 8, symbol: 'circle',
+                line: { color: '#0B1222', width: 1 } }
+    },
+    {
+      x: kCurve, y: aCurve,
+      type: 'scatter', mode: 'lines',
+      name: `a\u1d4f (a = ${a.toFixed(4)})`,
+      line: { color: '#C8A96E', width: 2.5 }
+    }
+  ];
+
+  // Marker evidenziato per l'iterazione corrente
+  if (idx >= 0 && idx < batch_sizes.length) {
+    traces.push({
+      x: [idx], y: [batch_sizes[idx]],
+      type: 'scatter', mode: 'markers',
+      name: 'iter corrente',
+      marker: { color: '#FFFFFF', size: 14, symbol: 'star',
+                line: { color: '#0B1222', width: 2 } }
+    });
+  }
+
+  const layout = {
+    ...BASE,
+    title: {
+      text: `n\u2096 vs a\u1d4f · a = ${a.toFixed(4)} · errore rel. medio = ${(meanRelErr*100).toFixed(2)}%`,
+      font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01
+    },
+    xaxis: { title: 'iterazione k', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
+    yaxis: { title: 'n\u2096', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090',
+             type: 'linear', autorange: true },
+    legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
+    margin: { l: 60, r: 20, t: 50, b: 50 },
+    showlegend: true
+  };
+
+  Plotly.react(batchPlotDiv, traces, layout, CFG);
+
+  batchIterDisplay.textContent = idx;
+  batchDebugInfo.textContent =
+    `a ottimale = ${a.toFixed(6)} · n\u2096 = ${batch_sizes[idx] ?? '—'} · errore rel. medio = ${(meanRelErr*100).toFixed(2)}%`;
+}
+
+
+function runConvergenceTest() {
+  if (!currentData) {
+    convergenceResult.innerHTML = '<p style="color:var(--amber);font-size:11px;padding:8px">⚠ Esegui prima Ricalcola.</p>';
+    return;
+  }
+  const { errs, pts_J } = currentData;
+  const lastErr = errs[errs.length-1];
+  const step = Math.max(1, Math.ceil(errs.length/40));
+  let rows = '';
+  for (let i=0; i<errs.length; i+=step) {
+    const cls = errs[i]<1e-4?'good':errs[i]<1e-1?'':'warn';
+    rows += `<tr><td>${i}</td><td class="${cls}">${errs[i].toExponential(4)}</td><td>${pts_J[i].toExponential(4)}</td></tr>`;
+  }
+  const sClass = lastErr<1e-4?'conv-ok':'conv-warn';
+  const sText  = lastErr<1e-4
+    ? `✓ Convergenza raggiunta · ‖w−w*‖ = ${lastErr.toExponential(3)}`
+    : `⚠ Convergenza parziale · ‖w−w*‖ = ${lastErr.toExponential(3)}`;
+  convergenceResult.innerHTML = `
+    <div style="max-height:220px;overflow-y:auto;border:1px solid var(--border);border-radius:4px">
+      <table class="conv-table"><thead><tr><th>iter</th><th>‖w−w*‖</th><th>J(w)</th></tr></thead>
+      <tbody>${rows}</tbody></table></div>
+    <div class="conv-summary ${sClass}">${sText}</div>`;
+}
+
+function startPlay() {
+  if (!currentData||isPlaying) return;
+  isPlaying=true; playBtn.classList.add('active'); setStatus('▶ play','chip-run');
+  const maxIdx=currentData.history.length-1;
+  let last=null;
+  function frame(t){
+    if(!isPlaying) return;
+    if(!last) last=t;
+    if(t-last>380){
+      last=t;
+      currentIter=Math.min(currentIter+1,maxIdx);
+      iterSlider.value=currentIter; iterNum.value=currentIter;
+      renderPlot(currentIter);
+      if(currentIter>=maxIdx){
+        if(loopChk.checked){ currentIter=0; iterSlider.value=0; iterNum.value=0; renderPlot(0); }
+        else{ pausePlay(); return; }
+      }
+    }
+    animId=requestAnimationFrame(frame);
+  }
+  animId=requestAnimationFrame(frame);
+}
+function pausePlay(){
+  if(!isPlaying) return;
+  isPlaying=false;
+  if(animId){ cancelAnimationFrame(animId); animId=null; }
+  playBtn.classList.remove('active'); setStatus('⏸ pausa','chip-pause');
+}
+function resetAnim(){
+  pausePlay(); currentIter=0; iterSlider.value=0; iterNum.value=0;
+  if(currentData) renderPlot(0); setStatus('pronto','chip-ready');
+}
+
+document.getElementById('hkSubsetMode').addEventListener('change', loadAlgoPreset);
+document.getElementById('lineSearchMode').addEventListener('change', loadAlgoPreset);
+document.getElementById('dynamicBatchMode').addEventListener('change', loadAlgoPreset);
+document.getElementById('hessianFreeL1Mode').addEventListener('change', loadAlgoPreset);
+
+// Quando N o Seed cambiano, aggiorna automaticamente il codice della loss
+document.getElementById('totalN').addEventListener('change', () => {
+  const Nval = parseInt(document.getElementById('totalN').value) || 200;
+  if (Nval < 10) { document.getElementById('totalN').value = 10; }
+  if (Nval > 2000) { document.getElementById('totalN').value = 2000; }
+  loadLossPreset(lossPreset.value);
+  currentData = null;
+  if (pyodideReady) renderSurfacePreview();
+});
+document.getElementById('seedVal').addEventListener('change', () => {
+  loadLossPreset(lossPreset.value);
+  currentData = null;
+  if (pyodideReady) renderSurfacePreview();
+});
+
+
+playBtn.addEventListener('click', startPlay);
+pauseBtn.addEventListener('click', pausePlay);
+resetBtn.addEventListener('click', resetAnim);
+
+iterSlider.addEventListener('input', function(){
+  if(isPlaying) pausePlay();
+  currentIter=parseInt(this.value); iterNum.value=currentIter;
+  if(currentData) renderPlot(currentIter);
+});
+iterNum.addEventListener('change', function(){
+  let v=parseInt(this.value);
+  if(isNaN(v)||!currentData) return;
+  v=Math.max(0,Math.min(currentData.history.length-1,v));
+  currentIter=v; iterSlider.value=v; this.value=v; renderPlot(v);
+});
+
+lossPreset.addEventListener('change', () => {
+  loadLossPreset(lossPreset.value);
+  currentData=null; savedCamera=null;
+  if(pyodideReady) renderSurfacePreview();
+});
+
+resetLossBtn.addEventListener('click', () => {
+  loadLossPreset(lossPreset.value);
+  currentData=null;
+  if(pyodideReady) renderSurfacePreview();
+});
+
+algoSelect.addEventListener('change', () => { updateParamsVisibility(); loadAlgoPreset(); });
+resetAlgoBtn.addEventListener('click', loadAlgoPreset);
+
+runBtn.addEventListener('click', () => { if(isPlaying) pausePlay(); runAlgorithm(); });
+convergenceBtn.addEventListener('click', runConvergenceTest);
+
+defaultBtn.addEventListener('click', () => {
+  if(isPlaying) pausePlay();
+  lossPreset.value='quad_well'; loadLossPreset('quad_well');
+  diffMode.value='preset';
+  algoSelect.value='gd'; updateParamsVisibility(); loadAlgoPreset();
+  w0x.value='2.0'; w0y.value='-3.0';
+  maxIterEl.value='30'; alphaEl.value='0.1'; thetaEl.value='0.5';
+  batch0El.value='5'; REl.value='0.2'; maxcgEl.value='10';
+  nuEl.value='0.1'; sigmaEl.value='0.1'; etaEl.value='0.5';
+  document.getElementById('totalN').value='200';
+  document.getElementById('seedVal').value='42';
+  document.getElementById('hkSubsetMode').value='subset';
+  document.getElementById('lineSearchMode').value='wolfe';
+  document.getElementById('dynamicBatchMode').value='dynamic';
+  document.getElementById('hessianFreeL1Mode').value='free';
+  currentData=null; savedCamera=null;
+  runAlgorithm();
+});
+
+
+diffMode.addEventListener('change', () => {
+  loadLossPreset(lossPreset.value);
+});
+
+async function renderSurfacePreview() {
+  if (!pyodideReady) return;
+  const lossPy = lossCode.value.trim();
+  const dimMatch = lossPy.match(/DIM\s*=\s*([12])/);
+  const dim = dimMatch ? parseInt(dimMatch[1]) : 2;
+
+  const gridCode = dim === 1 ? `
+import numpy as np, json as _j
+${lossPy}
+_N  = 300
+_xs = np.linspace(XMIN, XMAX, _N)
+_preview = _j.dumps({"sx": _xs.tolist(), "sy": [float(J(np.array([x,0.]))) for x in _xs], "sz": []})
+` : `
+import numpy as np, json as _j
+${lossPy}
+_N  = 55
+_xi = np.linspace(XMIN, XMAX, _N)
+_yi = np.linspace(YMIN, YMAX, _N)
+_preview = _j.dumps({"sx": _xi.tolist(), "sy": _yi.tolist(),
+                     "sz": [[float(J(np.array([x,y]))) for x in _xi] for y in _yi]})
+`;
+
+  try {
+    pyodide.runPython(gridCode);
+    const _p = JSON.parse(pyodide.runPython('_preview'));
+    const sx = _p.sx, sy = _p.sy, sz = _p.sz;
+
+    if (dim === 1) {
+      Plotly.react(plotDiv,
+        [{ x: sx, y: sy, type:'scatter', mode:'lines', name:'J(w)',
+           line:{ color:'#4A9EFF', width:2.5 } }],
+        { ...BASE, margin:{l:60,r:20,t:50,b:50},
+          xaxis:{title:'w',gridcolor:'#1C2A42',color:'#607090'},
+          yaxis:{title:'J(w)',gridcolor:'#1C2A42',color:'#607090'} }, CFG);
+    } else {
+      Plotly.react(plotDiv,
+        [{ type:'surface', x:sx, y:sy, z:sz,
+           colorscale:[[0,'#0B1F4A'],[.4,'#2B6CB8'],[.8,'#C8A96E'],[1,'#FFFFFF']],
+           opacity:.82, showscale:true, colorbar:{tickfont:{color:'#607090',size:9},len:.6,thickness:12} }],
+        { ...BASE, margin:{l:0,r:0,t:50,b:0},
+          scene:{ xaxis:{title:'w₁',gridcolor:'#1C2A42',color:'#607090',backgroundcolor:'rgba(10,15,26,.8)'},
+                  yaxis:{title:'w₂',gridcolor:'#1C2A42',color:'#607090',backgroundcolor:'rgba(10,15,26,.8)'},
+                  zaxis:{title:'J(w)',gridcolor:'#1C2A42',color:'#607090',backgroundcolor:'rgba(10,15,26,.7)'},
+                  camera: savedCamera || {eye:{x:1.7,y:-1.9,z:1.1}} } }, CFG);
+    }
+  } catch(e) {
+    debugInfo.textContent = 'Errore preview loss: ' + e.message;
+  }
+}
+
+window.addEventListener('load', async () => {
+  lossPreset.value='quad_well';
+  loadLossPreset('quad_well');
+  algoSelect.value='gd';
+  updateParamsVisibility();
+  loadAlgoPreset();
+  // Typeset ALL theory content (both the algorithm theory and the bottom stochastic analysis block)
+  if(window.MathJax && MathJax.typesetPromise) {
+    setTimeout(()=>{
+      MathJax.typesetPromise().catch(()=>{});
+    }, 500);
+  }
+  await initPyodide();
+  await renderSurfacePreview();
+  setTimeout(()=>{ if(pyodideReady) runAlgorithm(); }, 200);
+});
+</script>
+</body>
+</html>

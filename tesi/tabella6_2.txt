@@ -1,0 +1,6 @@
+\textbf{Quadratica} & & & & & \\
+  Newton-CG & $R=0.1$ & 18 & 1.1 & 0.03 & 5.53e-07 \\
+\midrule
+\textbf{Quadratica mal condiz.} & & & & & \\
+  Newton-CG & $R=0.1$ & 66 & 1.9 & 0.23 & 1.95e-05 \\
+\midrule

@@ -1,0 +1,15 @@
+# Artefatti di build LaTeX
+tesi/*.aux
+tesi/*.log
+tesi/*.fls
+tesi/*.out
+tesi/*.toc
+tesi/*.listing
+tesi/*.fdb_latexmk
+tesi/_minted/
+tesi/*.bak
+tesi/figtest.*
+
+# Python
+__pycache__/
+*.pyc

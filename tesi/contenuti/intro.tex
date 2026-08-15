@@ -1,0 +1,95 @@
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Introduzione}\label{sec:introduzione}
+% ═══════════════════════════════════════════════════════════════════════════
+
+\subsection{Contesto}
+
+Negli ultimi anni il \emph{machine learning} ha assunto un ruolo centrale in
+numerosi ambiti applicativi, dalla visione artificiale all'elaborazione del
+linguaggio naturale, e la disponibilità di dataset sempre più grandi ha reso
+l'\emph{ottimizzazione su larga scala} uno dei problemi computazionali più
+rilevanti. In un tipico problema di apprendimento supervisionato si dispone di
+un insieme di $N$ esempi etichettati e si cerca il vettore di parametri $w$ che
+minimizza la perdita media $J(w)$ sul dataset. Quando $N$ è dell'ordine di
+$10^6$--$10^9$ esempi, come accade nelle applicazioni reali, il calcolo del
+gradiente completo $\nabla J(w)$ -- che richiede di valutare la perdita su
+\textbf{tutti} gli esempi -- ha costo $O(Nm)$ ed è computazionalmente
+proibitivo se ripetuto ad ogni iterazione.
+
+Per questo motivo gli algoritmi di ottimizzazione stocastica, che usano ad ogni
+passo soltanto un \emph{sottoinsieme} dei dati (il cosiddetto \emph{batch}),
+sono diventati lo standard de facto. La letteratura offre un ampio spettro di
+metodi: dal gradiente stocastico classico (SGD)~\cite{robbins1951, bottou2008}
+agli adattivi come Adam~\cite{kingma2015}, fino ai metodi a varianza
+ridotta~\cite{defazio2014, johnson2013}.
+
+\subsection{Il problema: la dimensione del mini-batch}
+
+La scelta della dimensione del mini-batch è un compromesso fondamentale. Un
+batch piccolo rende ogni iterazione economica ma il gradiente stimato è
+\emph{rumoroso}, e il rumore limita la precisione raggiungibile. Un batch
+grande fornisce una stima più accurata, ma il costo per iterazione cresce
+proporzionalmente alla sua dimensione. Nei metodi classici la dimensione del
+batch è \textbf{fissa} e scelta \emph{euristicamente} all'inizio
+dell'ottimizzazione, senza alcun adattamento alla difficoltà del problema:
+se il batch è troppo piccolo si rischia di non convergere alla precisione
+desiderata; se è troppo grande si sprecano risorse computazionali nelle prime
+iterazioni, dove una stima grossolana sarebbe più che sufficiente.
+
+\subsection{La soluzione proposta: il campionamento dinamico}
+
+La soluzione studiata in questa tesi consiste nel rendere \emph{dinamica} la
+dimensione del batch: si parte da un campione piccolo per fare progressi rapidi
+ed economici e lo si aumenta progressivamente quando serve precisione. La
+decisione su \emph{quando} e \emph{di quanto} aumentare il batch è guidata da
+una \textbf{condizione di controllo della varianza} (CCV): finché la varianza
+campionaria del gradiente stocastico è piccola rispetto alla norma del
+gradiente corrente, il batch corrente è adeguato; quando il gradiente si
+avvicina a zero, il rumore relativo cresce e la CCV impone un batch più grande.
+In questo modo la risorsa computazionale viene concentrata dove è realmente
+necessaria, con un adattamento automatico alla difficoltà del problema.
+
+Questa idea, introdotta da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}, viene
+qui sviluppata in tre direzioni: un'analisi teorica completa del metodo del
+gradiente a campione dinamico, l'estensione a un metodo di Newton-CG con
+Hessiana sottocampionata, e un'estensione ai problemi con regolarizzazione
+$L_1$, accompagnate da un'applicazione web interattiva che ne permette la
+sperimentazione diretta.
+
+\subsection{Contributi del lavoro}
+
+I contributi principali di questo lavoro sono i seguenti:
+
+\begin{enumerate}
+  \item \textbf{Analisi teorica del metodo del gradiente a campione dinamico.}
+  Viene fornita una trattazione completa della dinamica del batch basata sul
+  controllo della varianza, con la dimostrazione della \emph{convergenza
+  lineare} in aspettativa e una stima di \emph{complessità totale} che risulta
+  competitiva con quella di SGD per problemi mal condizionati.
+  \item \textbf{Estensione al metodo Newton-CG con sottocampionamento
+  dell'Hessiana.} Viene proposto un metodo di secondo ordine che usa due
+  campioni distinti per gradiente e Hessiana, insieme a un \emph{criterio di
+  arresto adattivo} per il gradiente coniugato interno, basato sulla varianza
+  campionaria dei prodotti Hessiana-vettore.
+  \item \textbf{Estensione ai problemi con regolarizzazione $L_1$ e
+  applicazione interattiva.} Il campionamento dinamico viene esteso al caso
+  non liscio mediante il gradiente generalizzato, l'active set e la ricerca
+  lineare proiettata; gli algoritmi sono inoltre implementati in un'applicazione
+  web interattiva per la visualizzazione e la sperimentazione.
+\end{enumerate}
+
+\subsection{Struttura della tesi}
+
+Il resto del lavoro è organizzato come segue. Il Capitolo~\ref{sec:background}
+richiama i prerequisiti matematici e introduce la notazione utilizzata.
+Il Capitolo~\ref{sec:formulazione} formalizza il problema dell'ottimizzazione
+empirica su larga scala e le ipotesi strutturali sulla funzione obiettivo.
+Il Capitolo~\ref{sec:lavori} passa in rassegna i lavori correlati sui metodi
+stocastici, sul campionamento dinamico, sui metodi di secondo ordine e sulla
+regolarizzazione $L_1$. Il Capitolo~\ref{sec:algoritmi} descrive nel dettaglio
+gli algoritmi proposti, con i relativi risultati di convergenza e complessità.
+Il Capitolo~\ref{sec:esperimenti} illustra l'implementazione e i risultati
+numerici. Il Capitolo~\ref{sec:conclusioni} riassume i risultati, discute i
+limiti dello studio e delinea le direzioni di lavoro futuro. Le dimostrazioni
+dettagliate, i listati Python completi e le istruzioni per l'esecuzione sono
+raccolti rispettivamente nelle Appendici~A,~B e~C.

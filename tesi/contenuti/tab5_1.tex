@@ -1,0 +1,34 @@
+% Tabella 5.1 - confronto dei tre metodi proposti
+\begin{table}[h]
+\centering
+\small
+\renewcommand{\arraystretch}{1.35}
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{p{2.4cm} p{3.1cm} p{2.6cm} p{2.9cm} p{3.0cm}}
+\toprule
+\textbf{Metodo} & \textbf{Costo per iterazione} & \textbf{Memoria}
+& \textbf{Ipotesi aggiuntive} & \textbf{Complessit\`a totale} \\
+\midrule
+Gradiente a campione dinamico &
+$O(m\,n_k)$ &
+$O(m)$ &
+CCV soddisfatta a ogni iterazione; varianza limitata \eqref{eq:var_bound} &
+$O\!\left(\dfrac{mL}{\lambda\varepsilon}\right)$ \\
+Newton-CG con campionamento dinamico &
+$O(m\,n_k + m\,n_h\,j_k)$\\($j_k$: iterazioni CG) &
+$O(m\,n_h)$ (sottocampione Hessiana) &
+Hessiana sdp sul sottospazio; criterio di arresto (5.35)--(5.36) &
+$O\!\left(\dfrac{mL}{\lambda\varepsilon}\right)$ iter.\ esterne \\
+Newton-CG con regolarizzazione $L_1$ &
+come Newton-CG + costo active set &
+$O(m)$ &
+identificazione corretta della faccia ortante (5.41)--(5.46) &
+come Newton-CG \\
+\bottomrule
+\end{tabular}
+\caption{Confronto dei tre metodi proposti nel Capitolo~\ref{sec:algoritmi}.
+$n_k$ \`e la dimensione del batch corrente, $n_h = R\,n_k$ quella del
+sottocampione per l'Hessiana, $j_k$ il numero di iterazioni interne del
+gradiente coniugato, $m$ il numero di variabili.}
+\label{tab:5_1}
+\end{table}

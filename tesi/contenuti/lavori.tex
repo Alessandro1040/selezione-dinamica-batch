@@ -1,0 +1,113 @@
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Lavori Correlati}\label{sec:lavori}
+% ═══════════════════════════════════════════════════════════════════════════
+
+Questo capitolo passa in rassegna la letteratura pertinente, organizzata per
+temi: metodi di ottimizzazione stocastica, metodi con campionamento dinamico,
+metodi di secondo ordine stocastici e regolarizzazione $L_1$.
+
+\subsection{Metodi di ottimizzazione stocastica}
+
+Il punto di partenza di tutti i metodi stocastici è il lavoro pionieristico di
+Robbins e Monro~\cite{robbins1951}, che ha introdotto il metodo del gradiente
+stocastico (SGD): ad ogni iterazione si stima il gradiente su un singolo
+esempio (o un piccolo batch) e si aggiorna $w$ con un passo decrescente.
+Il costo per iterazione è indipendente da $N$, ma la varianza dello stimatore
+limita la velocità di convergenza e la precisione raggiungibile, come analizzato
+in dettaglio da Bottou e Bousquet~\cite{bottou2008}, che hanno formalizzato il
+compromesso tra costo per iterazione e velocità di convergenza su larga scala.
+
+Per ridurre la varianza dello stimatore sono state proposte diverse famiglie di
+metodi. I metodi \emph{a varianza ridotta} combinano la stima stocastica con
+una correzione periodica basata su un gradiente (quasi) esatto: SVRG di Johnson
+e Zhang~\cite{johnson2013} mantiene una copia dei parametri su cui ricalcola un
+gradiente completo a intervalli regolari, mentre SAGA di Defazio
+et~al.~\cite{defazio2014} mantiene una tavola dei gradienti individuali e
+corregge la stima a ogni iterazione. Questi metodi ottengono una convergenza
+lineare per problemi fortemente convessi, ma richiedono di memorizzare o
+ricalcolare quantità globali e la dimensione del batch rimane comunque fissata
+a priori. Una direzione diversa è rappresentata dai metodi adattivi, tra cui
+Adam di Kingma e Ba~\cite{kingma2015}, che scala il passo per componente usando
+stime dei momenti del gradiente; Adam è estremamente diffuso in pratica, ma le
+sue proprietà di convergenza sono state a lungo oggetto di studio e la sua
+analisi per problemi non convessi è delicata.
+
+Tutti questi metodi condividono una caratteristica: la dimensione del batch è
+\textbf{fissa} o comunque determinata da una regola prestabilita, non da una
+condizione di accuratezza verificata durante l'esecuzione. È proprio questo il
+punto che il campionamento dinamico intende superare.
+
+\subsection{Campionamento dinamico}
+
+L'idea di far crescere la dimensione del batch \emph{durante} l'ottimizzazione
+non è nuova, ma è stata formalizzata in modo sistematico da Byrd, Chin, Nocedal
+e Wu~\cite{byrd2012}, il lavoro di riferimento di questa tesi. Gli autori
+
+Approcci correlati adottano regole di crescita della dimensione del batch
+basate su criteri diversi. Ad esempio, una strategia semplice e diffusa è la
+\emph{crescita geometrica} $n_k = \lceil a^k \rceil$, che però richiede la
+conoscenza (o una stima) del numero di condizionamento $\kappa$. Alcuni metodi
+propongono invece di adattare la dimensione del batch in modo euristico in base
+all'andamento della funzione obiettivo o della perdita di validazione, senza
+una garanzia teorica. Il vantaggio dell'approccio basato sulla varianza è
+duplice: da un lato fornisce una \emph{giustificazione statistica} alla regola
+di aggiornamento, dall'altro si adatta automaticamente alla difficoltà locale
+del problema, senza richiedere la stima di $\kappa$.
+
+\subsection{Metodi di secondo ordine stocastici}
+
+I metodi del primo ordine convergono lentamente su problemi mal condizionati,
+poiché il numero di condizionamento $\kappa$ del problema entra nel tasso di
+convergenza. I metodi di Newton incorporano l'informazione di curvatura
+dell'Hessiana e raggiungono un tasso di convergenza locale quadratico (o
+superlineare), a costo di risolvere ad ogni iterazione un sistema lineare
+$H_k d = -g_k$; si veda il testo di Nocedal e Wright~\cite{nocedal2006} per
+una trattazione completa.
+
+Su larga scala la costruzione esplicita dell'Hessiana è impraticabile, e sono
+stati sviluppati metodi che ne usano soltanto \emph{approssimazioni}. I metodi
+\emph{inexact Newton}~\cite{dembo1982} risolvono il sistema di Newton in modo
+approssimato, controllando il residuo del risolutore interno tramite un
+parametro di forcing; il metodo del gradiente coniugato (CG) applicato al
+sistema di Newton, in forma \emph{Hessian-free}, permette di calcolare i
+prodotti Hessiana-vettore senza costruire la matrice~\cite{shewchuk1994,
+nocedal2006}. In ambito stocastico, Byrd et~al.~\cite{byrd2011} hanno proposto
+un metodo che sottocampiona sia il gradiente sia l'Hessiana, mostrando che un
+numero di iterazioni del CG che cresce con la precisione desiderata mantiene la
+convergenza. Il metodo Newton-CG presentato in questa tesi si colloca in questa
+linea di ricerca, con due innovazioni rispetto ai lavori precedenti: la
+dimensione del campione per il gradiente è regolata dinamicamente dalla CCV, e
+il criterio di arresto del CG interno è \emph{adattivo}, basato sulla varianza
+campionaria dei prodotti Hessiana-vettore, in modo da non sprecare iterazioni
+interne quando l'approssimazione dell'Hessiana è limitata dal sottocampionamento.
+
+\subsection{Regolarizzazione $L_1$ in ottimizzazione}
+
+La regolarizzazione $L_1$ produce soluzioni \emph{sparse} ed è uno strumento
+fondamentale per l'interpretabilità dei modelli ad alta dimensionalità, a
+partire dal LASSO di Tibshirani~\cite{tibshirani1996}. Il termine di penalità
+$\nu\|w\|_1$ rende la funzione obiettivo non differenziabile, e i metodi classici
+del primo ordine devono essere adattati. Una tecnica basilare è il
+\emph{soft-thresholding}, usato nei metodi proximali (ad esempio ISTA e FISTA
+di Beck e Teboulle~\cite{beck2009}), che applica alla soluzione l'operatore di
+soglia $S_\nu(w_i) = \operatorname{sign}(w_i)\max\{|w_i| - \nu, 0\}$.
+
+Per i problemi che coinvolgono anche un termine liscio $J(w)$, un'alternativa
+efficace è rappresentata dai metodi a \emph{active set} e dalle strategie di
+\emph{ottimizzazione su facce ortanti}: si identifica l'insieme delle variabili
+che all'ottimo saranno nulle e si minimizza la funzione su tale faccia, dove il
+termine $L_1$ è differenziabile. Questa è la strategia seguita, ad esempio, da
+Byrd et~al.~\cite{byrd2011} per problemi regolarizzati e adottata anche nel
+metodo Newton-CG-$L_1$ descritto in questa tesi, che combina l'identificazione
+dell'active set con l'Hessiana sottocampionata e la ricerca lineare proiettata.
+
+osservano che, per garantire che la direzione di ricerca sia una direzione di
+discesa, è sufficiente che l'errore di approssimazione del gradiente sia
+controllato in norma relativa dalla tolleranza $\theta$. Poiché l'errore non è
+osservabile direttamente, essi lo stimano tramite la \emph{varianza campionaria}
+dei gradienti individuali sul batch, ottenendo una condizione di controllo
+della varianza (CCV): se la varianza stimata è troppo alta rispetto alla norma
+del gradiente, la dimensione del batch viene aumentata secondo una formula
+esplicita. L'analisi mostra che il numero totale di valutazioni di gradienti
+per raggiungere una precisione $\varepsilon$ è $O(L/(\lambda\varepsilon))$,
+indipendente da $N$ e competitivo con i migliori bound noti per SGD.

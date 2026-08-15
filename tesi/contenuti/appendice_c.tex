@@ -1,0 +1,82 @@
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Istruzioni per l'esecuzione}\label{app:istruzioni}
+% ═══════════════════════════════════════════════════════════════════════════
+
+In questa appendice sono raccolte le istruzioni per eseguire il codice
+Python presentato nell'Appendice~\ref{app:listati} e per avviare
+l'applicazione web interattiva descritta nella Sezione~\ref{sec:architettura}.
+
+\subsection{Dipendenze}
+
+Il codice richiede Python 3.9 o successivo e le seguenti librerie:
+
+\begin{itemize}
+  \item \texttt{numpy} (versione $\geq 1.21$) -- calcolo numerico vettoriale;
+  \item \texttt{matplotlib} (versione $\geq 3.5$) -- generazione dei grafici
+  di convergenza e dei percorsi di ottimizzazione;
+  \item \texttt{plotly} (versione $\geq 5.0$) -- visualizzazioni interattive
+  nell'applicazione web;
+  \item \texttt{pyodide} -- runtime Python nel browser per l'esecuzione del
+  codice degli algoritmi (usato dall'applicazione web).
+\end{itemize}
+
+\subsection{Installazione}
+
+Si consiglia di creare un ambiente virtuale dedicato e installare le
+dipendenze con \texttt{pip}:
+
+\begin{verbatim}
+python3 -m venv .venv
+source .venv/bin/activate        # su Windows: .venv\Scripts\activate
+pip install --upgrade pip
+pip install numpy matplotlib plotly
+\end{verbatim}
+
+\subsection{Esecuzione degli esperimenti numerici}
+
+Gli esperimenti del Capitolo~\ref{sec:esperimenti} (convergenza, dinamica del
+batch e confronto tra metodi) possono essere riprodotti eseguendo lo script
+\texttt{sim\_exp.py}, che genera automaticamente le figure in formato PDF/PNG e
+le tabelle dei risultati in formato LaTeX:
+
+\begin{verbatim}
+python3 sim_exp.py
+\end{verbatim}
+
+Lo script accetta i parametri descritti nel Capitolo~\ref{sec:esperimenti}
+(numero di esempi $N$, dimensionalità $m$, tolleranza $\theta$, rapporto
+$R$) e stampa a video, per ogni funzione test, il numero di iterazioni, il
+tempo di esecuzione, l'errore finale $\|w_k - w^*\|$ e la dimensione massima
+del batch raggiunta.
+
+\subsection{Esecuzione dei singoli algoritmi}
+
+I listati dell'Appendice~\ref{app:listati} possono essere eseguiti anche in
+modo isolato, previa definizione delle funzioni ausiliarie
+\texttt{loss\_i}, \texttt{grad\_i}, \texttt{hessvec\_i}, \texttt{grad\_full}
+e della costante $N$, che dipendono dal dataset. Un esempio completo per la
+regressione lineare è incluso nello script \texttt{sim\_exp.py}.
+
+\subsection{Avvio dell'applicazione web}
+
+L'applicazione web interattiva è un'applicazione a pagina singola (HTML +
+JavaScript) che esegue il codice Python nel browser tramite Pyodide: non è
+necessario un server dedicato. È sufficiente aprire il file HTML in un
+browser moderno (Chrome, Firefox, Safari, Edge). Per lo sviluppo locale si può
+utilizzare un semplice server HTTP statico:
+
+\begin{verbatim}
+python3 -m http.server 8000
+\end{verbatim}
+
+e quindi visitare \texttt{http://localhost:8000}.
+
+\subsection{Requisiti di sistema}
+
+Gli esperimenti riportati in questo elaborato sono stati eseguiti su un
+computer portatile con processore Apple Silicon (8 core) e 16~GB di RAM, in
+ambiente macOS, utilizzando Python 3.14, NumPy 2.4 e Matplotlib 3.11. Il costo
+complessivo della simulazione (tre problemi test, tre valori di $\theta$ e
+quattro algoritmi) è inferiore a due minuti; nessun acceleratore GPU è
+richiesto, poiché tutti i calcoli sono operazioni vettoriali su array NumPy di
+dimensione al più $N \times m$.

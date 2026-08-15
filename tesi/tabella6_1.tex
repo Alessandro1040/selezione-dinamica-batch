@@ -1,0 +1,14 @@
+% Righe della Tabella 6.1 (columns: Metodo & Parametro & Iterazioni & Tempo & Errore & Max batch)
+\multicolumn{6}{l}{\textbf{Quadratica}\ ($\kappa \approx 1.4$)} \\ \hline
+  Dynamic GD & $\theta=0.1$ & 14 & 0.03 & $6.47\times10^{-7}$ & 1000 \\
+  Dynamic GD & $\theta=0.5$ & 18 & 0.02 & $6.34\times10^{-7}$ & 1000 \\
+  Dynamic GD & $\theta=0.9$ & 45 & 0.03 & $1.13\times10^{-6}$ & 1000 \\
+  SGD & $n=1$ & 300 & $<0.01$ & $4.45\times10^{-1}$ & 1 \\
+  Batch GD & $n=N$ & 14 & $<0.01$ & $1.46\times10^{-7}$ & 1000 \\
+\hline
+\multicolumn{6}{l}{\textbf{Quadratica mal condizionata}\ ($\kappa \approx 107$)} \\ \hline
+  Dynamic GD & $\theta=0.1$ & 300 & 12.82 & $2.66\times10^{0}$ & 1000 \\
+  Dynamic GD & $\theta=0.5$ & 300 & 7.33 & $3.09\times10^{-1}$ & 1000 \\
+  Dynamic GD & $\theta=0.9$ & 300 & 3.21 & $2.03\times10^{-1}$ & 992 \\
+  SGD & $n=1$ & 300 & $<0.01$ & $4.11\times10^{-1}$ & 1 \\
+  Batch GD & $n=N$ & 300 & $<0.01$ & $4.99\times10^{-2}$ & 1000 \\

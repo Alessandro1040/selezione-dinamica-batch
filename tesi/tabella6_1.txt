@@ -1,0 +1,14 @@
+\textbf{Quadratica} & & & & & \\
+  Dynamic GD & $\theta=0.1$ & 14 & 0.03 & 6.47e-07 & 1000 \\
+  Dynamic GD & $\theta=0.5$ & 18 & 0.02 & 6.34e-07 & 1000 \\
+  Dynamic GD & $\theta=0.9$ & 45 & 0.02 & 1.13e-06 & 1000 \\
+  SGD & $n=1$ & 300 & 0.00 & 4.45e-01 & 1 \\
+  Batch GD & $n=N$ & 14 & 0.00 & 1.46e-07 & 1000 \\
+\midrule
+\textbf{Quadratica mal condiz.} & & & & & \\
+  Dynamic GD & $\theta=0.1$ & 300 & 11.76 & 2.66e+00 & 1000 \\
+  Dynamic GD & $\theta=0.5$ & 300 & 7.34 & 3.09e-01 & 1000 \\
+  Dynamic GD & $\theta=0.9$ & 300 & 3.00 & 2.03e-01 & 992 \\
+  SGD & $n=1$ & 300 & 0.00 & 4.11e-01 & 1 \\
+  Batch GD & $n=N$ & 300 & 0.00 & 4.99e-02 & 1000 \\
+\midrule

@@ -1,48 +1,55 @@
 # Selezione Dinamica della Dimensione del Campione
 
-Simulazione autonoma del **metodo del gradiente a campione dinamico** basato
-sulla *Condizione di Controllo della Varianza* (CCV).
+Tesi e materiale per *"Selezione Dinamica della Dimensione del Campione in
+Metodi di Ottimizzazione per il Machine Learning"* — Corso di Laurea in
+Scienze Matematiche per l'Intelligenza Artificiale, Sapienza Università di
+Roma (A.A. 2025–2026).
 
-Questo repository accompagna la tesi *"Selezione Dinamica della Dimensione
-del Campione in Metodi di Ottimizzazione per il Machine Learning"* e
-riproduce la **Figura 5.3**: l'andamento della dimensione del batch $n_k$
-nel corso delle iterazioni, confrontato con un batch fisso.
+## Contenuto del repository
 
-## Contenuto
+```
+.
+├── README.md                      questo file
+├── visualizzazione.html           applicazione web interattiva (Pyodide + Plotly)
+├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
+├── figure_sim/                    figure generate da simulazione_batch.py
+└── tesi/                          sorgenti LaTeX e PDF della tesi
+    ├── main.tex                   documento principale
+    ├── main.pdf                   PDF compilato
+    ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
+    ├── figure/                    figure usate nella tesi (PDF/PNG)
+    ├── sim_exp.py                 suite completa di esperimenti (rigenera tabelle e figure)
+    └── ... (script di supporto, frammenti di tabelle)
+```
 
-| File | Descrizione |
-|---|---|
-| `simulazione_batch.py` | Script Python autocontenuto (unico file, dipende solo da `numpy` e `matplotlib`) |
-| `figure_sim/` | Figure generate: `batch_size.pdf/png` (Fig. 5.3) e `convergenza.pdf/png` (Fig. 6.1, compagnona) |
+## Applicazione web interattiva
 
-## Come eseguire
+Apri `visualizzazione.html` in un browser moderno (Chrome, Firefox, Safari,
+Edge). L'app esegue Python nel browser tramite **Pyodide** e consente di:
+- scegliere/modificare la funzione obiettivo (preset 1D/2D o codice custom),
+- eseguire i tre algoritmi: Dynamic GD, Newton-CG, Newton-CG $L_1$,
+- osservare il percorso su Plotly, la dimensione del batch ($n_k$ vs $a^k$)
+  e l'analisi di convergenza.
+
+## Simulazione (Figura 5.3)
 
 ```bash
 python3 simulazione_batch.py
 ```
 
-Le figure vengono salvate nella cartella `figure_sim/`.
+Genera in `figure_sim/` l'andamento di $n_k$ (dinamico via CCV vs batch
+fisso) e la convergenza $J(w_k)-J(w_*)$ per $\theta\in\{0.1,0.5,0.9\}$.
+Parametri: $N=1000$, $m=10$, $\theta=0.5$, $n_0=16$, 250 iterazioni,
+$w_0=(2,\dots,2)$, seed 42.
 
-## Parametri della simulazione (identici a `sim_exp.py` della tesi)
+## Tesi LaTeX
 
-| Parametro | Valore | Significato |
-|---|---|---|
-| `N` | 1000 | numero di esempi |
-| `m` | 10 | dimensionalità dei parametri |
-| `THETA` | 0.5 | tolleranza nella CCV |
-| `BATCH0` | 16 | batch iniziale |
-| `MAX_ITER` | 250 | budget di iterazioni |
-| `TOL` | 1e-6 | tolleranza del criterio di arresto |
-| `SEED` | 42 | seme per la riproducibilità |
+Per compilare:
 
-Problema: regressione lineare (loss quadratica), $X \sim \mathcal{N}(0, I)$,
-$\kappa \approx 1.4$, $w_0 = (2,\dots,2)$.
-
-## Regola CCV
-
-Se $\dfrac{\|\widehat{\mathcal V}\|_1}{n} > \theta^2 \|g\|^2$, allora
-
-$$n \leftarrow \min\left(\left\lceil \dfrac{\|\widehat{\mathcal V}\|_1}{\theta^2 \|g\|^2}\right\rceil + 1,\ N\right).$$
+```bash
+cd tesi
+latexmk -pdf -shell-escape main.tex    # serve pygments per i listati minted
+```
 
 ## Riferimento
 
