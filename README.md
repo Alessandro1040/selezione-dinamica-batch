@@ -14,8 +14,11 @@ Roma (A.A. 2025–2026).
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 └── tesi/                          sorgenti LaTeX e PDF della tesi
-    ├── tesi.tex                   documento principale (versione DEFINITIVA)
-    ├── tesi.pdf                   PDF compilato del definitivo
+    ├── tesi.tex                   documento principale
+    ├── tesi.pdf                   PDF compilato del documento (senza frontespizio)
+    ├── frontespizio.tex           frontespizio istituzionale Sapienza (sapthesis)
+    ├── compila_tesi.sh            genera tesi_finale.pdf (frontespizio + tesi.pdf)
+    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio (2 pp) + contenuto
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -54,12 +57,26 @@ $N=200$, $w_0=[2,-3]$, $\alpha=0.1$, $\theta=0.5$, batch$_0=5$, 30 iterazioni, s
 
 ## Tesi LaTeX
 
-Per compilare:
+Per compilare solo il documento (senza frontespizio):
 
 ```bash
 cd tesi
 latexmk -pdf -shell-escape tesi.tex    # serve pygments per i listati minted
 ```
+
+Per generare il **PDF definitivo** con il frontespizio istituzionale come
+prima pagina:
+
+```bash
+cd tesi
+./compila_tesi.sh tesi    # compila frontespizio.tex + tesi.tex -> tesi_finale.pdf
+```
+
+`tesi_finale.pdf` è composto da `frontespizio.pdf` (pag. 1 = frontespizio,
+pag. 2 = verso/copyright) più `tesi.pdf` **saltando** la vecchia copertina
+custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel sorgente; per
+ripristinarla nel PDF basta rimuovere lo slicing `body.pages[1:]` nello
+script. Nella copia di lavoro usare `./compila_tesi.sh main`.
 
 ## Note operative e stato corrente (15/08/2026)
 
@@ -83,7 +100,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Snellite le Sezioni 1–2 (Introduzione, Background e
+- **Ultimo intervento.** Aggiunto il frontespizio istituzionale Sapienza come
+  prima pagina. Nuovo `tesi/frontespizio.tex` (sapthesis, con i dati: titolo,
+  sottotitolo, autore, matricola, corso, relatore, A.A. 2025/2026, tipo "Tesi
+  di Laurea Triennale"; l'opzione `lam` non esiste in questa versione di
+  sapthesis) e script `tesi/compila_tesi.sh` che compila frontespizio +
+  documento e produce `tesi_finale.pdf` (74 pp = frontespizio + verso +
+  documento senza la vecchia copertina custom, che resta nel sorgente).
+- **Intervento precedente.** Snellite le Sezioni 1–2 (Introduzione, Background e
   Notazione) per adattarle a una tesi triennale: eliminati i paragrafi
   "A chi è rivolto" e "Il problema, in parole semplici" (ridondanti con
   l'Introduzione), deduplicato il discorso sul numero di condizionamento (ora un
@@ -98,8 +122,9 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi.pdf` 73 pp (definitiva), `main.pdf` 73 pp
-  (copia di lavoro), `bozza.pdf` 56 pp.
+- **PDF di riferimento.** `tesi_finale.pdf` 74 pp (definitiva, con
+  frontespizio), `tesi.pdf` 73 pp (documento), `main.pdf` 73 pp (copia di
+  lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento
 

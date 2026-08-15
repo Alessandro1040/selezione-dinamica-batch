@@ -1,0 +1,41 @@
+% =====================================================================
+% FRONTESPIZIO ISTITUZIONALE (sapthesis)
+% Pagina 1 = frontespizio Sapienza, pagina 2 = verso (copyright).
+% Viene preposto al documento principale nel PDF finale (vedi
+% compila_tesi.sh / note README).
+% Nota: l'opzione 'lam' non esiste in questa versione di sapthesis;
+% il tipo di tesi si imposta con \thesistype.
+% =====================================================================
+\documentclass[italian, a4paper, twoside, binding=6mm]{sapthesis}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{mathtools}
+
+% --- Dati del frontespizio ---
+\title{Selezione Dinamica della Dimensione del Campione\\
+in Algoritmi di Ottimizzazione\\
+per il Machine Learning su Larga Scala}
+
+\subtitle{Metodi adattivi con campionamento dinamico dell'Hessiana\\
+per problemi di ottimizzazione convessa}
+
+\author{Alessandro Lo Curcio}
+\IDnumber{2107367}
+
+\course{Scienze Matematiche per l'Intelligenza Artificiale}
+\courseorganizer{Facoltà di Scienze Matematiche Fisiche e Naturali}
+
+\AcademicYear{2025/2026}
+\copyyear{2026}
+
+\advisor{Prof. Marco Sciandrone}
+%\coadvisor{Dott. Lucia Bianchi}
+
+\authoremail{alessandro.locurcio@uniroma1.it}
+\thesistype{Tesi di Laurea Triennale}
+
+\begin{document}
+\frontmatter
+\maketitle
+\end{document}
