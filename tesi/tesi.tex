@@ -373,10 +373,8 @@ $\mathcal{S}_k \subseteq \{1,\dots,N\}$ & campione di indici all'iterazione $k$ 
 $\ell(w; i)$ & perdita sull'esempio $i$ \\
 $J(w)$ & perdita media sul dataset \\
 $J_{\mathcal{S}}(w)$ & perdita media sul campione $\mathcal{S}$ \\
-$\nabla J(w)$ & gradiente di $J$ \\
-$\nabla^2 J(w)$ & Hessiana di $J$ \\
 $\lambda, L$ & costanti di convessità forte e di Lipschitz del gradiente \\
-$\kappa = L/\lambda$ & numero di condizionamento \\
+$\kappa = L/\lambda$ & sovrastima del numero di condizionamento (il numero di condizionamento della Hessiana è $\lambda_{\max}/\lambda_{\min}$, cfr. Sez.~\ref{sec:formulazione}) \\
 $\theta \in (0,1)$ & tolleranza della condizione di controllo della varianza \\
 $\alpha_k$ & passo all'iterazione $k$ \\
 $\mathcal{V}$ & varianza della popolazione, componente per componente \\
@@ -472,7 +470,7 @@ La soluzione proposta è il metodo del gradiente a campione dinamico: si parte c
 \subsection{Formulazione del problema}
 
 \begin{definitionbox}
-  \textbf{Ottimizzazione batch dinamica:} ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
+  \textbf{Perdita media sul campione $\mathcal{S}_k$:} ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
   \[
     J_{\mathcal{S}_k}(w) = \frac{1}{n_k} \sum_{i \in \mathcal{S}_k} \ell(w;i).
   \]

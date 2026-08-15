@@ -249,10 +249,8 @@ $\mathcal{S}_k \subseteq \{1,\dots,N\}$ & Sottoinsieme di indici selezionati all
 $\ell(w; i)$ & Perdita (errore) del modello $w$ sull'esempio $i$ \\
 $J(w)$ & Perdita media su tutto il dataset \\
 $J_{\mathcal{S}}(w)$ & Perdita media sul sottoinsieme $\mathcal{S}$ \\
-$\nabla J(w)$ & Gradiente di $J$: vettore che indica la direzione di massima crescita \\
-$\nabla^2 J(w)$ & Hessiana di $J$: matrice che descrive la curvatura locale \\
 $\lambda, L$ & Costanti di convessit\`a forte e di Lipschitz del gradiente \\
-$\kappa = L/\lambda$ & Numero di condizionamento: misura la ``difficolt\`a'' dell'ottimizzazione \\
+$\kappa = L/\lambda$ & sovrastima del numero di condizionamento (il numero di condizionamento della Hessiana è $\lambda_{\max}/\lambda_{\min}$, cfr. Sez.~\ref{sec:formulazione}) \\
 $\theta \in (0,1)$ & Parametro di tolleranza per il controllo della varianza \\
 $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
 \bottomrule
@@ -318,7 +316,7 @@ $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
 \end{comment}
 \newpage
 % ═══════════════════════════════════════════════════════════════════════════
-\section{Formulazione del Problema}
+\section{Formulazione del Problema}\label{sec:formulazione}
 % ═══════════════════════════════════════════════════════════════════════════
 
 \subsection{Apprendimento supervisionato su larga scala}
@@ -375,7 +373,7 @@ La soluzione proposta è il metodo del gradiente a campione dinamico: si parte c
 \subsection{Formulazione del problema}
 
 \begin{definitionbox}
-  \textbf{Ottimizzazione batch dinamica:} ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
+  \textbf{Perdita media sul campione $\mathcal{S}_k$:} ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
   \[
     J_{\mathcal{S}_k}(w) = \frac{1}{n_k} \sum_{i \in \mathcal{S}_k} \ell(w;i).
   \]

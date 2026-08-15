@@ -10,6 +10,7 @@ tesi/_minted/
 tesi/_minted-*/
 tesi/*.bak
 tesi/figtest.*
+tesi/frontespizio.pdf
 
 # Python
 __pycache__/
