@@ -31,16 +31,23 @@ Edge). L'app esegue Python nel browser tramite **Pyodide** e consente di:
 - osservare il percorso su Plotly, la dimensione del batch ($n_k$ vs $a^k$)
   e l'analisi di convergenza.
 
-## Simulazione (Figura 5.3)
+## Simulazione (come l'applicazione web)
 
 ```bash
 python3 simulazione_batch.py
 ```
 
-Genera in `figure_sim/` l'andamento di $n_k$ (dinamico via CCV vs batch
-fisso) e la convergenza $J(w_k)-J(w_*)$ per $\theta\in\{0.1,0.5,0.9\}$.
-Parametri: $N=1000$, $m=10$, $\theta=0.5$, $n_0=16$, 250 iterazioni,
-$w_0=(2,\dots,2)$, seed 42.
+Riproduce **fedelmente l'implementazione dell'app `visualizzazione.html`**:
+preset *Quadratica ben condizionata (κ≈1.1)*, dataset sintetico "centrato"
+(media campionaria dei coefficienti = coefficienti esatti di $J$), algoritmo
+**Dynamic GD** con CCV e **line search di Wolfe** (default dell'app).
+
+Genera in `figure_sim/`:
+- `batch_size.pdf/png` — $n_k$ vs $k$ (dinamico CCV, fit $a^k$, batch fisso),
+- `convergenza.pdf/png` — $\|w_k-w_*\|$ vs $k$ (scala log, metrica `errs` dell'app).
+
+Parametri (default dell'app): preset `quad_well` ($J=(w_1-1)^2+(w_2+2)^2+0.1w_1w_2$),
+$N=200$, $w_0=[2,-3]$, $\alpha=0.1$, $\theta=0.5$, batch$_0=5$, 30 iterazioni, seed 42.
 
 ## Tesi LaTeX
 

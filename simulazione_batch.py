@@ -1,196 +1,212 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Simulazione autonoma: "Selezione Dinamica della Dimensione del Campione"
-===========================================================================
-Riproduce la FIGURA 5.3 della tesi: andamento della dimensione del batch
-n_k (strategia dinamica basata sulla Condizione di Controllo della Varianza,
-CCV) in funzione dell'iterazione k, confrontato con un batch fisso.
+Simulazione "Selezione Dinamica della Dimensione del Campione"
+===================================================================
+Riproduce FEDELMENTE l'implementazione dell'applicazione web interattiva
+(visualizzazione.html): preset "Quadratica ben condizionata (kappa~1.1)",
+dataset sintetico "centrato" (la media campionaria dei coefficienti coincide
+esattamente con i coefficienti di J), algoritmo Dynamic GD con CCV e line
+search di Wolfe (default dell'app).
 
-Parametri (IDENTICI a sim_exp.py usato per la tesi):
-  - problema: regressione lineare (loss quadratica), N = 1000 esempi,
-    m = 10 variabili, X ~ N(0, I)  ->  kappa ~ 1.4
-  - punto iniziale: w0 = (2, ..., 2)
-  - batch iniziale: n0 = 16
-  - tolleranza CCV: theta = 0.5
-  - max iterazioni: 250
-  - passo: 1/L con line search di Armijo (backtracking)
-  - arresto: ||grad J(w)|| < 1e-6
-  - seed fisso per riproducibilita'
+Impostazioni (default dell'app):
+  preset   = quad_well   J(w) = (w1-1)^2 + (w2+2)^2 + 0.1*w1*w2
+  N        = 200         numero di esempi
+  w0       = [2.0, -3.0]
+  alpha    = 0.1
+  theta    = 0.5
+  batch0   = 5
+  max_iter = 30
+  seed     = 42
+  arresto  = ||grad_full(w)|| < 1e-6
 
-In output genera (nella cartella figure_sim/, per non sovrascrivere le
-figure della tesi):
-  - figure_sim/batch_size.png / .pdf   : n_k vs k (dinamico vs fisso)
-  - figure_sim/convergenza.png / .pdf  : J(w_k)-J(w*) vs k (scala log),
-    per theta in {0.1, 0.5, 0.9}   [compagno della Fig. 5.3, = Fig. 6.1]
+Output (in figure_sim/):
+  - batch_size.pdf/png    : n_k vs k (dinamico CCV, fit a^k, batch fisso)
+  - convergenza.pdf/png   : J(w_k)-J(w_*) vs k (scala log)
 
 Dipendenze: numpy, matplotlib
 """
 
+import os
 import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 # ----------------------------------------------------------------------
-# PARAMETRI
+# PARAMETRI (default dell'app)
 # ----------------------------------------------------------------------
 SEED     = 42
-N        = 1000   # numero di esempi
-m        = 10     # dimensionalita' dello spazio dei parametri
-THETA    = 0.5    # tolleranza nella CCV
-BATCH0   = 16     # dimensione iniziale del batch
-MAX_ITER = 250    # budget di iterazioni
-TOL      = 1e-6   # tolleranza per il criterio di arresto
-
-rng = np.random.default_rng(SEED)
+N        = 200        # dimensione del dataset
+W0       = [2.0, -3.0]
+ALPHA    = 0.1        # passo iniziale della line search
+THETA    = 0.5        # tolleranza CCV
+BATCH0   = 5          # batch iniziale
+MAX_ITER = 30         # budget di iterazioni
+TOL      = 1e-6       # tolleranza arresto (hardcoded nell'app)
 
 # ----------------------------------------------------------------------
-# PROBLEMA: regressione lineare  J(w) = 1/(2N) sum_i (x_i^T w - y_i)^2
+# PRESET quad_well + dataset sintetico CENTRATO
+# (stesso codice dell'app: raw -> sottrazione della media -> a_i, b_i, c_i)
 # ----------------------------------------------------------------------
-X = rng.standard_normal((N, m))
-w_true = rng.standard_normal(m)
-y = X @ w_true + 0.1 * rng.standard_normal(N)
+def J(w):
+    x, y = w[0], w[1]
+    return (x - 1.0)**2 + (y + 2.0)**2 + 0.1 * x * y
 
-H = X.T @ X / N
-L  = np.linalg.eigvalsh(H).max()          # costante di Lipschitz
-lam = np.linalg.eigvalsh(H).min()         # convessita' forte
-w_star = np.linalg.solve(X.T @ X, X.T @ y)
-kappa = L / lam
+def gradJ(w):
+    x, y = w[0], w[1]
+    return np.array([2.0*(x - 1.0) + 0.1*y,
+                     2.0*(y + 2.0) + 0.1*x])
+
+np.random.seed(SEED)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+raw_c = 0.1 + 0.05 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0     # media esatta == 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0     # media esatta == -2.0
+c_i = raw_c - np.mean(raw_c) + 0.1     # media esatta == 0.1
 
 def loss_i(w, i):
-    return 0.5 * (X[i] @ w - y[i]) ** 2
+    x, y = w[0], w[1]
+    return (x - a_i[i])**2 + (y - b_i[i])**2 + c_i[i] * x * y
 
 def grad_i(w, i):
-    return X[i] * (X[i] @ w - y[i])
+    x, y = w[0], w[1]
+    return np.array([2.0*(x - a_i[i]) + c_i[i]*y,
+                     2.0*(y - b_i[i]) + c_i[i]*x])
 
 def grad_full(w):
-    return X.T @ (X @ w - y) / N
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
 
-def J(w):
-    return 0.5 * np.mean((X @ w - y) ** 2)
-
-print(f"kappa = {kappa:.2f}   L = {L:.3f}   lambda = {lam:.3f}")
-
+W_STAR = np.array([1.0, -2.0])   # minimo del preset quad_well
 
 # ----------------------------------------------------------------------
-# METODO DEL GRADIENTE A CAMPIONE DINAMICO (CCV + line search Armijo)
+# ALGORITMO: Dynamic GD - implementazione IDENTICA all'app (Wolfe + CCV)
 # ----------------------------------------------------------------------
-def dynamic_gd(theta, batch0=BATCH0, max_iter=MAX_ITER, alpha=None,
-               tol=TOL, seed=SEED):
-    """Ritorna (w, batch_sizes) eseguendo il gradiente dinamico con CCV.
-
-    Regola CCV (formula pratica della tesi, N >> n):
-        se  ||V_hat||_1 / n  >  theta^2 * ||g||^2
-        allora  n <- min( ceil(||V_hat||_1 / (theta^2 ||g||^2)) + 1, N )
-    """
-    r = np.random.default_rng(seed)
-    w = np.full(m, 2.0)
+def dynamic_gd(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    if alpha is None:
-        alpha = 1.0 / L
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
 
-    for _ in range(max_iter):
-        inds = r.choice(N, size=n, replace=False)
-        grads = np.array([grad_i(w, i) for i in inds])
-        g = grads.mean(axis=0)
-
-        # --- CCV ---
+        # --- Condizione di Controllo della Varianza (CCV) ---
         if n > 1:
-            V_norm1 = np.var(grads, axis=0, ddof=1).sum()
-            gg = g @ g
-            if gg > 1e-16 and V_norm1 / n > theta ** 2 * gg:
-                n = min(int(np.ceil(V_norm1 / (theta ** 2 * gg))) + 1, N)
-
-        # --- line search di Armijo (backtracking) sul batch corrente ---
-        step = alpha
-        Jc = np.mean([loss_i(w, i) for i in inds])
-        gd = -(g @ g)
-        if g @ g > 1e-16:
-            for _ in range(30):
-                w_new = w + step * (-g)
-                if np.mean([loss_i(w_new, i) for i in inds]) <= Jc + 1e-4 * step * gd:
-                    break
-                step *= 0.5
-            w = w + step * (-g)
+            var_vec = np.var(grads, axis=0, ddof=1)
         else:
-            w = w + step * (-g)
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
 
-        batch_sizes.append(n)
-        if np.linalg.norm(grad_full(w)) < tol:
+        # --- line search di WOLFE sul batch corrente ---
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        c1, c2 = 1e-4, 0.9
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices],
+                                    axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+
+        if np.linalg.norm(grad_full(w)) < TOL:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
             break
-    return w, batch_sizes
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+    return history, batch_sizes
 
+# Esecuzione (identica all'app: chiamata finale con i default)
+history, batch_sizes = dynamic_gd(W0, THETA, MAX_ITER, ALPHA, BATCH0)
+
+# Metriche (identiche all'app: evalCode)
+pts_J = [float(J(np.array(w))) for w in history]
+errs  = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
+J_star = float(J(W_STAR))
+
+print(f"iterazioni = {len(history)}  batch finale = {batch_sizes[-1]}"
+      f"  J(w_k)-J(w*) = {pts_J[-1]-J_star:.2e}  ||w-w*|| = {errs[-1]:.2e}")
 
 # ----------------------------------------------------------------------
-# FIGURA 5.3: n_k vs k  (dinamico vs batch fisso)
+# FIGURA 1: n_k vs k (come il pannello "n_k vs a^k" dell'app)
 # ----------------------------------------------------------------------
-import os
 os.makedirs("figure_sim", exist_ok=True)
 
-w, sizes = dynamic_gd(THETA)
+def compute_best_fit_a(batch_sizes):
+    """Fit a > 1 tale che n_k ~ a^k (minimi quadrati in scala log)."""
+    ks, logs = [], []
+    for k, nk in enumerate(batch_sizes):
+        if nk > 0:
+            ks.append(k)
+            logs.append(np.log(nk))
+    if len(ks) < 2:
+        return 1.0
+    num = sum(k * l for k, l in zip(ks, logs))
+    den = sum(k * k for k in ks)
+    return float(np.exp(num / den)) if den else 1.0
 
-ks = np.arange(len(sizes))
+a_fit = compute_best_fit_a(batch_sizes)
+ks = np.arange(len(batch_sizes))
+
 fig, ax = plt.subplots(figsize=(6.2, 4.0))
-ax.step(ks, sizes, where="mid", color="#1f77b4", lw=1.8,
+ax.step(ks, batch_sizes, where="mid", color="#1f77b4", lw=1.8,
         label="Dinamico (CCV)")
-ax.axhline(BATCH0, color="#d62728", ls="--", lw=1.4,
+ax.plot(ks, a_fit ** ks, color="#C8A96E", ls="--", lw=1.6,
+        label=rf"fit $a^k$ ($a={a_fit:.4f}$)")
+ax.axhline(BATCH0, color="#d62728", ls=":", lw=1.4,
            label=f"Batch fisso $n={BATCH0}$")
 ax.set_xlabel(r"Iterazione $k$")
 ax.set_ylabel(r"Dimensione del batch $n_k$")
-ax.set_title("Evoluzione dinamica della dimensione del batch")
+ax.set_title("Evoluzione dinamica della dimensione del batch (CCV)")
 ax.grid(True, alpha=0.3)
 ax.legend()
 fig.tight_layout()
 fig.savefig("figure_sim/batch_size.pdf")
 fig.savefig("figure_sim/batch_size.png", dpi=150)
 plt.close(fig)
-print(f"Figura 5.3 salvata in figure_sim/batch_size.pdf  "
-      f"({len(sizes)} iterazioni, batch finale = {sizes[-1]})")
-
+print(f"Figura batch_size salvata in figure_sim/  "
+      f"({len(history)} iterazioni, batch finale = {batch_sizes[-1]}, "
+      f"a_fit = {a_fit:.4f})")
 
 # ----------------------------------------------------------------------
-# FIGURA COMPAGNA (Fig. 6.1): convergenza per theta in {0.1, 0.5, 0.9}
+# FIGURA 2: convergenza ||w_k - w*|| (scala log) - come la metrica "errs"
+# dell'app (l'app monitora la convergenza tramite la norma, dato che
+# W_STAR=[1,-2] è il minimo nominale e J(.)-J(W_STAR) può essere < 0)
 # ----------------------------------------------------------------------
+diff_err = np.maximum(np.asarray(errs), 1e-14)
 fig, ax = plt.subplots(figsize=(6.2, 4.2))
-for th, col in zip((0.1, 0.5, 0.9), ("#1f77b4", "#d62728", "#2ca02c")):
-    w = np.full(m, 2.0)
-    n = BATCH0
-    hist = [J(w) - J(w_star)]
-    for _ in range(MAX_ITER):
-        inds = rng.choice(N, size=n, replace=False)
-        g = np.mean([grad_i(w, i) for i in inds], axis=0)
-        if n > 1:
-            V = np.var([grad_i(w, i) for i in inds], axis=0, ddof=1).sum()
-            gg = g @ g
-            if gg > 1e-16 and V / n > th ** 2 * gg:
-                n = min(int(np.ceil(V / (th ** 2 * gg))) + 1, N)
-        step = 1.0 / L
-        Jc = np.mean([loss_i(w, i) for i in inds])
-        gd = -(g @ g)
-        for _ in range(30):
-            wn = w - step * g
-            if np.mean([loss_i(wn, i) for i in inds]) <= Jc + 1e-4 * step * gd:
-                break
-            step *= 0.5
-        w = wn
-        hist.append(J(w) - J(w_star))
-        if np.linalg.norm(grad_full(w)) < TOL:
-            break
-    hist = np.maximum(np.asarray(hist), 1e-14)
-    ax.semilogy(range(len(hist)), hist, label=rf"$\theta={th}$", color=col,
-                lw=1.6)
-
+ax.semilogy(range(len(diff_err)), diff_err, color="#1f77b4", lw=1.6,
+            marker="o", ms=3.5, label="Dynamic GD")
 ax.set_xlabel(r"Iterazioni $k$")
-ax.set_ylabel(r"$J(w_k) - J(w_*)$")
-ax.set_title("Convergenza del gradiente a campione dinamico")
+ax.set_ylabel(r"$\|w_k - w_*\|_2$")
+ax.set_title("Convergenza del gradiente a campione dinamico (Wolfe + CCV)")
 ax.grid(True, which="both", alpha=0.3)
 ax.legend()
 fig.tight_layout()
 fig.savefig("figure_sim/convergenza.pdf")
 fig.savefig("figure_sim/convergenza.png", dpi=150)
 plt.close(fig)
-print("Figura compagnona (convergenza) salvata in figure_sim/convergenza.pdf")
+print(f"Figura convergenza salvata in figure_sim/  "
+      f"(errore finale ||w-w*|| = {errs[-1]:.2e})")
 print("FATTO")
 
