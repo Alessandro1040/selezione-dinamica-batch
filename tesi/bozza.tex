@@ -1364,12 +1364,10 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
       \begin{enumerate}
         \item $s_j = \nabla^2 J_{\mathcal{H}_k}(w_k) p_j$
         \item $\alpha_j = \dfrac{r_j^T r_j}{p_j^T s_j}$.
-        \item $d_{j+1} = d_j + \alpha_j p_j$.
-        \item $r_{j+1} = r_j + \alpha_j s_j$.
+        \item $d_{j+1} = d_j + \alpha_j p_j$, $r_{j+1} = r_j + \alpha_j s_j$.
         \item $\beta_{j+1} = \dfrac{r_{j+1}^T r_{j+1}}{r_j^T r_j}$.
         \item $p_{j+1} = -r_{j+1} + \beta_{j+1} p_j$.
-        \item $j=j+1$
-        \item $\Psi = \gamma \|d_{j}\|_2^2$.
+        \item $j=j+1$, $\Psi = \gamma \|d_{j}\|_2^2$.
         
       \end{enumerate}
       \item $d_k = d_{j}$
