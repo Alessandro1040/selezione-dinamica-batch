@@ -73,7 +73,7 @@ cd tesi
 ```
 
 `tesi_finale.pdf` è composto da `frontespizio.pdf` (pag. 1 = frontespizio,
-pag. 2 = verso/copyright) più `tesi.pdf` **saltando** la vecchia copertina
+pag. 2 = verso) più `tesi.pdf` **saltando** la vecchia copertina
 custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel sorgente; per
 ripristinarla nel PDF basta rimuovere lo slicing `body.pages[1:]` nello
 script. Nella copia di lavoro usare `./compila_tesi.sh main`.
@@ -107,6 +107,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   sapthesis) e script `tesi/compila_tesi.sh` che compila frontespizio +
   documento e produce `tesi_finale.pdf` (74 pp = frontespizio + verso +
   documento senza la vecchia copertina custom, che resta nel sorgente).
+  Il verso del frontespizio è ripulito (ridefinito `\SAP@composebacktitlepage`):
+  niente "Tesi non ancora discussa", © né "Tutti i diritti riservati".
   Riformulati anche i "Contributi del lavoro" (e Abstract, Sez. 1.3 e
   Conclusioni) per attribuire i metodi a byrd2012 e descrivere i contributi
   propri: analisi teorica, miglioramento di alcuni teoremi di convergenza

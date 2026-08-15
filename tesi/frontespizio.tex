@@ -35,6 +35,28 @@ per problemi di ottimizzazione convessa}
 \authoremail{alessandro.locurcio@uniroma1.it}
 \thesistype{Tesi di Laurea Triennale}
 
+% --- Verso del frontespizio ripulito ---
+% Rimuove "Tesi non ancora discussa", la riga di copyright ("©2026 ...
+% Tutti i diritti riservati") e la riga "Tesi discussa..." (se si impostasse
+% \examdate): il verso riporta solo titolo, tipo di tesi, riga LaTeX ed email.
+\makeatletter
+\renewcommand{\SAP@composebacktitlepage}{%
+  {\thispagestyle{empty}
+  \linespread{1}\selectfont
+  \setlength{\parindent}{0pt}
+  \null
+  \vspace*{1cm}
+  \vfill
+  \hrulefill
+  \vspace{2mm}
+  \small
+  \textbf{\def\\{}\def\newline{}\@title} \\[0.75mm]
+  \if|\SAP@thesistype|\relax\else\SAP@thesistype.\fi\ \SAP@sapienzaname \\[0.75mm]
+  \SAP@sapthesisInformationLabel.\\[1.5mm]
+  \SAP@emailLabel: \@ifundefined{href}{\SAP@authoremail}{\href{mailto:\SAP@authoremail}{\SAP@authoremail}}\par
+  }}
+\makeatother
+
 \begin{document}
 \frontmatter
 \maketitle
