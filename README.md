@@ -61,6 +61,33 @@ cd tesi
 latexmk -pdf -shell-escape main.tex    # serve pygments per i listati minted
 ```
 
+## Note operative e stato corrente (15/08/2026)
+
+Da tenere presente nelle sessioni di lavoro successive:
+
+- **File in lavorazione.** La copia di lavoro "definitiva" è
+  `/Users/alessandrolocurcio/Downloads/tesi/main.tex`, che è **identica** a
+  `tesi/tesi.tex` della repo (verifica: `md5 -q main.tex tesi/tesi.tex`). Una
+  modifica va applicata a **entrambi** i file (o a `tesi.tex` e poi copiata su
+  `main.tex`), e i PDF rigenerati.
+- **Documento autocontenuto.** `tesi.tex`/`main.tex` NON usano `\input`: i
+  frammenti in `contenuti/` sono già incorporati nel file. Non tentare di
+  ricostruire il documento a partire da `contenuti/`.
+- **Figura di copertina.** La compilazione di `main.tex` richiede
+  `conodiscesa2.jpeg` anche in `/Users/alessandrolocurcio/Downloads/tesi/`
+  (non solo in `tesi/`). Se manca, copiarlo dalla repo.
+- **Compilazione.** `cd <dir> && latexmk -pdf -shell-escape <nome>.tex`.
+  Compilare solo il documento modificato per risparmiare tempo. Su macOS
+  `setsid` NON esiste: per lanciare in background usare
+  `(nohup latexmk -pdf -shell-escape -interaction=nonstopmode <nome>.tex > /tmp/<nome>.log 2>&1 < /dev/null &)`.
+- **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
+  ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
+  anche lì.
+- **Ultimo intervento.** Accorpate le voci indipendenti del CG nello
+  pseudocodice Newton-CG (`d_{j+1}, r_{j+1}` e `j=j+1, Ψ`) — commit `2821a90`.
+- **PDF di riferimento.** `tesi.pdf` 75 pp (definitiva), `main.pdf` 75 pp
+  (copia di lavoro), `bozza.pdf` 56 pp.
+
 ## Riferimento
 
 R. H. Byrd, G. M. Chin, J. Nocedal, Y. Wu, *Sample size selection in
