@@ -227,30 +227,10 @@ Questo documento presenta, in forma rigorosa ma accessibile, la metodologia per 
 \section{Concetti di Base}
 % ═══════════════════════════════════════════════════════════════════════════
 
-\subsection{A chi \`e rivolto questo documento}
-
-Questo elaborato \`e pensato per chi ha familiarit\`a con il calcolo differenziale e la probabilit\`a di base, ma non necessariamente con l'ottimizzazione avanzata. Ogni concetto tecnico sar\`a introdotto gradualmente, con esempi concreti prima delle formule e una guida al significato di ogni simbolo.
-
-\begin{mnbox}
-  \textbf{Un ponte con i Metodi Numerici.}
-  I metodi numerici classici studiano l'approssimazione di soluzioni di equazioni e problemi di ottimizzazione. In questo documento, estendiamo quegli stessi algoritmi (gradiente, Newton, gradiente coniugato) al contesto dei \emph{grandi dataset}, dove non possiamo permetterci di calcolare esattamente le quantità (gradiente, Hessiana) su tutti i dati. L'idea è quella di usarne \emph{approssimazioni stocastiche} e di controllare dinamicamente l'accuratezza di tali approssimazioni.
-\end{mnbox}
-
-\subsection{Il problema, in parole semplici}
-
-Immagina di dover allenare un modello di intelligenza artificiale, per esempio, un riconoscitore vocale, su un archivio di \textbf{centinaia di milioni di esempi audio}. Il modello ha dei \emph{parametri} (numeri da calibrare) e il tuo obiettivo \`e trovarli in modo da minimizzare gli errori di predizione.
-
-La strategia naturale sarebbe: guarda tutti gli esempi, calcola la direzione di miglioramento (il gradiente), fai un passo in quella direzione, ripeti. Il problema? \textbf{Calcolare il gradiente su 100 milioni di esempi ad ogni passo \`e proibitivo.}
-
-Le alternative classiche sono:
-\begin{itemize}
-    \item Usare \textbf{un solo esempio per volta} (metodo stocastico): veloce ma rumoroso, come navigare a vista nella nebbia.
-    \item Usare \textbf{tutti gli esempi ad ogni passo} (metodo batch): preciso ma lentissimo.
-\end{itemize}
-
-\begin{intuitionbox}
-  \textbf{L'idea chiave di questo lavoro.} Esiste una via di mezzo intelligente: cominciare con un piccolo sottoinsieme di dati (batch piccolo), e \emph{aumentarlo progressivamente} solo quando necessario. Come uno studente che all'inizio studia riassunti e solo in seguito approfondisce sui testi originali: risparmia tempo senza perdere precisione.
-\end{intuitionbox}
+Questo capitolo richiama la notazione e i prerequisiti matematici usati nel
+resto del lavoro: convessità, gradiente, norme di matrice e numero di
+condizionamento. Le nozioni probabilistiche di base (valore atteso, varianza)
+sono date per note.
 
 \subsection{Glossario dei simboli ricorrenti}
 
@@ -275,8 +255,6 @@ $\lambda, L$ & Costanti di convessit\`a forte e di Lipschitz del gradiente \\
 $\kappa = L/\lambda$ & Numero di condizionamento: misura la ``difficolt\`a'' dell'ottimizzazione \\
 $\theta \in (0,1)$ & Parametro di tolleranza per il controllo della varianza \\
 $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
-$\E[\cdot]$ & Valore atteso (media statistica) \\
-$\Var(\cdot)$ & Varianza statistica \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -298,23 +276,6 @@ $\Var(\cdot)$ & Varianza statistica \\
   \]
   Punta nella direzione di massima crescita di $f$; pertanto $-\nabla f(w)$ \`e la direzione di \emph{massima discesa}, usata negli algoritmi di ottimizzazione.
   
-  \begin{mnbox}
-    Il metodo del gradiente (o steepest descent) è il più semplice algoritmo di ottimizzazione. La sua velocità di convergenza è determinata da due costanti che descrivono la forma della funzione:
-    \begin{itemize}
-      \item $L$: costante di \textbf{Lipschitz del gradiente}: misura quanto velocemente il gradiente può variare. In particolare,
-      \[
-        \|\nabla f(x) - \nabla f(y)\|_2 \leq L \|x - y\|_2 \quad \forall x,y.
-      \]
-      Più $L$ è grande, più il paesaggio è “ripido” e il passo massimo ammissibile è piccolo.
-      \item $\lambda$: costante di \textbf{convessità forte}: se $f$ è due volte differenziabile, $\nabla^2 f(w) \succeq \lambda I$ per ogni $w$. Più $\lambda$ è grande, più la funzione è “curvata verso l’alto” vicino al minimo.
-    \end{itemize}
-    Il \textbf{numero di condizionamento} $\kappa = L/\lambda$ gioca un ruolo cruciale: per una funzione quadratica $f(w) = \frac12 w^T A w$, con $A$ simmetrica definita positiva, $\kappa = \lambda_{\max}(A)/\lambda_{\min}(A)$. Nel metodo del gradiente con passo ottimo, l’errore decresce come
-    \[
-      f(w_k) - f(w_*) \leq \left(\frac{\kappa - 1}{\kappa + 1}\right)^{2k} (f(w_0) - f(w_*)).
-    \]
-    (RIVEDERE Quest'ultima frase e organizzare meglio anche la struttura: attualmente ci sta questa parte che parla del numero di condizionamento, poi si parla della norma di una matrice, e poi ancora del numero di condizionamento, quindi magari spostare tutto dopo la norma)
-    Più $\kappa$ è grande (problema mal condizionato), più lenta è la convergenza. Nel Machine Learning, $\kappa$ può essere enorme, da qui la necessità di metodi più avanzati come Newton o gradiente coniugato.
-  \end{mnbox}
 \end{definitionbox}
 
 
@@ -326,23 +287,34 @@ $\Var(\cdot)$ & Varianza statistica \\
   Per una matrice simmetrica definita positiva, $\|A\|_2 = \lambda_{\max}(A)$.
   
  \begin{mnbox}
-  \textbf{Metodi Numerici:} Le norme di matrice sono fondamentali per analizzare la stabilità e la convergenza degli algoritmi. Per una matrice $A$ simmetrica definita positiva, il \textbf{numero di condizionamento} è definito come
+  \textbf{Numero di condizionamento e convergenza.}
+  Le norme di matrice sono fondamentali per analizzare la stabilità e la
+  convergenza degli algoritmi. Per una matrice $A$ simmetrica definita
+  positiva, il \textbf{numero di condizionamento} è definito come
   \[
   \kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
   \]
-  Questo numero misura la \textbf{sensibilità} del problema alla propagazione degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o negli arrotondamenti possono amplificarsi nella soluzione. Un problema con $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è numericamente instabile e gli algoritmi iterativi (come il gradiente) convergono lentamente.
-
-  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori compresi tra $\lambda$ e $L$ (per le ipotesi di convessità forte e Lipschitzianità), quindi il suo numero di condizionamento è $\kappa = L/\lambda$. Maggiore è $\kappa$, più il problema è mal condizionato e più difficile da ottimizzare.
+  Questo numero misura la \textbf{sensibilità} del problema alla propagazione
+  degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o
+  negli arrotondamenti possono amplificarsi nella soluzione. Un problema con
+  $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è
+  numericamente instabile e gli algoritmi iterativi (come il gradiente)
+  convergono lentamente. Per una funzione quadratica
+  $f(w) = \frac12 w^T A w$, nel metodo del gradiente con passo ottimale
+  l'errore in valore di funzione decresce come
+  \[
+  f(w_k) - f(w_*) \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^{2k}
+  \bigl(f(w_0) - f(w_*)\bigr).
+  \]
+  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori
+  compresi tra $\lambda$ e $L$ (per le ipotesi di convessità forte e
+  Lipschitzianità), quindi il suo numero di condizionamento è
+  $\kappa = L/\lambda$: nel Machine Learning $\kappa$ può essere enorme, da
+  qui la necessità di metodi più avanzati come Newton o il gradiente coniugato
+  (Sezione~\ref{sec:algoritmi}).
 \end{mnbox}
 \end{definitionbox}
 
-\begin{definitionbox}
-  \textbf{Varianza campionaria.} Data una collezione di vettori $\{v_i\}_{i \in \mathcal{S}}$, la loro varianza campionaria componente per componente \`e:
-  \[
-    \Var_{i \in \mathcal{S}}(v_i) = \frac{1}{|\mathcal{S}|-1} \sum_{i \in \mathcal{S}} \left(v_i - \bar{v}\right)^2 \in \R^m,
-  \]
-  dove $\bar{v} = \frac{1}{|\mathcal{S}|}\sum_{i \in \mathcal{S}} v_i$ \`e la media campionaria e il quadrato \`e inteso componente per componente. La sua norma $\|\Var_{i \in \mathcal{S}}(v_i)\|_1 = \sum_{j=1}^m \Var_{i \in \mathcal{S}}(v_i^{(j)})$ misura la \emph{dispersione totale} del campione.
-\end{definitionbox}
 \end{comment}
 \newpage
 % ═══════════════════════════════════════════════════════════════════════════

@@ -58,7 +58,7 @@ Per compilare:
 
 ```bash
 cd tesi
-latexmk -pdf -shell-escape main.tex    # serve pygments per i listati minted
+latexmk -pdf -shell-escape tesi.tex    # serve pygments per i listati minted
 ```
 
 ## Note operative e stato corrente (15/08/2026)
@@ -83,13 +83,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Compattato lo pseudocodice Newton-CG (Sez. 5.2.3):
+- **Ultimo intervento.** Snellite le Sezioni 1–2 (Introduzione, Background e
+  Notazione) per adattarle a una tesi triennale: eliminati i paragrafi
+  "A chi è rivolto" e "Il problema, in parole semplici" (ridondanti con
+  l'Introduzione), deduplicato il discorso sul numero di condizionamento (ora un
+  unico mnbox, con tasso di convergenza, dentro la definizione di norma di
+  matrice), rimosse la definizione di varianza campionaria e le righe
+  $\E$/$\Var$ del glossario (nozioni date per scontate), condensato il notebox
+  su $\mathcal{V}$ e il paragrafo "Collegamento...". Documento passato da 75 a
+  73 pp; allineata anche `bozza.tex` (56 pp invariati).
+- **Intervento precedente.** Compattato lo pseudocodice Newton-CG (Sez. 5.2.3):
   condizioni di Wolfe in un unico display `gathered`, spaziature del box ridotte
   e `itemsep`/`topsep`/`parskip` nulli nelle enumerate; Figura 5.4 passata a
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi.pdf` 75 pp (definitiva), `main.pdf` 75 pp
+- **PDF di riferimento.** `tesi.pdf` 73 pp (definitiva), `main.pdf` 73 pp
   (copia di lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento

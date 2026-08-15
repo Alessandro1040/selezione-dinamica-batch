@@ -314,97 +314,43 @@ I contributi principali di questo lavoro sono i seguenti:
 
 \begin{enumerate}
   \item \textbf{Analisi teorica del metodo del gradiente a campione dinamico.}
-  Viene fornita una trattazione completa della dinamica del batch basata sul
-  controllo della varianza, con la dimostrazione della \emph{convergenza
-  lineare} in aspettativa e una stima di \emph{complessità totale} che risulta
-  competitiva con quella di SGD per problemi mal condizionati.
+  Trattazione completa della dinamica del batch basata sul controllo della
+  varianza, con convergenza lineare in aspettativa e stima di complessità
+  totale competitiva con quella di SGD per problemi mal condizionati.
   \item \textbf{Estensione al metodo Newton-CG con sottocampionamento
-  dell'Hessiana.} Viene proposto un metodo di secondo ordine che usa due
-  campioni distinti per gradiente e Hessiana, insieme a un \emph{criterio di
-  arresto adattivo} per il gradiente coniugato interno, basato sulla varianza
-  campionaria dei prodotti Hessiana-vettore.
+  dell'Hessiana.} Metodo di secondo ordine che usa due campioni distinti per
+  gradiente e Hessiana, con un criterio di arresto adattivo per il gradiente
+  coniugato interno basato sulla varianza campionaria dei prodotti
+  Hessiana-vettore.
   \item \textbf{Estensione ai problemi con regolarizzazione $L_1$ e
   applicazione interattiva.} Il campionamento dinamico viene esteso al caso
-  non liscio mediante il gradiente generalizzato, l'active set e la ricerca
-  lineare proiettata; gli algoritmi sono inoltre implementati in un'applicazione
-  web interattiva per la visualizzazione e la sperimentazione.
+  non liscio mediante gradiente generalizzato, active set e ricerca lineare
+  proiettata; gli algoritmi sono inoltre implementati in un'applicazione web
+  interattiva per la visualizzazione e la sperimentazione.
 \end{enumerate}
 
 \subsection{Struttura della tesi}
 
 Il resto del lavoro è organizzato come segue. Il Capitolo~\ref{sec:background}
-richiama i prerequisiti matematici e introduce la notazione utilizzata.
-Il Capitolo~\ref{sec:formulazione} formalizza il problema dell'ottimizzazione
-empirica su larga scala e le ipotesi strutturali sulla funzione obiettivo.
-Il Capitolo~\ref{sec:lavori} passa in rassegna i lavori correlati sui metodi
-stocastici, sul campionamento dinamico, sui metodi di secondo ordine e sulla
-regolarizzazione $L_1$. Il Capitolo~\ref{sec:algoritmi} descrive nel dettaglio
-gli algoritmi proposti, con i relativi risultati di convergenza e complessità.
-Il Capitolo~\ref{sec:esperimenti} illustra l'implementazione e i risultati
-numerici. Il Capitolo~\ref{sec:conclusioni} riassume i risultati, discute i
-limiti dello studio e delinea le direzioni di lavoro futuro. Le dimostrazioni
-dettagliate, i listati Python completi e le istruzioni per l'esecuzione sono
-raccolti rispettivamente nelle Appendici~A,~B e~C.
+richiama prerequisiti e notazione; il Capitolo~\ref{sec:formulazione}
+formalizza il problema dell'ottimizzazione empirica su larga scala e le
+ipotesi strutturali su $J$; il Capitolo~\ref{sec:lavori} passa in rassegna i
+lavori correlati; il Capitolo~\ref{sec:algoritmi} descrive gli algoritmi
+proposti con i risultati di convergenza e complessità; il
+Capitolo~\ref{sec:esperimenti} illustra l'implementazione e i risultati
+numerici; il Capitolo~\ref{sec:conclusioni} riassume i risultati e delinea le
+direzioni di lavoro futuro. Le dimostrazioni, i listati Python e le istruzioni
+di esecuzione sono raccolti nelle Appendici~A,~B e~C.
 
 
 % ═══════════════════════════════════════════════════════════════════════════
 \section{Background e Notazione}\label{sec:background}
 % ═══════════════════════════════════════════════════════════════════════════
 
-\subsection{A chi \`e rivolto questo documento}
-
-Questo elaborato \`e pensato per chi ha familiarit\`a con il calcolo differenziale e la probabilit\`a di base, ma non necessariamente con l'ottimizzazione avanzata. Ogni concetto tecnico sar\`a introdotto gradualmente, con esempi concreti prima delle formule e una guida al significato di ogni simbolo.
-
- \begin{mnbox}
-  \textbf{Numero di condizionamento e velocit\`a di convergenza.}
-  Le norme di matrice sono fondamentali per analizzare la stabilit\`a e la
-  convergenza degli algoritmi. Per una matrice $A$ simmetrica definita
-  positiva, il \textbf{numero di condizionamento} \`e definito come
-  \[
-  \kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
-  \]
-  Questo numero misura la \textbf{sensibilit\`a} del problema alla
-  propagazione degli errori: pi\`u $\kappa(A)$ \`e grande, pi\`u piccole
-  perturbazioni nei dati o negli arrotondamenti possono amplificarsi nella
-  soluzione. Un problema con $\kappa(A)$ grande si dice \textbf{mal
-  condizionato}: la soluzione \`e numericamente instabile e gli algoritmi
-  iterativi (come il metodo del gradiente) convergono lentamente. Per una
-  funzione quadratica $f(w) = \frac12 w^T A w$, con $A$ simmetrica
-  definita positiva, $\kappa = \lambda_{\max}(A)/\lambda_{\min}(A)$, e
-  nel metodo del gradiente con passo ottimale l'errore in valore di
-  funzione decresce come
-  \[
-    f(w_k) - f(w_*) \;\le\; \left(\frac{\kappa - 1}{\kappa + 1}\right)^{2k}
-    \bigl(f(w_0) - f(w_*)\bigr).
-  \]
-  Pi\`u $\kappa$ \`e grande, pi\`u lenta \`e la convergenza: il fattore di
-  contrazione $(\kappa-1)/(\kappa+1)$ tende a $1$ quando
-  $\kappa\to\infty$, e per un problema mal condizionato servono
-  moltissime iterazioni per ridurre l'errore.
-
-  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori
-  compresi tra $\lambda$ e $L$ (per le ipotesi di convessit\`a forte e
-  Lipschitzianit\`a), quindi il suo numero di condizionamento \`e
-  $\kappa = L/\lambda$. Nel Machine Learning $\kappa$ pu\`o essere enorme,
-  da qui la necessit\`a di metodi pi\`u avanzati come Newton o il gradiente
-  coniugato (Sezione~\ref{sec:algoritmi}).
-\end{mnbox}
-
-\subsection{Il problema, in parole semplici}
-
-Immagina di dover allenare un modello di intelligenza artificiale, per esempio, un riconoscitore vocale, su un archivio di \textbf{centinaia di milioni di esempi audio}. Il modello ha dei \emph{parametri} (numeri da calibrare) e il tuo obiettivo \`e trovarli in modo da minimizzare gli errori di predizione.
-
-La strategia naturale sarebbe: guarda tutti gli esempi, calcola la direzione di miglioramento (il gradiente), fai un passo in quella direzione, ripeti. Tuttavia, il calcolo del gradiente su $N$ dell'ordine di $10^8$ esempi ad ogni passo risulta proibitivo.
-
-Le alternative classiche sono:
-\begin{itemize}
-    \item Usare \textbf{un solo esempio per volta} (metodo stocastico): veloce ma fortemente rumoroso.
-    \item Usare \textbf{tutti gli esempi ad ogni passo} (metodo batch): preciso ma computazionalmente proibitivo.
-\end{itemize}
-
-\begin{intuitionbox}
-  \textbf{L'idea chiave di questo lavoro.} Esiste una via di mezzo intelligente: cominciare con un piccolo sottoinsieme di dati (batch piccolo), e \emph{aumentarlo progressivamente} solo quando necessario. Come uno studente che all'inizio studia riassunti e solo in seguito approfondisce sui testi originali: risparmia tempo senza perdere precisione.
-\end{intuitionbox}
+Questo capitolo richiama la notazione e i prerequisiti matematici usati nel
+resto del lavoro: convessità, gradiente, norme di matrice e numero di
+condizionamento. Le nozioni probabilistiche di base (valore atteso, varianza)
+sono date per note.
 
 \subsection{Glossario dei simboli ricorrenti}
 
@@ -429,8 +375,6 @@ $\lambda, L$ & Costanti di convessit\`a forte e di Lipschitz del gradiente \\
 $\kappa = L/\lambda$ & Numero di condizionamento: misura la ``difficolt\`a'' dell'ottimizzazione \\
 $\theta \in (0,1)$ & Parametro di tolleranza per il controllo della varianza \\
 $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
-$\E[\cdot]$ & Valore atteso (media statistica) \\
-$\Var(\cdot)$ & Varianza statistica \\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -453,21 +397,6 @@ $\Var(\cdot)$ & Varianza statistica \\
   \]
   Punta nella direzione di massima crescita di $f$; pertanto $-\nabla f(w)$ \`e la direzione di \emph{massima discesa}, usata negli algoritmi di ottimizzazione.
   
-  \begin{mnbox}
-    Il metodo del gradiente (o steepest descent) è il più semplice algoritmo di ottimizzazione. La sua velocità di convergenza è determinata da due costanti che descrivono la forma della funzione:
-    \begin{itemize}
-      \item $L$: costante di \textbf{Lipschitz del gradiente}: misura quanto velocemente il gradiente può variare. In particolare,
-      \[
-        \|\nabla f(x) - \nabla f(y)\|_2 \leq L \|x - y\|_2 \quad \forall x,y.
-      \]
-      Più $L$ è grande, più il paesaggio è “ripido” e il passo massimo ammissibile è piccolo.
-      \item $\lambda$: costante di \textbf{convessità forte}: se $f$ è due volte differenziabile, $\nabla^2 f(w) \succeq \lambda I$ per ogni $w$. Più $\lambda$ è grande, più la funzione è “curvata verso l’alto” vicino al minimo.
-    \end{itemize}
-    La loro combinazione determina la velocit\`a di convergenza del metodo del
-    gradiente: la discussione completa sul \textbf{numero di condizionamento}
-    $\kappa = L/\lambda$ \`e riportata subito dopo la definizione di norma di
-    matrice, dove sono disponibili tutti gli strumenti necessari.
-  \end{mnbox}
 \end{definitionbox}
 
 
@@ -479,67 +408,61 @@ $\Var(\cdot)$ & Varianza statistica \\
   Per una matrice simmetrica definita positiva, $\|A\|_2 = \lambda_{\max}(A)$.
   
  \begin{mnbox}
-  \textbf{Metodi Numerici:} Le norme di matrice sono fondamentali per analizzare la stabilità e la convergenza degli algoritmi. Per una matrice $A$ simmetrica definita positiva, il \textbf{numero di condizionamento} è definito come
+  \textbf{Numero di condizionamento e convergenza.}
+  Le norme di matrice sono fondamentali per analizzare la stabilità e la
+  convergenza degli algoritmi. Per una matrice $A$ simmetrica definita
+  positiva, il \textbf{numero di condizionamento} è definito come
   \[
   \kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
   \]
-  Questo numero misura la \textbf{sensibilità} del problema alla propagazione degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o negli arrotondamenti possono amplificarsi nella soluzione. Un problema con $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è numericamente instabile e gli algoritmi iterativi (come il gradiente) convergono lentamente.
-
-  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori compresi tra $\lambda$ e $L$ (per le ipotesi di convessità forte e Lipschitzianità), quindi il suo numero di condizionamento è $\kappa = L/\lambda$. Maggiore è $\kappa$, più il problema è mal condizionato e più difficile da ottimizzare.
+  Questo numero misura la \textbf{sensibilità} del problema alla propagazione
+  degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o
+  negli arrotondamenti possono amplificarsi nella soluzione. Un problema con
+  $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è
+  numericamente instabile e gli algoritmi iterativi (come il gradiente)
+  convergono lentamente. Per una funzione quadratica
+  $f(w) = \frac12 w^T A w$, nel metodo del gradiente con passo ottimale
+  l'errore in valore di funzione decresce come
+  \[
+  f(w_k) - f(w_*) \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^{2k}
+  \bigl(f(w_0) - f(w_*)\bigr).
+  \]
+  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori
+  compresi tra $\lambda$ e $L$ (per le ipotesi di convessità forte e
+  Lipschitzianità), quindi il suo numero di condizionamento è
+  $\kappa = L/\lambda$: nel Machine Learning $\kappa$ può essere enorme, da
+  qui la necessità di metodi più avanzati come Newton o il gradiente coniugato
+  (Sezione~\ref{sec:algoritmi}).
 \end{mnbox}
 \end{definitionbox}
 
-\begin{definitionbox}
-  \textbf{Varianza campionaria.} Data una collezione di vettori $\{v_i\}_{i \in \mathcal{S}}$, la loro varianza campionaria componente per componente \`e:
-  \[
-    \Var_{i \in \mathcal{S}}(v_i) = \frac{1}{|\mathcal{S}|-1} \sum_{i \in \mathcal{S}} \left(v_i - \bar{v}\right)^2 \in \R^m,
-  \]
-  dove $\bar{v} = \frac{1}{|\mathcal{S}|}\sum_{i \in \mathcal{S}} v_i$ \`e la media campionaria e il quadrato \`e inteso componente per componente. La sua norma $\|\Var_{i \in \mathcal{S}}(v_i)\|_1 = \sum_{j=1}^m \Var_{i \in \mathcal{S}}(v_i^{(j)})$ misura la \emph{dispersione totale} del campione.
-\end{definitionbox}
 
 \begin{notebox}
   \textbf{Il significato di $\mathcal{V}$ (varianza della popolazione).}
-  Al passo $k$ dell'algoritmo, con pesi correnti $w_k$, si prendono tutti i
-  dati del dataset (dal primo all'$N$-esimo) e si calcola
-  $\nabla \ell(w_k; i)$, la direzione di discesa per quell'esempio. La media
-  di questi $N$ vettori \`e il gradiente esatto
-  \[
-  \nabla J(w_k) = \frac{1}{N} \sum_{i=1}^N \nabla \ell(w_k; i).
-  \]
-  Il vettore $\mathcal{V}$ misura quanto i singoli gradienti
-  $\nabla \ell(w_k; i)$ differiscono dalla loro media:
+  Al passo $k$, con pesi correnti $w_k$, il vettore $\mathcal{V}$ misura
+  quanto i singoli gradienti $\nabla \ell(w_k; i)$ differiscono dalla loro
+  media $\nabla J(w_k)$:
   \[
   \mathcal{V} := \frac{1}{N} \sum_{i=1}^{N}
   \left( \nabla \ell(w_k; i) - \nabla J(w_k) \right)^2 \in \mathbb{R}^m,
   \]
-  dove il quadrato \`e inteso \emph{componente per componente}. In termini
-  probabilistici, se si estrae a caso un indice $I$ dal dataset, il gradiente
-  della loss su quell'esempio \`e una variabile aleatoria, e $\mathcal{V}$
-  \`e la sua \textbf{varianza} intorno alla media:
-  \[
-  \mathcal{V} =
-  \mathrm{Var}_{I \sim \mathrm{Uniform}\{1,\dots,N\}}\bigl(\nabla \ell(w_k; I)\bigr).
-  \]
-  Intuitivamente, se i gradienti individuali sono tra loro coerenti (bassa
-  varianza), la loro media campionaria \`e un buon stimatore di $\nabla J(w_k)$;
-  se invece sono molto dispersi, il batch deve essere grande perch\'e la stima
-  sia affidabile. Questa osservazione \`e il punto di partenza della
-  \emph{Condizione di Controllo della Varianza} (CCV) introdotta nella
-  Sezione~\ref{sec:algoritmi}.
+  dove il quadrato è inteso \emph{componente per componente}. Se i gradienti
+  individuali sono tra loro coerenti (bassa varianza), la media campionaria è
+  un buon stimatore di $\nabla J(w_k)$; se invece sono molto dispersi, il
+  batch deve essere grande perché la stima sia affidabile. Questa osservazione
+  è il punto di partenza della \emph{Condizione di Controllo della Varianza}
+  (CCV) introdotta nella Sezione~\ref{sec:algoritmi}.
 \end{notebox}
 
 
 \subsection{Collegamento con la formulazione del problema}
 
-I concetti introdotti in questo capitolo -- convessit\`a, gradiente,
-norme, condizionamento e varianza campionaria -- sono gli strumenti con
-cui il prossimo capitolo formalizza il problema di \emph{ottimizzazione
-empirica su larga scala}: dato un dataset di $N$ esempi, si tratta di
-minimizzare la perdita media $J(w)$ su un insieme di parametri
-$w\in\R^m$, sapendo che il calcolo esatto del gradiente su tutti gli
-esempi \`e troppo costoso. La varianza della popolazione $\mathcal{V}$ e
-la sua stima campionaria forniranno il criterio per decidere,
-dinamicamente, quanti dati usare ad ogni iterazione.
+I concetti introdotti in questo capitolo -- convessità, gradiente, norme,
+condizionamento e varianza -- sono gli strumenti con cui il prossimo capitolo
+formalizza il problema di ottimizzazione empirica su larga scala. In
+particolare, la varianza della popolazione $\mathcal{V}$ e la sua stima
+campionaria forniranno il criterio per decidere, dinamicamente, quanti dati
+usare a ogni iterazione.
 \newpage
 
 % ═══════════════════════════════════════════════════════════════════
