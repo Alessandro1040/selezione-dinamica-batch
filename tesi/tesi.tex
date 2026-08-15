@@ -1744,27 +1744,30 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 \subsubsection{Pseudocodice (Algoritmo Newton-CG)}
 
 \begin{actionbox}
-  \textbf{Newton-CG con Campionamento Dinamico}\\[0.3cm]
+  \textbf{Newton-CG con Campionamento Dinamico}\\[0.15cm]
   \textit{Input:} 
   $w_0$ (punto iniziale), 
   $\mathcal{S}_0$ (batch iniziale per gradiente), 
   $\mathcal{H}_0 \subset \mathcal{S}_0$ (batch iniziale per Hessiana), 
   $R = |\mathcal{H}_0|/|\mathcal{S}_0|$ (rapporto costante), 
   $\theta \in (0,1)$ (tolleranza per varianza del gradiente),
-  $c_1, c_2 \in (0,1)$ con $c_1 < c_2$ (parametri Wolfe).\\[0.1cm]
+  $c_1, c_2 \in (0,1)$ con $c_1 < c_2$ (parametri Wolfe).\\[0.05cm]
   
-  \textit{Inizializzazione:} poni $k = 0$.\\[0.1cm]
+  \textit{Inizializzazione:} poni $k = 0$.\\[0.05cm]
   
   \textit{Ripeti per ogni iterazione $k$ fino a convergenza:}
   
   \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
     \item \textbf{Calcola la direzione di Newton approssimata} $d_k$ mediante \emph{gradiente coniugato (CG)}:
     \begin{enumerate}
+    \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
       \item $d_0 = 0$, $r_0 = \nabla J_{\mathcal{S}_k}(w_k)$, $p_0 = -r_0$, $j=0$, $\Psi=0$.
       \item $ \gamma = \frac{\| \operatorname{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)\,p_0\bigr) \|_1}{|\mathcal{H}_k| \, \|p_0\|_2^2}.
       $
       \item Finchè  $\|r_{j}\|_2^2 > \Psi$:
       \begin{enumerate}
+      \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
         \item $s_j = \nabla^2 J_{\mathcal{H}_k}(w_k) p_j$
         \item $\alpha_j = \dfrac{r_j^T r_j}{p_j^T s_j}$.
         \item $d_{j+1} = d_j + \alpha_j p_j$, $r_{j+1} = r_j + \alpha_j s_j$.
@@ -1779,16 +1782,17 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
     \item \textbf{Line search con condizioni di Wolfe:}
     Trova $\alpha_k > 0$ tale che:
     \[
-    J_{\mathcal{S}_k}(w_k + \alpha_k d_k) \le J_{\mathcal{S}_k}(w_k) + c_1 \alpha_k \nabla J_{\mathcal{S}_k}(w_k)^T d_k,
-    \]
-    \[
+    \begin{gathered}
+    J_{\mathcal{S}_k}(w_k + \alpha_k d_k) \le J_{\mathcal{S}_k}(w_k) + c_1 \alpha_k \nabla J_{\mathcal{S}_k}(w_k)^T d_k,\\
     \nabla J_{\mathcal{S}_k}(w_k + \alpha_k d_k)^T d_k \ge c_2 \nabla J_{\mathcal{S}_k}(w_k)^T d_k.
+    \end{gathered}
     \]
     
     \item Aggiorna il punto: $w_{k+1} = w_k + \alpha_k d_k$.
     
     \item \textbf{Aggiornamento dinamico del batch per il gradiente:}
     \begin{enumerate}
+    \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
       \item Seleziona un nuovo campione $\mathcal{S}_{k+1}$ della stessa dimensione di $\mathcal{S}_k$.
       \item Calcola la varianza campionaria $\widehat{\mathcal{V}} = \Var_{i \in \mathcal{S}_{k+1}}(\nabla \ell(w_{k+1};i))$.
       \item Se $\dfrac{\|\widehat{\mathcal{V}}\|_1}{|\mathcal{S}_{k+1}|} > \theta^2 \|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_2^2$, aumenta il batch:
@@ -1807,7 +1811,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 % Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
 % Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
 % Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[

@@ -83,8 +83,12 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Accorpate le voci indipendenti del CG nello
-  pseudocodice Newton-CG (`d_{j+1}, r_{j+1}` e `j=j+1, Ψ`) — commit `2821a90`.
+- **Ultimo intervento.** Compattato lo pseudocodice Newton-CG (Sez. 5.2.3):
+  condizioni di Wolfe in un unico display `gathered`, spaziature del box ridotte
+  e `itemsep`/`topsep`/`parskip` nulli nelle enumerate; Figura 5.4 passata a
+  `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
+  interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
+  56 pp invariati).
 - **PDF di riferimento.** `tesi.pdf` 75 pp (definitiva), `main.pdf` 75 pp
   (copia di lavoro), `bozza.pdf` 56 pp.
 
