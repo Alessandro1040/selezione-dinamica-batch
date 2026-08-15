@@ -259,23 +259,17 @@ listati Python completi sono raccolti in appendice.
 
 \subsection{Contesto}
 
-Negli ultimi anni il \emph{machine learning} ha assunto un ruolo centrale in
-numerosi ambiti applicativi, dalla visione artificiale all'elaborazione del
-linguaggio naturale, e la disponibilità di dataset sempre più grandi ha reso
-l'\emph{ottimizzazione su larga scala} uno dei problemi computazionali più
-rilevanti. In un tipico problema di apprendimento supervisionato si dispone di
-un insieme di $N$ esempi etichettati e si cerca il vettore di parametri $w$ che
-minimizza la perdita media $J(w)$ sul dataset. Quando $N$ è dell'ordine di
-$10^6$--$10^9$ esempi, come accade nelle applicazioni reali, il calcolo del
-gradiente completo $\nabla J(w)$ che richiede di valutare la perdita su
-tutti gli esempi, ha costo $O(Nm)$ ed è computazionalmente
-proibitivo se ripetuto ad ogni iterazione.
+Nel \emph{machine learning} su larga scala si dispone di un dataset di $N$
+esempi (spesso dell'ordine di $10^6$--$10^9$) e si cerca il vettore di
+parametri $w$ che minimizza la perdita media $J(w)$. Il calcolo del gradiente
+completo $\nabla J(w)$ richiede di valutare la perdita su tutti gli esempi,
+con costo $O(Nm)$ ad iterazione, proibitivo se ripetuto su larga scala.
 
 Per questo motivo gli algoritmi di ottimizzazione stocastica, che usano ad ogni
-passo soltanto un sottoinsieme dei dati (batch),
-sono diventati lo standard. La letteratura offre un ampio spettro di
-metodi: dal gradiente stocastico classico (SGD)~\cite{robbins1951, bottou2008}
-ai metodi a varianza ridotta~\cite{defazio2014, johnson2013}.
+passo soltanto un sottoinsieme dei dati (batch), sono diventati lo standard: la
+letteratura offre un ampio spettro di metodi, dal gradiente stocastico classico
+(SGD)~\cite{robbins1951, bottou2008} ai metodi a varianza
+ridotta~\cite{defazio2014, johnson2013}.
 
 \subsection{Il problema: la dimensione del mini-batch}
 
@@ -343,7 +337,7 @@ risultati di convergenza e l'implementazione:
 \subsection{Struttura della tesi}
 
 Il resto del lavoro è organizzato come segue. Il Capitolo~\ref{sec:background}
-richiama prerequisiti e notazione; il Capitolo~\ref{sec:formulazione}
+richiama la notazione usata nel resto del lavoro; il Capitolo~\ref{sec:formulazione}
 formalizza il problema dell'ottimizzazione empirica su larga scala e le
 ipotesi strutturali su $J$; il Capitolo~\ref{sec:lavori} passa in rassegna i
 lavori correlati; il Capitolo~\ref{sec:algoritmi} descrive gli algoritmi
@@ -358,10 +352,9 @@ di esecuzione sono raccolti nelle Appendici~A,~B e~C.
 \section{Background e Notazione}\label{sec:background}
 % ═══════════════════════════════════════════════════════════════════════════
 
-Questo capitolo richiama la notazione e i prerequisiti matematici usati nel
-resto del lavoro: convessità, gradiente, norme di matrice e numero di
-condizionamento. Le nozioni probabilistiche di base (valore atteso, varianza)
-sono date per note.
+Questo capitolo richiama la notazione usata nel resto del lavoro. Le nozioni
+matematiche di base (convessità, gradiente, Hessiana, norme, valore atteso e
+varianza) sono date per note.
 
 \subsection{Glossario dei simboli ricorrenti}
 
@@ -373,79 +366,25 @@ Per facilitare la lettura, raccogliamo qui i simboli matematici che appariranno 
 \toprule
 Simbolo & Significato \\
 \midrule
-$w \in \R^m$ & Vettore dei parametri del modello (ci\`o che si vuole trovare) \\
-$N$ & Numero totale di esempi nel dataset di training \\
-$n_k$ & Dimensione del batch all'iterazione $k$ (variabile con $k$) \\
-$\mathcal{S}_k \subseteq \{1,\dots,N\}$ & Sottoinsieme di indici selezionati all'iterazione $k$ \\
-$\ell(w; i)$ & Perdita (errore) del modello $w$ sull'esempio $i$ \\
-$J(w)$ & Perdita media su tutto il dataset \\
-$J_{\mathcal{S}}(w)$ & Perdita media sul sottoinsieme $\mathcal{S}$ \\
-$\nabla J(w)$ & Gradiente di $J$: vettore che indica la direzione di massima crescita \\
-$\nabla^2 J(w)$ & Hessiana di $J$: matrice che descrive la curvatura locale \\
-$\lambda, L$ & Costanti di convessit\`a forte e di Lipschitz del gradiente \\
-$\kappa = L/\lambda$ & Numero di condizionamento: misura la ``difficolt\`a'' dell'ottimizzazione \\
-$\theta \in (0,1)$ & Parametro di tolleranza per il controllo della varianza \\
-$\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
+$w \in \R^m$ & parametri del modello \\
+$N$ & numero di esempi del dataset \\
+$n_k$ & dimensione del batch all'iterazione $k$ \\
+$\mathcal{S}_k \subseteq \{1,\dots,N\}$ & campione di indici all'iterazione $k$ \\
+$\ell(w; i)$ & perdita sull'esempio $i$ \\
+$J(w)$ & perdita media sul dataset \\
+$J_{\mathcal{S}}(w)$ & perdita media sul campione $\mathcal{S}$ \\
+$\nabla J(w)$ & gradiente di $J$ \\
+$\nabla^2 J(w)$ & Hessiana di $J$ \\
+$\lambda, L$ & costanti di convessità forte e di Lipschitz del gradiente \\
+$\kappa = L/\lambda$ & numero di condizionamento \\
+$\theta \in (0,1)$ & tolleranza della condizione di controllo della varianza \\
+$\alpha_k$ & passo all'iterazione $k$ \\
+$\mathcal{V}$ & varianza della popolazione, componente per componente \\
+$\widehat{\mathcal{V}}$ & stima campionaria di $\mathcal{V}$ sul batch \\
 \bottomrule
 \end{tabular}
 \end{center}
 
-\subsection{Prerequisiti matematici essenziali}
-
-\begin{definitionbox}
-  \textbf{Funzione convessa.} Una funzione $f: \R^m \to \R$ si dice \emph{convessa} se, preso qualunque segmento tra due punti del suo dominio, il grafico della funzione sta \emph{sotto} (o al pi\`u su) quel segmento. Formalmente, per ogni $x, y \in \R^m$ e $t \in [0,1]$:
-  \[
-    f(tx + (1-t)y) \leq t f(x) + (1-t) f(y).
-  \]
-  L'utilit\`a delle funzioni convesse in ottimizzazione \`e fondamentale: \textbf{ogni minimo locale \`e anche globale}.
-
-\end{definitionbox}
-
-\begin{definitionbox}
-  \textbf{Gradiente.} Il gradiente $\nabla f(w) \in \R^m$ di una funzione differenziabile $f: \R^m \to \R$ nel punto $w$ \`e il vettore delle derivate parziali:
-  \[
-    \nabla f(w) = \left(\frac{\partial f}{\partial w_1}, \frac{\partial f}{\partial w_2}, \dots, \frac{\partial f}{\partial w_m}\right)^T.
-  \]
-  Punta nella direzione di massima crescita di $f$; pertanto $-\nabla f(w)$ \`e la direzione di \emph{massima discesa}, usata negli algoritmi di ottimizzazione.
-  
-\end{definitionbox}
-
-
-\begin{definitionbox}
-  \textbf{Norma di una matrice.} Data una matrice $A \in \R^{n \times n}$, la \textbf{norma indotta} (o norma operatoriale) è definita come:
-  \[
-    \|A\|_2 = \max_{\|x\|_2=1} \|Ax\|_2 = \sqrt{\lambda_{\max}(A^T A)}.
-  \]
-  Per una matrice simmetrica definita positiva, $\|A\|_2 = \lambda_{\max}(A)$.
-  
- \begin{mnbox}
-  \textbf{Numero di condizionamento e convergenza.}
-  Le norme di matrice sono fondamentali per analizzare la stabilità e la
-  convergenza degli algoritmi. Per una matrice $A$ simmetrica definita
-  positiva, il \textbf{numero di condizionamento} è definito come
-  \[
-  \kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
-  \]
-  Questo numero misura la \textbf{sensibilità} del problema alla propagazione
-  degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o
-  negli arrotondamenti possono amplificarsi nella soluzione. Un problema con
-  $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è
-  numericamente instabile e gli algoritmi iterativi (come il gradiente)
-  convergono lentamente. Per una funzione quadratica
-  $f(w) = \frac12 w^T A w$, nel metodo del gradiente con passo ottimale
-  l'errore in valore di funzione decresce come
-  \[
-  f(w_k) - f(w_*) \le \left(\frac{\kappa - 1}{\kappa + 1}\right)^{2k}
-  \bigl(f(w_0) - f(w_*)\bigr).
-  \]
-  Nel nostro contesto, la matrice Hessiana $\nabla^2 J(w)$ ha autovalori
-  compresi tra $\lambda$ e $L$ (per le ipotesi di convessità forte e
-  Lipschitzianità), quindi il suo numero di condizionamento è
-  $\kappa = L/\lambda$: nel Machine Learning $\kappa$ può essere enorme, da
-  qui la necessità di metodi più avanzati come Newton o il gradiente coniugato
-  (Sezione~\ref{sec:algoritmi}).
-\end{mnbox}
-\end{definitionbox}
 
 
 \begin{notebox}
@@ -468,9 +407,8 @@ $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
 
 \subsection{Collegamento con la formulazione del problema}
 
-I concetti introdotti in questo capitolo -- convessità, gradiente, norme,
-condizionamento e varianza -- sono gli strumenti con cui il prossimo capitolo
-formalizza il problema di ottimizzazione empirica su larga scala. In
+La notazione introdotta in questo capitolo è usata nel prossimo per
+formalizzare il problema di ottimizzazione empirica su larga scala. In
 particolare, la varianza della popolazione $\mathcal{V}$ e la sua stima
 campionaria forniranno il criterio per decidere, dinamicamente, quanti dati
 usare a ogni iterazione.

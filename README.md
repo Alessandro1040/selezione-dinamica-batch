@@ -105,7 +105,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   sottotitolo, autore, matricola, corso, relatore, A.A. 2025/2026, tipo "Tesi
   di Laurea Triennale"; l'opzione `lam` non esiste in questa versione di
   sapthesis) e script `tesi/compila_tesi.sh` che compila frontespizio +
-  documento e produce `tesi_finale.pdf` (74 pp = frontespizio + verso +
+  documento e produce `tesi_finale.pdf` (72 pp = frontespizio + verso +
   documento senza la vecchia copertina custom, che resta nel sorgente).
   Il verso del frontespizio è ripulito (ridefinito `\SAP@composebacktitlepage`):
   niente "Tesi non ancora discussa", © né "Tutti i diritti riservati".
@@ -113,7 +113,10 @@ Da tenere presente nelle sessioni di lavoro successive:
   Conclusioni) per attribuire i metodi a byrd2012 e descrivere i contributi
   propri: analisi teorica, miglioramento di alcuni teoremi di convergenza
   (fattore di contrazione via disuguaglianza di PL nella forma forte) e
-  implementazioni.
+  implementazioni. Inoltre: glossario reso minimale (solo simbolo +
+  significato essenziale) e rimossi dai primi due capitoli i prerequisiti di
+  matematica di base (definizione di convessità, gradiente, norma di matrice):
+  documento a 71 pp.
 - **Intervento precedente.** Snellite le Sezioni 1–2 (Introduzione, Background e
   Notazione) per adattarle a una tesi triennale: eliminati i paragrafi
   "A chi è rivolto" e "Il problema, in parole semplici" (ridondanti con
@@ -129,8 +132,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 74 pp (definitiva, con
-  frontespizio), `tesi.pdf` 73 pp (documento), `main.pdf` 73 pp (copia di
+- **PDF di riferimento.** `tesi_finale.pdf` 72 pp (definitiva, con
+  frontespizio), `tesi.pdf` 71 pp (documento), `main.pdf` 71 pp (copia di
   lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento
