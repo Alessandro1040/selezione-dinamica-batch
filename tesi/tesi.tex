@@ -16,6 +16,7 @@
 \usepackage{url}
 \usepackage{graphicx}
 \usepackage{caption}
+\usepackage{subcaption}
 \usepackage{float}
 \usepackage{hyperref}
 \numberwithin{equation}{section}
@@ -3899,6 +3900,111 @@ disponibili, quindi non richiede la Hessiana: negli esperimenti il metodo impieg
 ~18 iterazioni medie (contro le 30 del GD) e sui problemi mal condizionati
 raggiunge precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
 \label{fig:bbccv}
+\end{figure}
+
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Test comparativi aggiuntivi}\label{app:test}
+
+Questa appendice raccoglie i test comparativi eseguiti con il pannello
+``Analisi'' dell'applicazione interattiva (Sezione~\ref{sec:visualizzazione})
+sui quattro algoritmi implementati: Dynamic GD, Newton-CG, Newton-CG~$L_1$ e
+RAPG. Per ogni iterazione il pannello riporta il numero di iterazione,
+l'errore $\|w_k - w_*\|_2$ e il valore $J(w_k)$. I test sono stati eseguiti
+sulle tre funzioni obiettivo quadratiche dell'applicazione: ben condizionata
+($\kappa \approx 1.1$), molto mal condizionata ($\kappa \approx 100$) e con
+termine incrociato. Le Figure~F.1--F.3 mostrano le schermate del pannello,
+raggruppate per funzione obiettivo, con i quattro algoritmi in ordine:
+Dynamic GD, Newton-CG, Newton-CG~$L_1$, RAPG.
+
+% Figura F.1 - quadratica ben condizionata
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/bencond_dgd.png}
+  \caption{Dynamic GD}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/bencond_ncg.png}
+  \caption{Newton-CG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/bencond_ncgl1.png}
+  \caption{Newton-CG $L_1$}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/bencond_rapg.png}
+  \caption{RAPG}
+\end{subfigure}
+\caption{Pannello di analisi dell'applicazione sul problema quadratico
+ben condizionato ($\kappa \approx 1.1$): per ogni iterazione sono riportati
+numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro algoritmi
+(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+\label{fig:test_bencond}
+\end{figure}
+
+% Figura F.2 - quadratica molto mal condizionata
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/malcond_dgd.png}
+  \caption{Dynamic GD}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/malcond_ncg.png}
+  \caption{Newton-CG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/malcond_ncgl1.png}
+  \caption{Newton-CG $L_1$}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/malcond_rapg.png}
+  \caption{RAPG}
+\end{subfigure}
+\caption{Pannello di analisi dell'applicazione sul problema quadratico
+molto mal condizionato ($\kappa \approx 100$): per ogni iterazione sono
+riportati numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro
+algoritmi (a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+\label{fig:test_malcond}
+\end{figure}
+
+% Figura F.3 - quadratica con termine incrociato
+\begin{figure}[H]
+\centering
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/incrociato_dgd.png}
+  \caption{Dynamic GD}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/incrociato_ncg.png}
+  \caption{Newton-CG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/incrociato_ncgl1.png}
+  \caption{Newton-CG $L_1$}
+\end{subfigure}\hfill
+\begin{subfigure}{0.235\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/incrociato_rapg.png}
+  \caption{RAPG}
+\end{subfigure}
+\caption{Pannello di analisi dell'applicazione sul problema quadratico
+con termine incrociato: per ogni iterazione sono riportati numero di
+iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro algoritmi
+(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+\label{fig:test_incrociato}
 \end{figure}
 
 
