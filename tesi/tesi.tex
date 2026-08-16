@@ -2276,7 +2276,10 @@ Tutti gli esperimenti sono stati eseguiti su un computer portatile con
 processore Apple Silicon (8 core) e 16~GB di RAM, in ambiente macOS, con
 Python~3.14, NumPy~2.4 e Matplotlib~3.11. Non è richiesto alcun acceleratore
 GPU. I tempi riportati sono tempi di esecuzione misurati su una singola
-esecuzione per ogni configurazione.
+esecuzione per ogni configurazione. Per garantire la riproducibilità esatta
+dei risultati, tutti gli esperimenti sono stati eseguiti con seme casuale
+fissato (seed $42$): a parità di codice, versione delle librerie e seme, i
+valori delle Tabelle~\ref{tab:6_1} e~\ref{tab:6_2} sono riproducibili.
 
 \subsection{Architettura Software}\label{sec:architettura}
 
@@ -3664,7 +3667,10 @@ ambiente macOS, utilizzando Python 3.14, NumPy 2.4 e Matplotlib 3.11. Il costo
 complessivo della simulazione (tre problemi test, tre valori di $\theta$ e
 quattro algoritmi) è inferiore a due minuti; nessun acceleratore GPU è
 richiesto, poiché tutti i calcoli sono operazioni vettoriali su array NumPy di
-dimensione al più $N \times m$.
+dimensione al più $N \times m$. Per la riproducibilità esatta dei risultati,
+il generatore di numeri casuali è stato inizializzato con seme fisso (seed
+$42$); a parità di codice e versioni delle librerie, i valori riportati sono
+riproducibili.
 
 \begin{thebibliography}{99}
 
