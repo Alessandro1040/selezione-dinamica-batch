@@ -101,7 +101,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Pagina Ringraziamenti (riga 219): ridotta a una sola
+- **Ultimo intervento.** Appendice D compattata: i due schemi SVRG
+  (`fig:svrg`) e SAGA (`fig:saga`) ora sono **affiancati sulla stessa pagina**,
+  uno nella metà sinistra e l'altro nella metà destra, con le caption sotto
+  ciascuno nella propria metà. Struttura: un unico `figure[H]` con due
+  `minipage[b]{0.48\textwidth}`; i contenuti dei due `tikzpicture` sono
+  **invariati** (unico ritocco: `\resizebox{\textwidth}{!}` →
+  `\resizebox{\linewidth}{!}`). Label e numerazione immutate (i rimandi in Sez.
+  4.1 non cambiano). Documento da 78 a **77 pp** (`main.pdf`, `tesi.pdf`,
+  `tesi_finale.pdf`); l'Appendice D va dalla pag. 75 (introduzione) alla pag.
+  76 (i due schemi). `bozza.tex` non allineata (l'appendice non c'è).
+- **Intervento precedente.** Pagina Ringraziamenti (riga 219): ridotta a una sola
   frase — "Ringrazio chiunque, in qualsiasi modo, mi abbia motivato a fare di
   più" (via insegnanti, amici, SMIA, nomi citati e famiglia, come richiesto).
   Documento invariato a **78 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
