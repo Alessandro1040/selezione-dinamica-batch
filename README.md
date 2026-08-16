@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Appendice B (Listati Python, B.1–B.3): ripristinati
+- **Ultimo intervento.** Nota di riproducibilità: aggiunto il seme casuale
+  fissato (seed $42$) in Sez. 6.1 (Setup Sperimentale) e nell'Appendice C
+  (Requisiti di sistema), per dichiarare la riproducibilità esatta delle
+  tabelle 6.1–6.2 a parità di codice e versioni. `sim_exp.py` usa
+  `np.random.default_rng(42)`; l'app `visualizzazione.html` ha seed 42 di
+  default. Listati B.1–B.3 NON modificati (restano verbatim dalla bozza).
+  Documento invariato a **76 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Appendice B (Listati Python, B.1–B.3): ripristinati
   **verbatim** dalla vecchia `bozza.tex` (sezione "Visualizzazione Interattiva",
   righe 1757–2230) i blocchi `pythoncode` **e** i commenti LaTeX con formule che
   seguono ogni blocco, come richiesto dall'autore. Il documento nuovo (commit
