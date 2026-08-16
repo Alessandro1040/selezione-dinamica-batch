@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Rimozione globale del grassetto (`\textbf`) e del
+- **Ultimo intervento.** Pagina Ringraziamenti (subito dopo la copertina):
+  rimosso il `\vspace*{3.5cm}` che spingeva titolo e testo in basso. Ora
+  "Ringraziamenti" e il `placeholder` partono subito sotto l'intestazione di
+  testa, in modo uniforme con la pagina Abstract successiva (che inizia in
+  cima). Nessun altro contenuto toccato; `bozza.tex` invariata (i
+  ringraziamenti non ci sono). Documento invariato a 74 pp (`main.pdf` e
+  `tesi.pdf`), `tesi_finale.pdf` 74 pp.
+- **Intervento precedente.** Rimozione globale del grassetto (`\textbf`) e del
   corsivo (`\emph`) in tutto il documento, e dei trattini nei composti in prosa
   (mini-batch → mini batch, Hessian-free → Hessian free, ecc.); conservati i
   nomi tecnici (Newton-CG, Hessiana-vettore), i `\textit` dell'autore e la
