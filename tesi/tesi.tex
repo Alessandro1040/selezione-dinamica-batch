@@ -538,9 +538,11 @@ Per ridurre la varianza dello stimatore sono state proposte diverse famiglie di
 metodi. I metodi a varianza ridotta combinano la stima stocastica con
 una correzione periodica basata su un gradiente (quasi) esatto: SVRG di Johnson
 e Zhang~\cite{johnson2013} mantiene una copia dei parametri su cui ricalcola un
-gradiente completo a intervalli regolari, mentre SAGA di Defazio
+gradiente completo a intervalli regolari (Schema~\ref{fig:svrg} in
+Appendice~\ref{app:schemi}), mentre SAGA di Defazio
 et~al.~\cite{defazio2014} mantiene una tavola dei gradienti individuali e
-corregge la stima a ogni iterazione. Questi metodi ottengono una convergenza
+corregge la stima a ogni iterazione (Schema~\ref{fig:saga} in
+Appendice~\ref{app:schemi}). Questi metodi ottengono una convergenza
 lineare per problemi fortemente convessi, ma richiedono di memorizzare o
 ricalcolare quantità globali e la dimensione del batch rimane comunque fissata
 a priori.
@@ -3683,6 +3685,138 @@ dimensione al più $N \times m$. Per la riproducibilità esatta dei risultati,
 il generatore di numeri casuali è stato inizializzato con seme fisso (seed
 $42$); a parità di codice e versioni delle librerie, i valori riportati sono
 riproducibili.
+
+% ═══════════════════════════════════════════════════════════════════════════
+\section{Schemi dei metodi a varianza ridotta}\label{app:schemi}
+% ═══════════════════════════════════════════════════════════════════════════
+
+I metodi a varianza ridotta SVRG e SAGA, discussi nella
+Sezione~\ref{sec:lavori}, combinano la stima stocastica del gradiente con una
+correzione basata su quantità globali: lo stimatore $g_k$ resta non distorto,
+$\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$, e la sua varianza è ridotta rispetto
+al gradiente stocastico puro $\nabla\ell(w_k; i_k)$. Nella notazione del
+documento, $J(w) = \frac{1}{N}\sum_{i=1}^N \ell(w; i)$ è la perdita media
+empirica, $\nabla\ell(w; i)$ il gradiente sull'esempio $i$-esimo, $i_k$
+l'indice estratto uniformemente a caso da $\{1,\dots,N\}$ all'iterazione $k$ e
+$\alpha_k$ il passo.
+
+% Schema D.1 - SVRG (Johnson & Zhang, 2013)
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.1cm and 2.4cm,
+  every node/.style={font=\small},
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=4.2cm, align=center, minimum height=1.2cm,
+    inner sep=6pt
+  },
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=4.0cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Nodi principali (colonna centrale)
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, punto di ancoraggio $\bar w \leftarrow w_0$};
+  \node[box, below=of init] (estrai) {Estrazione esempio\\[2pt] $i_k \sim \mathrm{Unif}\{1,\dots,N\}$};
+  \node[box, below=of estrai, text width=5.6cm, minimum height=1.6cm] (stim) {Stimatore SVRG\\[2pt] $g_k = \nabla\ell(w_k; i_k) - \nabla\ell(\bar w; i_k)$\\[2pt] $+ \, \nabla J(\bar w)$};
+  \node[box, below=of stim] (agg) {Aggiornamento\\[2pt] $w_{k+1} = w_k - \alpha_k g_k$};
+  \node[io, below=of agg] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
+  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
+
+  % Nodo laterale: aggiornamento del punto di ancoraggio
+  \node[box, right=2.1cm of stim, text width=4.8cm, minimum height=1.9cm] (snap) {
+    Ogni $m$ iterazioni:\\[2pt]
+    $\bar w \leftarrow w_k$\\[2pt]
+    $\nabla J(\bar w) = \dfrac{1}{N}\sum_{i=1}^{N} \nabla\ell(\bar w; i)$
+  };
+
+  % Frecce verticali principali
+  \draw[arrow] (init) -- (estrai);
+  \draw[arrow] (estrai) -- (stim);
+  \draw[arrow] (stim) -- (agg);
+  \draw[arrow] (agg) -- (conv);
+
+  % Freccia di uscita
+  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
+
+  % Loop di ritorno (percorso esterno sinistro)
+  \draw[arrow] (conv.west) -- ++(-1.9,0) |- (estrai.west)
+    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
+
+  % Aggiornamento ancoraggio -> stimatore
+  \draw[arrow] (snap.west) -- (stim.east)
+    node[label, midway, above] {ogni $m$ it.};
+
+\end{tikzpicture}}
+\caption{Schema del metodo SVRG di Johnson e Zhang~\cite{johnson2013}: il
+punto di ancoraggio $\bar w$ viene aggiornato ogni $m$ iterazioni con il
+gradiente esatto $\nabla J(\bar w)$, e lo stimatore corregge il gradiente
+stocastico corrente con la differenza
+$\nabla\ell(w_k; i_k) - \nabla\ell(\bar w; i_k)$. Lo stimatore è non distorto,
+$\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$, e quando $w_k$ è vicino a $\bar w$ i
+due termini stocastici si elidono quasi del tutto, riducendo la varianza.}
+\label{fig:svrg}
+\end{figure}
+
+% Schema D.2 - SAGA (Defazio, Bach & Lacoste-Julien, 2014)
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.1cm and 2.4cm,
+  every node/.style={font=\small},
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=4.2cm, align=center, minimum height=1.2cm,
+    inner sep=6pt
+  },
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=4.0cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Nodi principali (colonna centrale)
+  \node[io, text width=4.6cm, minimum height=1.6cm] (init) {Inizializzazione\\[2pt] $w_0$; tavola $g^{(i)} = \nabla\ell(w_0; i)$ per $i = 1,\dots,N$\\[2pt] $\bar g = \dfrac{1}{N}\sum_{i=1}^{N} g^{(i)}$};
+  \node[box, below=of init] (estrai) {Estrazione esempio\\[2pt] $i_k \sim \mathrm{Unif}\{1,\dots,N\}$};
+  \node[box, below=of estrai, text width=5.6cm, minimum height=1.6cm] (stim) {Stimatore SAGA\\[2pt] $g_k = \nabla\ell(w_k; i_k) - g^{(i_k)}$\\[2pt] $+ \, \bar g$};
+  \node[box, below=of stim] (agg) {Aggiornamento\\[2pt] $w_{k+1} = w_k - \alpha_k g_k$};
+  \node[box, below=of agg, text width=5.6cm, minimum height=1.6cm] (tab) {Aggiornamento tavola\\[2pt] $g^{(i_k)} \leftarrow \nabla\ell(w_k; i_k)$\\[2pt] $\bar g \leftarrow \bar g + \frac{1}{N}\bigl(g^{(i_k)} - g^{(i_k)}_{\mathrm{old}}\bigr)$};
+  \node[io, below=of tab] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
+  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
+
+  % Frecce verticali principali
+  \draw[arrow] (init) -- (estrai);
+  \draw[arrow] (estrai) -- (stim);
+  \draw[arrow] (stim) -- (agg);
+  \draw[arrow] (agg) -- (tab);
+  \draw[arrow] (tab) -- (conv);
+
+  % Freccia di uscita
+  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
+
+  % Loop di ritorno (percorso esterno sinistro)
+  \draw[arrow] (conv.west) -- ++(-1.9,0) |- (estrai.west)
+    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
+
+\end{tikzpicture}}
+\caption{Schema del metodo SAGA di Defazio, Bach e
+Lacoste-Julien~\cite{defazio2014}: la tavola dei gradienti $g^{(i)}$
+memorizza l'ultimo gradiente calcolato per ogni esempio ed è aggiornata a ogni
+iterazione; lo stimatore usa la media $\bar g$ della tavola come correzione.
+Anche in questo caso $\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$ e la varianza è
+ridotta rispetto al gradiente stocastico puro.}
+\label{fig:saga}
+\end{figure}
 
 \begin{thebibliography}{99}
 
