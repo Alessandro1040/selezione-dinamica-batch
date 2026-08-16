@@ -101,7 +101,13 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Nota di riproducibilità: aggiunto il seme casuale
+- **Ultimo intervento.** Bibliografia riordinata per rilevanza rispetto al
+  lavoro: byrd2012, bottou2008, nocedal2006, byrd2011, bottou2018,
+  robbins1951, polyak1964, karimi2016, johnson2013, defazio2014, dembo1982,
+  shewchuk1994 (prima: ordine alfabetico/inserimento). Solo `thebibliography`
+  riordinata; tutte le `\cite{chiave}` intatte (rinumerazione automatica).
+  Documento invariato a **76 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Nota di riproducibilità: aggiunto il seme casuale
   fissato (seed $42$) in Sez. 6.1 (Setup Sperimentale) e nell'Appendice C
   (Requisiti di sistema), per dichiarare la riproducibilità esatta delle
   tabelle 6.1–6.2 a parità di codice e versioni. `sim_exp.py` usa
