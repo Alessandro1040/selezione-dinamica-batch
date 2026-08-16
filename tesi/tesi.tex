@@ -2591,12 +2591,24 @@ Dai limiti appena discussi emergono naturalmente alcune direzioni di lavoro
 futuro.
 
 \begin{enumerate}
-  \item Rilassamento dell'ipotesi di convessità forte. Un primo
-  obiettivo è estendere l'analisi alla condizione di Polyak--Lojasiewicz~\cite{polyak1964, karimi2016}
-  (Appendice~\ref{app:pl}), che non richiede convessità forte ma conserva la
-  convergenza lineare del valore di funzione. Questa estensione consentirebbe
-  di trattare problemi come la regressione logistica regolarizzata in modo
-  diretto, senza introdurre un bias di regolarizzazione.
+  \item Rilassamento dell'ipotesi di convessità forte. Nella nostra analisi
+  la condizione di Polyak--Lojasiewicz (PL) interviene solo come conseguenza
+  della convessità forte: l'ipotesi $\nabla^2 J(w) \succeq \lambda I$ implica
+  $\|\nabla J(w)\|^2 \ge 2\lambda J(w)$ (Appendice~\ref{app:pl}) e da questa
+  disuguaglianza si ricava la convergenza lineare del Teorema di Convergenza
+  Deterministica. Un primo obiettivo è quindi invertire il ruolo delle due
+  ipotesi: assumere direttamente la condizione PL,
+  $\|\nabla J(w)\|^2 \ge 2\mu J(w)$ con $\mu>0$ (forma forte,
+  come in~\cite{polyak1964, karimi2016}), eliminando la richiesta di
+  convessità forte. Poiché la convessità forte è un caso particolare della PL
+  (basta prendere $\mu = \lambda$), la generalizzazione non comporta alcuna
+  perdita di risultati: le dimostrazioni restano valide sostituendo $\lambda$
+  con $\mu$ e sopprimendo il passaggio in cui la PL è dedotta dall'Hessiana.
+  Il vantaggio è duplice: l'analisi copre una classe più ampia di funzioni,
+  per le quali la PL garantisce comunque la convergenza lineare del valore di
+  funzione pur senza richiedere la convessità (forte); e le dimostrazioni
+  risultano più semplici, perché la PL diventa un'ipotesi di partenza invece
+  di essere derivata.
   \item Validazione su benchmark reali. Gli esperimenti presentati in
   questa tesi usano funzioni sintetiche con un dataset generato artificialmente.
   Una direzione naturale è la validazione su dataset standard (ad esempio i
