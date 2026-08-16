@@ -597,34 +597,37 @@ interne quando l'approssimazione dell'Hessiana è limitata dal sottocampionament
 
 \subsection{Regolarizzazione $L_1$ in ottimizzazione}
 
-La regolarizzazione $L_1$ produce soluzioni sparse ed è uno strumento
-fondamentale per l'interpretabilità dei modelli ad alta dimensionalità, a
-partire dal LASSO di Tibshirani~\cite{tibshirani1996}. Il termine di penalità
-$\nu\|w\|_1$ rende la funzione obiettivo non differenziabile, e i metodi classici
-del primo ordine devono essere adattati. Una tecnica basilare è il
-soft thresholding, usato nei metodi proximali (ad esempio ISTA e FISTA
-di Beck e Teboulle~\cite{beck2009}), che applica alla soluzione l'operatore di
-soglia $S_\nu(w_i) = \operatorname{sign}(w_i)\max\{|w_i| - \nu, 0\}$.
+La regolarizzazione $L_1$ consiste nell'aggiungere alla funzione obiettivo un
+termine di penalità proporzionale alla norma $L_1$ dei parametri,
+\[
+\nu\|w\|_1 = \nu \sum_{i=1}^{m} |w_i|,
+\]
+dove $\nu > 0$ è un coefficiente che ne controlla l'intensità. L'effetto è
+duplice: da un lato i coefficienti grandi vengono penalizzati, scoraggiando
+l'adattamento eccessivo ai dati; dall'altro -- ed è la proprietà più
+importante -- la soluzione risulta \emph{sparsa}, cioè con molti coefficienti
+esattamente nulli. L'intuizione è la seguente: a differenza della norma $L_2$,
+il cui costo marginale tende a zero per coefficienti piccoli, la norma $L_1$
+``costa'' sempre $\nu$ per ogni unità di coefficiente, anche vicino a zero.
+Conviene quindi azzerare le variabili il cui contributo alla perdita non
+supera tale costo, ed è per questo che la $L_1$ è uno strumento fondamentale
+per l'interpretabilità dei modelli ad alta dimensionalità (è il principio alla
+base del LASSO).
 
-Per i problemi che coinvolgono anche un termine liscio $J(w)$, un'alternativa
-efficace è rappresentata dai metodi a active set e dalle strategie di
-ottimizzazione su facce ortanti: si identifica l'insieme delle variabili
-che all'ottimo saranno nulle e si minimizza la funzione su tale faccia, dove il
-termine $L_1$ è differenziabile. Questa è la strategia seguita, ad esempio, da
-Byrd et~al.~\cite{byrd2011} per problemi regolarizzati e adottata anche nel
-metodo Newton-CG-$L_1$ descritto in questa tesi, che combina l'identificazione
-dell'active set con l'Hessiana sottocampionata e la ricerca lineare proiettata.
-
-osservano che, per garantire che la direzione di ricerca sia una direzione di
-discesa, è sufficiente che l'errore di approssimazione del gradiente sia
-controllato in norma relativa dalla tolleranza $\theta$. Poiché l'errore non è
-osservabile direttamente, essi lo stimano tramite la varianza campionaria
-dei gradienti individuali sul batch, ottenendo una condizione di controllo
-della varianza (CCV): se la varianza stimata è troppo alta rispetto alla norma
-del gradiente, la dimensione del batch viene aumentata secondo una formula
-esplicita. L'analisi mostra che il numero totale di valutazioni di gradienti
-per raggiungere una precisione $\varepsilon$ è $O(L/(\lambda\varepsilon))$,
-indipendente da $N$ e competitivo con i migliori bound noti per SGD.
+La non differenziabilità della norma $L_1$ nei punti in cui un coefficiente si
+annulla richiede però di adattare i metodi classici del primo ordine. Un
+approccio diffuso è il \emph{soft thresholding}: ad ogni passo si applica alla
+soluzione l'operatore di soglia
+\[
+S_\nu(w_i) = \operatorname{sign}(w_i)\,\max\{|w_i| - \nu,\, 0\},
+\]
+che riduce in modulo ogni coefficiente di $\nu$ e lo azzera se scende sotto
+soglia (metodi proximali). In questa tesi si segue invece la strategia
+dell'\emph{active set} (o delle facce ortanti): si identifica l'insieme delle
+variabili che all'ottimo saranno nulle e si minimizza la funzione obiettivo
+solo sulle variabili libere, dove la $L_1$ è differenziabile, mantenendo le
+altre esattamente a zero tramite una ricerca lineare proiettata. È la strategia
+adottata dal metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 
 \section{Algoritmi Proposti}\label{sec:algoritmi}
 % ═══════════════════════════════════════════════════════════════════════════
@@ -3710,19 +3713,6 @@ Polyak--{\L}ojasiewicz condition,''
 in \textit{European Conference on Machine Learning and Principles and
 Practice of Knowledge Discovery in Databases (ECML PKDD)}, 2016,
 pp.~795--811.
-
-\bibitem{tibshirani1996}
-R.~Tibshirani,
-``Regression shrinkage and selection via the lasso,''
-\textit{Journal of the Royal Statistical Society: Series B (Methodological)},
-vol.~58, no.~1, pp.~267--288, 1996.
-
-\bibitem{beck2009}
-A.~Beck and M.~Teboulle,
-``A fast iterative shrinkage-thresholding algorithm for linear inverse
-problems,''
-\textit{SIAM Journal on Imaging Sciences}, vol.~2, no.~1, pp.~183--202,
-2009.
 
 \bibitem{dembo1982}
 R.~S. Dembo and T.~Steihaug,

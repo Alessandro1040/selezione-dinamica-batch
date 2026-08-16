@@ -101,7 +101,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Rimossa la Figura 6.2 ("Evoluzione di $n_k$ rispetto a
+- **Ultimo intervento.** Paragrafo "Regolarizzazione $L_1$ in ottimizzazione"
+  (Sez. 4.4, Lavori Correlati): riscritto limitandolo all'essenziale e
+  spiegando in modo intuitivo (perché la $L_1$ produce sparsità: "costa
+  sempre $\nu$ per unità di coefficiente", a differenza della $L_2$);
+  rimosso il frammento fuori posto sulla CCV/dimensione del batch (già
+  coperto altrove) e le citazioni a riferimenti non letti (`tibshirani1996`,
+  `beck2009` — voci rimosse dalla bibliografia; `byrd2011` non più usato in
+  questo paragrafo). 74→73→**72 pp** (`main.pdf`, `tesi.pdf`,
+  `tesi_finale.pdf`).
+- **Intervento precedente.** Rimossa la Figura 6.2 ("Evoluzione di $n_k$ rispetto a
   un batch fisso", `fig:batch`, ex pag. 51): ridondante con la Figura 5.3
   (screenshot dell'app, stessa informazione su $n_k$) e unico residuo del
   confronto col batch fisso. Aggiornato il testo degli Esperimenti, che ora
@@ -196,8 +205,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 73 pp (definitiva, con
-  frontespizio), `tesi.pdf` 73 pp (documento), `main.pdf` 73 pp (copia di
+- **PDF di riferimento.** `tesi_finale.pdf` 72 pp (definitiva, con
+  frontespizio), `tesi.pdf` 72 pp (documento), `main.pdf` 72 pp (copia di
   lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento
