@@ -101,11 +101,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Pagina Ringraziamenti: sostituito il `placeholder` con
-  il testo dell'autore — insegnanti, persone studiate a SMIA, ringraziamento
-  speciale a Giovanni Adelfio, Alessandro Pisarra, Emmanuel Nsia, Michele
-  Aliffi, Francesco Lioi e Lorenzo Salis, famiglia e "chiunque mi abbia
-  motivato a fare di più". Testo in chiaro; tutto in pagina 2, 72 pp invariati.
+- **Ultimo intervento.** Pagina Ringraziamenti (riga 219): aggiunto
+  "i miei amici e in generale" all'incipit. Testo definitivo: "Ringrazio i
+  miei insegnanti, i miei amici e in generale tutte le persone con cui ho
+  studiato a SMIA, un ringraziamento speciale va a Giovanni Adelfio,
+  Alessandro Pisarra, Emmanuel Nsia, Michele Aliffi, Francesco Lioi e Lorenzo
+  Salis. Ringrazio infine la mia famiglia, e chiunque, in qualsiasi modo, mi
+  abbia motivato a fare di più". `main.tex` e `tesi/tesi.tex` allineati, PDF
+  rigenerati; 72 pp invariati (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`),
+  `bozza.pdf` 56 pp.
 - **Intervento precedente.** Paragrafo "Regolarizzazione $L_1$ in ottimizzazione"
   (Sez. 4.4, Lavori Correlati): riscritto limitandolo all'essenziale e
   spiegando in modo intuitivo (perché la $L_1$ produce sparsità: "costa
