@@ -101,7 +101,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Pagina Ringraziamenti (subito dopo la copertina):
+- **Ultimo intervento.** Dimostrazione del cono di discesa (Sez. 5.1.2, Fig. 5.2):
+  reso esplicito il passaggio finale sull'angolo — "e infine, dall'identità
+  fondamentale $\sin^2\varphi+\cos^2\varphi=1$, esprimiamo il seno in funzione
+  del coseno, $\sin\varphi=\sqrt{1-\cos^2\varphi}$, per concludere
+  $\sin\varphi \le \theta$" (prima era solo "scriviamo il seno in funzione del
+  coseno", senza citare l'identità goniometrica né la formula). Nessun altro
+  contenuto toccato; `bozza.tex` non allineata (la frase non è presente lì).
+  Documento invariato a 74 pp (`main.pdf` e `tesi.pdf`), `tesi_finale.pdf`
+  74 pp.
+- **Intervento precedente.** Pagina Ringraziamenti (subito dopo la copertina):
   rimosso il `\vspace*{3.5cm}` che spingeva titolo e testo in basso. Ora
   "Ringraziamenti" e il `placeholder` partono subito sotto l'intestazione di
   testa, in modo uniforme con la pagina Abstract successiva (che inizia in
