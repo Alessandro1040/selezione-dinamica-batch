@@ -2446,7 +2446,7 @@ differenza di SGD, raggiunge la precisione richiesta.
 \centering
 \includegraphics[width=0.78\textwidth]{figure/convergenza.pdf}
 \caption{Convergenza $J(w_k) - J(w_*)$ in scala logaritmica del metodo del
-gradiente a campione dinamico sul problema quadratico ($\kappa \approx 1.4$)
+gradiente a campione dinamico sul problema quadratico ($\kappa \approx 1.1$)
 per $\theta \in \{0.1, 0.5, 0.9\}$.}
 \label{fig:convergenza}
 \end{figure}
@@ -3599,6 +3599,369 @@ dove $g_{k+1}$ è il gradiente della parte liscia sul nuovo campione. Se la cond
 n \;\leftarrow\; \min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_{k+1}\|_2^2}\right\rceil+1\right\}.
 \]
 Questa è un'estensione dinamica rispetto al paper originale, dove il campione per il caso $L_1$ era mantenuto fisso. Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch, quindi si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
+\subsection{B.5: metodo RAPG (Robust Adaptive Preconditioned Gradient)}
+
+Il metodo RAPG mantiene il nucleo BB-CCV (passo di Barzilai--Borwein con
+campionamento dinamico CCV) e lo combina con un precondizionatore diagonale di
+tipo RMSprop limitato, per accelerare la convergenza sui problemi mal
+condizionati, e con una ricerca di radice in stile Regula Falsi per i problemi
+in una dimensione. Il nome esteso del metodo è \emph{Robust Adaptive
+Preconditioned Gradient} (gradiente adattivo precondizionato robusto).
+
+\begin{pythoncode}[title= RAPG]
+
+def rapg(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
+    N = max(len([grad_i(w, i) for i in range(max(batch0, 1))]), batch0)
+    n = min(max(batch0, 1), N)
+    dim = len(w0)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+
+    w_prev = w.copy()
+    g_prev = None
+
+    v = np.zeros_like(w)
+    beta2 = 0.99
+    eps = 1e-10
+
+    w_lo = w.copy()
+    g_lo = None
+    w_hi = None
+    g_hi = None
+\end{pythoncode}
+
+Oltre allo stato del passo di Barzilai--Borwein ($w_{\text{prev}}$, $g_{\text{prev}}$)
+si inizializza lo stato del precondizionatore: il momento secondo
+$v \in \mathbb{R}^d$ (inizialmente nullo), il coefficiente $\beta_2 = 0.99$ e la
+costante $\varepsilon = 10^{-10}$ che evita la divisione per zero. Per il caso
+unidimensionale si inizializzano anche gli estremi del bracket della Regula
+Falsi, $w_{\text{lo}}$, $g_{\text{lo}}$, $w_{\text{hi}}$, $g_{\text{hi}}$,
+usati per intercettare uno zero del gradiente.
+
+\begin{pythoncode}[title= RAPG]
+
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+
+        w_prev = w.copy()
+        g_prev = g.copy()
+\end{pythoncode}
+
+L'estrazione del batch e il passo di Barzilai--Borwein sono identici al
+BB-CCV (Sezione~B.4): $\alpha_k^{\mathrm{BB}} = s_k^{\top}s_k / s_k^{\top}y_k$
+salvaguardato in $[\alpha/20,\,5\alpha]$, con $\alpha_0 = \alpha$.
+
+\begin{pythoncode}[title= RAPG]
+
+        if dim == 1:
+            if g_lo is None:
+                g_lo = g.copy()
+                w_lo = w.copy()
+
+            if g_hi is None and k > 0:
+                test_w = w - alpha * np.sign(g[0])
+                test_g = np.mean([grad_i(test_w, i) for i in indices], axis=0)
+                if test_g[0] * g[0] < 0:
+                    w_hi = test_w.copy()
+                    g_hi = test_g.copy()
+
+            if g_hi is not None and g_lo is not None and abs(g_hi[0] - g_lo[0]) > 1e-14:
+                w_new_1d = (w_lo[0] * g_hi[0] - w_hi[0] * g_lo[0]) / (g_hi[0] - g_lo[0])
+                d = np.array([w_new_1d - w[0]])
+                if abs(d[0]) > alpha * 20:
+                    d = np.array([-np.sign(g[0]) * step])
+            else:
+                d = np.array([-np.sign(g[0]) * step])
+
+            if g[0] * g_lo[0] > 0:
+                w_lo = w.copy()
+                g_lo = g.copy()
+            elif g_hi is not None and g[0] * g_hi[0] > 0:
+                w_hi = w.copy()
+                g_hi = g.copy()
+\end{pythoncode}
+
+In una dimensione la direzione di ricerca non è il gradiente ma l'incremento
+che porta all'annullamento del gradiente, cercato con il metodo della Regula
+Falsi. Si mantiene un bracket $[w_{\text{lo}}, w_{\text{hi}}]$ ai cui estremi il
+gradiente ha segno opposto ($g_{\text{lo}}\,g_{\text{hi}} < 0$); se non è ancora
+disponibile, lo si costruisce provando il punto $w - \alpha\,\mathrm{sign}(g)$.
+Lo zero approssimato del gradiente è il punto di intersezione della secante:
+\[
+w_{\text{new}} = \frac{w_{\text{lo}}\,g_{\text{hi}} - w_{\text{hi}}\,g_{\text{lo}}}
+{g_{\text{hi}} - g_{\text{lo}}},
+\]
+e la direzione è $d = w_{\text{new}} - w$. Per robustezza la direzione è
+salvaguardata: se $|d| > 20\alpha$ si usa la direzione di discesa del gradiente
+$-g$. Il bracket viene poi aggiornato sostituendo l'estremo con segno di
+$g$ concorde a quello di $g_{\text{lo}}$.
+
+\begin{pythoncode}[title= RAPG]
+
+        else:
+            v = beta2 * v + (1 - beta2) * (g ** 2)
+            v_hat = v / (1 - beta2 ** (k + 1))
+            precond = np.clip(1.0 / (np.sqrt(v_hat) + eps), 0.1, 10.0)
+            d = -precond * g * step
+\end{pythoncode}
+
+In più dimensioni la direzione è il gradiente precondizionato
+$d_k = -P_k\,g_k\,\alpha_k$, dove $P_k$ è un precondizionatore diagonale di tipo
+RMSprop limitato. Si aggiorna il momento secondo componente per componente,
+\[
+v_k = \beta_2\, v_{k-1} + (1-\beta_2)\, g_k^2,
+\]
+con correzione del bias $\hat{v}_k = v_k / (1-\beta_2^{k+1})$ (necessaria
+perché $v$ parte da zero), e si definisce
+\[
+P_k = \mathrm{clip}\!\left(\frac{1}{\sqrt{\hat{v}_k} + \varepsilon},\, 0.1,\, 10\right),
+\]
+cioè l'inverso della deviazione standard stimata, limitato tra $0.1$ e $10$ per
+stabilità. L'effetto è di ridimensionare le coordinate secondo la loro
+variabilità: le componenti a gradiente molto variabile (tipicamente quelle del
+problema mal condizionato) vengono accorciate, quelle a gradiente stabile
+allungate, migliorando il numero di condizionamento effettivo.
+
+\begin{pythoncode}[title= RAPG]
+
+        c1 = 1e-4
+        J_curr = J_batch(w)
+
+        if dim == 1:
+            gTd = np.dot(g, d)
+            step_size = 1.0
+            if gTd < -1e-14:
+                for _ in range(20):
+                    w_new = w + step_size * d
+                    if J_batch(w_new) <= J_curr + c1 * step_size * gTd:
+                        break
+                    step_size *= 0.5
+                else:
+                    step_size = 0.0
+            else:
+                step_size = 0.0
+            w = w + step_size * d
+        else:
+            g_norm2 = np.dot(g, g)
+            if g_norm2 > 1e-16:
+                for _ in range(30):
+                    w_new = w + d
+                    if J_batch(w_new) <= J_curr - c1 * np.dot(d, g):
+                        break
+                    d *= 0.5
+                else:
+                    d = np.zeros_like(w)
+            w = w + d
+\end{pythoncode}
+
+La line search di Armijo con backtracking si applica alla direzione scelta:
+nel caso unidimensionale si riduce lo scalare $\texttt{step\_size}$ che
+moltiplica $d$ (condizione $J(w + t\,d) \le J(w) + c_1 t\, g^{\top}d$), nel caso
+multidimensionale si riduce direttamente la lunghezza di $d$ (condizione
+$J(w + d) \le J(w) - c_1 d^{\top}g$). Dopo 20 (1D) o 30 (2D) dimezzamenti senza
+successo si accetta un passo nullo. L'aggiornamento è $w_{k+1} = w_k + d_k$.
+
+\begin{pythoncode}[title= RAPG]
+
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+
+    return history, batch_sizes
+
+history, batch_sizes = rapg(w0, theta, max_iter, alpha, batch0)
+\end{pythoncode}
+
+La gestione del batch è la CCV del Dynamic GD (Sezione~B.1): varianza
+campionaria $\widehat{\mathcal{V}}$, norma $\|\widehat{\mathcal{V}}\|_1$ e
+aggiornamento $n \leftarrow \min\{N,\ \lceil \|\widehat{\mathcal{V}}\|_1/(\theta^2\|g_k\|_2^2)\rceil + 1\}$
+quando $\|\widehat{\mathcal{V}}\|_1/n_k > \theta^2\|g_k\|_2^2$. Come per gli altri
+metodi, si registrano $w_{k+1}$ e $n_k$, si verifica la convergenza su
+$\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ e si restituiscono \texttt{history} e
+\texttt{batch\_sizes}.
+
+\subsection{B.4: metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}
+
+Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
+adattivo di Barzilai--Borwein, che stima la curvatura di $J$ usando solo i
+gradienti già calcolati, mantenendo la Condizione di Controllo della Varianza
+per il campionamento dinamico del batch (Appendice~\ref{app:bbccv}).
+
+\begin{pythoncode}[title= BB-CCV]
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+
+    w_prev = w.copy()
+    g_prev = None
+\end{pythoncode}
+
+La funzione riceve gli stessi argomenti del Dynamic GD (Sezione~B.1): il punto
+iniziale $w_0 \in \mathbb{R}^d$, la tolleranza $\theta$ della CCV, il numero
+massimo di iterazioni, il passo base $\alpha$ e la dimensione iniziale del
+batch $n_0 = \max(\text{batch0}, 2)$. Oltre alle liste \texttt{history} (pesi
+$w_k$) e \texttt{batch\_sizes} (dimensioni $n_k$), si inizializza lo stato del
+passo di Barzilai--Borwein: $w_{\text{prev}}$ e $g_{\text{prev}}$, cioè il punto
+e il gradiente dell'iterazione precedente, usati per costruire le differenze
+$s_k$ e $y_k$. Alla prima iterazione $g_{\text{prev}} = \texttt{None}$ e il passo
+sarà semplicemente $\alpha$.
+
+\begin{pythoncode}[title= BB-CCV]
+
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+\end{pythoncode}
+
+Come nel Dynamic GD (Sezione~B.1) si estrae il batch
+$\mathcal{S}_k = \{i_1,\dots,i_n\}$ senza reinserimento e si calcola il
+gradiente campionato
+$g_k = \nabla J_{\mathcal{S}_k}(w_k) = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell(w_k;i)$.
+
+\begin{pythoncode}[title= BB-CCV]
+
+        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+
+        w_prev = w.copy()
+        g_prev = g.copy()
+\end{pythoncode}
+
+Il passo di Barzilai--Borwein stima la curvatura di $J$ lungo la direzione
+percorsa usando le differenze tra iterazioni consecutive:
+\[
+s_k = w_k - w_{k-1}, \qquad y_k = g_k - g_{k-1}, \qquad
+\alpha_k^{\mathrm{BB}} = \frac{s_k^{\top} s_k}{s_k^{\top} y_k}.
+\]
+Per una quadratica vale $y_k = \nabla^2 J\, s_k$; quindi
+$\alpha_k^{\mathrm{BB}}$ coincide con l'inverso di una media di Rayleigh
+della Hessiana lungo $s_k$, cioè un passo di Newton scalare a costo nullo,
+poiché $s_k$ e $y_k$ sono quantità già disponibili. Per robustezza sui problemi
+non quadratici il passo è salvaguardato nell'intervallo $[\alpha/20,\,5\alpha]$
+tramite \texttt{np.clip}; se $s_k^{\top}y_k$ è numericamente nullo si torna al
+passo base $\alpha$. Alla prima iterazione ($k=0$) la coppia $(s,y)$ non esiste
+ancora e si usa $\alpha_0 = \alpha$. Infine si aggiorna lo stato precedente
+$w_{\text{prev}} \leftarrow w_k$, $g_{\text{prev}} \leftarrow g_k$.
+
+\begin{pythoncode}[title= BB-CCV]
+
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        c1 = 1e-4
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+
+        w = w - step * g
+\end{pythoncode}
+
+Il candidato è $w_k - \alpha_k g_k$: il passo di Barzilai--Borwein viene
+rifinito da una line search di Armijo con backtracking sulla loss del batch,
+come nel Dynamic GD. La condizione di sufficiente decremento, con
+$c_1 = 10^{-4}$, è
+\[
+J_{\mathcal{S}_k}\bigl(w_k - \alpha_k g_k\bigr) \;\le\;
+J_{\mathcal{S}_k}(w_k) - c_1 \alpha_k \|g_k\|_2^2,
+\]
+che è la condizione di Armijo della Sezione~\ref{sec:convergenza-deterministica}
+con direzione $d_k = -g_k$. Se dopo 30 dimezzamenti la condizione non è
+soddisfatta si pone $\alpha_k = 0$. L'aggiornamento è quindi
+$w_{k+1} = w_k - \alpha_k g_k$.
+
+\begin{pythoncode}[title= BB-CCV]
+
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+\end{pythoncode}
+
+La gestione del batch è identica al Dynamic GD (Sezione~B.1): si calcola la
+varianza campionaria dei gradienti individuali sul batch
+$\widehat{\mathcal{V}} = \operatorname{Var}_{i\in\mathcal{S}_k}\bigl(\nabla\ell(w_k;i)\bigr)$,
+la sua norma $V_{\text{norm1}} = \|\widehat{\mathcal{V}}\|_1$ e si verifica la CCV
+$\|\widehat{\mathcal{V}}\|_1 / n_k \le \theta^2 \|g_k\|_2^2$. Se violata, il batch
+viene aumentato a
+$n \leftarrow \min\bigl\{N,\ \lceil \|\widehat{\mathcal{V}}\|_1/(\theta^2\|g_k\|_2^2)\rceil + 1\bigr\}$.
+
+\begin{pythoncode}[title= BB-CCV]
+
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+
+    return history, batch_sizes
+
+history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
+\end{pythoncode}
+
+Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch e si verifica
+la convergenza sulla norma del gradiente esatto
+$\|\nabla J(w_{k+1})\|_2 < 10^{-6}$. Al termine la funzione restituisce le liste
+\texttt{history} e \texttt{batch\_sizes}; l'ultima riga mostra la chiamata tipica.
+
 \section{Istruzioni per l'esecuzione}\label{app:istruzioni}
 % ═══════════════════════════════════════════════════════════════════════════
 
@@ -3820,8 +4183,13 @@ ridotta rispetto al gradiente stocastico puro.}
 \end{figure}
 
 % ═══════════════════════════════════════════════════════════════════════════
-\section{Schema dell'algoritmo BB-CCV}\label{app:bbccv}
+\section{Schemi degli algoritmi BB-CCV e RAPG}\label{app:bbccv}
 % ═══════════════════════════════════════════════════════════════════════════
+
+Questa appendice riporta gli schemi a blocchi dei due metodi aggiuntivi usati
+per i test comparativi dell'Appendice~\ref{app:test}: BB-CCV (gradiente a
+campione dinamico con passo di Barzilai--Borwein) e RAPG, che ne estende il
+nucleo con un precondizionatore diagonale.
 
 % Schema E.1 - BB-CCV (Barzilai-Borwein con campionamento dinamico)
 \begin{figure}[H]
@@ -3902,110 +4270,227 @@ raggiunge precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
 \label{fig:bbccv}
 \end{figure}
 
+% Schema E.2 - RAPG (Robust Adaptive Preconditioned Gradient)
+\begin{figure}[H]
+\centering
+\resizebox{0.85\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 2.4cm,
+  every node/.style={font=\small},
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=4.2cm, align=center, minimum height=1.2cm,
+    inner sep=6pt
+  },
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=4.0cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Nodi principali (colonna centrale)
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$, $\beta_2$};
+  \node[box, below=of init] (batch) {Estrazione batch\\[2pt] $\mathcal{S}_k \subseteq \{1,\dots,N\}$, $|\mathcal{S}_k| = n_k$};
+  \node[box, below=of batch] (grad) {Calcolo gradiente\\[2pt] $g_k = \nabla J_{\mathcal{S}_k}(w_k)$\\[1pt] e varianza campionaria $\widehat{\mathcal{V}}$};
+  \node[box, below=of grad] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \le \theta^2 \|g_k\|^2$};
+  \node[box, below=of ccv, text width=5.9cm, minimum height=1.9cm] (bb) {Passo di Barzilai-Borwein\\[2pt] $s = w_k - w_{k-1}$, \; $y = g_k - g_{k-1}$\\[2pt] $\alpha_k = \mathrm{clip}\!\Bigl(\dfrac{s^T s}{s^T y}, \dfrac{\alpha}{20}, 5\alpha\Bigr)$};
+  \node[box, below=of bb, text width=6.2cm, minimum height=2.6cm] (prec) {Precondizionatore diagonale (RMSprop limitato)\\[2pt] $v_k = \beta_2 v_{k-1} + (1-\beta_2) g_k^2$\\[2pt] $P_k = \mathrm{clip}\!\Bigl(\dfrac{1}{\sqrt{\hat{v}_k} + \varepsilon},\, 0.1,\, 10\Bigr)$\\[2pt] $d_k = -P_k g_k \alpha_k$};
+  \node[box, below=of prec] (ls) {Line search di Armijo\\[2pt] backtracking su $d_k$};
+  \node[box, below=of ls] (upd) {Aggiornamento\\[2pt] $w_{k+1} = w_k + d_k$};
+  \node[io, below=of upd] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
+  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
+
+  % Nodo laterale (aumento batch)
+  \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
+    CCV violata:\\[2pt]
+    aumento del batch\\[2pt]
+    $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
+  };
+
+  % Frecce verticali principali
+  \draw[arrow] (init) -- (batch);
+  \draw[arrow] (batch) -- (grad);
+  \draw[arrow] (grad) -- (ccv);
+  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (bb) -- (prec);
+  \draw[arrow] (prec) -- (ls);
+  \draw[arrow] (ls) -- (upd);
+  \draw[arrow] (upd) -- (conv);
+
+  % Freccia uscita
+  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
+
+  % Freccia CCV violata
+  \draw[arrow] (ccv) -- (grow) node[label, midway, above] {no};
+
+  % Loop ritorno da grow a batch (percorso esterno destro)
+  \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
+    node[label, pos=0.25, right] {nuovo $n_k$};
+
+  % Loop ritorno da conv a batch (percorso esterno sinistro)
+  \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
+    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
+
+\end{tikzpicture}}
+\caption{Schema dell'algoritmo \emph{RAPG} (Robust Adaptive Preconditioned
+Gradient). Il flusso è quello del BB-CCV (Figura~\ref{fig:bbccv}), con la CCV
+per il campionamento dinamico del batch e il passo di Barzilai--Borwein; la
+differenza è nella direzione di ricerca: in più dimensioni il gradiente è
+precondizionato dalla diagonale $P_k$, costruita come inverso della deviazione
+standard stimata dei gradienti (momento secondo $v_k$ con $\beta_2 = 0.99$ e
+correzione del bias $\hat{v}_k = v_k/(1-\beta_2^{k+1})$), limitata tra $0.1$ e
+$10$; in una dimensione la direzione è invece ottenuta con una ricerca di
+radice in stile Regula Falsi sul gradiente (Sezione~B.5). Il precondizionatore
+riduce il numero di condizionamento effettivo del problema, accelerando la
+convergenza sui problemi mal condizionati.}
+\label{fig:rapg}
+\end{figure}
+
 
 % ═══════════════════════════════════════════════════════════════════════════
 \section{Test comparativi aggiuntivi}\label{app:test}
 
 Questa appendice raccoglie i test comparativi eseguiti con il pannello
 ``Analisi'' dell'applicazione interattiva (Sezione~\ref{sec:visualizzazione})
-sui quattro algoritmi implementati: Dynamic GD, Newton-CG, Newton-CG~$L_1$ e
-RAPG. Per ogni iterazione il pannello riporta il numero di iterazione,
-l'errore $\|w_k - w_*\|_2$ e il valore $J(w_k)$. I test sono stati eseguiti
-sulle tre funzioni obiettivo quadratiche dell'applicazione: ben condizionata
+sui cinque algoritmi dell'applicazione: Dynamic GD, Newton-CG,
+Newton-CG~$L_1$, RAPG e BB-CCV (Appendice~\ref{app:bbccv}). Per ogni
+iterazione il pannello riporta il numero di iterazione, l'errore
+$\|w_k - w_*\|_2$ e il valore $J(w_k)$. I test sono stati eseguiti sulle tre
+funzioni obiettivo quadratiche dell'applicazione: ben condizionata
 ($\kappa \approx 1.1$), molto mal condizionata ($\kappa \approx 100$) e con
 termine incrociato. Le Figure~F.1--F.3 mostrano le schermate del pannello,
-raggruppate per funzione obiettivo, con i quattro algoritmi in ordine:
-Dynamic GD, Newton-CG, Newton-CG~$L_1$, RAPG.
+raggruppate per funzione obiettivo, con i cinque algoritmi in ordine:
+Dynamic GD, Newton-CG, Newton-CG~$L_1$, RAPG, BB-CCV.
 
 % Figura F.1 - quadratica ben condizionata
 \begin{figure}[H]
 \centering
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/bencond_dgd.png}
   \caption{Dynamic GD}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/bencond_ncg.png}
   \caption{Newton-CG}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/bencond_ncgl1.png}
   \caption{Newton-CG $L_1$}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/bencond_rapg.png}
   \caption{RAPG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/bencond_bbccv.png}
+  \caption{BB-CCV}
 \end{subfigure}
 \caption{Pannello di analisi dell'applicazione sul problema quadratico
 ben condizionato ($\kappa \approx 1.1$): per ogni iterazione sono riportati
-numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro algoritmi
-(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque algoritmi
+(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG, (e) BB-CCV.}
 \label{fig:test_bencond}
 \end{figure}
 
 % Figura F.2 - quadratica molto mal condizionata
 \begin{figure}[H]
 \centering
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/malcond_dgd.png}
   \caption{Dynamic GD}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/malcond_ncg.png}
   \caption{Newton-CG}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/malcond_ncgl1.png}
   \caption{Newton-CG $L_1$}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/malcond_rapg.png}
   \caption{RAPG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/malcond_bbccv.png}
+  \caption{BB-CCV}
 \end{subfigure}
 \caption{Pannello di analisi dell'applicazione sul problema quadratico
 molto mal condizionato ($\kappa \approx 100$): per ogni iterazione sono
-riportati numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro
-algoritmi (a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+riportati numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque
+algoritmi (a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG,
+(e) BB-CCV.}
 \label{fig:test_malcond}
 \end{figure}
 
 % Figura F.3 - quadratica con termine incrociato
 \begin{figure}[H]
 \centering
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/incrociato_dgd.png}
   \caption{Dynamic GD}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/incrociato_ncg.png}
   \caption{Newton-CG}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/incrociato_ncgl1.png}
   \caption{Newton-CG $L_1$}
 \end{subfigure}\hfill
-\begin{subfigure}{0.235\textwidth}
+\begin{subfigure}{0.19\textwidth}
   \centering
   \includegraphics[width=\textwidth]{figure_test/incrociato_rapg.png}
   \caption{RAPG}
+\end{subfigure}\hfill
+\begin{subfigure}{0.19\textwidth}
+  \centering
+  \includegraphics[width=\textwidth]{figure_test/incrociato_bbccv.png}
+  \caption{BB-CCV}
 \end{subfigure}
 \caption{Pannello di analisi dell'applicazione sul problema quadratico
 con termine incrociato: per ogni iterazione sono riportati numero di
-iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i quattro algoritmi
-(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG.}
+iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque algoritmi
+(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG, (e) BB-CCV.}
 \label{fig:test_incrociato}
 \end{figure}
+
+\paragraph{Osservazioni comparative.} Dalle schermate emergono le seguenti
+indicazioni. Sul problema ben condizionato tutti i metodi progrediscono
+lentamente (l'errore $\|w_k-w_*\|_2$ resta dell'ordine $10^{-1}$ dopo 30
+iterazioni): il più veloce è Dynamic GD ($\approx 10^{-1}$) insieme a
+Newton-CG~$L_1$, mentre Newton-CG è il più lento ($\approx 4\times10^{-1}$).
+Sul problema molto mal condizionato il quadro cambia drasticamente: Dynamic
+GD, Newton-CG~$L_1$ e RAPG restano bloccati sopra $10^{-1}$, mentre BB-CCV
+converge alla precisione macchina ($\|w-w_*\| \approx 10^{-14}$) in appena 10
+iterazioni. Il passo di Barzilai--Borwein stima la curvatura usando solo i
+gradienti già calcolati e non richiede la Hessiana: è particolarmente
+efficace proprio sui problemi mal condizionati, in accordo con
+l'Appendice~E. Sul problema con termine incrociato BB-CCV è di nuovo il
+migliore ($\approx 6\times10^{-4}$ in 16 iterazioni), seguito da Dynamic GD
+($\approx 10^{-2}$) e Newton-CG~$L_1$ ($\approx 10^{-2}$); Newton-CG e RAPG
+restano attorno a $10^{-1}$. In sintesi, BB-CCV è il metodo che performa
+meglio in assoluto sui problemi considerati, in particolare su quelli mal
+condizionati; Dynamic GD è competitivo sui problemi ben condizionati e con
+termine incrociato ma collassa su quelli molto mal condizionati, dove solo
+l'informazione di curvatura -- esplicita in Newton-CG o stimata dal passo di
+Barzilai--Borwein in BB-CCV -- permette di progredire.
 
 
 \begin{thebibliography}{99}
