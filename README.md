@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Bibliografia riordinata per rilevanza rispetto al
+- **Ultimo intervento.** Lavoro futuro (Sez. 7.3, punto 1 "Rilassamento
+  dell'ipotesi di convessità forte"): riscritto per chiarire che la PL nella
+  tesi è una conseguenza della convessità forte e che la proposta è assumere
+  la PL ($\|\nabla J(w)\|^2 \ge 2\mu J(w)$) come ipotesi di partenza,
+  eliminando la convessità forte (caso particolare con $\mu=\lambda$). Via
+  l'esempio della "regressione logistica regolarizzata" (richiesto).
+  Documento invariato a **76 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Bibliografia riordinata per rilevanza rispetto al
   lavoro: byrd2012, bottou2008, nocedal2006, byrd2011, bottou2018,
   robbins1951, polyak1964, karimi2016, johnson2013, defazio2014, dembo1982,
   shewchuk1994 (prima: ordine alfabetico/inserimento). Solo `thebibliography`
