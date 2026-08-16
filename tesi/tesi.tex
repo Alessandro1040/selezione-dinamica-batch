@@ -759,20 +759,23 @@ Poich\'e il gradiente della popolazione totale $\nabla J(w_k)$ \`e ignoto, non \
 
 Definiamo la varianza della popolazione (vettore):
 \[
+\begin{gathered}
 \mathcal{V}
-:= \mathbb{E}_{I}\left[ \left( \nabla \ell(w_k; I) - \mathbb{E}_{I}[\nabla \ell(w_k; I)] \right)^{2} \right] \]\[
+:= \mathbb{E}_{I}\left[ \left( \nabla \ell(w_k; I) - \mathbb{E}_{I}[\nabla \ell(w_k; I)] \right)^{2} \right] \\
 = \Var_{I}\bigl(\nabla \ell(w_k; I)\bigr) 
 = \frac{1}{N}\sum_{i=1}^{N}\bigl(\nabla \ell(w_k; i) - \nabla J(w_k)\bigr)^2 \in \mathbb{R}^m,
+\end{gathered}
 \]
 dove il quadrato è inteso componente per componente, e distinguiamo $I$ variabile aleatoria distribuita uniformemente in $\{1,\dots,N\}$ con $i$ realizzazione di tale variabile.
 
 \paragraph{Caso con reinserimento (indipendenza):}
 \[
+\begin{gathered}
   \Var(g_k) = \Var\!\left(\frac{1}{n_k}\sum_{i\in S_k}\nabla\ell(w_k;i)\right)
-  = \frac{1}{n_k^2}\sum_{i\in S_k}\Var(\nabla\ell(w_k;i))
-  \]\[
+  = \frac{1}{n_k^2}\sum_{i\in S_k}\Var(\nabla\ell(w_k;i)) \\
   = \frac{1}{n_k^2}\underbrace{\Var(\nabla\ell(w_k;i))+\dots+\Var(\nabla\ell(w_k;i))}_{n_k \text{ volte}}
   = \frac{\mathcal{V}}{n_k}.
+\end{gathered}
 \]
 Anche qui la divisione va fatta componente per componente, siccome $\mathcal{V}$ è un vettore.
 
@@ -797,6 +800,7 @@ Otteniamo cos\`i la Condizione di Controllo della Varianza (CCV):
   \]
   dove:
   \begin{itemize}
+    \setlength{\itemsep}{0pt}\setlength{\topsep}{2pt}\setlength{\parskip}{0pt}
     \item $\|\cdot\|_1$ somma le varianze componente per componente,
     \item $\theta \in (0,1)$ \`e la tolleranza impostata dall'utente,
     \item $n_k$ \`e la dimensione del batch corrente.

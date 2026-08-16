@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Figura 5.3 (Sez. 5.1.2, `fig:batch_qualitativa`):
+- **Ultimo intervento.** Pagina 16 (Sez. 5.1.3, box "Teorema" della CCV): il
+  testo finale del box sforava di ~2 righe nella pagina successiva. Sistemato
+  compattando la sola impaginazione, contenuto invariato: unificate in
+  `gathered` le due display consecutive della definizione di $\mathcal{V}$ e
+  del caso "con reinserimento" (elimina lo spazio tra display adiacenti), e
+  `itemsep`/`topsep`/`parskip` nulli nell'`itemize` dentro il box Teorema.
+  74 pp invariati (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Figura 5.3 (Sez. 5.1.2, `fig:batch_qualitativa`):
   sostituito il vecchio grafico (confronto con batch fisso) con lo screenshot
   reale del pannello "n_k vs a^k" dell'app, salvato in
   `tesi/figure_sim/batch_size_app.png` (catturato da `visualizzazione.html`).
