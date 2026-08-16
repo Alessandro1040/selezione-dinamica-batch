@@ -101,7 +101,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Nuova **Appendice F "Test comparativi aggiuntivi"**
+- **Ultimo intervento.** Tre interventi collegati: (1) **Appendice F aggiornata** a
+  5 metodi × 3 problemi (aggiunto **BB-CCV**): 15 screenshot del pannello
+  "Analisi" (orari 22:55–23:51 del 16/08), raggruppati per funzione obiettivo
+  (ben condizionata, molto mal condizionata, termine incrociato) nelle Figg.
+  `fig:test_bencond/malcond/incrociato` con subfigure (a)–(e) Dynamic GD,
+  Newton-CG, Newton-CG $L_1$, RAPG, BB-CCV; nuovo paragrafo "Osservazioni
+  comparative" (BB-CCV il migliore in assoluto; sui mal condizionati $10^{-14}$
+  in 10 iterazioni). Mappa verificata con $J(w_0)$: il 23:27:53 è su ben
+  condizionata e il 23:32:21 su molto mal condizionata (nella lista erano
+  scambiati); usati i 3 test mal condizionati rifatti (23:50–23:51) al posto
+  di 4–6 (dati duplicati). (2) **Listati B.4 (BB-CCV) e B.5 (RAPG)** in
+  Appendice B nello stile di B.1–B.3 (blocchi `pythoncode` separati da
+  spiegazioni matematiche); codici salvati in `tesi/bbccv.py` e `tesi/rapg.py`.
+  (3) **Appendice E rinominata** "Schemi degli algoritmi BB-CCV e RAPG":
+  aggiunto lo schema RAPG (`fig:rapg`, Fig. E.2) con precondizionatore
+  diagonale RMSprop limitato e Regula Falsi 1D; schema BB-CCV verificato
+  contro il codice. Documento da 80 a **88 pp** (`main.pdf`, `tesi.pdf`,
+  `tesi_finale.pdf`). `bozza.tex` non allineata.
+- **Intervento precedente.** Nuova **Appendice F "Test comparativi aggiuntivi"**
   (`app:test`): 12 screenshot del pannello "Analisi" dell'app
   (`visualizzazione (3).html`, 16/08, orari 22:55–23:32), raggruppati per
   funzione obiettivo nelle Figg. `fig:test_bencond`, `fig:test_malcond`,
