@@ -102,12 +102,10 @@ Da tenere presente nelle sessioni di lavoro successive:
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
 - **Ultimo intervento.** Pagina Ringraziamenti: sostituito il `placeholder` con
-  il testo reale — ringraziamenti a tutti gli insegnanti, alla SMIA (Scienze
-  Matematiche per l'Intelligenza Artificiale), in particolare a Giovanni
-  Adelfio, Alessandro Pisarra, Emmanuel Nsia, Michele Aliffi e Lorenzo Salis,
-  alla famiglia e a chiunque abbia motivato l'autore a fare di più. Testo in
-  chiaro (nessun `\textbf`/`\emph`, come da convenzione del documento); tutto
-  in pagina 2, 72 pp invariati.
+  il testo dell'autore — insegnanti, persone studiate a SMIA, ringraziamento
+  speciale a Giovanni Adelfio, Alessandro Pisarra, Emmanuel Nsia, Michele
+  Aliffi, Francesco Lioi e Lorenzo Salis, famiglia e "chiunque mi abbia
+  motivato a fare di più". Testo in chiaro; tutto in pagina 2, 72 pp invariati.
 - **Intervento precedente.** Paragrafo "Regolarizzazione $L_1$ in ottimizzazione"
   (Sez. 4.4, Lavori Correlati): riscritto limitandolo all'essenziale e
   spiegando in modo intuitivo (perché la $L_1$ produce sparsità: "costa
