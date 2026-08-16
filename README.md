@@ -101,7 +101,11 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Nuova Appendice D "Schemi dei metodi a varianza
+- **Ultimo intervento.** Pagina Ringraziamenti (riga 219): ridotta a una sola
+  frase — "Ringrazio chiunque, in qualsiasi modo, mi abbia motivato a fare di
+  più" (via insegnanti, amici, SMIA, nomi citati e famiglia, come richiesto).
+  Documento invariato a **78 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Nuova Appendice D "Schemi dei metodi a varianza
   ridotta" (`app:schemi`): due schemi a blocchi in stile dei 3 algoritmi per
   SVRG (`fig:svrg`, con punto di ancoraggio $\bar w$ e gradiente esatto ogni
   $m$ iterazioni) e SAGA (`fig:saga`, tavola dei gradienti $g^{(i)}$ con media
