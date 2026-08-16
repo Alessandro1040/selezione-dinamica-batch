@@ -101,7 +101,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Appendice D compattata: i due schemi SVRG
+- **Ultimo intervento.** Nuova **Appendice E "Schema dell'algoritmo BB-CCV"**
+  (`app:bbccv`, figura `fig:bbccv`): schema a blocchi del gradiente a campione
+  dinamico con passo di Barzilai--Borwein (BB-CCV), in stile `fig:block_diagram`
+  (catena centrale + nodo laterale "CCV violata" con aumento di $n_k$ + loop),
+  con il nodo del passo di Barzilai--Borwein
+  ($\alpha_k = \mathrm{clip}(\alpha_k^{BB}, \alpha/20, 5\alpha)$), la line
+  search di Armijo e una caption-spiegazione che riporta i risultati del
+  confronto sperimentale (15 metodi, 7 problemi, 20 seed). Inserita tra
+  Appendice D e bibliografia; documento da 77 a **78 pp** (`main.pdf`,
+  `tesi.pdf`, `tesi_finale.pdf`); l'Appendice E sta tutta alla pag. 77.
+  `bozza.tex` non allineata (l'appendice non c'è).
+- **Intervento precedente.** Appendice D compattata: i due schemi SVRG
   (`fig:svrg`) e SAGA (`fig:saga`) ora sono **affiancati sulla stessa pagina**,
   uno nella metà sinistra e l'altro nella metà destra, con le caption sotto
   ciascuno nella propria metà. Struttura: un unico `figure[H]` con due
