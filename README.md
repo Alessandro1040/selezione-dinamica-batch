@@ -79,7 +79,7 @@ sorgente; per ripristinarla nel PDF basta rimuovere lo slicing
 `body.pages[1:]` nello script. Nella copia di lavoro usare
 `./compila_tesi.sh main`.
 
-## Note operative e stato corrente (15/08/2026)
+## Note operative e stato corrente (16/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -101,7 +101,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Nuova **Appendice E "Schema dell'algoritmo BB-CCV"**
+- **Ultimo intervento.** Nuova **Appendice F "Test comparativi aggiuntivi"**
+  (`app:test`): 12 screenshot del pannello "Analisi" dell'app
+  (`visualizzazione (3).html`, 16/08, orari 22:55–23:32), raggruppati per
+  funzione obiettivo nelle Figg. `fig:test_bencond`, `fig:test_malcond`,
+  `fig:test_incrociato` (ben condizionata $\kappa\approx1.1$, molto mal
+  condizionata $\kappa\approx100$, termine incrociato), con i 4 algoritmi per
+  figura in subfigure (a)–(d): Dynamic GD, Newton-CG, Newton-CG $L_1$, RAPG.
+  Le immagini sono in `tesi/figure_test/` (12 PNG da screenshot iPhone, anche
+  nella copia di lavoro per la compilazione di `main.tex`); scartati gli
+  screenshot 23:01–23:04 (dati duplicati). Aggiunto `\usepackage{subcaption}`
+  al preambolo. Documento da 78 a **80 pp** (`main.pdf`, `tesi.pdf`,
+  `tesi_finale.pdf`); Appendice F a pp. 77–78 (stampate).
+  `bozza.tex` non allineata (l'appendice non c'è).
+- **Intervento precedente.** Nuova **Appendice E "Schema dell'algoritmo BB-CCV"**
   (`app:bbccv`, figura `fig:bbccv`): schema a blocchi del gradiente a campione
   dinamico con passo di Barzilai--Borwein (BB-CCV), in stile `fig:block_diagram`
   (catena centrale + nodo laterale "CCV violata" con aumento di $n_k$ + loop),
