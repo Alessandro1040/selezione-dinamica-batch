@@ -101,7 +101,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Dimostrazione del cono di discesa (Sez. 5.1.2, Fig. 5.2):
+- **Ultimo intervento.** Figura 5.3 (Sez. 5.1.2, `fig:batch_qualitativa`):
+  sostituito il vecchio grafico (confronto con batch fisso) con lo screenshot
+  reale del pannello "n_k vs a^k" dell'app, salvato in
+  `tesi/figure_sim/batch_size_app.png` (catturato da `visualizzazione.html`).
+  Didascalia aggiornata: $a$ è il parametro stimato per minimi quadrati in
+  scala logaritmica, $\ln a = \sum_k k\ln n_k / \sum_k k^2$ — è ciò che
+  `computeBestFitA` dell'app calcola davvero (il commento nel codice dice
+  "minimizza $\sum_k(n_k-a^k)^2$" ma l'implementazione minimizza
+  $\sum_k(\ln n_k - k\ln a)^2$). Confronto con il batch fisso rimosso
+  (inutile). Nota: la Figura 5.7 (Esperimenti, `fig:batch`) usa ancora
+  `figure/batch_size.pdf` con il batch fisso. Documento invariato a 74 pp
+  (`main.pdf` e `tesi.pdf`), `tesi_finale.pdf` 74 pp.
+- **Intervento precedente.** Dimostrazione del cono di discesa (Sez. 5.1.2, Fig. 5.2):
   reso esplicito il passaggio finale sull'angolo — "e infine, dall'identità
   fondamentale $\sin^2\varphi+\cos^2\varphi=1$, esprimiamo il seno in funzione
   del coseno, $\sin\varphi=\sqrt{1-\cos^2\varphi}$, per concludere

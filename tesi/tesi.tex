@@ -839,13 +839,16 @@ Se la condizione CCV non \`e soddisfatta, si stima la nuova dimensione minima de
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=0.78\textwidth]{figure/batch_size.pdf}
-\caption{Andamento qualitativo della dimensione del batch $n_k$ in funzione
-dell'iterazione $k$ per il metodo a campione dinamico (linea blu, con gradini
-in corrispondenza delle violazioni della CCV) confrontato con un batch fisso
-$n_k = 16$ (linea rossa tratteggiata). La strategia dinamica concentra la
-risorsa computazionale nelle iterazioni finali, dove il gradiente \`e piccolo
-e serve precisione.}
+\includegraphics[width=0.78\textwidth]{figure_sim/batch_size_app.png}
+\caption{Andamento della dimensione del batch $n_k$ in funzione dell'iterazione
+$k$ per il metodo a campione dinamico (linea blu, con gradini in corrispondenza
+delle violazioni della CCV), confrontato con la funzione esponenziale $a^k$
+(curva oro). Il parametro $a > 1$ è stimato per minimi quadrati in scala
+logaritmica: minimizza $\sum_k (\ln n_k - k \ln a)^2$, da cui
+$\ln a = \frac{\sum_k k \ln n_k}{\sum_k k^2}$. La crescita di $n_k$ segue quindi
+una legge quasi geometrica $n_k \approx a^k$, concentrando la risorsa
+computazionale nelle iterazioni finali, dove il gradiente è piccolo e serve
+precisione.}
 \label{fig:batch_qualitativa}
 \end{figure}
 
