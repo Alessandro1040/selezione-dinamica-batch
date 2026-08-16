@@ -3122,7 +3122,7 @@ seguenti funzioni ausiliarie, definite dall'utente e dipendenti dal dataset:
   \item $N$: dimensione del dataset.
 \end{itemize}
 
-\subsection{Listato B.1: metodo del gradiente a campione dinamico}
+\subsection{B.1: metodo del gradiente a campione dinamico}
 \begin{pythoncode}[title= Dynamic GD]
 
 import numpy as np
@@ -3230,7 +3230,7 @@ history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
 \end{pythoncode}
 
 Infine, si controlla la norma del gradiente esatto (calcolato su tutti i dati) tramite grad\_full(w): se $\|\nabla J(w_{k})\|_2 < 10^{-6}$, si considera raggiunta la convergenza e si interrompe il ciclo, registrando l'ultimo punto. Altrimenti, si continua registrando la storia dei pesi e delle dimensioni del batch. Al termine, la funzione restituisce le liste history (contenente i pesi $w_k$ a ogni iterazione) e batch\_sizes (contenente le corrispondenti dimensioni $n_k$ del batch).
-\subsection{Listato B.2: Newton-CG con campionamento dinamico}
+\subsection{B.2: Newton-CG con campionamento dinamico}
 \begin{pythoncode}[title= Newton-CG]
 
 import numpy as np
@@ -3397,7 +3397,7 @@ Infine, si controlla la norma del gradiente esatto (calcolato su tutto il datase
 \underline{L'algoritmo Newton CG è sostanzialmente Dynamic GD ma la direzione di}
 
  \underline{discesa è quella di Newton anziche l'antigradiente}
-\subsection{Listato B.3: Newton-CG per problemi $L_1$-regolarizzati}
+\subsection{B.3: Newton-CG per problemi $L_1$-regolarizzati}
 \begin{pythoncode}[title= Newton-L1]
 
 import numpy as np
