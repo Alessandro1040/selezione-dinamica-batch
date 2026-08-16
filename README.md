@@ -112,7 +112,9 @@ Da tenere presente nelle sessioni di lavoro successive:
   la firma `newton_l1(..., eta=0.5)` **senza** `R` (coerente con
   `visualizzazione.html`, dove `R` è globale) e la prosa con i riferimenti
   alle equazioni (6.x) della bozza. Conservati: introduzione dell'appendice,
-  titoli "Listato B.x", sezione "Istruzioni". Documento da 72 a **76 pp**
+  sezione "Istruzioni"; titoli delle sottosezioni rinominati da
+  "Listato B.x: ..." a "B.x: ..." (via la parola "Listato"). Documento da 72 a
+  **76 pp**
   (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`), `bozza.pdf` invariata (56 pp).
 - **Intervento precedente.** Pagina Ringraziamenti (riga 219): aggiunto
   "i miei amici e in generale" all'incipit. Testo definitivo: "Ringrazio i
