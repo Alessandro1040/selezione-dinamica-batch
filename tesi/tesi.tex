@@ -2428,13 +2428,10 @@ Figura~\ref{fig:convergenza} mostra la convergenza del gradiente a campione
 dinamico sul problema quadratico ben condizionato per i tre valori di
 $\theta$: come previsto dalla teoria, l'errore $J(w_k) - J(w_*)$ decresce
 linearmente (scala logaritmica), con una pendenza che dipende da $\theta$.
-La Figura~\ref{fig:batch} mostra l'evoluzione della dimensione del batch
-$n_k$: il batch cresce a scalini quando la CCV viene violata, e rimane invece
-costante nel caso di batch fisso. La Figura~\ref{fig:bar} confronta il costo
-totale in valutazioni di gradienti individuali entro un budget di 300
-iterazioni: Dynamic GD usa molte meno valutazioni di Batch GD (che valuta
-l'intero dataset a ogni iterazione) e, a differenza di SGD, raggiunge la
-precisione richiesta.
+La Figura~\ref{fig:bar} confronta il costo totale in valutazioni di gradienti
+individuali entro un budget di 300 iterazioni: Dynamic GD usa molte meno
+valutazioni di Batch GD (che valuta l'intero dataset a ogni iterazione) e, a
+differenza di SGD, raggiunge la precisione richiesta.
 
 \begin{figure}[h]
 \centering
@@ -2443,15 +2440,6 @@ precisione richiesta.
 gradiente a campione dinamico sul problema quadratico ($\kappa \approx 1.4$)
 per $\theta \in \{0.1, 0.5, 0.9\}$.}
 \label{fig:convergenza}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.78\textwidth]{figure/batch_size.pdf}
-\caption{Evoluzione della dimensione del batch $n_k$ con la strategia
-dinamica (CCV) rispetto a un batch fisso. Il batch cresce automaticamente
-quando ci si avvicina al minimo.}
-\label{fig:batch}
 \end{figure}
 
 \begin{figure}[h]

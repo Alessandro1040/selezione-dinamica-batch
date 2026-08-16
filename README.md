@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Sezione Newton-CG $L_1$, Tabella 5.2 e URL GitHub:
+- **Ultimo intervento.** Rimossa la Figura 6.2 ("Evoluzione di $n_k$ rispetto a
+  un batch fisso", `fig:batch`, ex pag. 51): ridondante con la Figura 5.3
+  (screenshot dell'app, stessa informazione su $n_k$) e unico residuo del
+  confronto col batch fisso. Aggiornato il testo degli Esperimenti, che ora
+  cita solo la 6.1 (convergenza) e la 6.2 (bar chart, rinumerata da 6.3).
+  Documento da 74 a **73 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+  `figure/batch_size.pdf` non è più incluso nel documento (resta nella repo).
+- **Intervento precedente.** Sezione Newton-CG $L_1$, Tabella 5.2 e URL GitHub:
   (1) lo schema a blocchi `fig:newton_l1` finiva in fondo al documento (pag.
   72) a causa del float `[h]`: passato a `[H]` (come già fatto per la Fig.
   5.4), ora sta nella sezione (pag. 45); (2) Tabella 5.2 ridisegnata: prima
@@ -189,8 +196,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 74 pp (definitiva, con
-  frontespizio), `tesi.pdf` 74 pp (documento), `main.pdf` 74 pp (copia di
+- **PDF di riferimento.** `tesi_finale.pdf` 73 pp (definitiva, con
+  frontespizio), `tesi.pdf` 73 pp (documento), `main.pdf` 73 pp (copia di
   lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento
