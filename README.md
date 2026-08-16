@@ -101,7 +101,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Lavoro futuro (Sez. 7.3, punto 1 "Rilassamento
+- **Ultimo intervento.** Nuova Appendice D "Schemi dei metodi a varianza
+  ridotta" (`app:schemi`): due schemi a blocchi in stile dei 3 algoritmi per
+  SVRG (`fig:svrg`, con punto di ancoraggio $\bar w$ e gradiente esatto ogni
+  $m$ iterazioni) e SAGA (`fig:saga`, tavola dei gradienti $g^{(i)}$ con media
+  $\bar g$), nella notazione del documento; rimandi aggiunti in Sez. 4.1
+  (Lavori Correlati) dove si citano johnson2013 e defazio2014.
+  Documento da 76 a **78 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+- **Intervento precedente.** Lavoro futuro (Sez. 7.3, punto 1 "Rilassamento
   dell'ipotesi di convessità forte"): riscritto per chiarire che la PL nella
   tesi è una conseguenza della convessità forte e che la proposta è assumere
   la PL ($\|\nabla J(w)\|^2 \ge 2\mu J(w)$) come ipotesi di partenza,
