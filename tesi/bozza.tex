@@ -210,7 +210,7 @@
   {\large\bfseries\color{coverblue} Abstract}\\[0.3cm]
 \end{center}
 \noindent
-Questo documento presenta, in forma rigorosa ma accessibile, la metodologia per la \emph{selezione dinamica della dimensione del campione} negli algoritmi di ottimizzazione per il machine learning su larga scala, basandosi sul lavoro seminale di Byrd, Chin, Nocedal e Wu (2012). Il filo conduttore \`e il seguente: anzich\'e scegliere a priori una dimensione fissa del batch (il sottoinsieme di dati usato ad ogni iterazione), \`e possibile decidere \emph{durante} l'algoritmo se e quando aumentarla, guidandosi da stime statistiche della varianza del gradiente. Vengono trattati tre contributi principali: (i) un metodo del gradiente a campione dinamico con analisi di complessit\`a, (ii) un metodo di Newton con gradiente coniugato e Hessiana sottocampionata, (iii) un'estensione ai problemi con regolarizzazione $L_1$ per la produzione di soluzioni sparse. Il documento \`e strutturato per essere comprensibile anche a chi non ha una formazione avanzata in ottimizzazione, introducendo gradualmente i concetti e corredando ogni risultato teorico con un'interpretazione intuitiva.
+Questo documento presenta, in forma rigorosa ma accessibile, la metodologia per la selezione dinamica della dimensione del campione negli algoritmi di ottimizzazione per il machine learning su larga scala, basandosi sul lavoro seminale di Byrd, Chin, Nocedal e Wu (2012). Il filo conduttore \`e il seguente: anzich\'e scegliere a priori una dimensione fissa del batch (il sottoinsieme di dati usato ad ogni iterazione), \`e possibile decidere durante l'algoritmo se e quando aumentarla, guidandosi da stime statistiche della varianza del gradiente. Vengono trattati tre contributi principali: (i) un metodo del gradiente a campione dinamico con analisi di complessit\`a, (ii) un metodo di Newton con gradiente coniugato e Hessiana sottocampionata, (iii) un'estensione ai problemi con regolarizzazione $L_1$ per la produzione di soluzioni sparse. Il documento \`e strutturato per essere comprensibile anche a chi non ha una formazione avanzata in ottimizzazione, introducendo gradualmente i concetti e corredando ogni risultato teorico con un'interpretazione intuitiva.
 \begin{center}
   \rule{0.8\textwidth}{0.4pt}
 \end{center}
@@ -258,43 +258,43 @@ $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
 \subsection{Prerequisiti matematici essenziali}
 
 \begin{definitionbox}
-  \textbf{Funzione convessa.} Una funzione $f: \R^m \to \R$ si dice \emph{convessa} se, preso qualunque segmento tra due punti del suo dominio, il grafico della funzione sta \emph{sotto} (o al pi\`u su) quel segmento. Formalmente, per ogni $x, y \in \R^m$ e $t \in [0,1]$:
+  Funzione convessa. Una funzione $f: \R^m \to \R$ si dice convessa se, preso qualunque segmento tra due punti del suo dominio, il grafico della funzione sta sotto (o al pi\`u su) quel segmento. Formalmente, per ogni $x, y \in \R^m$ e $t \in [0,1]$:
   \[
     f(tx + (1-t)y) \leq t f(x) + (1-t) f(y).
   \]
-  L'utilit\`a delle funzioni convesse in ottimizzazione \`e fondamentale: \textbf{ogni minimo locale \`e anche globale}.
+  L'utilit\`a delle funzioni convesse in ottimizzazione \`e fondamentale: ogni minimo locale \`e anche globale.
 
 \end{definitionbox}
 
 \begin{definitionbox}
-  \textbf{Gradiente.} Il gradiente $\nabla f(w) \in \R^m$ di una funzione differenziabile $f: \R^m \to \R$ nel punto $w$ \`e il vettore delle derivate parziali:
+  Gradiente. Il gradiente $\nabla f(w) \in \R^m$ di una funzione differenziabile $f: \R^m \to \R$ nel punto $w$ \`e il vettore delle derivate parziali:
   \[
     \nabla f(w) = \left(\frac{\partial f}{\partial w_1}, \frac{\partial f}{\partial w_2}, \dots, \frac{\partial f}{\partial w_m}\right)^T.
   \]
-  Punta nella direzione di massima crescita di $f$; pertanto $-\nabla f(w)$ \`e la direzione di \emph{massima discesa}, usata negli algoritmi di ottimizzazione.
+  Punta nella direzione di massima crescita di $f$; pertanto $-\nabla f(w)$ \`e la direzione di massima discesa, usata negli algoritmi di ottimizzazione.
   
 \end{definitionbox}
 
 
 \begin{definitionbox}
-  \textbf{Norma di una matrice.} Data una matrice $A \in \R^{n \times n}$, la \textbf{norma indotta} (o norma operatoriale) è definita come:
+  Norma di una matrice. Data una matrice $A \in \R^{n \times n}$, la norma indotta (o norma operatoriale) è definita come:
   \[
     \|A\|_2 = \max_{\|x\|_2=1} \|Ax\|_2 = \sqrt{\lambda_{\max}(A^T A)}.
   \]
   Per una matrice simmetrica definita positiva, $\|A\|_2 = \lambda_{\max}(A)$.
   
  \begin{mnbox}
-  \textbf{Numero di condizionamento e convergenza.}
+  Numero di condizionamento e convergenza.
   Le norme di matrice sono fondamentali per analizzare la stabilità e la
   convergenza degli algoritmi. Per una matrice $A$ simmetrica definita
-  positiva, il \textbf{numero di condizionamento} è definito come
+  positiva, il numero di condizionamento è definito come
   \[
   \kappa(A) = \frac{\lambda_{\max}(A)}{\lambda_{\min}(A)}.
   \]
-  Questo numero misura la \textbf{sensibilità} del problema alla propagazione
+  Questo numero misura la sensibilità del problema alla propagazione
   degli errori: più $\kappa(A)$ è grande, più piccole perturbazioni nei dati o
   negli arrotondamenti possono amplificarsi nella soluzione. Un problema con
-  $\kappa(A)$ grande si dice \textbf{mal condizionato}, perché la soluzione è
+  $\kappa(A)$ grande si dice mal condizionato, perché la soluzione è
   numericamente instabile e gli algoritmi iterativi (come il gradiente)
   convergono lentamente. Per una funzione quadratica
   $f(w) = \frac12 w^T A w$, nel metodo del gradiente con passo ottimale
@@ -322,8 +322,8 @@ $\alpha_k$ & Passo (learning rate) all'iterazione $k$ \\
 
 Nell'apprendimento supervisionato, si dispone di un insieme di esempi etichettati $\mathcal{D} = \{(x_i, y_i)\}_{i=1}^N$, dove:
 \begin{itemize}
-    \item $x_i \in \R^m$ \`e il vettore delle \emph{feature} (caratteristiche) dell'$i$-esimo esempio,
-    \item $y_i \in \mathcal{Y}$ \`e la corrispondente \emph{etichetta} (valore da predire),
+    \item $x_i \in \R^m$ \`e il vettore delle feature (caratteristiche) dell'$i$-esimo esempio,
+    \item $y_i \in \mathcal{Y}$ \`e la corrispondente etichetta (valore da predire),
     \item $N \in \mathbb{N}$ \`e il numero totale di esempi, potenzialmente dell'ordine di $10^6$--$10^9$.
 \end{itemize}
 
@@ -333,14 +333,14 @@ Si assume che le coppie $(x_i, y_i)$ siano realizzazioni i.i.d.\ di una variabil
 \]
 dove:
 \begin{itemize}
-    \item $f(w;x) = w^T x$ \`e il \emph{predittore lineare} parametrizzato da $w$,
-    \item $\ell: \R \times \mathcal{Y} \to \R_{\geq 0}$ \`e la \emph{funzione di perdita} convessa.
+    \item $f(w;x) = w^T x$ \`e il predittore lineare parametrizzato da $w$,
+    \item $\ell: \R \times \mathcal{Y} \to \R_{\geq 0}$ \`e la funzione di perdita convessa.
 \end{itemize}
 
-Poich\'e $P$ \`e ignota, si minimizza invece il \textbf{rischio empirico}:
+Poich\'e $P$ \`e ignota, si minimizza invece il rischio empirico:
 
 \begin{definitionbox}
-  \textbf{Funzione Obiettivo Empirica.}
+  Funzione Obiettivo Empirica.
   \begin{equation}\label{eq:empirical_risk}
     \min_{w \in \R^m} J(w) \;=\; \min_{w \in \R^m}\frac{1}{N} \sum_{i=1}^{N} \ell(w; i),
   \end{equation}
@@ -358,13 +358,13 @@ Il gradiente esatto di $J$ richiede la somma su tutti gli $N$ esempi:
 \[
   \nabla J(w) = \frac{1}{N}\sum_{i=1}^N \nabla \ell(w;i).
 \]
-Il costo di ogni $\nabla \ell(w;i)$ \`e $O(m)$, siccome deve essere valutato $N$ volte, ogni valutazione del gradiente di $J $ in un punto $ w $ costa $O(Nm)$ operazioni. Per $N=10^8$ e $m=10^4$ si tratta di $10^{12}$ operazioni \emph{per singola iterazione} ovvero un costo che non è praticabile.
+Il costo di ogni $\nabla \ell(w;i)$ \`e $O(m)$, siccome deve essere valutato $N$ volte, ogni valutazione del gradiente di $J $ in un punto $ w $ costa $O(Nm)$ operazioni. Per $N=10^8$ e $m=10^4$ si tratta di $10^{12}$ operazioni per singola iterazione ovvero un costo che non è praticabile.
 
-\subsection{Il trade-off}
+\subsection{Il trade off}
 
 Il problema è che per minimizzare \(J\) dobbiamo calcolare \(\nabla J(w)\) in tanti punti \(w\), una volta per ogni iterazione, finché non troviamo il minimo; in particolare un singolo gradiente di \(J\) costa \(O(Nm)\). Se \(N\) è enorme, una iterazione è già costosissima, e di iterazioni ne servono tante. Le strade possibili sono le seguenti: il metodo stocastico (SGD) usa un solo esempio per iterazione: il costo è basso, ma il gradiente è rumoroso, quindi servono tante iterazioni e la convergenza è lenta.
 Il batch completo usa tutti i dati: il gradiente è esatto, quindi servono poche iterazioni, ma ogni iterazione costa \(O(Nm)\) ed è impraticabile.
-Il mini-batch fisso è un compromesso: usa un numero intermedio di esempi, bilanciando costo e accuratezza, ma la dimensione del batch è arbitraria e fissa.
+Il mini batch fisso è un compromesso: usa un numero intermedio di esempi, bilanciando costo e accuratezza, ma la dimensione del batch è arbitraria e fissa.
 
 La soluzione proposta è il metodo del gradiente a campione dinamico: si parte con un batch piccolo per fare progressi veloci, e lo si aumenta gradualmente quando serve precisione, in questo modo il costo computazionale si concentra solo dove serve.
 
@@ -372,13 +372,13 @@ La soluzione proposta è il metodo del gradiente a campione dinamico: si parte c
 \subsection{Formulazione del problema}
 
 \begin{definitionbox}
-  \textbf{Perdita media sul campione $\mathcal{S}_k$:} ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
+  Perdita media sul campione $\mathcal{S}_k$: ad ogni iterazione $k$ si seleziona un sottoinsieme $\mathcal{S}_k \subseteq \{1,\dots,N\}$ di dimensione $n_k = |\mathcal{S}_k|$ e si definisce la funzione
   \[
     J_{\mathcal{S}_k}(w) = \frac{1}{n_k} \sum_{i \in \mathcal{S}_k} \ell(w;i).
   \]
   \begin{itemize}
     \item $\mathcal{S}_k$: campione casuale di indici all'iterazione $k$,
-    \item $n_k = |\mathcal{S}_k|$: dimensione del batch, \emph{variabile} con $k$,
+    \item $n_k = |\mathcal{S}_k|$: dimensione del batch, variabile con $k$,
     \item $J_{\mathcal{S}_k}(w)$: approssimazione stocastica dell'obiettivo reale $J(w)$.
   \end{itemize}
   L'algoritmo definisce una regola per aggiornare $w_k$ e per scegliere $n_{k+1}$ in funzione delle informazioni disponibili all'iterazione $k$.
@@ -388,7 +388,7 @@ La soluzione proposta è il metodo del gradiente a campione dinamico: si parte c
 Per garantire le propriet\`a teoriche degli algoritmi, si assumono le seguenti condizioni.
 
 \begin{definitionbox}
-  \textbf{Convessit\`a forte e liscezza}: la funzione $J: \R^m \to \R$ \`e \emph{uniformemente convessa} e ha gradiente \emph{Lipschitz continuo}: esistono costanti $0 < \lambda \leq L$ tali che, per ogni $w, d \in \R^m$,
+  Convessit\`a forte e liscezza: la funzione $J: \R^m \to \R$ \`e uniformemente convessa e ha gradiente Lipschitz continuo: esistono costanti $0 < \lambda \leq L$ tali che, per ogni $w, d \in \R^m$,
   \[
     \lambda \norm{d}_2^2 \;\leq\; d^T \nabla^2 J(w)\, d \;\leq\; L \norm{d}_2^2.
   \]
@@ -406,7 +406,7 @@ Per garantire le propriet\`a teoriche degli algoritmi, si assumono le seguenti c
   In pratica, la convessit\`a forte non \`e sempre verificata (ad esempio, la perdita logistica non \`e fortemente convessa). Tuttavia, \`e sufficiente aggiungere un termine di regolarizzazione $\frac{\gamma}{2}\norm{w}^2$ alla funzione obiettivo $J$ se è convessa, per indurre convessit\`a forte con $\lambda = \gamma$.
 \end{notebox}
 \begin{notebox}
-  \textbf{Disuguaglianze fondamentali (si veda l'Appendice~\ref{app:pl} per la dimostrazione completa).}
+  Disuguaglianze fondamentali (si veda l'Appendice~\ref{app:pl} per la dimostrazione completa).
   Sia $w_*$ l'unico minimo di $J$ e, per semplificare le notazioni, poniamo $J(w_*) = 0$. Allora con le ipotesi strutturali esplicitate sopra valgono le seguenti disuguaglianze:
   \[
   \|\nabla J(w)\|_2^2 \geq 2\lambda J(w), \qquad J(w) \geq \frac{\lambda}{2L^2} \|\nabla J(w)\|_2^2.
@@ -421,13 +421,13 @@ Per garantire le propriet\`a teoriche degli algoritmi, si assumono le seguenti c
 
 \subsubsection{Formulazione della dinamica del batch}
 
-Il metodo del gradiente (o \emph{steepest descent}) \`e l'algoritmo di ottimizzazione pi\`u semplice: a ogni passo, si scende nella direzione opposta al gradiente. La variante proposta non usa il gradiente esatto $\nabla J(w_k)$ (troppo costoso), ma un'approssimazione basata su un campione:
+Il metodo del gradiente (o steepest descent) \`e l'algoritmo di ottimizzazione pi\`u semplice: a ogni passo, si scende nella direzione opposta al gradiente. La variante proposta non usa il gradiente esatto $\nabla J(w_k)$ (troppo costoso), ma un'approssimazione basata su un campione:
 \[
   g_k = \nabla J_{\mathcal{S}_k}(w_k) = \frac{1}{n_k}\sum_{i \in \mathcal{S}_k} \nabla \ell(w_k;i).
 \]
 Vogliamo sapere quando il campione $\mathcal{S}_k$ \`e abbastanza grande da garantire che $-g_k$ sia davvero una direzione di discesa per $J$.
 
-La direzione $-g_k$ è di discesa per $J$ se l'errore del gradiente $\norm{g_k - \nabla J(w_k)}$ \`e piccolo rispetto a $\norm{g_k}$ (dimostrazione sotto). Questo errore non \`e calcolabile esattamente, ma pu\`o essere \emph{stimato} dalla varianza campionaria di $\{{\nabla \ell(w_k;i)}\}_{i \in \mathcal{S}_k}$: se i gradienti dei singoli esempi nel batch sono coerenti tra loro (bassa varianza), allora la loro media \`e un buon estimatore di $\nabla J(w_k)$.
+La direzione $-g_k$ è di discesa per $J$ se l'errore del gradiente $\norm{g_k - \nabla J(w_k)}$ \`e piccolo rispetto a $\norm{g_k}$ (dimostrazione sotto). Questo errore non \`e calcolabile esattamente, ma pu\`o essere stimato dalla varianza campionaria di $\{{\nabla \ell(w_k;i)}\}_{i \in \mathcal{S}_k}$: se i gradienti dei singoli esempi nel batch sono coerenti tra loro (bassa varianza), allora la loro media \`e un buon estimatore di $\nabla J(w_k)$.
 
   Nel metodo del gradiente classico, si richiede che la direzione di discesa $d_k$ soddisfi $\nabla J(w_k)^T d_k < 0$. Qui, poiché $g_k$ è la direzione di discesa, che approssima $\nabla J(w_k)$, abbiamo $\nabla J(w_k)^T (-g_k) = - \nabla J(w_k)^T g_k$. Se $g_k$ è sufficientemente vicino a $\nabla J(w_k)$ in norma relativa, allora $-g_k$ è effettivamente una direzione di discesa.
 
@@ -452,7 +452,7 @@ Per ogni numero reale $x$ vale $x \ge -|x|$; quindi $e_k^T g_k \ge -|e_k^T g_k|$
 \]
 Affinch\'e $\nabla J(w_k)^T g_k > 0$ (cio\`e $-g_k$ sia di discesa) \`e sufficiente che $\|g_k\| - \|e_k\| > 0$, ovvero $\|e_k\| < \|g_k\|$. La condizione $\|e_k\| \le \theta \|g_k\|$ con $\theta < 1$ implica $\|e_k\| < \|g_k\|$, dunque garantisce la discesa.
 \newpage
-Poich\'e il gradiente della popolazione totale $\nabla J(w_k)$ \`e ignoto, non \`e possibile valutare questa condizione in modo deterministico a ogni iterazione. \'E importante distinguere due livelli: la condizione puntuale $\|g_k - \nabla J(w_k)\| \le \theta\|g_k\|$ \`e quella usata nel Teorema deterministico per garantire la discesa a ogni passo; la Condizione di Controllo della Varianza (CCV) che introdurremo tra poco \`e invece una condizione \emph{in aspettativa}, sufficiente per l'analisi di convergenza in media ma non una garanzia puntuale. Il mini-batch $\mathcal{S}_k$ viene estratto casualmente dal dataset, rendendo $g_k$ una variabile aleatoria con $\E_{\mathcal{S}_k}[g_k] = \nabla J(w_k)$. Passare dal controllo dell'errore puntuale $\|g_k - \nabla J(w_k)\|$ al controllo del suo valore atteso permette di aggirare l'ignoranza su $\nabla J(w_k)$:
+Poich\'e il gradiente della popolazione totale $\nabla J(w_k)$ \`e ignoto, non \`e possibile valutare questa condizione in modo deterministico a ogni iterazione. \'E importante distinguere due livelli: la condizione puntuale $\|g_k - \nabla J(w_k)\| \le \theta\|g_k\|$ \`e quella usata nel Teorema deterministico per garantire la discesa a ogni passo; la Condizione di Controllo della Varianza (CCV) che introdurremo tra poco \`e invece una condizione in aspettativa, sufficiente per l'analisi di convergenza in media ma non una garanzia puntuale. Il mini batch $\mathcal{S}_k$ viene estratto casualmente dal dataset, rendendo $g_k$ una variabile aleatoria con $\E_{\mathcal{S}_k}[g_k] = \nabla J(w_k)$. Passare dal controllo dell'errore puntuale $\|g_k - \nabla J(w_k)\|$ al controllo del suo valore atteso permette di aggirare l'ignoranza su $\nabla J(w_k)$:
 \begin{align*}
 \mathbb{E}_{\mathcal{S}_k}\left[\|g_k - \mathbb{E}_{\mathcal{S}_k}[g_k]\|_2^2\right]
 &= \mathbb{E}_{\mathcal{S}_k}\left[\sum_{j=1}^{m} \left(g_k^{(j)} - \mathbb{E}_{\mathcal{S}_k}[g_k^{(j)}]\right)^2\right] \\
@@ -473,7 +473,7 @@ Definiamo la varianza della popolazione (vettore):
 dove il quadrato è inteso componente per componente, e distinguiamo $I$ variabile aleatoria distribuita uniformemente in $\{1,\dots,N\}$ con $i$ realizzazione di tale variabile.
 \begin{comment}
 \begin{notebox}
-  \textbf{Nota sul significato di $\mathcal{V}$}
+  Nota sul significato di $\mathcal{V}$
   
   Immagina di essere al passo $k$ dell'algoritmo. Hai in mano i pesi correnti $w_k$.
   
@@ -491,9 +491,9 @@ Vogliamo misurare quanto sono diversi tra loro questi $N$ vettori: $\mathcal{V}$
   \[
   \mathcal{V} := \frac{1}{N} \sum_{i=1}^{N} \left( \nabla \ell(w_k; i) - \nabla J(w_k) \right)^2 \in \mathbb{R}^m,
   \]
-  dove il quadrato è inteso \emph{componente per componente}.
+  dove il quadrato è inteso componente per componente.
   
-In termini probabilistici, se estrai a caso un indice $I$ dal dataset, il gradiente della loss su quell'esempio casuale è una variabile aleatoria. $\mathcal{V}$ è la \textbf{varianza (componente per componente) di questa variabile aleatoria} intorno alla sua media, cioè:
+In termini probabilistici, se estrai a caso un indice $I$ dal dataset, il gradiente della loss su quell'esempio casuale è una variabile aleatoria. $\mathcal{V}$ è la varianza (componente per componente) di questa variabile aleatoria intorno alla sua media, cioè:
 \[
 \mathcal{V} = \mathrm{Var}_{I \sim \mathrm{Uniform}\{1,\dots,N\}}\bigl(\nabla \ell(w_k; I)\bigr).
 \]
@@ -522,7 +522,7 @@ Poich\'e $\mathcal{V}$ \`e ignoto, lo sostituiamo con la sua stima campionaria s
   = \frac{1}{n_k-1}\sum_{i\in S_k}\bigl(\nabla \ell(w_k;i) - \nabla J_{S_k}(w_k)\bigr)^2.
 \]
 
-Otteniamo cos\`i la \textbf{Condizione di Controllo della Varianza (CCV)}:
+Otteniamo cos\`i la Condizione di Controllo della Varianza (CCV):
 
 \begin{thmbox}
   \[
@@ -562,7 +562,7 @@ Il parametro $\theta$ controlla la tolleranza sull'errore relativo $\|e_k\|/\|g_
 Se la condizione CCV non \`e soddisfatta, si stima la nuova dimensione minima del batch. Supponendo che, per aumenti graduali, la varianza campionaria e la norma del gradiente non cambino significativamente (ovvero la stima della varianza per predire la dimensione del batch k viene fatta con la varianza del batch k-1) si ottiene:
 
 \begin{definitionbox}
-  \textbf{Regola di Aggiornamento del Batch.}
+  Regola di Aggiornamento del Batch.
   \[
     n_{k}^{\mathrm{new}} = \left\lceil \frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2} \right\rceil\textsuperscript{1}
   \]
@@ -577,7 +577,7 @@ Se la condizione CCV non \`e soddisfatta, si stima la nuova dimensione minima de
 \subsubsection{Pseudocodice (Algoritmo)}
 
 \begin{actionbox}
-  \textbf{Gradiente a Campione Dinamico}\\[0.3cm]
+  Gradiente a Campione Dinamico\\[0.3cm]
   \textit{Input:} $w_0$ (punto iniziale), $\mathcal{S}_0$ (batch iniziale), $\theta \in (0,1)$ (tolleranza).\\[0.1cm]
   \textit{Ripeti per ogni } $k \in \mathbb{N}$ \textit{ fino a convergenza:}
   \begin{enumerate}
@@ -616,7 +616,7 @@ dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione d
 \end{lemma}
 \begin{proof}
   Poniamo $e_k = g_k - \nabla J(w_k)$. Allora per definizione $\nabla J(w_k) = g_k - e_k$.
-  \textbf{Prima dimostrazione: $\|\nabla J(w_k)\| \leq (1+\theta)\|g_k\|$.}
+  Prima dimostrazione: $\|\nabla J(w_k)\| \leq (1+\theta)\|g_k\|$.
   Applicando la disuguaglianza triangolare $\|x+y\| \leq \|x\| + \|y\|$ con $x = g_k$ e $y = -e_k$:
   \[
   \|\nabla J(w_k)\| = \|g_k + (-e_k)\| \leq \|g_k\| + \|{-e_k}\| = \|g_k\| + \|e_k\|.
@@ -626,7 +626,7 @@ dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione d
   \|\nabla J(w_k)\| \leq \|g_k\| + \theta \|g_k\| = (1+\theta)\|g_k\|.
   \]
 
-  \textbf{Seconda dimostrazione: $\|\nabla J(w_k)\| \geq (1-\theta)\|g_k\|$.}
+  Seconda dimostrazione: $\|\nabla J(w_k)\| \geq (1-\theta)\|g_k\|$.
   Partiamo dalla disuguaglianza triangolare standard $\|a\|=\|a-b+b\| \leq \|a-b\| + \|b\|$, valida per ogni $a,b$. Ponendo $a = g_k$ e $b = e_k$:
   \[
   \|g_k\| \leq \|g_k - e_k\| + \|e_k\| = \|\nabla J(w_k)\| + \|e_k\|.
@@ -636,7 +636,7 @@ dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione d
   \|\nabla J(w_k)\| \geq \|g_k\| - \theta \|g_k\| = (1-\theta)\|g_k\|.
   \]
 
-  \textbf{Dimostrazione di $\nabla J(w_k)^T g_k \geq (1-\theta)\|g_k\|^2$.}
+  Dimostrazione di $\nabla J(w_k)^T g_k \geq (1-\theta)\|g_k\|^2$.
   Eleviamo al quadrato la condizione di accuratezza:
   \[
   \|g_k - \nabla J(w_k)\|^2 \leq \theta^2 \|g_k\|^2.
@@ -672,7 +672,7 @@ dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione d
 \end{proof}
 \newpage
 \begin{thmbox}
-  \textbf{Teorema di Convergenza Deterministica.}
+  Teorema di Convergenza Deterministica.
   Sia $J: \mathbb{R}^m \to \mathbb{R}$ una funzione $\lambda$-fortemente convessa ($\nabla^2 J(w) \succeq \lambda I$ per ogni $w$) e con gradiente $L$-Lipschitz ($\nabla^2 J(w) \preceq LI$ per ogni $w$).
   Si assuma che a ogni iterazione valga la condizione di accuratezza e si scelga il passo 
   $\alpha = \dfrac{1-\theta}{L}$. Allora
@@ -692,7 +692,7 @@ dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione d
 \end{thmbox}
 
 \begin{notebox}
-  \textbf{Confronto con il risultato di Nocedal (Theorem 4.1).}
+  Confronto con il risultato di Nocedal (Theorem 4.1).
   Il fattore di contrazione qui ottenuto è $1 - \dfrac{(1-\theta)\lambda}{L}$, mentre Nocedal dimostra $1 - \dfrac{(1-\theta)\lambda}{2L}$ (eq.~4.9 del paper). Ora $1 - \dfrac{(1-\theta)\lambda}{L} < 1 - \dfrac{(1-\theta)\lambda}{2L}$, cioè abbiamo un fattore di contrazione più piccolo (convergenza più rapida). Esso è dovuto all'uso della disuguaglianza di Polyak--Lojasiewicz nella forma forte $\|\nabla J(w)\|^2 \ge 2\lambda J(w)$ (dimostrata nell'appendice~\ref{app:pl}), invece della forma più debole $\|\nabla J(w)\|^2 \ge \lambda(J(w)-J(w_*))$ (eq.~4.4--4.5) utilizzata da Nocedal. La forma più forte è resa possibile dall'ipotesi di convessità forte ($\nabla^2 J \succeq \lambda I$), che implica direttamente $\|\nabla J(w)\|^2 \ge 2\lambda J(w)$ quando $J(w_*)=0$.
 \end{notebox}
 
@@ -815,7 +815,7 @@ Per ogni \(w_k\) fissato, \(g_k\) è uno stimatore non distorto:
 Introduciamo l'ipotesi fondamentale di limitatezza della varianza dei gradienti individuali. Si noti che questa \`e un'ipotesi forte, necessaria per l'analisi di complessit\`a teorica; in pratica pu\`o essere rilassata, ad esempio richiedendo la limitatezza solo in un intorno del minimo o utilizzando stime locali della varianza.
 
 \begin{notebox}
-  \textbf{Ipotesi di limitatezza della varianza.}
+  Ipotesi di limitatezza della varianza.
    \(\exists \omega \in \mathbb{R},\omega > 0\) tale che \(\forall w_k\),
   \[
   \|\mathrm{Var}(\nabla \ell(w_k;I))\|_1 \le \omega, \tag{3.4}
@@ -852,7 +852,7 @@ ovvero se
 \[
 n_k \;\ge\; \frac{\omega}{\theta^2 \|g_k\|^2}. \tag{3.7}
 \]
-Osserviamo che la (3.5) fornisce un \emph{bound superiore} su \(\|g_k\|^2\) che decresce geometricamente con tasso \(\rho = 1-(1-\theta)\lambda/L\). Poiché nella (3.7) la dimensione del batch è inversamente proporzionale a \(\|g_k\|^2\), al restringersi del gradiente \(n_k\) deve crescere per evitare che il rumore domini la discesa. Per stimare la velocità di crescita necessaria, usiamo il bound (3.5) per valutare il \emph{tasso massimo} con cui il denominatore di (3.7) può restringersi: sostituendo la (3.5) nella (3.7) si ottiene una condizione guida sulla crescita di \(n_k\),
+Osserviamo che la (3.5) fornisce un bound superiore su \(\|g_k\|^2\) che decresce geometricamente con tasso \(\rho = 1-(1-\theta)\lambda/L\). Poiché nella (3.7) la dimensione del batch è inversamente proporzionale a \(\|g_k\|^2\), al restringersi del gradiente \(n_k\) deve crescere per evitare che il rumore domini la discesa. Per stimare la velocità di crescita necessaria, usiamo il bound (3.5) per valutare il tasso massimo con cui il denominatore di (3.7) può restringersi: sostituendo la (3.5) nella (3.7) si ottiene una condizione guida sulla crescita di \(n_k\),
 \[
 n_k \;\ge\; \frac{\omega}{\theta^2 \cdot \frac{1}{(1-\theta)^2}\frac{2L^2 J(w_0)}{\lambda}\left(1 - \frac{(1-\theta)\lambda}{L}\right)^k}
 \;=\; \frac{\omega (1-\theta)^2 \lambda}{\theta^2 2L^2 J(w_0)}
@@ -868,8 +868,8 @@ n_k = \lceil a^k \rceil, \qquad a > 1. \tag{3.9}
 \]
 Le ipotesi si dividono in due categorie complementari:
 \begin{itemize}
-    \item \textbf{Ipotesi strutturali su \(J\)} (\(\lambda I \preceq \nabla^2 J(w) \preceq LI\)): garantiscono la convergenza lineare se la direzione di discesa è accurata (Teorema di Convergenza Deterministica), e forniscono la maggiorazione di Taylor (A.12), che sarà usata per derivare la disuguaglianza di convergenza in aspettativa.
-    \item \textbf{Ipotesi stocastica} (3.4): garantisce che la varianza dello stimatore \(g_k\) decada come \(\|\mathrm{Var}(g_k)\|_1 \le \omega/n_k\), rendendo il rumore controllabile aumentando il batch.
+    \item Ipotesi strutturali su \(J\) (\(\lambda I \preceq \nabla^2 J(w) \preceq LI\)): garantiscono la convergenza lineare se la direzione di discesa è accurata (Teorema di Convergenza Deterministica), e forniscono la maggiorazione di Taylor (A.12), che sarà usata per derivare la disuguaglianza di convergenza in aspettativa.
+    \item Ipotesi stocastica (3.4): garantisce che la varianza dello stimatore \(g_k\) decada come \(\|\mathrm{Var}(g_k)\|_1 \le \omega/n_k\), rendendo il rumore controllabile aumentando il batch.
 \end{itemize}
 
 \paragraph{Iterazione stocastica a passo fisso}
@@ -933,7 +933,7 @@ Questa è l'equazione fondamentale che governa la convergenza in aspettativa.
 Possiamo ora enunciare il teorema di convergenza in aspettativa.
 
 \begin{thmbox}
-\textbf{Teorema 3.1 (Convergenza in aspettativa).}
+Teorema 3.1 (Convergenza in aspettativa).
 Posto $\alpha := 1-\frac{\lambda}{L}$ e $\beta := \frac{\omega}{2L}$, per ogni $k\ge 0$ vale
 \[
 \mathbb{E}[J(w_k)-J(w_*)] \;\le\; \alpha^k\varepsilon_0
@@ -949,7 +949,7 @@ esiste una costante $C=C(\varepsilon_0,\omega,\lambda,L,a)$ tale che
 \end{thmbox}
 
 \begin{notebox}
-  \textbf{Differenza rispetto al paper (Byrd et al. 2012, Teorema 4.2).}
+  Differenza rispetto al paper (Byrd et al. 2012, Teorema 4.2).
   Il paper ottiene \(\rho = \max\{1-\lambda/(4L),\,1/a\}\) e \(C = \max\{J(w_0)-J(w_*),\,2\omega/\lambda\}\) tramite un argomento induttivo che introduce un fattore \(\tfrac{1}{2}\) aggiuntivo. La dimostrazione qui presentata ottiene invece \(\rho = \max\{1-\lambda/L,\,1/a\}\) risolvendo esplicitamente la ricorrenza, il che dà un tasso deterministico \(\alpha = 1-\lambda/L\) più conservativo. Di conseguenza, l'intervallo ammissibile per \(a\) nel Corollario~3.2 è \((1,\,(1-\lambda/L)^{-1}]\) anziché \((1,\,(1-\lambda/(4L))^{-1}]\) come nel paper.
 \end{notebox}
 \begin{proof}
@@ -1008,15 +1008,15 @@ Dalla (3.21) possiamo ricavare il tasso di convergenza studiando il comportament
 
 \begin{itemize}
 
-\item \textbf{Caso $\alpha a > 1$:} allora $\alpha > 1/a$, quindi $\alpha^k$ decresce più lentamente di $a^{-k}$; il termine $\alpha^k$ domina. Trascurando $a^{-k}$ rispetto a $\alpha^k$:
+\item Caso $\alpha a > 1$: allora $\alpha > 1/a$, quindi $\alpha^k$ decresce più lentamente di $a^{-k}$; il termine $\alpha^k$ domina. Trascurando $a^{-k}$ rispetto a $\alpha^k$:
 \[
 \varepsilon_k \le \alpha^k \varepsilon_0 + \frac{\beta a}{\alpha a - 1} \alpha^k
 = \left(\varepsilon_0 + \frac{\beta a}{\alpha a - 1}\right) \alpha^k.
 \]
 Quindi $\rho = \alpha = 1 - \lambda/L$.
-Possiamo trascurare il fattore $a^{-k}$ perche è un o-piccolo rispetto ad $\alpha^k$: infatti $\lim_{k \to \infty} \frac{a^{-k}}{\alpha^k} = \lim_{k \to \infty} \left(\frac{1/a}{\alpha}\right)^k = \lim_{k \to \infty} \left(\frac{1}{\alpha a}\right)^k$ poiché $\alpha a > 1$, si ha $0 < \frac{1}{\alpha a} < 1 \implies \lim_{k \to \infty} \left(\frac{1}{\alpha a}\right)^k = 0 \implies \frac{a^{-k}}{\alpha^k} \to 0$
+Possiamo trascurare il fattore $a^{-k}$ perche è un o piccolo rispetto ad $\alpha^k$: infatti $\lim_{k \to \infty} \frac{a^{-k}}{\alpha^k} = \lim_{k \to \infty} \left(\frac{1/a}{\alpha}\right)^k = \lim_{k \to \infty} \left(\frac{1}{\alpha a}\right)^k$ poiché $\alpha a > 1$, si ha $0 < \frac{1}{\alpha a} < 1 \implies \lim_{k \to \infty} \left(\frac{1}{\alpha a}\right)^k = 0 \implies \frac{a^{-k}}{\alpha^k} \to 0$
 
-\item \textbf{Caso $\alpha a < 1$:} allora $\alpha < 1/a$, quindi $a^{-k}$ decresce più lentamente di $\alpha^k$; il termine $a^{-k}$ domina. Trascurando $\alpha^k$ rispetto a $a^{-k}$:
+\item Caso $\alpha a < 1$: allora $\alpha < 1/a$, quindi $a^{-k}$ decresce più lentamente di $\alpha^k$; il termine $a^{-k}$ domina. Trascurando $\alpha^k$ rispetto a $a^{-k}$:
 \[
 \varepsilon_k \le \frac{\beta a}{1 - \alpha a} a^{-k}
 = \frac{\beta a}{1 - \alpha a} \left(\frac{1}{a}\right)^k.
@@ -1026,7 +1026,7 @@ Possiamo trascurare il fattore $\alpha^k$ perché è un $o$-piccolo rispetto a $
 = \lim_{k \to \infty} \frac{\alpha^k}{(1/a)^k}
 = \lim_{k \to \infty} (\alpha a)^k$
 poiché $0<\alpha a < 1$, si ha $0 < \alpha a < 1 \implies \lim_{k \to \infty} (\alpha a)^k = 0 \implies \frac{\alpha^k}{a^{-k}} \to 0$.
-\item \textbf{Caso $\alpha a = 1$:} allora $\alpha = 1/a$. La somma geometrica si riduce a $S_k = k a^{-(k-1)}$, da cui:
+\item Caso $\alpha a = 1$: allora $\alpha = 1/a$. La somma geometrica si riduce a $S_k = k a^{-(k-1)}$, da cui:
 \[
 \varepsilon_k \le \alpha^k \varepsilon_0 + \beta k a^{-(k-1)} = (\varepsilon_0 + \beta k/\alpha)\rho^k,
 \qquad\rho:=\alpha=1/a.
@@ -1048,7 +1048,7 @@ per una opportuna costante $C = C(\varepsilon_0, \omega, \lambda, L, a)$.
 \paragraph{Corollario sulla complessità totale}
 
 \begin{corollarybox}
-  \textbf{Corollario 3.2 (Complessità totale).}
+  Corollario 3.2 (Complessità totale).
   Supponiamo \(n_k = \lceil a^k \rceil\) con
   \[
   a \in \left(1,\; \underbrace{\left(1 - \frac{\lambda}{L}\right)^{-1}}_{1/\alpha}\right],
@@ -1093,7 +1093,7 @@ Confrontiamo questo risultato con i bound di complessità noti per il metodo a g
 \centering
 \begin{tabular}{|l|c|}
 \hline
-\textbf{Nome algoritmo} & \textbf{Bound} \\
+Nome algoritmo & Bound \\
 \hline
 Metodo a gradiente dinamico (questo lavoro) & \(O(m\kappa \omega / \lambda \varepsilon)\) \\
 Metodo a gradiente a campione fisso & \(O(m^2 \kappa\varepsilon^{-1/\bar{\alpha}} \log^2(1/\varepsilon))\) \\
@@ -1118,14 +1118,14 @@ Poiché \(H \succeq \lambda I\) e \(\omega\) è un bound per \(\|\mathrm{Var}(\n
 \[
 O(m\bar{\nu}\kappa^2/\varepsilon) = O\!\left(\frac{m \omega \kappa^2}{\lambda \varepsilon}\right). \tag{3.30}
 \]
-Il bound per il metodo dinamico (3.27) è invece \(O(m\kappa\omega/(\lambda\varepsilon))\). La differenza principale è il termine \(\kappa^2\) in SGD contro \(\kappa\) nel metodo dinamico. Concludiamo che \textbf{il metodo a gradiente dinamico gode di un bound di complessità competitivo con quello del metodo del gradiente stocastico}, risultando particolarmente vantaggioso per problemi mal condizionati (grande \(\kappa\)).
+Il bound per il metodo dinamico (3.27) è invece \(O(m\kappa\omega/(\lambda\varepsilon))\). La differenza principale è il termine \(\kappa^2\) in SGD contro \(\kappa\) nel metodo dinamico. Concludiamo che il metodo a gradiente dinamico gode di un bound di complessità competitivo con quello del metodo del gradiente stocastico, risultando particolarmente vantaggioso per problemi mal condizionati (grande \(\kappa\)).
 
 La strategia dinamica \(n_k = \lceil a^k \rceil\) con \(a\) scelto in base a una stima (bound superiore) di \(\kappa\) garantisce un compromesso ottimale tra costo per iterazione e velocità di convergenza. In pratica, la stima di \(\kappa\) può essere sostituita da una regola euristica semplice (ad esempio, \(a=1.1\)), e l'algoritmo si adatta automaticamente.
 % \begin{comment}
 \newpage
 \subsection{Metodo di Newton-CG con Campionamento Dinamico}
 
-Il metodo del gradiente (steepest descent) può convergere lentamente, specialmente su problemi mal condizionati; gli algoritmi che incorporano informazione di curvatura (secondo ordine) sulla funzione obiettivo possono essere molto più efficienti. In questa sezione descriviamo un metodo di Newton-CG (gradiente coniugato) \emph{Hessian-free} (non costruiamo e non memorizziamo esplicitamente la matrice Hessiana di $J(w)$, ma ne usiamo solo i prodotti per un vettore), che impiega tecniche di campionamento dinamico sia per il calcolo della funzione e del gradiente, sia per i prodotti Hessiana-vettore.
+Il metodo del gradiente (steepest descent) può convergere lentamente, specialmente su problemi mal condizionati; gli algoritmi che incorporano informazione di curvatura (secondo ordine) sulla funzione obiettivo possono essere molto più efficienti. In questa sezione descriviamo un metodo di Newton-CG (gradiente coniugato) Hessian free (non costruiamo e non memorizziamo esplicitamente la matrice Hessiana di $J(w)$, ma ne usiamo solo i prodotti per un vettore), che impiega tecniche di campionamento dinamico sia per il calcolo della funzione e del gradiente, sia per i prodotti Hessiana-vettore.
 
 \subsubsection{Struttura del metodo}
 
@@ -1151,7 +1151,7 @@ L'uso di due campioni distinti è cruciale:
     \item \(\mathcal{H}_k\) per l'Hessiana \(\nabla^2 J_{\mathcal{H}_k}(w_k)\), per mantenere il costo dei prodotti Hessiana-vettore sufficientemente basso.
 \end{itemize}
 
-Il sistema (4.1) viene risolto con il \textbf{metodo del gradiente coniugato (CG) Hessian-free}: la matrice \(\nabla^2 J_{\mathcal{H}_k}(w_k)\) non viene mai costruita esplicitamente; invece, si calcola direttamente il prodotto di questa Hessiana per un vettore.
+Il sistema (4.1) viene risolto con il metodo del gradiente coniugato (CG) Hessian free: la matrice \(\nabla^2 J_{\mathcal{H}_k}(w_k)\) non viene mai costruita esplicitamente; invece, si calcola direttamente il prodotto di questa Hessiana per un vettore.
 
 Il rapporto
 \[
@@ -1161,11 +1161,11 @@ viene fissato a priori ed è mantenuto costante durante tutto l'algoritmo. Quand
 
 \subsubsection{Criterio di terminazione del gradiente coniugato}
 
-Proponiamo un criterio automatico per decidere con quale accuratezza risolvere il sistema (4.1). L'idea chiave è che il \emph{residuo} del CG,
+Proponiamo un criterio automatico per decidere con quale accuratezza risolvere il sistema (4.1). L'idea chiave è che il residuo del CG,
 \[
 r_k \stackrel{\mathrm{def}}{=} \nabla^2 J_{\mathcal{H}_k}(w_k) d + \nabla J_{\mathcal{S}_k}(w_k), \tag{4.3}
 \]
-non deve essere più piccolo dell'\emph{errore di approssimazione dell'Hessiana}.
+non deve essere più piccolo dell'errore di approssimazione dell'Hessiana.
 
 Per comprendere questo punto, scriviamo il residuo del sistema di Newton che userebbe il campione grande \(\mathcal{S}_k\) sia per il gradiente che per l'Hessiana:
 \[
@@ -1256,7 +1256,7 @@ Poiché nel paper si assume \(|\mathcal{H}_k| \ll |\mathcal{S}_k|\) (il campione
 Questa equazione fornisce una stima dell'errore di approssimazione dell'Hessiana per un generico vettore $d$.
 Osserviamo che la mappa 
 $d \;\longmapsto\; \nabla^2\ell(w_k;i)\,d$
-è \emph{lineare} in $d$. Di conseguenza, la sua varianza (calcolata su un campione fissato) è una \emph{forma quadratica} in $d$: esiste una matrice di covarianza campionaria $\Sigma_{\mathcal{H}_k} \in \mathbb{R}^{m\times m}$, simmetrica semidefinita positiva, tale che
+è lineare in $d$. Di conseguenza, la sua varianza (calcolata su un campione fissato) è una forma quadratica in $d$: esiste una matrice di covarianza campionaria $\Sigma_{\mathcal{H}_k} \in \mathbb{R}^{m\times m}$, simmetrica semidefinita positiva, tale che
 \[
 \operatorname{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)\,d\bigr)
 = d^T \Sigma_{\mathcal{H}_k}\, d \in \mathbb{R}^m,
@@ -1269,7 +1269,7 @@ dove il membro sinistro è inteso componente per componente e la relazione vale 
 \medskip
 \noindent
 All'inizio dell'algoritmo, la soluzione candidata è $d_0 = 0$ e il residuo iniziale è $r_0 = \nabla J_{\mathcal{S}_k}(w_k)$. La prima direzione di ricerca del CG è quindi $p_0 = -r_0$. 
-Per evitare di ricalcolare la varianza a ogni iterazione del CG (operazione costosa), il paper propone di calcolarla \emph{una sola volta} per $d = p_0$. Sfruttando l'omogeneità della forma quadratica, si definisce
+Per evitare di ricalcolare la varianza a ogni iterazione del CG (operazione costosa), il paper propone di calcolarla una sola volta per $d = p_0$. Sfruttando l'omogeneità della forma quadratica, si definisce
 \[
 \alpha := \frac{\left\| \operatorname{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)\,p_0\bigr) \right\|_1}{\|p_0\|_2^2}
 = \frac{\left\| p_0^T \Sigma_{\mathcal{H}_k} p_0 \right\|_1}{\|p_0\|_2^2}.
@@ -1294,7 +1294,7 @@ Ora, dalla (4.5b), sostituendo la varianza stimata tramite la (4.7), definiamo
 \]
 \medskip
 \noindent
-\textbf{Test di arresto del CG.}
+Test di arresto del CG.
 La soglia $\Psi(d_j)$ definita in (4.8) viene utilizzata per decidere quando fermare il metodo del gradiente coniugato. Ad ogni iterazione $j$ del CG, si controlla se il residuo $r_{j+1}$ soddisfa
 \[
 \| r_{j+1} \|_2^2 \;\le\; \Psi(d_j) = \gamma \|d_j\|_2^2.
@@ -1310,7 +1310,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 \subsubsection{Pseudocodice (Algoritmo Newton-CG)}
 
 \begin{actionbox}
-  \textbf{Newton-CG con Campionamento Dinamico}\\[0.15cm]
+  Newton-CG con Campionamento Dinamico\\[0.15cm]
   \textit{Input:} 
   $w_0$ (punto iniziale), 
   $\mathcal{S}_0$ (batch iniziale per gradiente), 
@@ -1325,7 +1325,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
   
   \begin{enumerate}
   \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
-    \item \textbf{Calcola la direzione di Newton approssimata} $d_k$ mediante \emph{gradiente coniugato (CG)}:
+    \item Calcola la direzione di Newton approssimata $d_k$ mediante gradiente coniugato (CG):
     \begin{enumerate}
     \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
       \item $d_0 = 0$, $r_0 = \nabla J_{\mathcal{S}_k}(w_k)$, $p_0 = -r_0$, $j=0$, $\Psi=0$.
@@ -1345,7 +1345,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
       \item $d_k = d_{j}$
     \end{enumerate}
     
-    \item \textbf{Line search con condizioni di Wolfe:}
+    \item Line search con condizioni di Wolfe:
     Trova $\alpha_k > 0$ tale che:
     \[
     \begin{gathered}
@@ -1356,7 +1356,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
     
     \item Aggiorna il punto: $w_{k+1} = w_k + \alpha_k d_k$.
     
-    \item \textbf{Aggiornamento dinamico del batch per il gradiente:}
+    \item Aggiornamento dinamico del batch per il gradiente:
     \begin{enumerate}
     \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
       \item Seleziona un nuovo campione $\mathcal{S}_{k+1}$ della stessa dimensione di $\mathcal{S}_k$.
@@ -1428,7 +1428,7 @@ Ora però si può dimostrare che la formula usata in questo metodo è equivalent
 
 {\itshape
 In sostanza l'algoritmo a ogni iterazione $k$ estrae due campioni distinti dal dataset. Un campione $S_k$ grande per calcolare il gradiente $g_k = \nabla J_{S_k}(w_k)$, perché deve essere una stima accurata della direzione di discesa, e un sottocampione $H_k$ con $|H_k| = R \cdot |S_k|$ e $R \ll 1$ per calcolare l'Hessiana $H_k = \nabla^2 J_{H_k}(w_k)$, poiché i prodotti Hessiana–vettore sono costosi e una stima della curvatura basta.
-Per aggiornare i pesi usa la direzione di Newton che si ottiene minimizzando l'espansione di Taylor per $J(w)$ al secondo ordine attorno a $w_k$: $J(w_k + d) \approx \tilde{J}(d) = J(w_k) + \nabla J(w_k)^{\!T} d + \frac{1}{2} d^{\!T} \nabla^2 J(w_k) \, d$, dove $w_k$ è il punto corrente e $d$ è la direzione. Troviamo la $d$ che minimizza questo modello quadratico annullandone il gradiente rispetto a $d$, ottenendo il sistema lineare $\nabla^2 J(w_k) \, d = -\nabla J(w_k)$, che è praticamente del tipo $Ax = b$ con $A = \nabla^2 J(w_k)$ e $b = -\nabla J(w_k)$. Per risolvere questo sistema non si inverte mai la matrice (troppo costoso), ma si usa il metodo del gradiente coniugato Hessian-free, facendo solo prodotti $H_k \cdot v$ senza costruire $H_k$.
+Per aggiornare i pesi usa la direzione di Newton che si ottiene minimizzando l'espansione di Taylor per $J(w)$ al secondo ordine attorno a $w_k$: $J(w_k + d) \approx \tilde{J}(d) = J(w_k) + \nabla J(w_k)^{\!T} d + \frac{1}{2} d^{\!T} \nabla^2 J(w_k) \, d$, dove $w_k$ è il punto corrente e $d$ è la direzione. Troviamo la $d$ che minimizza questo modello quadratico annullandone il gradiente rispetto a $d$, ottenendo il sistema lineare $\nabla^2 J(w_k) \, d = -\nabla J(w_k)$, che è praticamente del tipo $Ax = b$ con $A = \nabla^2 J(w_k)$ e $b = -\nabla J(w_k)$. Per risolvere questo sistema non si inverte mai la matrice (troppo costoso), ma si usa il metodo del gradiente coniugato Hessian free, facendo solo prodotti $H_k \cdot v$ senza costruire $H_k$.
 
 Ora poiché l'Hessiana è calcolata su un campione piccolo $H_k$ e quindi è approssimata, non ha senso risolvere il sistema con precisione assoluta. Il CG si ferma quando il suo residuo è confrontabile con l'errore di approssimazione dell'Hessiana, stimato dalla varianza campionaria dei prodotti $\nabla^2 \ell(w_k; i) \cdot p_0$ su $H_k$. In questo modo non si sprecano iterazioni del CG a ridurre un errore che è già dominato dal rumore del campionamento.
 
@@ -1444,7 +1444,7 @@ e per farlo cerca di minimizzare \(\|e^{k+1}\|_A^2\) cercando in \(e^k + \text{s
 
 Nei modelli di apprendimento statistico con un numero molto elevato di parametri,
 l'aggiunta di un termine di regolarizzazione $L_1$ è particolarmente vantaggiosa
-perché produce soluzioni \emph{sparse}: molti coefficienti vengono
+perché produce soluzioni sparse: molti coefficienti vengono
 automaticamente portati a zero, semplificando il modello e migliorandone
 l'interpretabilità.
 
@@ -1462,7 +1462,7 @@ dove:
     \item $J(w)$ è la funzione di perdita empirica definita in (1).
 \end{itemize}
 
-Nel contesto mini-batch, si sceglie un sottoinsieme $\mathcal{S} \subseteq \{1,\dots,N\}$
+Nel contesto mini batch, si sceglie un sottoinsieme $\mathcal{S} \subseteq \{1,\dots,N\}$
 del training set e si risolve il problema approssimato:
 
 \begin{equation}
@@ -1488,7 +1488,7 @@ presenta un punto di non derivabilità in $x = 0$:
 \end{itemize}
 
 Siccome la derivata classica non esiste, si utilizza
-il concetto di \emph{subgradiente} (o gradiente generalizzato). Per
+il concetto di subgradiente (o gradiente generalizzato). Per
 $\phi(x) = \nu|x|$, il subgradiente in $x = 0$ è l'intervallo:
 
 \[
@@ -1564,10 +1564,10 @@ cioè si sceglie il subgradiente che rende il gradiente generalizzato \(d_i + g_
                 >{\raggedright\arraybackslash}p{0.22\textwidth}
                 >{\raggedright\arraybackslash}p{0.30\textwidth}}
 \toprule
-\textbf{Condizione su }$d_i = \partial J/\partial w_i$ &
-\textbf{Scelta di }$g_i$ &
-\textbf{Risultato }$[\widetilde{\nabla}F]_i$ &
-\textbf{Effetto} \\
+Condizione su $d_i = \partial J/\partial w_i$ &
+Scelta di $g_i$ &
+Risultato $[\widetilde{\nabla}F]_i$ &
+Effetto \\
 \midrule
 $d_i < -\nu$ &
 $g_i = +\nu$ &
@@ -1614,10 +1614,10 @@ gradiente generalizzato:
   massima discesa.
 \end{notebox}
 \subsubsection{Identificazione dell'Active Set e della Faccia Ortante}
-\textit{Poiché la funzione \(\nu|w_i|\) ha un angolo (una non-derivabilità) proprio in \(w_i = 0\), l'algoritmo non può usare la solita regola della derivata zero per decidere se quel punto è il minimo. Deve quindi fare una scelta esplicita: se la pendenza della parte liscia \(J\) è più forte del costo \(\nu\), allora conviene 'liberare' \(w_i\) (spostarla da zero); altrimenti, conviene 'attivarla' (tenerla bloccata a zero per ottenere una soluzione sparsa).}
+\textit{Poiché la funzione \(\nu|w_i|\) ha un angolo (una non derivabilità) proprio in \(w_i = 0\), l'algoritmo non può usare la solita regola della derivata zero per decidere se quel punto è il minimo. Deve quindi fare una scelta esplicita: se la pendenza della parte liscia \(J\) è più forte del costo \(\nu\), allora conviene 'liberare' \(w_i\) (spostarla da zero); altrimenti, conviene 'attivarla' (tenerla bloccata a zero per ottenere una soluzione sparsa).}
 
 L'obiettivo della fase di predizione è determinare quali variabili sono nulle
-alla soluzione e identificare la \emph{faccia ortante} (parte dell'iperpiano) su cui eseguire la
+alla soluzione e identificare la faccia ortante (parte dell'iperpiano) su cui eseguire la
 minimizzazione. L'idea è quella di compiere un passo infinitesimo lungo la
 direzione di massima discesa $-\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$ e
 osservare il segno di ogni componente.
@@ -1636,13 +1636,13 @@ Il vettore $z_k$ definisce l'ortante
 \Omega_k = \{ d \in \mathbb{R}^m : \operatorname{sign}(d^i) = \operatorname{sign}(z_k^i) \}, \tag{6.5}
 \]
 all'interno del quale la funzione $\|w\|_1$ è differenziabile e il suo gradiente
-è esattamente $z_k$. Le variabili con $z_k^i = 0$ costituiscono l'\textbf{active
-set}:
+è esattamente $z_k$. Le variabili con $z_k^i = 0$ costituiscono l'active
+set:
 \begin{equation}
 \mathcal{A}_k \triangleq \{ i \mid z_k^i = 0 \}. \tag{6.6}
 \end{equation}
 Tali variabili verranno mantenute a zero durante la fase di minimizzazione nel
-sottospazio; le rimanenti sono dette \emph{libere}.
+sottospazio; le rimanenti sono dette libere.
 
 
 \subsubsection{Fase di Minimizzazione nel Sottospazio}
@@ -1659,7 +1659,7 @@ F_{\mathcal{S}_k}(w_k) + \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)^T d
 \end{equation}
 
 La minimizzazione viene effettuata con il metodo del gradiente coniugato
-Hessian-free applicato al sistema lineare ridotto. Sia $Y_k$ la matrice
+Hessian free applicato al sistema lineare ridotto. Sia $Y_k$ la matrice
 $n \times (n - |\mathcal{A}_k|)$ le cui colonne sono i versori delle coordinate
 libere; allora il sistema da risolvere è:
 \begin{equation}
@@ -1672,7 +1672,7 @@ La direzione di ricerca dell'algoritmo è quindi $d_k = Y_k d^Y$.
 \subsubsection{Ricerca Lineare Proiettata}
 
 Per garantire che il nuovo iterato rimanga all'interno della stessa faccia
-ortante $\Omega_k$, si utilizza una \emph{proiezione ortogonale} $P(\cdot)$
+ortante $\Omega_k$, si utilizza una proiezione ortogonale $P(\cdot)$
 su $\Omega_k$:
 \begin{equation}
 P(w_i) =
@@ -1698,7 +1698,7 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 \subsubsection{Algoritmo Completo}
 
 \begin{actionbox}
-  \textbf{Newton-CG per Problemi $L_1$-Regolarizzati}\\[0.3cm]
+  Newton-CG per Problemi $L_1$-Regolarizzati\\[0.3cm]
   \textit{Input:} $w_0$ (punto iniziale, tipicamente $w_0=0$),
   $\mathcal{H}_0, \mathcal{S}_0$ con $|\mathcal{H}_0| < |\mathcal{S}_0|$,
   $\nu > 0$ (parametro di regolarizzazione),
@@ -1730,7 +1730,7 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
     w_{k+1} = P[w_k + \alpha_k d_k].
     \]
     
-    \item Re-campionamento.
+    \item Ricampionamento.
     Scegli $\mathcal{H}_{k+1}, \mathcal{S}_{k+1}$ con
     $|\mathcal{H}_{k+1}| = |\mathcal{H}_0|$ e
     $|\mathcal{S}_{k+1}| = |\mathcal{S}_0|$.
@@ -2124,7 +2124,7 @@ che costituisce la stima stocastica del gradiente esatto $\nabla J(w_k)$. Quindi
         d = np.zeros_like(w)
         if np.any(free):
             g_free = sg[free]
-            # Hessian-free: prodotto H·v senza costruire H 
+            # Hessian free: prodotto H·v senza costruire H 
             def Hv(v_full):
                 return np.mean([hessvec_i(w, i, v_full) for i in indices_H], axis=0)
             def Hv_free(v_free):
@@ -2162,7 +2162,7 @@ Si calcola il subgradiente $\widetilde{\nabla} F_{\mathcal{S}_k}(w_k)$ tramite \
 \[
 \bigl[Y_k^T \nabla^2 J_{\mathcal{H}_k}(w_k) Y_k\bigr]\,d^Y \;=\; -Y_k^T\,\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),
 \]
-dove $Y_k$ è la matrice dei versori delle coordinate libere, mediante il metodo del gradiente coniugato \emph{Hessian-free}. Gli operatori \texttt{Hv} e \texttt{Hv\_free} calcolano il prodotto $\nabla^2 J_{\mathcal{H}_k}(w_k)\,v$ senza costruire esplicitamente la matrice Hessiana. Il CG viene arrestato quando il residuo soddisfa il criterio (6.11),
+dove $Y_k$ è la matrice dei versori delle coordinate libere, mediante il metodo del gradiente coniugato Hessian free. Gli operatori \texttt{Hv} e \texttt{Hv\_free} calcolano il prodotto $\nabla^2 J_{\mathcal{H}_k}(w_k)\,v$ senza costruire esplicitamente la matrice Hessiana. Il CG viene arrestato quando il residuo soddisfa il criterio (6.11),
 \[
 \|r_j\|_2 \le \eta\,\|g_{\text{free}}\|_2.
 \]
@@ -2359,7 +2359,7 @@ J(y) \le J(w) + \nabla J(w)^T(y - w) + \frac{L}{2}\|y - w\|^2. \tag{A.12}
 \subsection{Dimostrazione del fattore di correzione per \newline popolazione finita}
 
 
-Il fattore $\frac{N-n_k}{N-1}$ \`e il \textbf{Fattore di Correzione per Popolazione Finita}. Per dimostrare formalmente il motivo per cui moltiplichiamo per questo fattore nel caso in cui accettassimo la possibilità di prendere più volte gli stessi dati nei batch possiamo prima dimostrare la necessità di questo fattore nel caso generale e poi applicarlo al nostro caso specifico:
+Il fattore $\frac{N-n_k}{N-1}$ \`e il Fattore di Correzione per Popolazione Finita. Per dimostrare formalmente il motivo per cui moltiplichiamo per questo fattore nel caso in cui accettassimo la possibilità di prendere più volte gli stessi dati nei batch possiamo prima dimostrare la necessità di questo fattore nel caso generale e poi applicarlo al nostro caso specifico:
 Consideriamo $
 \bar{X} = \frac{1}{n}\sum_{i \in \mathcal{S}} X_i = \frac{1}{n}\sum_{i=1}^N I_i X_i
 $
@@ -2632,7 +2632,7 @@ p^k=r^k+\beta_k p^{k-1},\qquad x^{k+1}=x^k+\alpha_k p^k. \tag{A.34}
 \]
 \medskip
 \noindent
-\textbf{Equivalenza delle formule per $\alpha_k$.}
+Equivalenza delle formule per $\alpha_k$.
 Nel documento (Nota Tecnica) si afferma che le formule $\alpha_k = \frac{r_k^T p_k}{p_k^T A p_k}$ e $\alpha_k = \frac{r_k^T r_k}{p_k^T A p_k}$ sono equivalenti. Dimostriamo questa equivalenza.
 
 Prendendo la condizione di stazionarietà (A.20), ovvero $(r^k)^T p^{k-1} = 0$, e sostituendo l'aggiornamento del residuo (A.28), $r^k = r^{k-1} - \alpha_{k-1} A p^{k-1}$, si ottiene:
@@ -2695,13 +2695,13 @@ La condizione di Armijo richiede che
 \[
 f(x_k+\alpha p) \le f(x_k) + c_1 \alpha \nabla f(x_k)^T p,
 \]
-con $c_1 \in (0,1)$ (tipicamente $10^{-4}$). La retta al membro destro ha pendenza $c_1\nabla f(x_k)^Tp$, meno ripida della tangente in $\alpha=0$, e funge da \emph{upper bound}: passi che fanno superare questa retta vengono rifiutati e ridotti. Più $c_1$ è piccolo, più la condizione è debole e più passi grandi sono accettati.
+con $c_1 \in (0,1)$ (tipicamente $10^{-4}$). La retta al membro destro ha pendenza $c_1\nabla f(x_k)^Tp$, meno ripida della tangente in $\alpha=0$, e funge da upper bound: passi che fanno superare questa retta vengono rifiutati e ridotti. Più $c_1$ è piccolo, più la condizione è debole e più passi grandi sono accettati.
 
 La condizione di curvatura di Wolfe, con $g(\alpha)=f(x_k+\alpha p)$ e $g'(\alpha)=\nabla f(x_k+\alpha p)^Tp$, richiede
 \[
 g'(\alpha) \ge c_2 \, g'(0), \qquad c_2 \in (c_1,1),
 \]
-dove $g'(0)=\nabla f(x_k)^Tp<0$. Poiché $c_2<1$, $c_2g'(0)$ è meno negativo di $g'(0)$: la condizione è un \emph{lower bound} sulla derivata, che scarta i passi troppo piccoli (per $\alpha\to0^+$, $g'(\alpha)\to g'(0)$, che non soddisfa la disuguaglianza).
+dove $g'(0)=\nabla f(x_k)^Tp<0$. Poiché $c_2<1$, $c_2g'(0)$ è meno negativo di $g'(0)$: la condizione è un lower bound sulla derivata, che scarta i passi troppo piccoli (per $\alpha\to0^+$, $g'(\alpha)\to g'(0)$, che non soddisfa la disuguaglianza).
 
 La condizione $0<c_1<c_2<1$ garantisce che le due disuguaglianze siano compatibili: Armijo (limite superiore su $f$) e Wolfe (limite inferiore su $g'$) definiscono un intervallo non vuoto di $\alpha$ accettabili. Se $c_1\ge c_2$, le due condizioni possono diventare contraddittorie. In sintesi, Armijo impedisce passi troppo grandi, Wolfe impedisce passi troppo piccoli
 % ═══════════════════════════════════════════════════════════════════════════

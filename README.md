@@ -101,7 +101,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Aggiunto il frontespizio istituzionale Sapienza come
+- **Ultimo intervento.** Rimozione globale del grassetto (`\textbf`) e del
+  corsivo (`\emph`) in tutto il documento, e dei trattini nei composti in prosa
+  (mini-batch → mini batch, Hessian-free → Hessian free, ecc.); conservati i
+  nomi tecnici (Newton-CG, Hessiana-vettore), i `\textit` dell'autore e la
+  bibliografia. Sistemata la frase interrotta in Sez. 4.2 ("Gli autori ..."
+  completata); aggiunto un `\newline` prima di "Poiché il gradiente della
+  popolazione totale è ignoto" (Sez. 5.1.2); compattata la Nota CCV per far
+  entrare la Nota "Quando siamo lontani dal minimo..." tutta in "pagina 17";
+  Figura 5.3 ora usa la simulazione reale `figure_sim/batch_size.pdf` (nuova
+  cartella `tesi/figure_sim/`). Appendice B riscritta: i listati Python
+  (B.1–B.3) sono ora **spezzati in blocchi** separati da commenti descrittivi e
+  brevi spiegazioni (stile della bozza). Documento passato da 71 a 74 pp;
+  `bozza.pdf` allineata (56 pp invariata).
   prima pagina. Nuovo `tesi/frontespizio.tex` (sapthesis, con i dati: titolo,
   sottotitolo, autore, matricola, corso, relatore, A.A. 2025/2026, tipo "Tesi
   di Laurea Triennale"; l'opzione `lam` non esiste in questa versione di
@@ -133,8 +145,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 71 pp (definitiva, con
-  frontespizio), `tesi.pdf` 71 pp (documento), `main.pdf` 71 pp (copia di
+- **PDF di riferimento.** `tesi_finale.pdf` 74 pp (definitiva, con
+  frontespizio), `tesi.pdf` 74 pp (documento), `main.pdf` 74 pp (copia di
   lavoro), `bozza.pdf` 56 pp.
 
 ## Riferimento
