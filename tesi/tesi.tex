@@ -3697,10 +3697,14 @@ empirica, $\nabla\ell(w; i)$ il gradiente sull'esempio $i$-esimo, $i_k$
 l'indice estratto uniformemente a caso da $\{1,\dots,N\}$ all'iterazione $k$ e
 $\alpha_k$ il passo.
 
-% Schema D.1 - SVRG (Johnson & Zhang, 2013)
+% Schema D.1 - SVRG (Johnson & Zhang, 2013) e Schema D.2 - SAGA (Defazio,
+% Bach & Lacoste-Julien, 2014): affiancati sulla stessa pagina, uno per metà,
+% ciascuno nella propria metà (contenuti degli schemi invariati).
 \begin{figure}[H]
 \centering
-\resizebox{\textwidth}{!}{%
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
   node distance=1.1cm and 2.4cm,
   every node/.style={font=\small},
@@ -3759,12 +3763,10 @@ $\nabla\ell(w_k; i_k) - \nabla\ell(\bar w; i_k)$. Lo stimatore è non distorto,
 $\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$, e quando $w_k$ è vicino a $\bar w$ i
 due termini stocastici si elidono quasi del tutto, riducendo la varianza.}
 \label{fig:svrg}
-\end{figure}
-
-% Schema D.2 - SAGA (Defazio, Bach & Lacoste-Julien, 2014)
-\begin{figure}[H]
+\end{minipage}\hfill
+\begin{minipage}[b]{0.48\textwidth}
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
   node distance=1.1cm and 2.4cm,
   every node/.style={font=\small},
@@ -3813,6 +3815,7 @@ iterazione; lo stimatore usa la media $\bar g$ della tavola come correzione.
 Anche in questo caso $\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$ e la varianza è
 ridotta rispetto al gradiente stocastico puro.}
 \label{fig:saga}
+\end{minipage}
 \end{figure}
 
 \begin{thebibliography}{99}
