@@ -101,7 +101,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Pagina 16 (Sez. 5.1.3, box "Teorema" della CCV): il
+- **Ultimo intervento.** Sezione Newton-CG $L_1$, Tabella 5.2 e URL GitHub:
+  (1) lo schema a blocchi `fig:newton_l1` finiva in fondo al documento (pag.
+  72) a causa del float `[h]`: passato a `[H]` (come già fatto per la Fig.
+  5.4), ora sta nella sezione (pag. 45); (2) Tabella 5.2 ridisegnata: prima
+  sforava nel margine destro (colonne p{} per 14 cm + tabcolsep > textwidth
+  15 cm); ora `\footnotesize`, colonne `\raggedright` ricalibrate (totale
+  ~14.4 cm), niente overfull, rimossi i break forzati `\\(...)` nelle celle;
+  (3) URL GitHub corretto da `alessandrolocurcio` a `Alessandro1040`
+  (coerente con il remote reale della repo). 74 pp invariati.
+- **Intervento precedente.** Pagina 16 (Sez. 5.1.3, box "Teorema" della CCV): il
   testo finale del box sforava di ~2 righe nella pagina successiva. Sistemato
   compattando la sola impaginazione, contenuto invariato: unificate in
   `gathered` le due display consecutive della definizione di $\mathcal{V}$ e

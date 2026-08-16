@@ -2119,10 +2119,8 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
   \end{enumerate}
 \end{actionbox}
 
-% Figura 5.3 - schema a blocchi del metodo Newton-CG per problemi L1 regolarizzati
-% Figura 5.3 - schema a blocchi del metodo Newton-CG per problemi L1 regolarizzati
-% Figura 5.3 - schema a blocchi del metodo Newton-CG per problemi L1 regolarizzati
-\begin{figure}[h]
+% Figura 5.5 - schema a blocchi del metodo Newton-CG per problemi L1 regolarizzati
+\begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -2183,10 +2181,14 @@ proiettata mantiene le variabili dell'active set a zero.}
 % Tabella 5.1 - confronto dei tre metodi proposti
 \begin{table}[h]
 \centering
-\small
-\renewcommand{\arraystretch}{1.35}
+\footnotesize
+\renewcommand{\arraystretch}{1.5}
 \setlength{\tabcolsep}{4pt}
-\begin{tabular}{p{2.4cm} p{3.1cm} p{2.6cm} p{2.9cm} p{3.0cm}}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm}
+                >{\raggedright\arraybackslash}p{3.2cm}
+                >{\raggedright\arraybackslash}p{2.0cm}
+                >{\raggedright\arraybackslash}p{3.2cm}
+                >{\raggedright\arraybackslash}p{2.4cm}@{}}
 \toprule
 Metodo & Costo per iterazione & Memoria
 & Ipotesi aggiuntive & Complessit\`a totale \\
@@ -2195,17 +2197,17 @@ Gradiente a campione dinamico &
 $O(m\,n_k)$ &
 $O(m)$ &
 CCV soddisfatta a ogni iterazione; varianza limitata \eqref{eq:var_bound} &
-$O\!\left(\dfrac{mL}{\lambda\varepsilon}\right)$ \\
+$O(mL/\lambda\varepsilon)$ \\
 Newton-CG con campionamento dinamico &
-$O(m\,n_k + m\,n_h\,j_k)$\\($j_k$: iterazioni CG) &
+$O(m\,n_k + m\,n_h j_k)$ &
 $O(m\,n_h)$ (sottocampione Hessiana) &
 Hessiana sdp sul sottospazio; criterio di arresto (5.35)--(5.36) &
-$O\!\left(\dfrac{mL}{\lambda\varepsilon}\right)$ iter.\ esterne \\
+$O(mL/\lambda\varepsilon)$ iterazioni esterne \\
 Newton-CG con regolarizzazione $L_1$ &
-come Newton-CG + costo active set &
+Come Newton-CG $+$ costo active set &
 $O(m)$ &
-identificazione corretta della faccia ortante (5.41)--(5.46) &
-come Newton-CG \\
+Identificazione corretta della faccia ortante (5.41)--(5.46) &
+Come Newton-CG \\
 \bottomrule
 \end{tabular}
 \caption{Confronto dei tre metodi proposti nel Capitolo~\ref{sec:algoritmi}.
@@ -2278,9 +2280,8 @@ interattiva che implementa i tre algoritmi in un ambiente visivo e
 modificabile dall'utente. Il codice sorgente è disponibile al seguente
 repository GitHub:
 \begin{center}
-  \url{https://github.com/alessandrolocurcio/selezione-dinamica-batch}
+  \url{https://github.com/Alessandro1040/selezione-dinamica-batch}
 \end{center}
-%(NOTA: sostituire con l'URL effettivo del repository o del notebook Colab.)
 
 L'applicazione esegue il codice Python (funzione obiettivo, gradiente,
 algoritmo) direttamente nel browser tramite il runtime Python
