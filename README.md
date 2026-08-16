@@ -101,7 +101,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Pagina Ringraziamenti (riga 219): aggiunto
+- **Ultimo intervento.** Appendice B (Listati Python, B.1–B.3): ripristinati
+  **verbatim** dalla vecchia `bozza.tex` (sezione "Visualizzazione Interattiva",
+  righe 1757–2230) i blocchi `pythoncode` **e** i commenti LaTeX con formule che
+  seguono ogni blocco, come richiesto dall'autore. Il documento nuovo (commit
+  `a2da2a9`) aveva riscritto i listati: 18 blocchi invece di 24, commenti
+  descrittivi al posto dei `#` isolati, docstring su `cg`, firma
+  `newton_l1(..., eta=0.5, R=0.1)`. Ripristinati: i `#` isolati, il frammento
+  duplicato di Dynamic GD (`def J_batch` e `c1, step, J_curr, g_norm2` ripetuti),
+  la firma `newton_l1(..., eta=0.5)` **senza** `R` (coerente con
+  `visualizzazione.html`, dove `R` è globale) e la prosa con i riferimenti
+  alle equazioni (6.x) della bozza. Conservati: introduzione dell'appendice,
+  titoli "Listato B.x", sezione "Istruzioni". Documento da 72 a **76 pp**
+  (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`), `bozza.pdf` invariata (56 pp).
+- **Intervento precedente.** Pagina Ringraziamenti (riga 219): aggiunto
   "i miei amici e in generale" all'incipit. Testo definitivo: "Ringrazio i
   miei insegnanti, i miei amici e in generale tutte le persone con cui ho
   studiato a SMIA, un ringraziamento speciale va a Giovanni Adelfio,
