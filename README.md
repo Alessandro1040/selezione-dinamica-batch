@@ -121,17 +121,24 @@ Da tenere presente nelle sessioni di lavoro successive:
   capitoli, le appendici A–E e la bibliografia. Mappatura dei livelli:
   `\section`→`\chapter`, `\subsection`→`\section`,
   `\subsubsection`→`\subsection` (i numeri mostrati restano gli stessi, es.
-  5.1.2 resta 5.1.2; `secnumdepth=2` e `tocdepth=2`). Nel frontespizio
-  `\cleardoublepage` è ridefinito a `\clearpage` per evitare versi bianchi
-  tra Ringraziamenti/Abstract/Indice (come nel vecchio tesi_finale.pdf) e
-  ripristinato per il mainmatter. Font Latin Modern 11pt (standard sapthesis),
-  header sapthesis (capitolo/sezione + numero pagina). Corretti 3 riferimenti
+  5.1.2 resta 5.1.2; `secnumdepth=2` e `tocdepth=2`).
+  **Impaginazione a flusso continuo (vicina alla vecchia versione article):**
+  `\cleardoublepage` ridefinito a `\clearpage` (niente pagine bianche) e
+  `\chapter` ridefinito senza salto di pagina forzato (si va a capo solo
+  quando serve); titoli di capitolo ridimensionati a `\LARGE` compatti
+  (invece del `\Huge` di default con 50pt di spazio). Corretta la deriva dei
+  float: il block diagram del Dynamic GD (`\resizebox` portato a 0.8
+  `\textwidth`) era più alto della pagina e bloccava la coda dei float
+  (trascinava anche la Figura 5.2); rimosso un `\newpage` che orfanava il
+  titolo "5.2.3 Pseudocodice". **Indice con link neri** (override locale di
+  `linkcolor`; i link nel corpo restano `coverblue`). Corretti 3 riferimenti
   da "Sezione" a "Capitolo" (ora puntano a capitoli: `sec:formulazione`,
-  `sec:algoritmi`, `sec:lavori`). Documento: **110 pp** (`tesi_finale.pdf`).
-  `tesi.tex` (article) resta come documento di lavoro (90 pp, con la copertina
-  in stile sapthesis); `bozza.tex` ripristinata alla versione originale (la
-  modifica della copertina NON si applica alla bozza). `compila_tesi.sh`
-  aggiornato: ora compila solo `tesi_sapthesis.tex` -> `tesi_finale.pdf`.
+  `sec:algoritmi`, `sec:lavori`). Documento: **95 pp** (`tesi_finale.pdf`),
+  nessuna pagina vuota. `tesi.tex` (article) resta come documento di lavoro
+  (90 pp, con la copertina in stile sapthesis); `bozza.tex` ripristinata alla
+  versione originale (la modifica della copertina NON si applica alla bozza).
+  `compila_tesi.sh` aggiornato: ora compila solo `tesi_sapthesis.tex` ->
+  `tesi_finale.pdf`.
 
 - **Ultimo intervento.** **Copertina di `tesi.tex` uniformata al frontespizio
   sapthesis.** Rimossa la vecchia copertina blu custom (`\pagecolor{coverblue}`,

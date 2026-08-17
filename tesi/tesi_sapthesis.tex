@@ -132,16 +132,41 @@ per problemi di ottimizzazione convessa}
 \setcounter{secnumdepth}{2}
 \setcounter{tocdepth}{2}
 
+% --- Impaginazione a flusso continuo (vicina alla versione article): niente
+% pagine bianche (\cleardoublepage = \clearpage) e capitoli senza salto di
+% pagina forzato (si va a capo solo quando il contenuto non entra).
+\makeatletter
+\renewcommand{\cleardoublepage}{\clearpage}
+\let\SAP@orig@chapter\chapter
+\renewcommand{\chapter}{\thispagestyle{plain}\global\@topnum\z@\@afterindentfalse\secdef\@chapter\@schapter}
+% Titoli di capitolo piu' compatti (proporzionati alle vecchie \section)
+\renewcommand{\@makechapterhead}[1]{%
+  \vspace*{20pt}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter
+        \LARGE\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 10pt
+      \fi
+    \fi
+    \interlinepenalty\@M
+    \LARGE\bfseries #1\par\nobreak
+    \vskip 14pt
+  }}
+\renewcommand{\@makeschapterhead}[1]{%
+  \vspace*{20pt}%
+  {\parindent \z@ \raggedright \normalfont
+    \interlinepenalty\@M
+    \LARGE\bfseries #1\par\nobreak
+    \vskip 14pt
+  }}
+\makeatother
+
 \begin{document}
 
 % ── PRELIMINARI (sapthesis: frontespizio, ringraziamenti, abstract) ─────
 \frontmatter
-% Nel frontespizio si evita il \cleardoublepage (niente versi bianchi tra i
-% blocchi, come nell'attuale tesi_finale.pdf); lo si ripristina per il mainmatter.
-\makeatletter
-\let\SAP@save@cleardoublepage\cleardoublepage
-\renewcommand{\cleardoublepage}{\clearpage}
-\makeatother
 \maketitle
 
 \begin{acknowledgments}
@@ -172,10 +197,10 @@ conclusioni con le prospettive di lavoro futuro. I dettagli dimostrativi e i
 listati Python completi sono raccolti in appendice.
 \end{abstract}
 
+\newpage
+\hypersetup{linkcolor=black}% indice senza link blu
 \tableofcontents
-\makeatletter
-\let\cleardoublepage\SAP@save@cleardoublepage
-\makeatother
+\hypersetup{linkcolor=coverblue}%
 \mainmatter
 
 % ═══════════════════════════════════════════════════════════════════════
@@ -566,7 +591,7 @@ adottata dal metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 % Figura 5.1 - schema a blocchi dell'algoritmo Dynamic GD (versione migliorata)
 \begin{figure}[h]
 \centering
-\resizebox{\textwidth}{!}{%
+\resizebox{0.8\textwidth}{!}{%
 \begin{tikzpicture}[
   node distance=1.1cm and 2.4cm,
   every node/.style={font=\small},
@@ -1546,7 +1571,6 @@ Questo criterio di arresto è particolarmente efficace perché evita calcoli inu
 L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad ogni iterazione aggiorna $\Psi(d_j) = \gamma \|d_j\|^2$ e verifica la condizione (5.39).
 \medskip
 \noindent
-\newpage
 \subsection{Pseudocodice (Algoritmo Newton-CG)}
 
 \begin{actionbox}
