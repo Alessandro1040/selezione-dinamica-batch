@@ -6,7 +6,7 @@
       "grad_norm_finale": 0.037658978882581746,
       "batch_finale": 12678,
       "batch_max": 12678,
-      "tempo_s": 5.871206045150757,
+      "tempo_s": 5.58776330947876,
       "accuracy_test": 0.578125,
       "non_zero": null
     },
@@ -16,7 +16,7 @@
       "grad_norm_finale": 0.0018314161931070228,
       "batch_finale": 12678,
       "batch_max": 12678,
-      "tempo_s": 9.900781869888306,
+      "tempo_s": 9.556762933731079,
       "accuracy_test": 0.5927734375,
       "non_zero": null
     },
@@ -26,18 +26,18 @@
       "grad_norm_finale": 0.0015451033446591228,
       "batch_finale": 12678,
       "batch_max": 12678,
-      "tempo_s": 6.948721885681152,
+      "tempo_s": 6.712795734405518,
       "accuracy_test": 0.58544921875,
       "non_zero": 424
     },
     "BB-CCV": {
       "iterazioni": 300,
-      "loss_finale": 1.1936585286496315,
-      "grad_norm_finale": 0.030106995291716062,
+      "loss_finale": 1.1910003195047376,
+      "grad_norm_finale": 0.05681386377958409,
       "batch_finale": 12678,
       "batch_max": 12678,
-      "tempo_s": 5.248448848724365,
-      "accuracy_test": 0.587158203125,
+      "tempo_s": 5.343490839004517,
+      "accuracy_test": 0.58544921875,
       "non_zero": null
     }
   },

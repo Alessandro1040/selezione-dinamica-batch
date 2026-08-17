@@ -193,10 +193,10 @@ def bb_ccv(prob, N, w0, max_iter, alpha, batch0, theta):
         else:
             step = alpha
         w_prev, g_prev = w.copy(), g.copy()
+        pg = prob.per_example_grads(w, idx)   # varianza sul batch corrente (come bbccv.py)
         d = -g
         step = armijo_step(prob, w, d, g, idx, step)
         w = w + step * d
-        pg = prob.per_example_grads(w, idx)
         n = ccv_update(pg, g, n, N, theta)
         hist_w.append(w.copy()); hist_n.append(n)
         gf = prob.grad_full(w); hist_g.append(gf)

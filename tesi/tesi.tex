@@ -2949,7 +2949,7 @@ Metodo & Acc.\ test & $\|\nabla J(w)\|_2$ & Batch finale & Tempo (s) & Coeff.\ n
 Dynamic GD      & 57.8\% & $3.8\times10^{-2}$ & 12\,678 & 6.8 & --- \\
 Newton-CG       & 59.3\% & $1.8\times10^{-3}$ & 12\,678 & 10.7 & --- \\
 Newton-CG~$L_1$ & 58.5\% & $1.6\times10^{-3}$ & 12\,678 & 8.8 & 424/810 \\
-BB-CCV          & 58.7\% & $3.0\times10^{-2}$ & 12\,678 & 7.1 & --- \\
+BB-CCV          & 58.5\% & $5.7\times10^{-2}$ & 12\,678 & 5.3 & --- \\
 \bottomrule
 \end{tabular}
 \caption{Risultati sul benchmark NSynth dopo 300 iterazioni (budget): i metodi
@@ -2984,8 +2984,8 @@ e raggiungono valori tra il 58\% e il 59\% di accuratezza sul test. In
 secondo luogo, Newton-CG è il metodo più accurato (59.3\%) e il più veloce:
 è il primo a superare il 55\% di accuratezza ($k = 31$ iterazioni, contro 55
 di BB-CCV, 65 di Dynamic GD e 118 di Newton-CG~$L_1$), e riduce la norma del
-gradiente di circa due ordini di grandezza rispetto ai metodi del primo
-ordine ($1.8\times10^{-3}$ contro $3$--$4\times10^{-2}$). In terzo luogo, la
+gradiente di oltre un ordine di grandezza rispetto ai metodi del primo ordine
+($1.8\times10^{-3}$ contro $4$--$6\times10^{-2}$). In terzo luogo, la
 CCV funziona su dati reali: la dimensione del batch cresce da $n_0 = 64$
 fino all'intero campione ($N = 12\,678$) man mano che i metodi si avvicinano
 al minimo, perché il rapporto tra varianza dei gradienti per-esempio e
