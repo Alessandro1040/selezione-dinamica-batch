@@ -112,6 +112,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   bibliografia. Script aggiornati: `gen_tabelle_f.py` genera le tabelle a 4
   metodi (subtable 0.24), rimossi i file OCR RAPG da `tesi/ocr_f/`.
   Documento da 89 a **84 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+  Sistemata anche la Sez. 1.5 "Struttura della tesi": le appendici sono ora
+  indicate come A--E (prima solo A, B e C).
   `bozza.tex` non allineata.
 - **Intervento precedente.** **Appendice F: da screenshot a tabelle.** Le 15
   schermate del pannello "Analisi" (5 metodi × 3 problemi) sono sostituite da 3
