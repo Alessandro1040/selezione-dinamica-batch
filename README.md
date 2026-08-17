@@ -76,24 +76,28 @@ cd tesi
 la pagina del verso non è generata) più `tesi.pdf` **saltando** la vecchia
 copertina custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel
 sorgente; per ripristinarla nel PDF basta rimuovere lo slicing
-`body.pages[1:]` nello script. Nella copia di lavoro usare
-`./compila_tesi.sh main`.
+`body.pages[1:]` nello script. Nella copia di lavoro (Desktop) usare
+`./compila_tesi.sh tesi`.
 
 ## Note operative e stato corrente (17/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
-- **File in lavorazione.** La copia di lavoro "definitiva" è
-  `/Users/alessandrolocurcio/Downloads/tesi/main.tex`, che è **identica** a
-  `tesi/tesi.tex` della repo (verifica: `md5 -q main.tex tesi/tesi.tex`). Una
-  modifica va applicata a **entrambi** i file (o a `tesi.tex` e poi copiata su
-  `main.tex`), e i PDF rigenerati.
-- **Documento autocontenuto.** `tesi.tex`/`main.tex` NON usano `\input`: i
-  frammenti in `contenuti/` sono già incorporati nel file. Non tentare di
-  ricostruire il documento a partire da `contenuti/`.
-- **Figura di copertina.** La compilazione di `main.tex` richiede
-  `conodiscesa2.jpeg` anche in `/Users/alessandrolocurcio/Downloads/tesi/`
-  (non solo in `tesi/`). Se manca, copiarlo dalla repo.
+- **File in lavorazione.** La copia di lavoro è ora la cartella sul Desktop
+  (NON è un clone git):
+  `/Users/alessandrolocurcio/Desktop/Selezione Dinamica della Dimensione del
+  Campione in Metodi di Ottimizzazione per il Machine Learning/`. Le modifiche
+  si fanno in `tesi/tesi.tex` lì (verifica: identica a `tesi/tesi.tex` della
+  repo con `md5`), i PDF si rigenerano sul posto e prima del commit il file va
+  copiato nella repo (`cp <Desktop>/.../tesi/tesi.tex tesi/tesi.tex`). La
+  vecchia copia `/Users/alessandrolocurcio/Downloads/tesi/main.tex` resta solo
+  come riferimento storico.
+- **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
+  `contenuti/` sono già incorporati nel file. Non tentare di ricostruire il
+  documento a partire da `contenuti/`.
+- **Figura di copertina.** La compilazione della copia di lavoro richiede
+  `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
+  Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
 - **Compilazione.** `cd <dir> && latexmk -pdf -shell-escape <nome>.tex`.
   Compilare solo il documento modificato per risparmiare tempo. Su macOS
   `setsid` NON esiste: per lanciare in background usare
@@ -101,6 +105,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento.** **Appendice E: eliminate le etichette di paragrafo in
+  grassetto.** Rimosse del tutto (non solo sgrassate) le 9 etichette
+  `\textbf{...}` all'inizio dei paragrafi della sottosezione E.1
+  (Barzilai--Borwein): "L'espansione di Taylor del gradiente.", "Spostamento e
+  variazione del gradiente.", "La relazione tra Hessiana e dati osservati.",
+  "Il collegamento con i metodi quasi Newton.", "Le due formule di
+  Barzilai--Borwein.", "Un metodo quasi Newton senza memoria.", "Il caso
+  quadratico è il caso ideale.", "I limiti sulle funzioni non quadratiche.",
+  "Sintesi.". Ogni paragrafo ora inizia con la frase successiva (testo
+  invariato); conservati i corsivi (`\emph`, es. *spostamento*, *equazione
+  della secante*, i 4 punti dell'enumerate). Documento invariato a **90 pp**
+  (`tesi.pdf`); nessun `\textbf` residuo in Appendice E (i 6 rimasti nel
+  documento sono in Sez. 6.5). `bozza.tex` non allineata.
+
 - **Ultimo intervento.** **Sez. 6.3 (Osservazioni comparative): paragrafo su
   una sola pagina.** Il paragrafo dopo le Tabelle 6.1–6.3 (pag. 50) sforava di
   ~4 parole ("BB-CCV – permette di progredire.") sulla pagina successiva.
@@ -419,9 +437,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   `[H]` (prima con `[h]` finiva in fondo al documento). Lo pseudocodice ora sta
   interamente su una sola pagina (75 pp invariati; allineata anche `bozza.tex`,
   56 pp invariati).
-- **PDF di riferimento.** `tesi_finale.pdf` 72 pp (definitiva, con
-  frontespizio), `tesi.pdf` 72 pp (documento), `main.pdf` 72 pp (copia di
-  lavoro), `bozza.pdf` 56 pp.
+- **PDF di riferimento.** `tesi_finale.pdf` 90 pp (definitiva, con
+  frontespizio), `tesi.pdf` 90 pp (documento), `bozza.pdf` 56 pp.
 
 ## Riferimento
 

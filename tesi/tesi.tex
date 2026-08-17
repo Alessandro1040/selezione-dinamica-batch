@@ -4592,7 +4592,7 @@ richiedere la Hessiana. Questa sottosezione illustra da dove nasce la formula
 del passo e perché il metodo è particolarmente efficace sulle funzioni
 quadratiche.
 
-\textbf{L'espansione di Taylor del gradiente.} Consideriamo due iterazioni
+Consideriamo due iterazioni
 consecutive, il punto corrente $w_k$ e il successivo $w_{k+1} = w_k + \Delta
 w_k$. Lo sviluppo al primo ordine del gradiente $g(w) = \nabla J(w)$ attorno a
 $w_k$ è
@@ -4602,7 +4602,7 @@ w_k, \tag{E.1}
 \]
 dove $\nabla^2 J(w_k)$ è la Hessiana (vera) di $J$ nel punto $w_k$.
 
-\textbf{Spostamento e variazione del gradiente.} Per rendere la scrittura più
+Per rendere la scrittura più
 compatta definiamo lo \emph{spostamento} compiuto e la \emph{variazione
 osservata del gradiente}:
 \[
@@ -4610,7 +4610,7 @@ s_k \triangleq \Delta w_k = w_{k+1} - w_k, \qquad
 y_k \triangleq g(w_{k+1}) - g(w_k). \tag{E.2}
 \]
 
-\textbf{La relazione tra Hessiana e dati osservati.} Sostituendo le
+Sostituendo le
 definizioni (E.2) nell'espansione (E.1) otteniamo
 \[
 y_k \approx \nabla^2 J(w_k)\, s_k, \tag{E.3}
@@ -4620,7 +4620,7 @@ compiuto, produce la variazione osservata del gradiente. Nel passo usato da
 BB-CCV la coppia $(s_k, y_k)$ è riferita all'iterazione precedente,
 $s_k = w_k - w_{k-1}$ e $y_k = g_k - g_{k-1}$ (Figura~\ref{fig:bbccv}).
 
-\textbf{Il collegamento con i metodi quasi Newton.} Calcolare esplicitamente
+Calcolare esplicitamente
 $\nabla^2 J(w_k)$ è in generale proibitivo. I metodi quasi Newton aggirano il
 problema costruendo un'approssimazione $B_{k+1}$ della Hessiana e imponendo
 che si comporti come la Hessiana vera sull'ultimo spostamento osservato:
@@ -4643,7 +4643,7 @@ un sistema di $n$ equazioni scalari nell'incognita $\alpha_{k+1}$: in
 generale nessun singolo scalare può soddisfarle esattamente tutte, quindi il
 problema si risolve ai minimi quadrati.
 
-\textbf{Le due formule di Barzilai--Borwein.} Dalla relazione
+Dalla relazione
 $\alpha^{-1} s \approx y$ si ottengono due formule classiche. La prima,
 minimizzando $\|\alpha y - s\|_2^2$, dà
 \[
@@ -4662,7 +4662,7 @@ scalare a costo nullo). Può però esplodere quando $s$ e $y$ sono quasi
 ortogonali, da cui la salvaguardia $\mathrm{clip}(\cdot, \alpha/20, 5\alpha)$
 di BB-CCV.
 
-\textbf{Un metodo quasi Newton senza memoria.} A differenza degli altri metodi
+A differenza degli altri metodi
 quasi Newton, che aggiornano l'approssimazione $B_k$ tenendo conto di tutta
 la storia passata (più passi si fanno, più precisa diventa), il metodo di
 Barzilai--Borwein ricalcola $\alpha$ a ogni iterazione usando soltanto gli
@@ -4670,7 +4670,7 @@ ultimi due punti. Per una quadratica questo non è un problema, perché la
 curvatura è invariante; per una funzione generica significa ignorare come sta
 cambiando la forma della funzione.
 
-\textbf{Il caso quadratico è il caso ideale.} L'approssimazione
+L'approssimazione
 $B = \alpha^{-1} I$ è esatta solo quando la Hessiana è costante in tutto lo
 spazio, cioè quando $J$ è quadratica. In quel caso $y = A s$ vale esattamente
 e globalmente, e l'informazione sulla curvatura imparata tra $w_{k-1}$ e
@@ -4681,7 +4681,7 @@ in un intervallo ragionevole. Il passo $\alpha^{(2)}$ è esattamente il
 minimizzatore di $J$ lungo la direzione percorsa, e il metodo converge in
 pochissime iterazioni.
 
-\textbf{I limiti sulle funzioni non quadratiche.} Quando $J$ non è quadratica
+Quando $J$ non è quadratica
 le proprietà precedenti vengono meno, per quattro motivi collegati.
 \begin{enumerate}
   \item \emph{L'equazione della secante è vera solo localmente.} Per una
@@ -4720,7 +4720,7 @@ le proprietà precedenti vengono meno, per quattro motivi collegati.
   oscillazioni.
 \end{enumerate}
 
-\textbf{Sintesi.} Il passo di Barzilai--Borwein è la soluzione analitica
+Il passo di Barzilai--Borwein è la soluzione analitica
 esatta del problema di minimizzazione lungo la direzione percorsa nel caso
 quadratico; sulle funzioni generali è invece un'approssimazione euristica
 della curvatura media del tratto appena percorso, tanto più affidabile quanto
