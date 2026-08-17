@@ -101,7 +101,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **Sez. 6.5: due esperimenti su NSynth (famiglia +
+- **Ultimo intervento.** **Appendice E: spiegazione del metodo di
+  Barzilai--Borwein.** Aggiunta la sottosezione E.1 "Il metodo di
+  Barzilai--Borwein" (lo schema è ora nella sottosezione E.2): le tre
+  equazioni fondamentali (espansione di Taylor del gradiente, definizioni di
+  $s_k$/$y_k$, relazione $y_k \approx \nabla^2 J(w_k)\, s_k$), il collegamento
+  con i metodi quasi Newton (equazione della secante $B_{k+1} s_k = y_k$,
+  approssimazione scalare $B = \alpha^{-1} I$ e minimi quadrati), le due
+  formule $\alpha^{(1)} = s^\top y / y^\top y$ e $\alpha^{(2)} = s^\top s /
+  s^\top y$ (la seconda è quella usata in BB-CCV), il caso quadratico, i
+  quattro limiti sulle funzioni non quadratiche (secante solo locale,
+  mancanza di memoria, denominatore $s^\top y$, derivate terze), una tabella
+  riassuntiva (Tab. E.1) e una sintesi che riconduce alla salvaguardia
+  (clip $[\alpha/20, 5\alpha]$ + line search di Armijo) di BB-CCV. Stile
+  allineato alle altre appendici: nessun riferimento a metodi non citati nel
+  documento ("quasi Newton" generico, non BFGS/DFP/SR1; SVRG/SAGA citati solo
+  come metodi a varianza ridotta), nessun residuo da conversazioni ("nel tuo
+  codice"). Documento da 87 a **90 pp** (`main.pdf`, `tesi.pdf`),
+  `tesi_finale.pdf` 90 pp. `bozza.tex` non allineata.
+- **Intervento precedente.** **Sez. 6.5: due esperimenti su NSynth (famiglia +
   nota).** La sezione ora contiene: (1) riconoscimento della **famiglia
   strumentale** (10 classi, features mel 80D, acc. 57.8–59.3%, con dinamica
   del batch CCV e sparsità $L_1$); (2) riconoscimento della **nota** (pitch
