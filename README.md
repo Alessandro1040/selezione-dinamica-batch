@@ -112,10 +112,14 @@ Da tenere presente nelle sessioni di lavoro successive:
   64 a N (12678) man mano che il gradiente si riduce; la regolarizzazione $L_1$
   (ν=1e-3) azzera il 48% dei coefficienti con perdita trascurabile (collegata
   all'interpretabilità). Script in `tesi/nsynth/` (`features.py`,
-  `run_benchmark.py`), output in `tesi/figure_nsynth/`. I dati audio/features
-  NON sono in repo: per riprodurre, scaricare NSynth valid/test da
-  download.magenta.tensorflow.org, estrarre, eseguire `features.py` e
-  `run_benchmark.py`. Documento da 82 a **85 pp**.
+  `run_benchmark.py`), output in `tesi/figure_nsynth/`, e notebook Colab
+  `tesi/nsynth/nsynth_riproduzione.ipynb` che scarica NSynth, estrae le
+  features, esegue i listati B.1–B.4 (verbatim dall'Appendice B) e rigenera
+  figure e tabelle della Sez. 6.5 (tempo stimato in Colab: 15–25 min).
+  I dati audio/features NON sono in repo: per riprodurre, scaricare NSynth
+  valid/test da download.magenta.tensorflow.org, estrarre, eseguire
+  `features.py` e `run_benchmark.py` (o aprire il notebook in Colab).
+  Documento da 82 a **85 pp**.
   `bozza.tex` non allineata.
 - **Intervento precedente.** **Sez. 6 allineata ai preset dell'app
   (`visualizzazione.html`).** Riscritto il Setup Sperimentale (6.1) sulle tre
