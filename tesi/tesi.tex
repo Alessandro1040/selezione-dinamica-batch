@@ -2852,17 +2852,17 @@ iterazioni): i più veloci sono Dynamic GD e Newton-CG~$L_1$
 cambia drasticamente: Dynamic GD e Newton-CG~$L_1$ restano bloccati sopra
 $10^{-1}$, mentre BB-CCV converge alla precisione macchina
 ($\|w-w_*\| \approx 10^{-14}$) in 11 iterazioni. Il passo di
-Barzilai--Borwein stima la curvatura usando solo i gradienti già calcolati e
-non richiede la Hessiana: è particolarmente efficace proprio sui problemi mal
+Barzilai--Borwein stima la curvatura usando solo i gradienti già calcolati,
+senza la Hessiana: è particolarmente efficace sui problemi mal
 condizionati, in accordo con l'Appendice~\ref{app:bbccv}. Sul problema con
 termine incrociato BB-CCV è di nuovo il migliore ($\approx 6\times10^{-4}$ in
 16 iterazioni), seguito da Dynamic GD ($\approx 10^{-2}$) e Newton-CG~$L_1$
 ($\approx 10^{-2}$); Newton-CG resta attorno a $10^{-1}$. In sintesi, BB-CCV
-è il metodo che performa meglio in assoluto sui problemi considerati, in
+è il migliore sui problemi considerati, in
 particolare su quelli mal condizionati; Dynamic GD è competitivo sui problemi
 ben condizionati e con termine incrociato ma collassa su quelli molto mal
-condizionati, dove solo l'informazione di curvatura -- esplicita in Newton-CG
-o stimata dal passo di Barzilai--Borwein in BB-CCV -- permette di progredire.
+condizionati, dove solo l'informazione di curvatura, esplicita in Newton-CG
+o stimata dal passo di Barzilai--Borwein in BB-CCV, permette di progredire.
 
 \subsection{Visualizzazione Interattiva}\label{sec:visualizzazione}
 

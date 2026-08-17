@@ -101,7 +101,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **Appendice E: spiegazione del metodo di
+- **Ultimo intervento.** **Sez. 6.3 (Osservazioni comparative): paragrafo su
+  una sola pagina.** Il paragrafo dopo le Tabelle 6.1–6.3 (pag. 50) sforava di
+  ~4 parole ("BB-CCV – permette di progredire.") sulla pagina successiva.
+  Testo ridotto di poco ("è il metodo migliore in assoluto" → "è il migliore",
+  via "proprio", "e non richiede la Hessiana" → ", senza la Hessiana") e
+  incisi convertiti da trattini a virgole: "l'informazione di curvatura,
+  esplicita in Newton-CG o stimata dal passo di Barzilai–Borwein in BB-CCV,
+  permette di progredire". Documento invariato a **90 pp** (`main.pdf`,
+  `tesi.pdf`), `tesi_finale.pdf` 90 pp. `bozza.tex` non allineata.
+- **Intervento precedente.** **Appendice E: spiegazione del metodo di
   Barzilai--Borwein.** Aggiunta la sottosezione E.1 "Il metodo di
   Barzilai--Borwein" (lo schema è ora nella sottosezione E.2): le tre
   equazioni fondamentali (espansione di Taylor del gradiente, definizioni di
