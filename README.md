@@ -101,7 +101,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **Validazione su benchmark reale (NSynth).** Nuova
+- **Ultimo intervento.** **Sez. 6.5: due esperimenti su NSynth (famiglia +
+  nota).** La sezione ora contiene: (1) riconoscimento della **famiglia
+  strumentale** (10 classi, features mel 80D, acc. 57.8–59.3%, con dinamica
+  del batch CCV e sparsità $L_1$); (2) riconoscimento della **nota** (pitch
+  class, 12 classi, features chroma 24D, acc. 88.0–91.4%, con Newton-CG in
+  linea col riferimento sklearn L-BFGS 91.5% e Newton-CG-$L_1$ convergente in
+  128 iterazioni con il 51% di coefficienti nulli). Aggiunto un paragrafo che
+  spiega il "modello lineare" e la semplificazione rispetto alle reti
+  profonde; rimossa dalla Sez. 7.3 la voce "validazione su benchmark reali"
+  (ora effettuata); nota di riproducibilità con i Colab. **Colab**:
+  `tesi/nsynth/nsynth_riproduzione.ipynb` (famiglia, aggiornato con la cella
+  finale "predizioni di un esempio con audio") e nuovo
+  `tesi/nsynth/nsynth_nota_riproduzione.ipynb` (nota, con confronto sklearn e
+  predizioni). Script: `features.py`, `run_benchmark.py`, `features_nota.py`,
+  `run_nota.py`; output in `tesi/figure_nsynth/` e `tesi/figure_nsynth_nota/`.
+  I dati audio/features NON sono in repo (istruzioni di riproduzione come
+  prima). Documento da 85 a **87 pp**.
+  `bozza.tex` non allineata.
+- **Intervento precedente.** **Validazione su benchmark reale (NSynth).** Nuova
   Sez. 6.5: i quattro metodi (Dynamic GD, Newton-CG, Newton-CG~$L_1$, BB-CCV)
   sono validati sul dataset NSynth (riconoscimento famiglia strumentale, 10
   classi) con logistic regression multinomiale su features mel (80D).

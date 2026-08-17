@@ -2935,6 +2935,30 @@ Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$, budget di
 300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è selezionata
 dinamicamente dalla CCV.
 
+\textbf{Cosa significa ``modello lineare''.} Il modello è una regressione
+logistica multinomiale: per ogni clip $x$ (vettore di 80 features) assegna a
+ogni famiglia $c$ un punteggio
+\[
+  s_c(x) = w_{c,1}x_1 + \cdots + w_{c,80}x_{80} + b_c,
+\]
+cioè una combinazione lineare delle features (ogni banda contribuisce in modo
+indipendente, con il proprio peso), e trasforma i dieci punteggi in
+probabilità con la softmax. Il modello è ``lineare'' nel senso che la
+decisione è una somma pesata degli input, senza interazioni tra le bande (in
+due dimensioni la separazione tra due classi sarebbe una retta); l'unica
+non-linearità è la softmax, che serve solo a ottenere probabilità. Questa
+scelta è deliberata: la loss è convessa e liscia, quindi la teoria della tesi
+(CCV, convergenza, complessità) si applica direttamente, a differenza delle
+reti profonde su spettrogrammi, dove la loss è non convessa e i milioni di
+parametri rendono impraticabile l'analisi. Rispetto a una rete profonda il
+modello è semplificato in due modi: (i)~l'input non è lo spettrogramma
+completo con la sua evoluzione temporale, ma 80 statistiche aggregate (media
+e deviazione standard delle 40 bande di mel nel tempo); (ii)~la decisione è
+lineare e non usa features apprese. Di conseguenza l'accuratezza sul compito
+difficile (famiglia strumentale, $\approx 59\%$) è modesta ma comunque circa
+tre volte la predizione banale della classe maggioritaria ($20.8\%$): il
+limite è nella rappresentazione, non negli algoritmi di ottimizzazione.
+
 I risultati sono riportati nella Tabella~\ref{tab:nsynth} e nelle
 Figure~\ref{fig:nsynth_acc}--\ref{fig:nsynth_batch}.
 
@@ -3023,6 +3047,89 @@ soluzione diventa più sparsa, fino al 72\% di coefficienti nulli, al prezzo
 di una minore accuratezza. Il valore $\nu = 10^{-3}$ rappresenta un buon
 compromesso: circa metà dei coefficienti azzerati con una perdita inferiore
 a un punto percentuale.
+
+\textbf{Riconoscimento della nota (pitch class).} Per mostrare che gli
+stessi metodi raggiungono un'accuratezza elevata quando il problema è ben
+posto, consideriamo un secondo compito musicale: riconoscere la
+\emph{nota} suonata (pitch class), cioè una delle 12 classi di altezza
+($C$, $C\#$, $D$, \dots, $B$), indipendente dall'ottava. Le features sono il
+\emph{chromagramma}: per ogni clip calcoliamo le 12 componenti cromatiche
+(l'energia in ciascuna classe di altezza) e ne prendiamo media e deviazione
+standard nel tempo, ottenendo 24 features per clip. Il chromagramma è una
+rappresentazione musicalmente significativa e, essendo per costruzione
+indipendente dall'ottava, è particolarmente adatto a questo compito. Il
+modello è la stessa regressione logistica multinomiale (softmax) con
+regolarizzazione $L_2$ ($\lambda = 10^{-4}$), ora su 12 classi e 300
+parametri, con gli stessi iperparametri degli algoritmi. I risultati sono
+riportati nella Tabella~\ref{tab:nsynth_nota} e nelle
+Figure~\ref{fig:nota_acc}--\ref{fig:nota_batch}.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l r r r r r}
+\toprule
+Metodo & Acc.\ test & $\|\nabla J(w)\|_2$ & Batch finale & Tempo (s) & Coeff.\ non nulli \\
+\midrule
+Dynamic GD      & 88.0\% & $6.8\times10^{-2}$ & 12\,678 & 7.3 & --- \\
+Newton-CG       & 91.4\% & $2.8\times10^{-6}$ & 12\,678 & 6.3 & --- \\
+Newton-CG~$L_1$ & 89.8\% & $8.5\times10^{-7}$ & 12\,678 & 1.1 & 146/300 \\
+BB-CCV          & 90.8\% & $3.1\times10^{-3}$ & 12\,678 & 2.4 & --- \\
+\midrule
+\multicolumn{6}{l}{\footnotesize Riferimento: scikit-learn (L-BFGS) = 91.5\%} \\
+\bottomrule
+\end{tabular}
+\caption{Riconoscimento della nota (12 classi di altezza) su NSynth con
+features chroma (24 dimensioni): accuratezza di test dopo 300 iterazioni di
+budget e norma del gradiente finale. Newton-CG e Newton-CG~$L_1$ raggiungono
+il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$.}
+\label{tab:nsynth_nota}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure_nsynth_nota/nota_accuracy.pdf}
+\caption{Accuratezza sul test NSynth per il riconoscimento della nota in
+funzione delle iterazioni $k$. La linea tratteggiata indica la predizione
+casuale ($1/12 \approx 8.3\%$).}
+\label{fig:nota_acc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure_nsynth_nota/nota_batch.pdf}
+\caption{Dimensione del batch $n_k$ per il riconoscimento della nota: anche su
+questo compito la CCV aumenta il campione man mano che il gradiente si
+riduce.}
+\label{fig:nota_batch}
+\end{figure}
+
+Tutti i metodi superano di gran lunga la predizione casuale (8.3\%): Dynamic
+GD raggiunge l'88.0\%, BB-CCV il 90.8\% e Newton-CG il 91.4\%, in linea con il
+solutore di riferimento (L-BFGS di scikit-learn, 91.5\%): il metodo del
+secondo ordine converge quindi allo stesso ottimo del solutore standard, con
+una differenza inferiore a un decimo di punto percentuale. Il metodo
+Newton-CG~$L_1$ ($\nu = 10^{-3}$) raggiunge l'89.8\% e termina entro il
+criterio di arresto in 128 iterazioni, azzerando il 51\% dei coefficienti
+(146 su 300): la regolarizzazione $L_1$ seleziona le componenti cromatiche
+rilevanti per il riconoscimento della nota. Anche su questo compito la CCV
+aumenta la dimensione del batch man mano che il gradiente si riduce
+(Figura~\ref{fig:nota_batch}). In sintesi, gli stessi algoritmi validati sul
+compito difficile della famiglia strumentale raggiungono un'accuratezza
+elevata ($\approx 91\%$) sul compito musicale del riconoscimento della nota:
+il limite del primo esperimento è dovuto alla rappresentazione delle
+features, non all'ottimizzazione.
+
+\textbf{Riproducibilità.} Tutti gli esperimenti di questa sezione
+(estrazione delle features, esecuzione dei quattro metodi, figure e tabelle)
+sono riproducibili con i notebook Colab \texttt{nsynth\_riproduzione} (famiglia
+strumentale) e \texttt{nsynth\_nota\_riproduzione} (riconoscimento della nota),
+disponibili nel repository GitHub
+(\url{https://github.com/Alessandro1040/selezione-dinamica-batch}), nella
+cartella \texttt{tesi/nsynth/}.
+
+
 
 
 
@@ -3113,13 +3220,6 @@ futuro.
   funzione pur senza richiedere la convessità (forte); e le dimostrazioni
   risultano più semplici, perché la PL diventa un'ipotesi di partenza invece
   di essere derivata.
-  \item Validazione su benchmark reali. Gli esperimenti presentati in
-  questa tesi usano funzioni sintetiche con un dataset generato artificialmente.
-  Una direzione naturale è la validazione su dataset standard (ad esempio i
-  benchmark LIBSVM o MNIST), confrontando Dynamic GD, Newton-CG e Newton-$L_1$
-  con SGD standard in termini di tempo a convergenza, precisione finale e
-  costo totale. Su tali problemi si potrebbero anche misurare gli effetti della
-  struttura di covarianza dei gradienti reali sulla dinamica del batch.
   \item Rapporto di sottocampionamento dell'Hessiana dinamico. Nel
   metodo Newton-CG il rapporto $R = |\mathcal{H}_k|/|\mathcal{S}_k|$ tra la
   dimensione del campione per l'Hessiana e quella per il gradiente è
