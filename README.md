@@ -112,6 +112,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento.** **Figura 5.1 spostata e notebox senza sforo (pag. 14).**
+  Il block diagram del Dynamic GD (schema CCV) è stato spostato alla **fine
+  della Sezione 5.1, subito prima della 5.2** (come richiesto: "dopo la
+  formulazione della condizione di accettazione, non in mezzo"). Conseguenza:
+  la figura ora è la **Figura 5.3** (il cono è 5.1 e l'andamento di $n_k$ è
+  5.2); i riferimenti `\ref` si aggiornano da soli (l'unico rimando esplicito è
+  in Appendice E). **Notebox "Quando siamo lontani dal minimo":** non sfora più
+  dalla pag. 14 alla 15 — ora sta interamente nella pagina stampata 14,
+  grazie a `\enlargethispage{5\baselineskip}` prima del notebox "Dalla
+  condizione di discesa" e a un **padding dei box leggermente compatto**
+  (`\tcbset{boxsep=1mm, top=1mm, bottom=1mm}`: necessario, senza la pagina
+  tornava a 97 pp con il notebox su pag. 15). Rimossi 3 commenti duplicati
+  residui. Documento: **96 pp** (`tesi_finale.pdf`), nessuna pagina vuota.
+  Contenuto invariato (solo impaginazione).
+
 - **Ultimo intervento.** **Nuovo documento unico in classe sapthesis
   (`tesi_sapthesis.tex`).** L'intera tesi è stata ricostruita come documento
   unico in classe `sapthesis` (base `book`), eliminando il flusso a due
