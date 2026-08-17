@@ -11,7 +11,6 @@
 \usepackage{array}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta, positioning, shapes.geometric, calc}
-\usepackage{graphicx}
 \usepackage{amsthm}
 \usepackage{mathtools}
 \usepackage{url}
@@ -20,7 +19,6 @@
 % --- Colori (risolve #7) ---
 \definecolor{coverblue}{RGB}{30, 60, 120}
 \definecolor{coverlightblue}{RGB}{180, 210, 255}
-\definecolor{sapred}{rgb}{0.5098039,0.1411765,0.2}   % bordeaux del frontespizio sapthesis
 
 \hypersetup{colorlinks=true, linkcolor=coverblue, citecolor=coverblue, urlcolor=coverblue}
 
@@ -116,60 +114,94 @@
 \newcommand{\norm}[1]{\left\|#1\right\|}
 \newcommand{\grad}{\nabla}
 \begin{document}
-% ── COPERTINA (uniforme al frontespizio sapthesis; testo invariato) ────────
+% ── COPERTINA ────────────────────────────────────────────────────────────────
 \begin{titlepage}
-  \linespread{1}\selectfont
-  \sffamily
-  \parindent=0pt
-  \vspace*{-10mm}
+  \pagecolor{coverblue}
+  \color{white}
+  \vspace*{1.5cm}
+  \begin{center}
+    {\large\scshape Universit\`a degli Studi La Sapienza, Roma}\\[0.6cm]
+    {\small Alessandro Lo Curcio \quad $\bullet$ \quad \today}\\[1.5cm]
 
-  % Logo Sapienza (come nel frontespizio sapthesis)
-  \includegraphics[width=5cm]{sapienzalogo}\par
+    \begin{tikzpicture}[scale=0.85,
+      every node/.style={font=\footnotesize}]
+      
+      % Assi
+      \draw[white!70,->,>=latex,line width=1pt] (-0.5,0) -- (8,0) node[below,white] {$w$};
+      \draw[white!70,->,>=latex,line width=1pt] (0,-0.5) -- (0,5.5) node[left,white] {$J(w)$};
+      
+      % Funzione di loss (parabola convessa)
+      \draw[white,line width=1.5pt,smooth] plot[domain=-0.3:7.3,samples=100] 
+        (\x, {0.25*(\x-3.5)^2 + 0.3});
+      
+      % Punto di minimo w*
+      \fill[white] (3.5,0.3) circle (2.5pt);
+      \draw[white,dashed] (3.5,0.3) -- (3.5,0) node[below,white] {$w_*$};
+      \node[white,above right] at (3.5,0.3) {$\min J$};
+      
+      % Punto di partenza w0
+      \fill[white] (0.5,2.55) circle (2.5pt);
+      \draw[white,dashed] (0.5,2.55) -- (0.5,0) node[below,white] {$w_0$};
+      \node[white,above left] at (0.5,2.55) {$J(w_0)$};
+      
+      % Iterazioni: puntini sulla loss che convergono al minimo
+      % w1
+      \fill[white] (1.3,1.51) circle (2pt);
+      \draw[white,dashed] (1.3,1.51) -- (1.3,0) node[below,white,font=\tiny] {$w_1$};
+      \node[white,above right,font=\tiny] at (1.3,1.51) {$J(w_1)$};
+      
+      % w2
+      \fill[white] (2.0,0.86) circle (2pt);
+      \draw[white,dashed] (2.0,0.86) -- (2.0,0) node[below,white,font=\tiny] {$w_2$};
+      \node[white,above right,font=\tiny] at (2.0,0.86) {$J(w_2)$};
+      
+      % w3
+      \fill[white] (2.6,0.50) circle (2pt);
+      \draw[white,dashed] (2.6,0.50) -- (2.6,0) node[below,white,font=\tiny] {$w_3$};
+      
+      % w4
+      \fill[white] (3.0,0.36) circle (2pt);
+      
+      % w5
+      \fill[white] (3.25,0.32) circle (1.8pt);
+      
+      % Frecce che collegano i punti (passi alpha_k)
+      \draw[white!60,->,>=stealth,line width=0.6pt] (0.5,2.55) -- (1.3,1.51);
+      \draw[white!60,->,>=stealth,line width=0.6pt] (1.3,1.51) -- (2.0,0.86);
+      \draw[white!60,->,>=stealth,line width=0.6pt] (2.0,0.86) -- (2.6,0.50);
+      \draw[white!60,->,>=stealth,line width=0.6pt] (2.6,0.50) -- (3.0,0.36);
+      \draw[white!60,->,>=stealth,line width=0.6pt] (3.0,0.36) -- (3.25,0.32);
+      
+      % Etichetta alpha_k su una freccia
+      \node[white,font=\tiny] at (0.9,2.1) {$\alpha_0$};
+      \node[white,font=\tiny] at (1.65,1.25) {$\alpha_1$};
+      \node[white,font=\tiny] at (2.3,0.72) {$\alpha_2$};
+      
+      % Nota: i passi si accorciano vicino al minimo
+      \node[white,below right,font=\tiny] at (3.5,0.3) {$\alpha_k \to 0$};
+      
+    \end{tikzpicture}
 
-  \nointerlineskip
+    \vspace{1.2cm}
+    {\fontsize{26}{34}\selectfont\bfseries Selezione Dinamica della Dimensione del Campione\\[0.2cm]
+    in Metodi di Ottimizzazione\\[0.2cm]
+    per il Machine Learning}\\[0.5cm]
+    {\Large\itshape Algoritmi adattivi a campione dinamico e sottocampionamento dell'Hessiana\\
+    per problemi su larga scala}\\[2cm]
 
-  % Blocco titolo e sottotitolo (parbox indentata come in sapthesis)
-  \hspace{0.3cm}%
-  \parbox[t][12.8cm][t]{\dimexpr\textwidth-0.3cm\relax}{%
-    \nointerlineskip
-    \vspace*{7mm}
-    \vspace{\stretch{1}}
-    \nointerlineskip
-    \hyphenpenalty=10000
-    \exhyphenpenalty=10000
-    {\LARGE\linespread{1.1}\selectfont\textcolor{sapred}{Selezione Dinamica della Dimensione del Campione\\
-    in Metodi di Ottimizzazione\\
-    per il Machine Learning}\par}
-    \vspace{0.4cm}
-    {\large\linespread{1.1}\selectfont\textcolor{sapred}{Algoritmi adattivi a campione dinamico e\\
-    sottocampionamento dell'Hessiana\\
-    per problemi su larga scala}\par}
-    \nointerlineskip
-    \vspace{\stretch{1}}
-    \vspace*{7mm}
-    \nointerlineskip}
+    \begin{tikzpicture}
+      \draw[white!40, line width=0.5pt] (0,0) -- (12,0);
+    \end{tikzpicture}\\[0.5cm]
 
-  \nointerlineskip
 
-  % Blocco corso e autore (come nel frontespizio)
-  \hspace{0.3cm}%
-  \parbox[t]{\dimexpr\textwidth-0.3cm\relax}{%
-    \textcolor{sapred}{Universit\`a degli Studi La Sapienza, Roma}\\[1mm]
-    \textcolor{sapred}{Corso di Laurea in Scienze Matematiche per l'Intelligenza Artificiale}
-
-    \vspace*{9mm}
-
-    {\bfseries Alessandro Lo Curcio \quad $\bullet$ \quad \today}
-  }
-
+  \end{center}
   \vfill
-
-  % Anno accademico (in basso, come nel frontespizio)
-  \hspace{0.3cm}%
-  \parbox[t]{\dimexpr\textwidth-0.3cm\relax}{%
-    Anno Accademico 2025--2026
-  }
+  \begin{center}
+    {\large Corso di Laurea in Scienze Matematiche per l'Intelligenza Artificiale}\\
+    {\large Anno Accademico 2025--2026}
+  \end{center}
 \end{titlepage}
+\nopagecolor
 %\clearpage
 \begin{comment}
 % ── ABSTRACT ────────────────────────────────────────────────────────────────
