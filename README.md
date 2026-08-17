@@ -14,11 +14,13 @@ Roma (A.A. 2025–2026).
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 └── tesi/                          sorgenti LaTeX e PDF della tesi
-    ├── tesi.tex                   documento principale
-    ├── tesi.pdf                   PDF compilato del documento (senza frontespizio)
-    ├── frontespizio.tex           frontespizio istituzionale Sapienza (sapthesis)
-    ├── compila_tesi.sh            genera tesi_finale.pdf (frontespizio + tesi.pdf)
-    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio (2 pp) + contenuto
+    ├── tesi_sapthesis.tex         documento UNICO in classe sapthesis (PDF definitivo)
+    ├── tesi_sapthesis.pdf         PDF compilato del documento sapthesis (110 pp)
+    ├── tesi.tex                   documento di lavoro (article, con copertina)
+    ├── tesi.pdf                   PDF compilato del documento di lavoro
+    ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
+    ├── compila_tesi.sh            compila tesi_sapthesis.tex -> tesi_finale.pdf
+    ├── tesi_finale.pdf            PDF DEFINITIVO: documento unico sapthesis (110 pp)
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -57,40 +59,46 @@ $N=200$, $w_0=[2,-3]$, $\alpha=0.1$, $\theta=0.5$, batch$_0=5$, 30 iterazioni, s
 
 ## Tesi LaTeX
 
-Per compilare solo il documento (senza frontespizio):
+Documento di lavoro (article, con copertina):
 
 ```bash
 cd tesi
 latexmk -pdf -shell-escape tesi.tex    # serve pygments per i listati minted
 ```
 
-Per generare il **PDF definitivo** con il frontespizio istituzionale come
-prima pagina:
+**PDF definitivo** (documento unico in classe sapthesis, frontespizio
+istituzionale come prima pagina):
 
 ```bash
 cd tesi
-./compila_tesi.sh tesi    # compila frontespizio.tex + tesi.tex -> tesi_finale.pdf
+./compila_tesi.sh    # compila tesi_sapthesis.tex -> tesi_finale.pdf
 ```
 
-`tesi_finale.pdf` è composto da `frontespizio.pdf` (sola pag. 1 = frontespizio;
-la pagina del verso non è generata) più `tesi.pdf` **saltando** la pagina 1 di
-`tesi.pdf` (una copertina in stile sapthesis, uniforme al frontespizio; per
-ripristinarla nel PDF basta rimuovere lo slicing `body.pages[1:]` nello
-script). Nella copia di lavoro (Desktop) usare `./compila_tesi.sh tesi`.
+`tesi_finale.pdf` è il PDF definitivo: **documento unico** in classe
+`sapthesis` (base `book`) che contiene il frontespizio istituzionale
+(`\maketitle`) come pagina 1, poi Ringraziamenti, Abstract, Indice, i 7
+capitoli, le appendici A–E e la bibliografia. Non c'è più un merge di due
+documenti: il vecchio `frontespizio.tex` resta solo come riferimento storico.
+`tesi.tex` (article) resta come documento di lavoro; `bozza.tex`/`bozza.pdf`
+sono la versione bozza.
 
 ## Note operative e stato corrente (17/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
-- **File in lavorazione.** La copia di lavoro è ora la cartella sul Desktop
+- **File in lavorazione.** La copia di lavoro è la cartella sul Desktop
   (NON è un clone git):
   `/Users/alessandrolocurcio/Desktop/Selezione Dinamica della Dimensione del
   Campione in Metodi di Ottimizzazione per il Machine Learning/`. Le modifiche
-  si fanno in `tesi/tesi.tex` lì (verifica: identica a `tesi/tesi.tex` della
-  repo con `md5`), i PDF si rigenerano sul posto e prima del commit il file va
-  copiato nella repo (`cp <Desktop>/.../tesi/tesi.tex tesi/tesi.tex`). La
-  vecchia copia `/Users/alessandrolocurcio/Downloads/tesi/main.tex` resta solo
-  come riferimento storico.
+  si fanno in `tesi/tesi.tex` lì (documento di lavoro, article) e/o in
+  `tesi/tesi_sapthesis.tex` (documento unico sapthesis = PDF definitivo);
+  i PDF si rigenerano sul posto e prima del commit i file vanno copiati nella
+  repo (`cp <Desktop>/.../tesi/<file> tesi/<file>`), verificando con `md5`
+  che copia Desktop e repo coincidano. Attenzione: quando il contenuto cambia,
+  va aggiornato sia `tesi.tex` sia `tesi_sapthesis.tex` (stesso testo,
+  struttura diversa). La vecchia copia
+  `/Users/alessandrolocurcio/Downloads/tesi/main.tex` resta solo come
+  riferimento storico.
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
   `contenuti/` sono già incorporati nel file. Non tentare di ricostruire il
   documento a partire da `contenuti/`.
@@ -104,6 +112,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento.** **Nuovo documento unico in classe sapthesis
+  (`tesi_sapthesis.tex`).** L'intera tesi è stata ricostruita come documento
+  unico in classe `sapthesis` (base `book`), eliminando il flusso a due
+  documenti (frontespizio.tex + tesi.tex con merge pypdf). Il frontespizio
+  istituzionale è ora integrato via `\maketitle` come pagina 1 (identica al
+  vecchio frontespizio.pdf), poi Ringraziamenti, Abstract, Indice, i 7
+  capitoli, le appendici A–E e la bibliografia. Mappatura dei livelli:
+  `\section`→`\chapter`, `\subsection`→`\section`,
+  `\subsubsection`→`\subsection` (i numeri mostrati restano gli stessi, es.
+  5.1.2 resta 5.1.2; `secnumdepth=2` e `tocdepth=2`). Nel frontespizio
+  `\cleardoublepage` è ridefinito a `\clearpage` per evitare versi bianchi
+  tra Ringraziamenti/Abstract/Indice (come nel vecchio tesi_finale.pdf) e
+  ripristinato per il mainmatter. Font Latin Modern 11pt (standard sapthesis),
+  header sapthesis (capitolo/sezione + numero pagina). Corretti 3 riferimenti
+  da "Sezione" a "Capitolo" (ora puntano a capitoli: `sec:formulazione`,
+  `sec:algoritmi`, `sec:lavori`). Documento: **110 pp** (`tesi_finale.pdf`).
+  `tesi.tex` (article) resta come documento di lavoro (90 pp, con la copertina
+  in stile sapthesis); `bozza.tex` ripristinata alla versione originale (la
+  modifica della copertina NON si applica alla bozza). `compila_tesi.sh`
+  aggiornato: ora compila solo `tesi_sapthesis.tex` -> `tesi_finale.pdf`.
+
 - **Ultimo intervento.** **Copertina di `tesi.tex` uniformata al frontespizio
   sapthesis.** Rimossa la vecchia copertina blu custom (`\pagecolor{coverblue}`,
   testo bianco, figura TikZ del cono di discesa e filetto bianco) e sostituita
@@ -122,14 +151,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   /`\exhyphenpenalty`); sottotitolo spezzato a capo a "dinamico e"; indentazione
   delle parbox ridotta a 0.3cm perché il titolo `\LARGE` non entrava con
   l'indentazione sapthesis standard (1.72cm) nella geometria `article`
-  (textwidth 15cm). Allineata anche `bozza.tex` (stessa copertina; aggiunto
-  `\usepackage{graphicx}` per il logo). `frontespizio.tex`/`frontespizio.pdf`
-  invariati (restano la prima pagina di `tesi_finale.pdf`). Documento invariato
-  a **90 pp** (`tesi.pdf`, `tesi_finale.pdf`); `bozza.pdf` 56 pp. Nota: il
+  (textwidth 15cm). `frontespizio.tex`/`frontespizio.pdf` invariati. Nota: il
   `tesi.pdf` committato era rimasto non sincronizzato (conteneva ancora le
-  etichette in grassetto dell'Appendice E rimosse nel commit 23ff1e6); questa
-  sincronizzazione lo riporta coerente con il sorgente (i `\textbf` residui
-  sono solo i 6 della Sez. 6.5).
+  etichette in grassetto dell'Appendice E rimosse nel commit 23ff1e6); la
+  sincronizzazione lo ha riportato coerente con il sorgente (i `\textbf`
+  residui sono solo i 6 della Sez. 6.5).
 
 - **Ultimo intervento.** **Appendice E: eliminate le etichette di paragrafo in
   grassetto.** Rimosse del tutto (non solo sgrassate) le 9 etichette
