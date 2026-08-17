@@ -4353,132 +4353,620 @@ convergenza sui problemi mal condizionati.}
 % ═══════════════════════════════════════════════════════════════════════════
 \section{Test comparativi aggiuntivi}\label{app:test}
 
-Questa appendice raccoglie i test comparativi eseguiti con il pannello
-``Analisi'' dell'applicazione interattiva (Sezione~\ref{sec:visualizzazione})
-sui cinque algoritmi dell'applicazione: Dynamic GD, Newton-CG,
-Newton-CG~$L_1$, RAPG e BB-CCV (Appendice~\ref{app:bbccv}). Per ogni
-iterazione il pannello riporta il numero di iterazione, l'errore
-$\|w_k - w_*\|_2$ e il valore $J(w_k)$. I test sono stati eseguiti sulle tre
+Questa appendice riporta i risultati dei test comparativi eseguiti con il
+pannello ``Analisi'' dell'applicazione interattiva
+(Sezione~\ref{sec:visualizzazione}) sui cinque algoritmi dell'applicazione:
+Dynamic GD, Newton-CG, Newton-CG~$L_1$, RAPG e BB-CCV
+(Appendice~\ref{app:bbccv}). Per ogni iterazione $k$ il pannello riporta la
+norma dell'errore $\|w_k-w_*\|_2$. I test sono stati eseguiti sulle tre
 funzioni obiettivo quadratiche dell'applicazione: ben condizionata
 ($\kappa \approx 1.1$), molto mal condizionata ($\kappa \approx 100$) e con
-termine incrociato. Le Figure~F.1--F.3 mostrano le schermate del pannello,
-raggruppate per funzione obiettivo, con i cinque algoritmi in ordine:
-Dynamic GD, Newton-CG, Newton-CG~$L_1$, RAPG, BB-CCV.
+termine incrociato. Le Tabelle~F.1--F.3 riportano $\|w_k-w_*\|_2$ a ogni
+iterazione, con i cinque algoritmi affiancati in ordine: (a)~Dynamic GD,
+(b)~Newton-CG, (c)~Newton-CG~$L_1$, (d)~RAPG, (e)~BB-CCV.
 
-% Figura F.1 - quadratica ben condizionata
-\begin{figure}[H]
+% Tabella F - quadratico ben condizionato ($\kappa \approx 1.1$)
+\begin{table}[H]
 \centering
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/bencond_dgd.png}
-  \caption{Dynamic GD}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/bencond_ncg.png}
-  \caption{Newton-CG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/bencond_ncgl1.png}
-  \caption{Newton-CG $L_1$}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/bencond_rapg.png}
-  \caption{RAPG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/bencond_bbccv.png}
-  \caption{BB-CCV}
-\end{subfigure}
-\caption{Pannello di analisi dell'applicazione sul problema quadratico
-ben condizionato ($\kappa \approx 1.1$): per ogni iterazione sono riportati
-numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque algoritmi
-(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG, (e) BB-CCV.}
-\label{fig:test_bencond}
-\end{figure}
-
-% Figura F.2 - quadratica molto mal condizionata
-\begin{figure}[H]
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{3pt}
+\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema quadratico ben condizionato ($\kappa \approx 1.1$), per i cinque algoritmi. I valori sono quelli riportati dal pannello \emph{Analisi} dell'applicazione (Sezione~\ref{sec:visualizzazione}).}
+\label{tab:test_bencond}
+\begin{subtable}{0.19\textwidth}
 \centering
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/malcond_dgd.png}
-  \caption{Dynamic GD}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/malcond_ncg.png}
-  \caption{Newton-CG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/malcond_ncgl1.png}
-  \caption{Newton-CG $L_1$}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/malcond_rapg.png}
-  \caption{RAPG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/malcond_bbccv.png}
-  \caption{BB-CCV}
-\end{subfigure}
-\caption{Pannello di analisi dell'applicazione sul problema quadratico
-molto mal condizionato ($\kappa \approx 100$): per ogni iterazione sono
-riportati numero di iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque
-algoritmi (a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG,
-(e) BB-CCV.}
-\label{fig:test_malcond}
-\end{figure}
-
-% Figura F.3 - quadratica con termine incrociato
-\begin{figure}[H]
+\caption{Dynamic GD}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.1516\times10^{0}$\\
+2 & $9.5519\times10^{-1}$\\
+3 & $7.8850\times10^{-1}$\\
+4 & $6.7471\times10^{-1}$\\
+5 & $5.5214\times10^{-1}$\\
+6 & $4.3385\times10^{-1}$\\
+7 & $3.8792\times10^{-1}$\\
+8 & $3.5366\times10^{-1}$\\
+9 & $3.0927\times10^{-1}$\\
+10 & $2.5516\times10^{-1}$\\
+11 & $2.3129\times10^{-1}$\\
+12 & $2.1401\times10^{-1}$\\
+13 & $2.0084\times10^{-1}$\\
+14 & $1.8252\times10^{-1}$\\
+15 & $1.6601\times10^{-1}$\\
+16 & $1.6395\times10^{-1}$\\
+17 & $1.5471\times10^{-1}$\\
+18 & $1.4730\times10^{-1}$\\
+19 & $1.4134\times10^{-1}$\\
+20 & $1.3654\times10^{-1}$\\
+21 & $1.3268\times10^{-1}$\\
+22 & $1.2957\times10^{-1}$\\
+23 & $1.2707\times10^{-1}$\\
+24 & $1.2505\times10^{-1}$\\
+25 & $1.2342\times10^{-1}$\\
+26 & $1.2211\times10^{-1}$\\
+27 & $1.2105\times10^{-1}$\\
+28 & $1.2020\times10^{-1}$\\
+29 & $1.1951\times10^{-1}$\\
+30 & $1.1895\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
 \centering
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/incrociato_dgd.png}
-  \caption{Dynamic GD}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/incrociato_ncg.png}
-  \caption{Newton-CG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/incrociato_ncgl1.png}
-  \caption{Newton-CG $L_1$}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/incrociato_rapg.png}
-  \caption{RAPG}
-\end{subfigure}\hfill
-\begin{subfigure}{0.19\textwidth}
-  \centering
-  \includegraphics[width=\textwidth]{figure_test/incrociato_bbccv.png}
-  \caption{BB-CCV}
-\end{subfigure}
-\caption{Pannello di analisi dell'applicazione sul problema quadratico
-con termine incrociato: per ogni iterazione sono riportati numero di
-iterazione, $\|w_k - w_*\|_2$ e $J(w_k)$, per i cinque algoritmi
-(a) Dynamic GD, (b) Newton-CG, (c) Newton-CG~$L_1$, (d) RAPG, (e) BB-CCV.}
-\label{fig:test_incrociato}
-\end{figure}
+\caption{Newton-CG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2758\times10^{0}$\\
+2 & $1.2758\times10^{0}$\\
+3 & $1.1736\times10^{0}$\\
+4 & $1.1736\times10^{0}$\\
+5 & $1.1736\times10^{0}$\\
+6 & $1.1736\times10^{0}$\\
+7 & $1.0613\times10^{0}$\\
+8 & $9.7253\times10^{-1}$\\
+9 & $8.7008\times10^{-1}$\\
+10 & $7.9049\times10^{-1}$\\
+11 & $7.9049\times10^{-1}$\\
+12 & $7.1398\times10^{-1}$\\
+13 & $7.1398\times10^{-1}$\\
+14 & $6.6137\times10^{-1}$\\
+15 & $6.6137\times10^{-1}$\\
+16 & $6.0964\times10^{-1}$\\
+17 & $5.5345\times10^{-1}$\\
+18 & $5.5345\times10^{-1}$\\
+19 & $5.5345\times10^{-1}$\\
+20 & $5.1627\times10^{-1}$\\
+21 & $4.6784\times10^{-1}$\\
+22 & $4.3254\times10^{-1}$\\
+23 & $4.3254\times10^{-1}$\\
+24 & $4.3254\times10^{-1}$\\
+25 & $4.3254\times10^{-1}$\\
+26 & $4.3254\times10^{-1}$\\
+27 & $4.0264\times10^{-1}$\\
+28 & $4.0264\times10^{-1}$\\
+29 & $4.0264\times10^{-1}$\\
+30 & $4.0264\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Newton-CG $L_1$}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2683\times10^{0}$\\
+2 & $1.1466\times10^{0}$\\
+3 & $1.0501\times10^{0}$\\
+4 & $9.5532\times10^{-1}$\\
+5 & $8.4970\times10^{-1}$\\
+6 & $7.7334\times10^{-1}$\\
+7 & $6.9434\times10^{-1}$\\
+8 & $6.3606\times10^{-1}$\\
+9 & $5.6016\times10^{-1}$\\
+10 & $5.0464\times10^{-1}$\\
+11 & $4.5898\times10^{-1}$\\
+12 & $4.2560\times10^{-1}$\\
+13 & $3.9782\times10^{-1}$\\
+14 & $3.5221\times10^{-1}$\\
+15 & $3.1656\times10^{-1}$\\
+16 & $2.8037\times10^{-1}$\\
+17 & $2.5757\times10^{-1}$\\
+18 & $2.3404\times10^{-1}$\\
+19 & $2.1740\times10^{-1}$\\
+20 & $2.0263\times10^{-1}$\\
+21 & $1.8691\times10^{-1}$\\
+22 & $1.7550\times10^{-1}$\\
+23 & $1.6345\times10^{-1}$\\
+24 & $1.5147\times10^{-1}$\\
+25 & $1.4067\times10^{-1}$\\
+26 & $1.3109\times10^{-1}$\\
+27 & $1.2247\times10^{-1}$\\
+28 & $1.1474\times10^{-1}$\\
+29 & $1.0786\times10^{-1}$\\
+30 & $1.0167\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{RAPG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2728\times10^{0}$\\
+2 & $6.0818\times10^{-1}$\\
+3 & $2.8871\times10^{-1}$\\
+4 & $1.9282\times10^{-1}$\\
+5 & $1.7966\times10^{-1}$\\
+6 & $1.7838\times10^{-1}$\\
+7 & $1.7821\times10^{-1}$\\
+8 & $1.7821\times10^{-1}$\\
+9 & $1.7821\times10^{-1}$\\
+10 & $1.7821\times10^{-1}$\\
+11 & $1.7821\times10^{-1}$\\
+12 & $1.7821\times10^{-1}$\\
+13 & $1.7821\times10^{-1}$\\
+14 & $1.7821\times10^{-1}$\\
+15 & $1.7821\times10^{-1}$\\
+16 & $1.7821\times10^{-1}$\\
+17 & $1.7821\times10^{-1}$\\
+18 & $1.7821\times10^{-1}$\\
+19 & $1.7821\times10^{-1}$\\
+20 & $1.7821\times10^{-1}$\\
+21 & $1.7821\times10^{-1}$\\
+22 & $1.7821\times10^{-1}$\\
+23 & $1.7821\times10^{-1}$\\
+24 & $1.7821\times10^{-1}$\\
+25 & $1.7821\times10^{-1}$\\
+26 & $1.7821\times10^{-1}$\\
+27 & $1.7821\times10^{-1}$\\
+28 & $1.7821\times10^{-1}$\\
+29 & $1.7821\times10^{-1}$\\
+30 & $1.7821\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.1516\times10^{0}$\\
+2 & $3.8420\times10^{-1}$\\
+3 & $9.3399\times10^{-2}$\\
+4 & $2.0089\times10^{-1}$\\
+5 & $1.6584\times10^{-1}$\\
+6 & $7.9543\times10^{-2}$\\
+7 & $1.0292\times10^{-1}$\\
+8 & $1.1777\times10^{-1}$\\
+9 & $1.1707\times10^{-1}$\\
+10 & $1.1673\times10^{-1}$\\
+11 & $1.1662\times10^{-1}$\\
+12 & $1.1662\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}
 
-\paragraph{Osservazioni comparative.} Dalle schermate emergono le seguenti
+% Tabella F - quadratico molto mal condizionato ($\kappa \approx 100$)
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{3pt}
+\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema quadratico molto mal condizionato ($\kappa \approx 100$), per i cinque algoritmi. I valori sono quelli riportati dal pannello \emph{Analisi} dell'applicazione (Sezione~\ref{sec:visualizzazione}).}
+\label{tab:test_malcond}
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Dynamic GD}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.3506\times10^{0}$\\
+2 & $1.2993\times10^{0}$\\
+3 & $1.2413\times10^{0}$\\
+4 & $1.2035\times10^{0}$\\
+5 & $1.1638\times10^{0}$\\
+6 & $1.1300\times10^{0}$\\
+7 & $1.1031\times10^{0}$\\
+8 & $1.0869\times10^{0}$\\
+9 & $1.0653\times10^{0}$\\
+10 & $1.0466\times10^{0}$\\
+11 & $1.0363\times10^{0}$\\
+12 & $1.0264\times10^{0}$\\
+13 & $1.0192\times10^{0}$\\
+14 & $1.0119\times10^{0}$\\
+15 & $1.0059\times10^{0}$\\
+16 & $1.0007\times10^{0}$\\
+17 & $9.9489\times10^{-1}$\\
+18 & $9.9248\times10^{-1}$\\
+19 & $9.8932\times10^{-1}$\\
+20 & $9.8703\times10^{-1}$\\
+21 & $9.8468\times10^{-1}$\\
+22 & $9.8245\times10^{-1}$\\
+23 & $9.8032\times10^{-1}$\\
+24 & $9.7874\times10^{-1}$\\
+25 & $9.7684\times10^{-1}$\\
+26 & $9.7511\times10^{-1}$\\
+27 & $9.7353\times10^{-1}$\\
+28 & $9.7221\times10^{-1}$\\
+29 & $9.7081\times10^{-1}$\\
+30 & $9.6954\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Newton-CG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2807\times10^{0}$\\
+2 & $1.1526\times10^{0}$\\
+3 & $1.1526\times10^{0}$\\
+4 & $1.0395\times10^{0}$\\
+5 & $9.3153\times10^{-1}$\\
+6 & $9.3153\times10^{-1}$\\
+7 & $9.3153\times10^{-1}$\\
+8 & $8.5161\times10^{-1}$\\
+9 & $8.5161\times10^{-1}$\\
+10 & $8.5161\times10^{-1}$\\
+11 & $7.7216\times10^{-1}$\\
+12 & $7.7216\times10^{-1}$\\
+13 & $6.9289\times10^{-1}$\\
+14 & $6.9289\times10^{-1}$\\
+15 & $6.9289\times10^{-1}$\\
+16 & $6.2258\times10^{-1}$\\
+17 & $5.5683\times10^{-1}$\\
+18 & $4.9795\times10^{-1}$\\
+19 & $4.5157\times10^{-1}$\\
+20 & $4.0302\times10^{-1}$\\
+21 & $3.6487\times10^{-1}$\\
+22 & $3.2788\times10^{-1}$\\
+23 & $3.0656\times10^{-1}$\\
+24 & $3.0656\times10^{-1}$\\
+25 & $2.6912\times10^{-1}$\\
+26 & $2.6912\times10^{-1}$\\
+27 & $2.6912\times10^{-1}$\\
+28 & $2.2653\times10^{-1}$\\
+29 & $2.0761\times10^{-1}$\\
+30 & $2.0761\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Newton-CG $L_1$}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $9.9721\times10^{-1}$\\
+2 & $9.8193\times10^{-1}$\\
+3 & $9.7324\times10^{-1}$\\
+4 & $9.5355\times10^{-1}$\\
+5 & $9.4387\times10^{-1}$\\
+6 & $9.2830\times10^{-1}$\\
+7 & $8.8226\times10^{-1}$\\
+8 & $8.6034\times10^{-1}$\\
+9 & $8.4937\times10^{-1}$\\
+10 & $8.0714\times10^{-1}$\\
+11 & $7.9682\times10^{-1}$\\
+12 & $7.5723\times10^{-1}$\\
+13 & $7.4751\times10^{-1}$\\
+14 & $7.1041\times10^{-1}$\\
+15 & $7.0126\times10^{-1}$\\
+16 & $6.6649\times10^{-1}$\\
+17 & $6.5788\times10^{-1}$\\
+18 & $6.2529\times10^{-1}$\\
+19 & $6.1717\times10^{-1}$\\
+20 & $6.0177\times10^{-1}$\\
+21 & $5.8679\times10^{-1}$\\
+22 & $5.7227\times10^{-1}$\\
+23 & $5.6488\times10^{-1}$\\
+24 & $5.3689\times10^{-1}$\\
+25 & $5.2993\times10^{-1}$\\
+26 & $5.0370\times10^{-1}$\\
+27 & $4.9714\times10^{-1}$\\
+28 & $4.8474\times10^{-1}$\\
+29 & $4.7267\times10^{-1}$\\
+30 & $4.6668\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{RAPG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2042\times10^{0}$\\
+2 & $1.1425\times10^{0}$\\
+3 & $1.0900\times10^{0}$\\
+4 & $1.0454\times10^{0}$\\
+5 & $1.0077\times10^{0}$\\
+6 & $9.7585\times10^{-1}$\\
+7 & $9.4902\times10^{-1}$\\
+8 & $9.2640\times10^{-1}$\\
+9 & $9.0727\times10^{-1}$\\
+10 & $8.9104\times10^{-1}$\\
+11 & $8.7720\times10^{-1}$\\
+12 & $8.6530\times10^{-1}$\\
+13 & $8.5497\times10^{-1}$\\
+14 & $8.4591\times10^{-1}$\\
+15 & $8.3785\times10^{-1}$\\
+16 & $8.3059\times10^{-1}$\\
+17 & $8.2394\times10^{-1}$\\
+18 & $8.1776\times10^{-1}$\\
+19 & $8.1192\times10^{-1}$\\
+20 & $8.0632\times10^{-1}$\\
+21 & $8.0086\times10^{-1}$\\
+22 & $7.9544\times10^{-1}$\\
+23 & $7.8999\times10^{-1}$\\
+24 & $7.8441\times10^{-1}$\\
+25 & $7.7860\times10^{-1}$\\
+26 & $7.7240\times10^{-1}$\\
+27 & $7.6565\times10^{-1}$\\
+28 & $7.5804\times10^{-1}$\\
+29 & $7.4913\times10^{-1}$\\
+30 & $7.3805\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $9.9721\times10^{-1}$\\
+2 & $9.8012\times10^{-1}$\\
+3 & $9.7212\times10^{-1}$\\
+4 & $9.5909\times10^{-1}$\\
+5 & $9.5065\times10^{-1}$\\
+6 & $9.3418\times10^{-1}$\\
+7 & $9.1599\times10^{-1}$\\
+8 & $8.9981\times10^{-1}$\\
+9 & $8.9001\times10^{-1}$\\
+10 & $8.8062\times10^{-1}$\\
+11 & $1.1324\times10^{-14}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}
+
+% Tabella F - quadratico con termine incrociato
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{3pt}
+\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema quadratico con termine incrociato, per i cinque algoritmi. I valori sono quelli riportati dal pannello \emph{Analisi} dell'applicazione (Sezione~\ref{sec:visualizzazione}).}
+\label{tab:test_incrociato}
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Dynamic GD}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.1925\times10^{0}$\\
+2 & $1.0131\times10^{0}$\\
+3 & $8.5375\times10^{-1}$\\
+4 & $7.4106\times10^{-1}$\\
+5 & $6.1967\times10^{-1}$\\
+6 & $5.0270\times10^{-1}$\\
+7 & $4.3324\times10^{-1}$\\
+8 & $3.8973\times10^{-1}$\\
+9 & $3.1558\times10^{-1}$\\
+10 & $2.5451\times10^{-1}$\\
+11 & $2.1774\times10^{-1}$\\
+12 & $1.9163\times10^{-1}$\\
+13 & $1.5804\times10^{-1}$\\
+14 & $1.2980\times10^{-1}$\\
+15 & $1.1956\times10^{-1}$\\
+16 & $1.0807\times10^{-1}$\\
+17 & $9.1075\times10^{-2}$\\
+18 & $6.9281\times10^{-2}$\\
+19 & $5.8837\times10^{-2}$\\
+20 & $5.1543\times10^{-2}$\\
+21 & $4.2974\times10^{-2}$\\
+22 & $3.5601\times10^{-2}$\\
+23 & $2.9857\times10^{-2}$\\
+24 & $2.5128\times10^{-2}$\\
+25 & $2.1212\times10^{-2}$\\
+26 & $1.7954\times10^{-2}$\\
+27 & $1.5232\times10^{-2}$\\
+28 & $1.2950\times10^{-2}$\\
+29 & $1.1032\times10^{-2}$\\
+30 & $9.4161\times10^{-3}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Newton-CG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2661\times10^{0}$\\
+2 & $1.2661\times10^{0}$\\
+3 & $1.1493\times10^{0}$\\
+4 & $1.1493\times10^{0}$\\
+5 & $1.1493\times10^{0}$\\
+6 & $1.1493\times10^{0}$\\
+7 & $1.0340\times10^{0}$\\
+8 & $9.3915\times10^{-1}$\\
+9 & $8.2530\times10^{-1}$\\
+10 & $7.3866\times10^{-1}$\\
+11 & $7.3866\times10^{-1}$\\
+12 & $6.5807\times10^{-1}$\\
+13 & $6.5807\times10^{-1}$\\
+14 & $5.9670\times10^{-1}$\\
+15 & $5.9670\times10^{-1}$\\
+16 & $5.3249\times10^{-1}$\\
+17 & $4.7713\times10^{-1}$\\
+18 & $4.7713\times10^{-1}$\\
+19 & $4.2913\times10^{-1}$\\
+20 & $3.8109\times10^{-1}$\\
+21 & $3.8109\times10^{-1}$\\
+22 & $3.5167\times10^{-1}$\\
+23 & $3.5167\times10^{-1}$\\
+24 & $3.5167\times10^{-1}$\\
+25 & $3.5167\times10^{-1}$\\
+26 & $3.5167\times10^{-1}$\\
+27 & $3.5167\times10^{-1}$\\
+28 & $3.5167\times10^{-1}$\\
+29 & $3.5167\times10^{-1}$\\
+30 & $3.5167\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{Newton-CG $L_1$}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2573\times10^{0}$\\
+2 & $1.1244\times10^{0}$\\
+3 & $1.0125\times10^{0}$\\
+4 & $9.0888\times10^{-1}$\\
+5 & $7.9719\times10^{-1}$\\
+6 & $7.2330\times10^{-1}$\\
+7 & $6.4246\times10^{-1}$\\
+8 & $5.7882\times10^{-1}$\\
+9 & $4.9223\times10^{-1}$\\
+10 & $4.3017\times10^{-1}$\\
+11 & $3.7902\times10^{-1}$\\
+12 & $3.3589\times10^{-1}$\\
+13 & $3.0307\times10^{-1}$\\
+14 & $2.7238\times10^{-1}$\\
+15 & $2.3455\times10^{-1}$\\
+16 & $2.0858\times10^{-1}$\\
+17 & $1.8380\times10^{-1}$\\
+18 & $1.5958\times10^{-1}$\\
+19 & $1.4076\times10^{-1}$\\
+20 & $1.1881\times10^{-1}$\\
+21 & $9.3580\times10^{-2}$\\
+22 & $7.6246\times10^{-2}$\\
+23 & $5.9908\times10^{-2}$\\
+24 & $4.5124\times10^{-2}$\\
+25 & $3.1758\times10^{-2}$\\
+26 & $1.9901\times10^{-2}$\\
+27 & $1.0200\times10^{-2}$\\
+28 & $7.2958\times10^{-3}$\\
+29 & $1.3420\times10^{-2}$\\
+30 & $2.0877\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{RAPG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.2728\times10^{0}$\\
+2 & $6.0546\times10^{-1}$\\
+3 & $2.5920\times10^{-1}$\\
+4 & $1.3634\times10^{-1}$\\
+5 & $1.1460\times10^{-1}$\\
+6 & $1.1270\times10^{-1}$\\
+7 & $1.1240\times10^{-1}$\\
+8 & $1.1246\times10^{-1}$\\
+9 & $1.1240\times10^{-1}$\\
+10 & $1.1245\times10^{-1}$\\
+11 & $1.1242\times10^{-1}$\\
+12 & $1.1244\times10^{-1}$\\
+13 & $1.1242\times10^{-1}$\\
+14 & $1.1243\times10^{-1}$\\
+15 & $1.1243\times10^{-1}$\\
+16 & $1.1243\times10^{-1}$\\
+17 & $1.1243\times10^{-1}$\\
+18 & $1.1243\times10^{-1}$\\
+19 & $1.1243\times10^{-1}$\\
+20 & $1.1243\times10^{-1}$\\
+21 & $1.1243\times10^{-1}$\\
+22 & $1.1243\times10^{-1}$\\
+23 & $1.1243\times10^{-1}$\\
+24 & $1.1243\times10^{-1}$\\
+25 & $1.1243\times10^{-1}$\\
+26 & $1.1243\times10^{-1}$\\
+27 & $1.1243\times10^{-1}$\\
+28 & $1.1243\times10^{-1}$\\
+29 & $1.1243\times10^{-1}$\\
+30 & $1.1243\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.19\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 & $1.4142\times10^{0}$\\
+1 & $1.1925\times10^{0}$\\
+2 & $2.9864\times10^{-1}$\\
+3 & $3.6502\times10^{-2}$\\
+4 & $1.3817\times10^{-1}$\\
+5 & $1.1954\times10^{-1}$\\
+6 & $6.5108\times10^{-2}$\\
+7 & $4.4710\times10^{-2}$\\
+8 & $1.4514\times10^{-2}$\\
+9 & $2.9908\times10^{-3}$\\
+10 & $6.4737\times10^{-4}$\\
+11 & $4.6638\times10^{-4}$\\
+12 & $5.7492\times10^{-4}$\\
+13 & $6.0513\times10^{-4}$\\
+14 & $6.1389\times10^{-4}$\\
+15 & $6.1588\times10^{-4}$\\
+16 & $6.1644\times10^{-4}$\\
+\bottomrule
+\end{tabular}
+\end{subtable}
+\end{table}
+
+\paragraph{Osservazioni comparative.} Dai valori delle Tabelle~F.1--F.3 emergono le seguenti
 indicazioni. Sul problema ben condizionato tutti i metodi progrediscono
 lentamente (l'errore $\|w_k-w_*\|_2$ resta dell'ordine $10^{-1}$ dopo 30
 iterazioni): il più veloce è Dynamic GD ($\approx 10^{-1}$) insieme a
 Newton-CG~$L_1$, mentre Newton-CG è il più lento ($\approx 4\times10^{-1}$).
 Sul problema molto mal condizionato il quadro cambia drasticamente: Dynamic
 GD, Newton-CG~$L_1$ e RAPG restano bloccati sopra $10^{-1}$, mentre BB-CCV
-converge alla precisione macchina ($\|w-w_*\| \approx 10^{-14}$) in appena 10
+converge alla precisione macchina ($\|w-w_*\| \approx 10^{-14}$) in 11
 iterazioni. Il passo di Barzilai--Borwein stima la curvatura usando solo i
 gradienti già calcolati e non richiede la Hessiana: è particolarmente
 efficace proprio sui problemi mal condizionati, in accordo con

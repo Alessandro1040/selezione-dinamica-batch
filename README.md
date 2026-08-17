@@ -79,7 +79,7 @@ sorgente; per ripristinarla nel PDF basta rimuovere lo slicing
 `body.pages[1:]` nello script. Nella copia di lavoro usare
 `./compila_tesi.sh main`.
 
-## Note operative e stato corrente (16/08/2026)
+## Note operative e stato corrente (17/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -101,7 +101,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** Tre interventi collegati: (1) **Appendice F aggiornata** a
+- **Ultimo intervento.** **Appendice F: da screenshot a tabelle.** Le 15
+  schermate del pannello "Analisi" (5 metodi × 3 problemi) sono sostituite da 3
+  tabelle (Tabb. F.1–F.3), una per funzione obiettivo, ciascuna con i 5
+  algoritmi affiancati (subtable (a)–(e)); per ogni metodo la tabella riporta
+  $\|w_k-w_*\|_2$ a ogni iterazione $k$. I valori sono quelli del pannello
+  "Analisi", estratti dalle 15 PNG in `tesi/figure_test/` con OCR (framework
+  Vision di macOS, script `tesi/ocr_appendix_f.swift`; output OCR in
+  `tesi/ocr_f/`) e inseriti tramite `tesi/gen_tabelle_f.py` (nessuna
+  trascrizione manuale); i PNG restano in repo ma non sono più inclusi nel
+  documento. Ritocchi: intro dell'appendice e caption riscritte ("Le Figure" →
+  "Le Tabelle"), "Dalle schermate" → "Dai valori delle Tabelle~F.1--F.3",
+  "in appena 10 iterazioni" corretto in "in 11 iterazioni"
+  ($\|w-w_*\|=1.13\times10^{-14}$ a $k=11$). Nota: le tabelle BB-CCV hanno
+  meno righe (13/12/17) perché quei run si fermano prima. Documento da 88 a
+  **89 pp** (`main.pdf`, `tesi.pdf`); `tesi_finale.pdf` rigenerato.
+  `bozza.tex` non allineata (l'appendice non c'è).
+- **Intervento precedente.** Tre interventi collegati: (1) **Appendice F aggiornata** a
   5 metodi × 3 problemi (aggiunto **BB-CCV**): 15 screenshot del pannello
   "Analisi" (orari 22:55–23:51 del 16/08), raggruppati per funzione obiettivo
   (ben condizionata, molto mal condizionata, termine incrociato) nelle Figg.
