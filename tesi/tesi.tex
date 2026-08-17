@@ -1823,7 +1823,7 @@ Ora il metodo del gradiente coniugato è un metodo numerico per trovare \(x\) ch
 e per farlo cerca di minimizzare \(\|e^{k+1}\|_A^2\) cercando in \(e^k + \text{span}(p^k, p^{k-1})\); equivalentemente pone \(e^{k+1} \perp_A p^k\) ed \(e^{k+1} \perp_A p^{k-1}\), dalla prima condizione troviamo \(\alpha_k\) e dalla seconda \(\beta_k\) (Dimostrazione nell'appendice).
 \newpage
 
-\subsection{Metodo Newton-CG per Modelli con Regolarizzazione $L_1$}
+\subsection{Metodo Newton-CG per Modelli con Regolarizzazione $L_1$}\label{sec:l1}
 
 \subsubsection{Formulazione del Problema}
 
@@ -2893,6 +2893,137 @@ L'utente può:
 Il codice completo degli algoritmi eseguiti nell'applicazione è riportato
 nell'Appendice~\ref{app:listati}; le istruzioni per l'esecuzione e per
 l'avvio dell'applicazione sono nell'Appendice~\ref{app:istruzioni}.
+
+
+\subsection{Validazione su un benchmark reale: NSynth}\label{sec:nsynth}
+
+I test delle Sezioni precedenti usano i preset quadratici sintetici
+dell'applicazione. Per verificare i metodi su un problema di apprendimento
+reale, li applichiamo al riconoscimento della famiglia strumentale sul
+dataset \textbf{NSynth}~\cite{engel2017}: un benchmark di riferimento per la
+ricerca audio, contenente circa $306\,000$ note monofoniche di quattro
+secondi (16~kHz) generate da 1006 strumenti di biblioteche campione
+commerciali, ciascuna annotata con la famiglia strumentale di appartenenza.
+
+Per contenere il costo del download (lo split di addestramento completo
+occupa circa 24~GB), usiamo lo split \emph{validation} ($12\,678$ clip) come
+insieme di addestramento e lo split \emph{test} ($4\,096$ clip) come insieme
+di valutazione. Per costruzione del dataset gli strumenti dei due split sono
+disgiunti: il test misura quindi la generalizzazione a strumenti mai
+incontrati durante l'addestramento. Nelle due suddivisioni compaiono dieci
+famiglie strumentali: bass, keyboard, guitar, organ, brass, string, reed,
+mallet, flute e vocal.
+
+\textbf{Features audio.} Da ogni clip estraiamo lo spettrogramma di mel a
+40 bande (in decibel) e ne calcoliamo media e deviazione standard nel tempo,
+ottenendo un vettore di 80 features per clip, successivamente standardizzate
+sui dati di addestramento.
+
+\textbf{Problema di apprendimento.} Il compito è la classificazione
+multinomiale in dieci classi mediante regressione logistica (softmax). La
+perdita empirica è
+\[
+  J(w) = -\frac{1}{N}\sum_{i=1}^{N}\log p_{y_i}(x_i; w)
+         + \frac{\lambda}{2}\|W\|_F^2,
+\]
+con $p_c(x; w) \propto \exp(e_c^{\top} W x)$, dove $W \in \mathbb{R}^{10\times 81}$
+(80 features + bias) e $w = \mathrm{vec}(W)$. I metodi a gradiente e Newton
+usano la regolarizzazione $L_2$ con $\lambda = 10^{-4}$; il metodo
+Newton-CG~$L_1$ risolve la versione $L_1$-regolarizzata con $\nu = 10^{-3}$
+(Sezione~\ref{sec:l1}). I parametri degli algoritmi sono quelli della
+Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$, budget di
+300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è selezionata
+dinamicamente dalla CCV.
+
+I risultati sono riportati nella Tabella~\ref{tab:nsynth} e nelle
+Figure~\ref{fig:nsynth_acc}--\ref{fig:nsynth_batch}.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l r r r r r}
+\toprule
+Metodo & Acc.\ test & $\|\nabla J(w)\|_2$ & Batch finale & Tempo (s) & Coeff.\ non nulli \\
+\midrule
+Dynamic GD      & 57.8\% & $3.8\times10^{-2}$ & 12\,678 & 6.8 & --- \\
+Newton-CG       & 59.3\% & $1.8\times10^{-3}$ & 12\,678 & 10.7 & --- \\
+Newton-CG~$L_1$ & 58.5\% & $1.6\times10^{-3}$ & 12\,678 & 8.8 & 424/810 \\
+BB-CCV          & 58.7\% & $3.0\times10^{-2}$ & 12\,678 & 7.1 & --- \\
+\bottomrule
+\end{tabular}
+\caption{Risultati sul benchmark NSynth dopo 300 iterazioni (budget): i metodi
+sono eseguiti sui preset di features mel con i parametri della
+Sezione~\ref{sec:setup}. L'accuratezza di test misura la generalizzazione a
+strumenti non visti in addestramento; la predizione banale della classe
+maggioritaria vale il 20.8\%.}
+\label{tab:nsynth}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure_nsynth/nsynth_accuracy.pdf}
+\caption{Accuratezza sul test NSynth in funzione delle iterazioni $k$ per i
+quattro metodi. La linea tratteggiata indica la predizione banale della
+classe maggioritaria (20.8\%).}
+\label{fig:nsynth_acc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.8\textwidth]{figure_nsynth/nsynth_batch.pdf}
+\caption{Dimensione del batch $n_k$ in funzione delle iterazioni $k$ sui
+quattro metodi: la CCV aumenta il campione fino all'intero dataset man mano
+che il gradiente si riduce.}
+\label{fig:nsynth_batch}
+\end{figure}
+
+Dai risultati emergono quattro osservazioni. In primo luogo, tutti i metodi
+superano nettamente la predizione banale della classe maggioritaria (20.8\%)
+e raggiungono valori tra il 58\% e il 59\% di accuratezza sul test. In
+secondo luogo, Newton-CG è il metodo più accurato (59.3\%) e il più veloce:
+è il primo a superare il 55\% di accuratezza ($k = 31$ iterazioni, contro 55
+di BB-CCV, 65 di Dynamic GD e 118 di Newton-CG~$L_1$), e riduce la norma del
+gradiente di circa due ordini di grandezza rispetto ai metodi del primo
+ordine ($1.8\times10^{-3}$ contro $3$--$4\times10^{-2}$). In terzo luogo, la
+CCV funziona su dati reali: la dimensione del batch cresce da $n_0 = 64$
+fino all'intero campione ($N = 12\,678$) man mano che i metodi si avvicinano
+al minimo, perché il rapporto tra varianza dei gradienti per-esempio e
+$\|g\|^2$ aumenta quando il gradiente si riduce
+(Figura~\ref{fig:nsynth_batch}). In quarto luogo, la regolarizzazione $L_1$
+seleziona automaticamente le variabili rilevanti: con $\nu = 10^{-3}$ il
+metodo Newton-CG~$L_1$ azzera circa il 48\% dei coefficienti (424 su 810)
+con una perdita di accuratezza trascurabile (58.5\% contro 59.3\% del caso
+denso), individuando le bande di mel che contano per il riconoscimento dello
+strumento e rendendo il modello più facile da interpretare
+(Sezione~\ref{sec:l1}).
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{l r r r}
+\toprule
+$\nu$ & Acc.\ test & Coeff.\ non nulli & Sparsità \\
+\midrule
+$10^{-4}$      & 59.5\% & 695/810 & 14\% \\
+$10^{-3}$      & 58.5\% & 424/810 & 48\% \\
+$5\times10^{-3}$ & 53.7\% & 228/810 & 72\% \\
+\bottomrule
+\end{tabular}
+\caption{Trade-off tra accuratezza e sparsità per il metodo Newton-CG~$L_1$
+al variare della penalità $\nu$: aumentando $\nu$ la soluzione diventa più
+sparsa al prezzo di una minore accuratezza.}
+\label{tab:nsynth_l1}
+\end{table}
+
+Il trade-off tra sparsità e accuratezza al variare della penalità $\nu$ è
+riportato nella Tabella~\ref{tab:nsynth_l1}: all'aumentare di $\nu$ la
+soluzione diventa più sparsa, fino al 72\% di coefficienti nulli, al prezzo
+di una minore accuratezza. Il valore $\nu = 10^{-3}$ rappresenta un buon
+compromesso: circa metà dei coefficienti azzerati con una perdita inferiore
+a un punto percentuale.
+
 
 
 % ═══════════════════════════════════════════════════════════════════════════
@@ -4505,6 +4636,13 @@ J.~R. Shewchuk,
 ``An introduction to the conjugate gradient method without the agonizing
 pain,''
 Technical Report CMU-CS-94-125, Carnegie Mellon University, 1994.
+
+\bibitem{engel2017}
+J.~Engel, C.~Resnick, A.~Roberts, S.~Dieleman, M.~Norouzi, D.~Eck, and
+K.~Simonyan,
+``Neural audio synthesis of musical notes with WaveNet autoencoders,''
+in \textit{Proceedings of the 34th International Conference on Machine
+Learning (ICML)}, 2017.
 
 \end{thebibliography}
 

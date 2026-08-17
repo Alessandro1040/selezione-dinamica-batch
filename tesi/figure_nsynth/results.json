@@ -1,0 +1,56 @@
+{
+  "risultati": {
+    "Dynamic GD": {
+      "iterazioni": 300,
+      "loss_finale": 1.227383005036057,
+      "grad_norm_finale": 0.037658978882581746,
+      "batch_finale": 12678,
+      "batch_max": 12678,
+      "tempo_s": 5.871206045150757,
+      "accuracy_test": 0.578125,
+      "non_zero": null
+    },
+    "Newton-CG": {
+      "iterazioni": 300,
+      "loss_finale": 1.139754107348665,
+      "grad_norm_finale": 0.0018314161931070228,
+      "batch_finale": 12678,
+      "batch_max": 12678,
+      "tempo_s": 9.900781869888306,
+      "accuracy_test": 0.5927734375,
+      "non_zero": null
+    },
+    "Newton-CG L1": {
+      "iterazioni": 300,
+      "loss_finale": 1.3159996425084644,
+      "grad_norm_finale": 0.0015451033446591228,
+      "batch_finale": 12678,
+      "batch_max": 12678,
+      "tempo_s": 6.948721885681152,
+      "accuracy_test": 0.58544921875,
+      "non_zero": 424
+    },
+    "BB-CCV": {
+      "iterazioni": 300,
+      "loss_finale": 1.1936585286496315,
+      "grad_norm_finale": 0.030106995291716062,
+      "batch_finale": 12678,
+      "batch_max": 12678,
+      "tempo_s": 5.248448848724365,
+      "accuracy_test": 0.587158203125,
+      "non_zero": null
+    }
+  },
+  "famiglie": [
+    "bass",
+    "brass",
+    "flute",
+    "guitar",
+    "keyboard",
+    "mallet",
+    "organ",
+    "reed",
+    "string",
+    "vocal"
+  ]
+}

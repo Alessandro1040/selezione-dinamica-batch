@@ -101,7 +101,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **Sez. 6 allineata ai preset dell'app
+- **Ultimo intervento.** **Validazione su benchmark reale (NSynth).** Nuova
+  Sez. 6.5: i quattro metodi (Dynamic GD, Newton-CG, Newton-CG~$L_1$, BB-CCV)
+  sono validati sul dataset NSynth (riconoscimento famiglia strumentale, 10
+  classi) con logistic regression multinomiale su features mel (80D).
+  Addestramento = split validation NSynth (12 678 clip), valutazione = split
+  test (4096 clip; strumenti disgiunti per costruzione → generalizzazione a
+  strumenti mai visti). Risultati: accuratezza test 57.8–59.3% (Newton-CG il
+  migliore e il più veloce a superare il 55%, k=31); la CCV porta il batch da
+  64 a N (12678) man mano che il gradiente si riduce; la regolarizzazione $L_1$
+  (ν=1e-3) azzera il 48% dei coefficienti con perdita trascurabile (collegata
+  all'interpretabilità). Script in `tesi/nsynth/` (`features.py`,
+  `run_benchmark.py`), output in `tesi/figure_nsynth/`. I dati audio/features
+  NON sono in repo: per riprodurre, scaricare NSynth valid/test da
+  download.magenta.tensorflow.org, estrarre, eseguire `features.py` e
+  `run_benchmark.py`. Documento da 82 a **85 pp**.
+  `bozza.tex` non allineata.
+- **Intervento precedente.** **Sez. 6 allineata ai preset dell'app
   (`visualizzazione.html`).** Riscritto il Setup Sperimentale (6.1) sulle tre
   funzioni test dell'app: quadratica ben condizionata (κ≈1.1), molto mal
   condizionata (κ≈100) e con termine incrociato, con i parametri di default
