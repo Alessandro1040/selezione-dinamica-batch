@@ -26,6 +26,7 @@ Roma (A.A. 2025–2026).
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
     ├── figure/                    figure usate nella tesi (PDF/PNG)
     ├── conodiscesa2.jpeg          figura del cono di discesa
+    ├── nsynth/                    notebook Colab di riproduzione (NSynth, musica) e script
     ├── sim_exp.py                 suite completa di esperimenti (rigenera tabelle e figure)
     └── ... (script di supporto, frammenti di tabelle)
 ```
@@ -112,6 +113,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento.** **Nuovo Colab: raccomandazione musicale (Logistic
+  Matrix Factorization).** Aggiunto `tesi/nsynth/music_reco_riproduzione.ipynb`:
+  riproduzione di un nuovo esperimento applicativo (candidato per una futura
+  Sez. 6.6) sul problema della raccomandazione musicale con feedback implicito
+  (dataset **Last.fm HetRec 2011**, `user_artists.dat`: ascolti utente→artista).
+  Il problema è la regressione logistica pesata su **tutte** le N = n_u × n_i
+  coppie utente–artista (pesi di confidenza c_ui = 1 + α·r̂_ui, Hu et al. 2008
+  / Johnson 2014), fortemente convessa grazie alla regolarizzazione L2 → siamo
+  nelle ipotesi della tesi (Sez. 3.5). Il notebook esegue i **listati B.1–B.4
+  verbatim** (stesso codice dei Colab NSynth), valuta **Recall@10/NDCG@10**
+  con baseline popolarità, mostra le **predizioni dei 4 modelli** su un utente
+  esempio e salva `music_reco_results.json`/`music_reco_results.csv` e
+  `music_reco_curves.npz` per rigenerare le tabelle. Default: 250 utenti ×
+  200 artisti, K=8, MAX_ITER=200 (Colab ~10–20 min); fallback automatico su
+  dataset sintetico se il download fallisce. Nessun sorgente LaTeX toccato:
+  documento invariato a **96 pp**.
 - **Ultimo intervento.** **Figura 5.1 spostata e notebox senza sforo (pag. 14).**
   Il block diagram del Dynamic GD (schema CCV) è stato spostato alla **fine
   della Sezione 5.1, subito prima della 5.2** (come richiesto: "dopo la
