@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Genera le tabelle LaTeX dell'Appendice F a partire dai file OCR prodotti
-da ocr.swift (framework Vision di macOS).
+Genera le tabelle LaTeX della Sezione 6 (Risultati Numerici) a partire dai
+file OCR prodotti da ocr.swift (framework Vision di macOS). Le tabelle
+riportano ||w_k - w_*||_2 a ogni iterazione per i quattro algoritmi
+(Dynamic GD, Newton-CG, Newton-CG L1, BB-CCV); i file OCR dei metodi rimossi
+dal documento possono essere semplicemente omessi dalla cartella.
 
 Uso:
   python3 gen_tabelle_f.py <dir_ocr> <output_tex>
@@ -15,12 +18,11 @@ Formato file OCR:
 """
 import os, re, sys
 
-METHODS = ["dgd", "ncg", "ncgl1", "rapg", "bbccv"]
+METHODS = ["dgd", "ncg", "ncgl1", "bbccv"]
 METHOD_NAMES = {
     "dgd":   "Dynamic GD",
     "ncg":   "Newton-CG",
     "ncgl1": "Newton-CG $L_1$",
-    "rapg":  "RAPG",
     "bbccv": "BB-CCV",
 }
 
@@ -108,7 +110,7 @@ def main():
             data = data_by_method[m]
             body = "\n".join(f"{k} & ${latex_num(err)}$\\\\" for k, err in data)
             sub = (
-                "\\begin{subtable}{0.19\\textwidth}\n"
+                "\\begin{subtable}{0.24\\textwidth}\n"
                 "\\centering\n"
                 f"\\caption{{{METHOD_NAMES[m]}}}\n"
                 "\\begin{tabular}{@{}rl@{}}\n"
@@ -129,7 +131,7 @@ def main():
         out.append("\\renewcommand{\\arraystretch}{0.85}")
         out.append("\\setlength{\\tabcolsep}{3pt}")
         out.append(f"\\caption{{Errore $\\|w_k-w_*\\|_2$ a ogni iterazione sul problema "
-                   f"{desc}, per i cinque algoritmi. I valori sono quelli riportati "
+                   f"{desc}, per i quattro algoritmi. I valori sono quelli riportati "
                    f"dal pannello \\emph{{Analisi}} dell'applicazione "
                    f"(Sezione~\\ref{{sec:visualizzazione}}).}}")
         out.append(f"\\label{{{label}}}")

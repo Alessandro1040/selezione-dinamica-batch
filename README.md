@@ -101,7 +101,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **Appendice F: da screenshot a tabelle.** Le 15
+- **Ultimo intervento.** **RAPG rimosso dal documento.** Eliminate tutte le
+  tracce di RAPG dalla tesi: listato B.5, schema E.2 (RAPG) e l'Appendice F
+  (Test comparativi aggiuntivi) sono stati cancellati. Le tre tabelle
+  dell'errore ($\|w_k-w_*\|_2$ a ogni iterazione, **4 metodi**: Dynamic GD,
+  Newton-CG, Newton-CG~$L_1$, BB-CCV) sono state **spostate in Sez. 6.3**
+  (Risultati Numerici, Tabb. 6.3–6.5) con il paragrafo "Osservazioni
+  comparative" riscritto senza RAPG; l'Appendice E è rinominata "Schema
+  dell'algoritmo BB-CCV" (resta un solo schema) e ora precede direttamente la
+  bibliografia. Script aggiornati: `gen_tabelle_f.py` genera le tabelle a 4
+  metodi (subtable 0.24), rimossi i file OCR RAPG da `tesi/ocr_f/`.
+  Documento da 89 a **84 pp** (`main.pdf`, `tesi.pdf`, `tesi_finale.pdf`).
+  `bozza.tex` non allineata.
+- **Intervento precedente.** **Appendice F: da screenshot a tabelle.** Le 15
   schermate del pannello "Analisi" (5 metodi × 3 problemi) sono sostituite da 3
   tabelle (Tabb. F.1–F.3), una per funzione obiettivo, ciascuna con i 5
   algoritmi affiancati (subtable (a)–(e)); per ogni metodo la tabella riporta
