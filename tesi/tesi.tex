@@ -1830,8 +1830,9 @@ e per farlo cerca di minimizzare \(\|e^{k+1}\|_A^2\) cercando in \(e^k + \text{s
 Nei modelli di apprendimento statistico con un numero molto elevato di parametri,
 l'aggiunta di un termine di regolarizzazione $L_1$ è particolarmente vantaggiosa
 perché produce soluzioni sparse: molti coefficienti vengono
-automaticamente portati a zero, semplificando il modello e migliorandone
-l'interpretabilità.
+automaticamente portati a zero, individuando le variabili effettivamente
+rilevanti per la predizione e rendendo il modello risultante più semplice e
+più facile da interpretare.
 
 La funzione obiettivo \eqref{eq:empirical_risk} viene quindi modificata aggiungendo un termine di
 penalità sulla norma $L_1$ dei parametri:
@@ -2236,51 +2237,44 @@ completi sono riportati nell'Appendice~\ref{app:listati}.
 
 \subsection{Setup Sperimentale}\label{sec:setup}
 
-Gli esperimenti sono condotti in un ambiente di simulazione: le
-funzioni obiettivo e i dataset sono generati sinteticamente, seguendo la
-costruzione del ``dataset centrato'' descritta nella
-Sezione~\ref{sec:architettura}. In questo modo si può controllare esattamente
-la soluzione $w^*$ e la struttura del problema, e misurare l'errore finale
+Gli esperimenti sono condotti con l'applicazione web interattiva descritta
+nella Sezione~\ref{sec:architettura}: le funzioni obiettivo e i dataset sono
+i preset quadratici dell'applicazione, con la costruzione del ``dataset
+centrato'' descritta nella Sezione~\ref{sec:architettura}, che consente di
+controllare esattamente la soluzione $w^*$ e di misurare l'errore finale
 $\|w_k - w^*\|$ senza ambiguità.
 
-Le funzioni test utilizzate sono le seguenti.
+Le funzioni test utilizzate sono i seguenti preset quadratici
+dell'applicazione.
 
 \begin{itemize}
-  \item Quadratica (regressione lineare). La perdita è
-  $J(w) = \frac{1}{2N}\sum_{i=1}^{N}(x_i^T w - y_i)^2$, con $N = 1000$ esempi,
-  $m = 10$ variabili, dati $x_i$ generati da una gaussiana standard e
-  $y_i = x_i^T w_{\mathrm{true}} + \varepsilon_i$ con rumore gaussiano.
-  Il numero di condizionamento misurato è $\kappa \approx 1.4$.
-  \item Quadratica mal condizionata. Come sopra, ma con feature
-  correlate tra loro, in modo da ottenere $\kappa \approx 107$. Questo
-  problema è rappresentativo dei dataset reali, dove le caratteristiche sono
-  spesso ridondanti.
-  \item Rosenbrock. La funzione di Rosenbrock
-  $J(w) = \sum_{j=1}^{m-1}\bigl[100(w_{j+1}-w_j^2)^2 + (1-w_j)^2\bigr]$,
-  con minimo $w^* = (1,\dots,1)$, è usata come esempio di funzione non
-  quadratica con valle stretta e curvatura fortemente variabile. Come
-  discusso nella Sezione~\ref{sec:risultati}, i metodi del primo ordine
-  falliscono su questo problema, mentre Newton-CG converte rapidamente.
+  \item Quadratica ben condizionata ($\kappa \approx 1.1$):
+  $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.1\,w_1 w_2$ (preset ``Quadratica ben
+  condizionata ($\kappa \approx 1.1$)'').
+  \item Quadratica molto mal condizionata ($\kappa \approx 100$):
+  $J(w) = 100\,(w_1 - 1)^2 + (w_2 + 2)^2$ (preset ``Quadratica molto mal
+  condizionata ($\kappa \approx 100$)'').
+  \item Quadratica con termine incrociato:
+  $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.5\,(w_1 - 1)(w_2 + 2)$ (preset
+  ``Quadratica con termine incrociato'').
 \end{itemize}
 
-Per ogni problema test, la dimensione del dataset è $N = 1000$ e la
-dimensionalità è $m = 10$. Il punto iniziale è $w_0 = (2,\dots,2)$ e la
-tolleranza per il criterio di arresto $\|\nabla J(w_k)\|_2 < 10^{-6}$. Per il
-metodo dinamico sono stati testati i valori $\theta \in \{0.1, 0.5, 0.9\}$
-della tolleranza nella Condizione di Controllo della Varianza, con dimensione
-iniziale del batch $n_0 = 16$; per Newton-CG il rapporto di sottocampionamento
-dell'Hessiana è $R = 0.1$. Il confronto include il gradiente stocastico (SGD)
-con batch unitario e passo $1/(\lambda k)$, e il gradiente batch completo
-con passo $1/L$.
+L'applicazione offre anche il preset ``Quadratica mal condizionata
+($\kappa \approx 20$)'', non usato nei test riportati in questo capitolo.
 
-Tutti gli esperimenti sono stati eseguiti su un computer portatile con
-processore Apple Silicon (8 core) e 16~GB di RAM, in ambiente macOS, con
-Python~3.14, NumPy~2.4 e Matplotlib~3.11. Non è richiesto alcun acceleratore
-GPU. I tempi riportati sono tempi di esecuzione misurati su una singola
-esecuzione per ogni configurazione. Per garantire la riproducibilità esatta
-dei risultati, tutti gli esperimenti sono stati eseguiti con seme casuale
-fissato (seed $42$): a parità di codice, versione delle librerie e seme, i
-valori delle Tabelle~\ref{tab:6_1} e~\ref{tab:6_2} sono riproducibili.
+I test sono eseguiti con i parametri di default dell'applicazione:
+dimensione del dataset $N = 200$, punto iniziale $w_0 = (2,-3)$, seme
+casuale fissato (seed $42$), passo iniziale $\alpha = 0.1$, tolleranza della
+CCV $\theta = 0.5$, batch iniziale $n_0 = 5$ e un budget di 30 iterazioni; la
+convergenza è dichiarata quando $\|\nabla J(w_k)\|_2 < 10^{-6}$. Gli algoritmi
+confrontati sono i tre implementati nell'applicazione -- Dynamic GD,
+Newton-CG e Newton-CG~$L_1$ -- e il metodo BB-CCV descritto
+nell'Appendice~\ref{app:bbccv}, eseguito sugli stessi preset.
+
+Tutti i valori riportati in questo capitolo sono quelli mostrati dal pannello
+``Analisi'' dell'applicazione: selezionando il preset, l'algoritmo e i
+parametri sopra indicati e premendo il pulsante ``Ricalcola'' e poi
+``Analisi'', i risultati sono riproducibili esattamente a parità di seed.
 
 \subsection{Architettura Software}\label{sec:architettura}
 
@@ -2365,146 +2359,19 @@ compaiono solo nell'analisi teorica di complessità.
 \subsection{Risultati Numerici}\label{sec:risultati}
 
 Presentiamo i risultati numerici ottenuti nel setup descritto nella
-Sezione~\ref{sec:setup}. La Tabella~\ref{tab:6_1} confronta il metodo del
-gradiente a campione dinamico (Dynamic GD) con SGD e batch gradient descent
-(Batch GD) sui due problemi quadratici. La Tabella~\ref{tab:6_2} confronta
-Newton-CG con Dynamic GD.
+Sezione~\ref{sec:setup}, eseguendo gli algoritmi sui preset quadratici
+dell'applicazione web (Sezione~\ref{sec:visualizzazione}). Le
+Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} riportano la norma
+dell'errore $\|w_k - w_*\|_2$ a ogni iterazione $k$ per i quattro algoritmi
+-- Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
+(Appendice~\ref{app:bbccv}) -- sui tre problemi test: quadratico ben
+condizionato ($\kappa \approx 1.1$), molto mal condizionato
+($\kappa \approx 100$) e con termine incrociato, con i quattro algoritmi
+affiancati in ordine: (a)~Dynamic GD, (b)~Newton-CG, (c)~Newton-CG~$L_1$,
+(d)~BB-CCV. I valori sono quelli riportati dal pannello ``Analisi''
+dell'applicazione.
 
-\begin{table}[h]
-\centering
-\small
-\renewcommand{\arraystretch}{1.3}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{l l r r r r}
-\toprule
-Metodo & Parametro & Iterazioni &
-Tempo (s) & Errore & Max batch \\
-\midrule
-% Righe della Tabella 6.1 (columns: Metodo & Parametro & Iterazioni & Tempo & Errore & Max batch)
-\multicolumn{6}{l}{Quadratica\ ($\kappa \approx 1.4$)} \\ \hline
-  Dynamic GD & $\theta=0.1$ & 14 & 0.03 & $6.47\times10^{-7}$ & 1000 \\
-  Dynamic GD & $\theta=0.5$ & 18 & 0.02 & $6.34\times10^{-7}$ & 1000 \\
-  Dynamic GD & $\theta=0.9$ & 45 & 0.03 & $1.13\times10^{-6}$ & 1000 \\
-  SGD & $n=1$ & 300 & $<0.01$ & $4.45\times10^{-1}$ & 1 \\
-  Batch GD & $n=N$ & 14 & $<0.01$ & $1.46\times10^{-7}$ & 1000 \\
-\hline
-\multicolumn{6}{l}{Quadratica mal condizionata\ ($\kappa \approx 107$)} \\ \hline
-  Dynamic GD & $\theta=0.1$ & 300 & 12.82 & $2.66\times10^{0}$ & 1000 \\
-  Dynamic GD & $\theta=0.5$ & 300 & 7.33 & $3.09\times10^{-1}$ & 1000 \\
-  Dynamic GD & $\theta=0.9$ & 300 & 3.21 & $2.03\times10^{-1}$ & 992 \\
-  SGD & $n=1$ & 300 & $<0.01$ & $4.11\times10^{-1}$ & 1 \\
-  Batch GD & $n=N$ & 300 & $<0.01$ & $4.99\times10^{-2}$ & 1000 \\
-\bottomrule
-\end{tabular}
-\caption{Confronto tra Dynamic GD, SGD e Batch GD sui problemi quadratici.
-Per ogni configurazione sono riportate le iterazioni totali, il tempo di
-esecuzione, l'errore finale $\|w_k - w^*\|$ e la dimensione massima del batch
-raggiunta dal metodo dinamico. SGD non raggiunge la tolleranza
-$\|\nabla J\| < 10^{-6}$ entro il budget di 300 iterazioni.}
-\label{tab:6_1}
-\end{table}
-
-\begin{table}[h]
-\centering
-\small
-\renewcommand{\arraystretch}{1.3}
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{l l r r r r}
-\toprule
-Metodo & Parametro & Iter.\ est. &
-Iter.\ medie CG & Tempo (s) & Errore \\
-\midrule
-% Righe della Tabella 6.2 (columns: Metodo & Parametro & Iter. est. & Iter. medie CG & Tempo & Errore)
-\multicolumn{6}{l}{Quadratica\ ($\kappa \approx 1.4$)} \\ \hline
-  Newton-CG & $R=0.1$ & 18 & 1.1 & 0.03 & $5.53\times10^{-7}$ \\
-  Dynamic GD & $\theta=0.5$ & 18 & --- & 0.02 & $6.34\times10^{-7}$ \\
-\hline
-\multicolumn{6}{l}{Quadratica mal condizionata\ ($\kappa \approx 107$)} \\ \hline
-  Newton-CG & $R=0.1$ & 66 & 1.9 & 0.24 & $1.95\times10^{-5}$ \\
-  Dynamic GD & $\theta=0.5$ & 300 & --- & 7.33 & $3.09\times10^{-1}$ \\
-\bottomrule
-\end{tabular}
-\caption{Confronto tra Newton-CG e gradiente a campione dinamico. Sono
-riportate le iterazioni esterne, le iterazioni medie del gradiente coniugato
-interno e l'errore finale. Newton-CG riduce drasticamente il numero di
-iterazioni sul problema mal condizionato.}
-\label{tab:6_2}
-\end{table}
-
-
-
-Le figure seguenti illustrano il comportamento qualitativo del metodo. La
-Figura~\ref{fig:convergenza} mostra la convergenza del gradiente a campione
-dinamico sul problema quadratico ben condizionato per i tre valori di
-$\theta$: come previsto dalla teoria, l'errore $J(w_k) - J(w_*)$ decresce
-linearmente (scala logaritmica), con una pendenza che dipende da $\theta$.
-La Figura~\ref{fig:bar} confronta il costo totale in valutazioni di gradienti
-individuali entro un budget di 300 iterazioni: Dynamic GD usa molte meno
-valutazioni di Batch GD (che valuta l'intero dataset a ogni iterazione) e, a
-differenza di SGD, raggiunge la precisione richiesta.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.78\textwidth]{figure/convergenza.pdf}
-\caption{Convergenza $J(w_k) - J(w_*)$ in scala logaritmica del metodo del
-gradiente a campione dinamico sul problema quadratico ($\kappa \approx 1.1$)
-per $\theta \in \{0.1, 0.5, 0.9\}$.}
-\label{fig:convergenza}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.78\textwidth]{figure/bar_comparison.pdf}
-\caption{Numero totale di valutazioni di gradienti individuali entro un
-budget di 300 iterazioni sul problema quadratico ben condizionato. SGD non
-raggiunge la tolleranza $\|\nabla J\| < 10^{-6}$ entro il budget.}
-\label{fig:bar}
-\end{figure}
-
-Dalla Tabella~\ref{tab:6_1} emergono tre osservazioni. In primo luogo, sul
-problema ben condizionato il metodo dinamico converge in poche iterazioni
-(14--45) con un errore dell'ordine di $10^{-6}$-$10^{-7}$, a fronte di un
-costo per iterazione che cresce progressivamente: la CCV aumenta il batch
-fino alla dimensione massima $N$ proprio quando il gradiente si avvicina a
-zero, concentrando la risorsa computazionale dove serve precisione. In
-secondo luogo, SGD con passo $1/(\lambda k)$ non riesce a scendere al di
-sotto di un errore dell'ordine di $10^{-1}$: il rumore stocastico limita la
-precisione, come previsto dalla teoria. In terzo luogo, sul problema mal
-condizionato tutti i metodi del primo ordine degradano sensibilmente:
-Dynamic GD e Batch GD richiedono le 300 iterazioni del budget senza
-raggiungere la tolleranza, a causa del numero di condizionamento elevato.
-
-La Tabella~\ref{tab:6_2} mostra il vantaggio dell'informazione di curvatura:
-sul problema mal condizionato Newton-CG converge in 66 iterazioni esterne
-(con in media meno di 2 iterazioni del CG interno per iterazione) e raggiunge
-un errore di $1.95\times10^{-5}$, mentre Dynamic GD non converge nel budget
-disponibile. Il criterio di arresto adattivo del CG evita iterazioni interne
-inutili: le iterazioni medie del CG sono molto basse, poiché il CG viene
-fermato quando il residuo è confrontabile con l'errore di approssimazione
-dell'Hessiana.
-
-Infine, il problema di Rosenbrock (non quadratico, con valle stretta)
-conferma qualitativamente le conclusioni: i metodi del primo ordine, incluso
-Dynamic GD con la strategia dinamica, restano intrappolati nella valle e non
-raggiungono il minimo in 300 iterazioni, mentre Newton-CG sfrutta la
-curvatura dell'Hessiana (esatta, in questo caso) e scende rapidamente lungo
-la valle. Questi risultati motivano l'uso di metodi di secondo ordine per
-problemi difficili, in accordo con l'analisi teorica del
-Capitolo~\ref{sec:algoritmi}.
-
-Infine, per completare il confronto tra i metodi dell'applicazione,
-riportiamo i test comparativi eseguiti con il pannello ``Analisi''
-dell'applicazione interattiva (Sezione~\ref{sec:visualizzazione}) su Dynamic
-GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV (Appendice~\ref{app:bbccv}). Per ogni
-iterazione $k$ il pannello riporta la norma dell'errore $\|w_k-w_*\|_2$. I
-test sono stati eseguiti sulle tre funzioni obiettivo quadratiche
-dell'applicazione: ben condizionata ($\kappa \approx 1.1$), molto mal
-condizionata ($\kappa \approx 100$) e con termine incrociato. Le
-Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} riportano
-$\|w_k-w_*\|_2$ a ogni iterazione, con i quattro algoritmi affiancati in
-ordine: (a)~Dynamic GD, (b)~Newton-CG, (c)~Newton-CG~$L_1$, (d)~BB-CCV.
-
-% Tabella 6.3 - quadratico ben condizionato ($\kappa \approx 1.1$)
+% Tabella 6.1 - quadratico ben condizionato ($\kappa \approx 1.1$)
 \begin{table}[H]
 \centering
 \footnotesize
@@ -2660,7 +2527,7 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{subtable}
 \end{table}
 
-% Tabella 6.4 - quadratico molto mal condizionato ($\kappa \approx 100$)
+% Tabella 6.2 - quadratico molto mal condizionato ($\kappa \approx 100$)
 \begin{table}[H]
 \centering
 \footnotesize
@@ -2815,7 +2682,7 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{subtable}
 \end{table}
 
-% Tabella 6.5 - quadratico con termine incrociato
+% Tabella 6.3 - quadratico con termine incrociato
 \begin{table}[H]
 \centering
 \footnotesize

@@ -101,7 +101,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
-- **Ultimo intervento.** **RAPG rimosso dal documento.** Eliminate tutte le
+- **Ultimo intervento.** **Sez. 6 allineata ai preset dell'app
+  (`visualizzazione.html`).** Riscritto il Setup Sperimentale (6.1) sulle tre
+  funzioni test dell'app: quadratica ben condizionata (κ≈1.1), molto mal
+  condizionata (κ≈100) e con termine incrociato, con i parametri di default
+  (N=200, w0=(2,-3), seed 42, α=0.1, θ=0.5, n0=5, 30 iterazioni, toll. 1e-6).
+  Eliminati dal documento i contenuti NON riproducibili con l'app: le tabelle
+  6.1/6.2 (confronti con SGD/Batch GD da `sim_exp.py`, κ≈1.4/107), le figure
+  6.1/6.2 (convergenza/bar) e il problema di Rosenbrock con le relative
+  discussioni. Le tabelle dell'errore sono ora le Tabb. 6.1–6.3 (4 metodi) e
+  riportano i valori del pannello "Analisi" dell'app. Sez. 5.3.1: frase
+  sull'interpretabilità resa esplicita. Documento da 84 a **82 pp**.
+  `bozza.tex` non allineata.
+- **Intervento precedente.** **RAPG rimosso dal documento.** Eliminate tutte le
   tracce di RAPG dalla tesi: listato B.5, schema E.2 (RAPG) e l'Appendice F
   (Test comparativi aggiuntivi) sono stati cancellati. Le tre tabelle
   dell'errore ($\|w_k-w_*\|_2$ a ogni iterazione, **4 metodi**: Dynamic GD,
