@@ -73,11 +73,10 @@ cd tesi
 ```
 
 `tesi_finale.pdf` è composto da `frontespizio.pdf` (sola pag. 1 = frontespizio;
-la pagina del verso non è generata) più `tesi.pdf` **saltando** la vecchia
-copertina custom (pag. 1 di `tesi.pdf`). La copertina custom resta nel
-sorgente; per ripristinarla nel PDF basta rimuovere lo slicing
-`body.pages[1:]` nello script. Nella copia di lavoro (Desktop) usare
-`./compila_tesi.sh tesi`.
+la pagina del verso non è generata) più `tesi.pdf` **saltando** la pagina 1 di
+`tesi.pdf` (una copertina in stile sapthesis, uniforme al frontespizio; per
+ripristinarla nel PDF basta rimuovere lo slicing `body.pages[1:]` nello
+script). Nella copia di lavoro (Desktop) usare `./compila_tesi.sh tesi`.
 
 ## Note operative e stato corrente (17/08/2026)
 
@@ -105,6 +104,33 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento.** **Copertina di `tesi.tex` uniformata al frontespizio
+  sapthesis.** Rimossa la vecchia copertina blu custom (`\pagecolor{coverblue}`,
+  testo bianco, figura TikZ del cono di discesa e filetto bianco) e sostituita
+  con una copertina in stile frontespizio sapthesis: sfondo bianco, font
+  sans-serif (`\sffamily`), logo Sapienza in alto (`sapienzalogo.pdf`, incluso
+  nella classe sapthesis), titolo `\LARGE` e sottotitolo `\large` nel colore
+  bordeaux sapthesis (nuovo `\definecolor{sapred}`, stesso valore di
+  sapthesis.cls), blocco università/corso + autore e Anno Accademico in basso,
+  disposti come nel frontespizio (parbox indentata, anno in fondo con
+  `\vfill`). Testo della copertina invariato parola per parola (titolo
+  "Selezione Dinamica della Dimensione del Campione in Metodi di Ottimizzazione
+  per il Machine Learning", sottotitolo "Algoritmi adattivi a campione dinamico
+  e sottocampionamento dell'Hessiana per problemi su larga scala", autore +
+  `\today`, corso, Anno Accademico 2025--2026): cambiati solo font e
+  impaginazione. Sillabazione disattivata nel blocco titolo (`\hyphenpenalty`
+  /`\exhyphenpenalty`); sottotitolo spezzato a capo a "dinamico e"; indentazione
+  delle parbox ridotta a 0.3cm perché il titolo `\LARGE` non entrava con
+  l'indentazione sapthesis standard (1.72cm) nella geometria `article`
+  (textwidth 15cm). Allineata anche `bozza.tex` (stessa copertina; aggiunto
+  `\usepackage{graphicx}` per il logo). `frontespizio.tex`/`frontespizio.pdf`
+  invariati (restano la prima pagina di `tesi_finale.pdf`). Documento invariato
+  a **90 pp** (`tesi.pdf`, `tesi_finale.pdf`); `bozza.pdf` 56 pp. Nota: il
+  `tesi.pdf` committato era rimasto non sincronizzato (conteneva ancora le
+  etichette in grassetto dell'Appendice E rimosse nel commit 23ff1e6); questa
+  sincronizzazione lo riporta coerente con il sorgente (i `\textbf` residui
+  sono solo i 6 della Sez. 6.5).
+
 - **Ultimo intervento.** **Appendice E: eliminate le etichette di paragrafo in
   grassetto.** Rimosse del tutto (non solo sgrassate) le 9 etichette
   `\textbf{...}` all'inizio dei paragrafi della sottosezione E.1
