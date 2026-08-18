@@ -113,6 +113,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: figure 6.5--6.11 riscritte
+  come schemi a livello di funzione.** Le 5 figure precedenti (pipeline,
+  architettura, gradiente, varianza CCV, Hessiano--vettore) sono state
+  sostituite da 7 figure "a livello di funzione", con la *firma* (ingressi
+  $\to$ uscite), le formule esatte implementate e i nomi identici al notebook
+  `nsynth_net_riproduzione`: 6.5 mappa delle funzioni (estrai_features ->
+  RobustScaler -> forward -> loss_batch/grad_batch/ccv_stats/hess_batch ->
+  algoritmi B.1--B.4 -> acc_test); 6.6 estrai_features (clip audio -> vettore
+  $x_i\in\mathbb{R}^{780}$, 6 famiglie di descrittori con formule e
+  concatenazione); 6.7 forward; 6.8 loss_batch; 6.9 grad_batch; 6.10 ccv_stats;
+  6.11 hess_batch. Obiettivo: un programmatore che non conosce l'audio e un
+  matematico devono capire come si legano le funzioni leggendo solo gli schemi.
+  Layout compatti (righe/colonne, non più catene verticali che sforavano):
+  nessun `Overfull \vbox`, nessun `Float too large`. Prosa della sottosezione
+  adattata. `bozza.tex` non allineata (la sezione non c'è). Documento da 92 a
+  **95 pp** (`tesi.pdf`, `tesi_finale.pdf`).
 - **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: corrette le 5 figure TikZ
   della rete neurale (Figg. 6.5--6.9), che erano enormi e sforavano la
   pagina.** Causa: `\resizebox{0.92\textwidth}{!}` scalava a tutta larghezza
