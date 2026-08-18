@@ -20,7 +20,7 @@ Roma (A.A. 2025–2026).
     ├── tesi.pdf                   PDF compilato del documento di lavoro
     ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
     ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
-    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (90 pp)
+    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (96 pp)
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -113,6 +113,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Appendice E: riscritta la spiegazione
+  del passo di Barzilai--Borwein (Sottosezione E.1).** Nuovo testo al posto
+  della versione precedente: espansione di Taylor del gradiente (E.1),
+  definizioni di $s_k, y_k$ (E.2), relazione fondamentale
+  $y_k \approx \nabla^2 J(w_k)\, s_k$ (E.3), equazione della secante con
+  l'approssimazione scalare $B = \alpha^{-1} I$ (non più numerata), le due
+  formule dei minimi quadrati $\alpha_k^{(1)}$ (E.4) e $\alpha_k^{(2)}$ (E.5),
+  il confronto tra le due formule ("la seconda è più aggressiva") e la
+  motivazione della salvaguardia $\mathrm{clip}(\cdot, \alpha/20, 5\alpha)$;
+  paragrafo finale ("Nella pratica...") spostato dopo la Tabella E.1 (ordine
+  del nuovo testo). Rimossi l'enumerate delle 4 limitazioni e i riferimenti
+  testuali alla Figura~`fig:bbccv` in questa sottosezione (la figura resta
+  nello schema E.2). Numerazione equazioni da E.1--E.6 a E.1--E.5: verificato
+  che nessun altro punto del documento cita le equazioni E.4--E.6.
+  `bozza.tex` non allineata (l'appendice non c'è). Documento da 98 a
+  **96 pp** (`tesi.pdf`, `tesi_finale.pdf`).
+
 - **Ultimo intervento (18/08/2026).** **Nuovo Colab: NSynth con rete neurale
   (esplorativo, oltre le ipotesi convesse).** Aggiunto
   `tesi/nsynth/nsynth_net_riproduzione.ipynb`: gli stessi algoritmi dei listati
