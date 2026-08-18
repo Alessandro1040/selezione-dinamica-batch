@@ -3096,6 +3096,23 @@ disponibili nel repository GitHub
 (\url{https://github.com/Alessandro1040/selezione-dinamica-batch}), nella
 cartella \texttt{tesi/nsynth/}.
 
+\textbf{Precisione sui valori numerici.} I dati riportati in questa sezione
+(accuratezze, norme del gradiente, dimensioni del batch e tempi) si
+riferiscono alla run di riferimento eseguita sul computer dell'autore, non a
+un'esecuzione in Colab. I notebook Colab riproducono lo stesso codice con lo
+stesso seme casuale (seed 42), ma la riproducibilità non è esatta: gli
+algoritmi sono stocastici e i calcoli in virgola mobile dipendono
+dall'ambiente di esecuzione (versione di NumPy e libreria BLAS sottostante,
+OpenBLAS in Colab contro Accelerate su macOS), per cui piccole differenze di
+arrotondamento, accumulate sulle 300 iterazioni, producono valori finali
+leggermente diversi. Ad esempio, sul riconoscimento della famiglia
+strumentale l'accuratezza di BB-CCV è $58.5\%$ nella run locale e $58.8\%$ in
+Colab, e il numero di coefficienti non nulli di Newton-CG~$L_1$ è 424 contro
+404, perché l'azzeramento dei coefficienti dipende dal confronto del gradiente
+con la soglia $\nu$. Le differenze sono dell'ordine di qualche decimo di punto
+percentuale e non cambiano le conclusioni; i tempi di esecuzione in Colab sono
+invece molto più lunghi (minuti, contro pochi secondi sulla macchina locale).
+
 
 
 
