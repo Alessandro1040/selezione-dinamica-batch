@@ -192,7 +192,13 @@ Da tenere presente nelle sessioni di lavoro successive:
   per dimensione). Generate anche le **figure dell'esperimento** con le celle
   7–8 (`nsynth_accuracy_net.png/pdf`, `nsynth_batch_net.png/pdf` + 
   `results_net.json`) in **`tesi/figure_nsynth_net/`** (nuova cartella,
-  in repo). Nessun sorgente LaTeX toccato.
+  in repo). Nuovo **`tesi/nsynth/nsynth_net_test.ipynb`**: Colab per testare i
+  4 modelli addestrati su una **clip reale di uno strumento** (upload di
+  `pesi_net.npz` + `scaler_net.npz`; lo scaler, RobustScaler 5–95 del training,
+  è salvato in repo come `tesi/nsynth/scaler_net.npz`, i pesi restano in locale
+  per dimensione). Validato localmente: accuratezze sul test set identiche
+  (96.9 / 99.2 / 97.3 / 96.2%) e predizioni corrette su clip reali. Nessun
+  sorgente LaTeX toccato.
 - **Ultimo intervento (18/08/2026).** **Nuovo Colab: NSynth con rete neurale
   (esplorativo, oltre le ipotesi convesse).** Aggiunto
   `tesi/nsynth/nsynth_net_riproduzione.ipynb`: gli stessi algoritmi dei listati
