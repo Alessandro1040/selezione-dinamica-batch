@@ -113,6 +113,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: figure 6.5--6.11 distanziate
+  per eliminare le sovrapposizioni tra i box.** Le 7 figure a livello di
+  funzione (6.5--6.11) avevano i box dei nodi che si toccavano/sovrapponevano
+  (es. le righe a 3 box delle Figg. 6.8 e 6.11 con centro distante 5.4~cm ma
+  larghezza 5.55~cm). Coordinate e `text width` riviste: 6.5 mappa funzioni
+  (X da $-8$ a $8$, righe a y~5.5/0/--3.5/--6.5, io/box 3.8~cm, fcn 3.4~cm);
+  6.6 estrai\_features (y 8.5, 6.0, 2.8, --2.8, --6.8, --9.5; x $-8,0,8$);
+  6.7 forward (`node distance` 1.2/2.0, box parametri a 2.0~cm); 6.8 loss\_batch
+  (riga fwd/sm/ce a $x=\pm6$, firma y~4.5); 6.9 grad\_batch (catena verticale
+  distanziata, strati a $\pm7$); 6.10 ccv\_stats (nodi a $x=\pm4$);
+  6.11 hess\_batch (riga f/hvp/eq a $x=\pm6$). Verificato con analisi geometrica
+  delle bounding box: nessuna sovrapposizione residua; compilazione senza
+  errori, nessun `Overfull \vbox`, nessun `Float too large`. Documento invariato
+  a **95 pp** (`tesi.pdf`, `tesi_finale.pdf`). `bozza.tex` non toccata.
 - **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: figure 6.5--6.11 riscritte
   come schemi a livello di funzione.** Le 5 figure precedenti (pipeline,
   architettura, gradiente, varianza CCV, Hessiano--vettore) sono state
