@@ -113,6 +113,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Nuovo Colab: NSynth con rete neurale
+  (esplorativo, oltre le ipotesi convesse).** Aggiunto
+  `tesi/nsynth/nsynth_net_riproduzione.ipynb`: gli stessi algoritmi dei listati
+  B.1–B.4 applicati a una rete a due strati (256–128, tanh) al posto della
+  regressione logistica della Sez. 6.5. È uno **studio empirico fuori dalle
+  ipotesi** della tesi (loss non convessa): da usare eventualmente come nuova
+  sottosezione esplorativa, NON come sostituzione della Sez. 6.5. Rispetto al
+  codice originale (che si bloccava su Colab per i loop per-esempio con
+  autograd su D≈234k), le funzioni `loss_i`/`grad_i`/`hessvec_i` sono sostituite
+  dalle versioni **batch matriciali** `loss_batch`/`grad_batch`/`hess_batch`,
+  matematicamente equivalenti (cella 3b le verifica numericamente contro
+  autograd: errori ~1e-15) ma senza loop Python. CCV fedele al listato B.1
+  (varianza per-esempio esatta via `Σ‖g_i‖²` a blocchi, NON split-half);
+  Newton-CG con `gamma=0` (la varianza per-esempio degli Hv è proibitiva).
+  **α=1.0** (valore della tesi): con α=0.1 la line search di Wolfe del Dynamic
+  GD non trovava passi (step=0). Validato su dati sintetici: 4/4 metodi
+  apprendono (99–100% su classi separabili). Tempi Colab: estrazione features
+  15–25 min; esecuzione ~20–60 min per metodo con MAX_ITER=400, MAXCG=30.
+  Nessun sorgente LaTeX toccato (documento invariato a 91 pp).
 - **Ultimo intervento (18/08/2026).** **Ripristinato il flusso a due documenti
   per `tesi_finale.pdf`.** `compila_tesi.sh` torna alla versione "merge pypdf"
   del periodo pre-`d54e1d1`: compila `frontespizio.tex` (sapthesis, 1 p) +
