@@ -14,13 +14,13 @@ Roma (A.A. 2025–2026).
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 └── tesi/                          sorgenti LaTeX e PDF della tesi
-    ├── tesi_sapthesis.tex         documento UNICO in classe sapthesis (PDF definitivo)
-    ├── tesi_sapthesis.pdf         PDF compilato del documento sapthesis (110 pp)
+    ├── tesi_sapthesis.tex         documento unico sapthesis (riferimento storico)
+    ├── tesi_sapthesis.pdf         PDF compilato del documento unico (96 pp, storico)
     ├── tesi.tex                   documento di lavoro (article, con copertina)
     ├── tesi.pdf                   PDF compilato del documento di lavoro
     ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
-    ├── compila_tesi.sh            compila tesi_sapthesis.tex -> tesi_finale.pdf
-    ├── tesi_finale.pdf            PDF DEFINITIVO: documento unico sapthesis (110 pp)
+    ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
+    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (90 pp)
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -67,23 +67,23 @@ cd tesi
 latexmk -pdf -shell-escape tesi.tex    # serve pygments per i listati minted
 ```
 
-**PDF definitivo** (documento unico in classe sapthesis, frontespizio
-istituzionale come prima pagina):
+**PDF definitivo** (frontespizio istituzionale sapthesis come prima pagina,
+seguito dal documento senza copertina):
 
 ```bash
 cd tesi
-./compila_tesi.sh    # compila tesi_sapthesis.tex -> tesi_finale.pdf
+./compila_tesi.sh    # frontespizio.tex + tesi.tex (merge pypdf) -> tesi_finale.pdf
 ```
 
-`tesi_finale.pdf` è il PDF definitivo: **documento unico** in classe
-`sapthesis` (base `book`) che contiene il frontespizio istituzionale
-(`\maketitle`) come pagina 1, poi Ringraziamenti, Abstract, Indice, i 7
-capitoli, le appendici A–E e la bibliografia. Non c'è più un merge di due
-documenti: il vecchio `frontespizio.tex` resta solo come riferimento storico.
-`tesi.tex` (article) resta come documento di lavoro; `bozza.tex`/`bozza.pdf`
+`tesi_finale.pdf` è il PDF definitivo: **frontespizio istituzionale**
+(`frontespizio.tex`, sapthesis) come prima pagina + il documento di lavoro
+`tesi.tex` (article) senza la copertina, uniti con un **merge pypdf** (i due
+pezzi sono documenti separati). `tesi_sapthesis.tex`/`tesi_sapthesis.pdf`
+(il periodo in cui il PDF definitivo era un documento unico in classe
+`sapthesis`) restano in repo come riferimento storico. `bozza.tex`/`bozza.pdf`
 sono la versione bozza.
 
-## Note operative e stato corrente (17/08/2026)
+## Note operative e stato corrente (18/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -91,13 +91,13 @@ Da tenere presente nelle sessioni di lavoro successive:
   (NON è un clone git):
   `/Users/alessandrolocurcio/Desktop/Selezione Dinamica della Dimensione del
   Campione in Metodi di Ottimizzazione per il Machine Learning/`. Le modifiche
-  si fanno in `tesi/tesi.tex` lì (documento di lavoro, article) e/o in
-  `tesi/tesi_sapthesis.tex` (documento unico sapthesis = PDF definitivo);
-  i PDF si rigenerano sul posto e prima del commit i file vanno copiati nella
-  repo (`cp <Desktop>/.../tesi/<file> tesi/<file>`), verificando con `md5`
-  che copia Desktop e repo coincidano. Attenzione: quando il contenuto cambia,
-  va aggiornato sia `tesi.tex` sia `tesi_sapthesis.tex` (stesso testo,
-  struttura diversa). La vecchia copia
+  si fanno in `tesi/tesi.tex` lì (documento di lavoro, article); il PDF
+  definitivo si rigenera con `./compila_tesi.sh` (frontespizio + `tesi.tex`,
+  merge pypdf -> `tesi_finale.pdf`). `tesi_sapthesis.tex` resta solo come
+  riferimento storico (non si aggiorna più). I PDF si rigenerano sul posto e
+  prima del commit i file vanno copiati nella repo
+  (`cp <Desktop>/.../tesi/<file> tesi/<file>`), verificando con `md5` che
+  copia Desktop e repo coincidano. La vecchia copia
   `/Users/alessandrolocurcio/Downloads/tesi/main.tex` resta solo come
   riferimento storico.
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
@@ -113,6 +113,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Ripristinato il flusso a due documenti
+  per `tesi_finale.pdf`.** `compila_tesi.sh` torna alla versione "merge pypdf"
+  del periodo pre-`d54e1d1`: compila `frontespizio.tex` (sapthesis, 1 p) +
+  `tesi.tex` (article) e unisce frontespizio + documento senza copertina ->
+  `tesi_finale.pdf` (**90 pp**). Il PDF rigenerato è **byte-identico** al
+  `tesi_finale.pdf` del commit `fa28586` (l'ultimo prodotto col vecchio flusso,
+  md5 `29cce8c3…`), perché `tesi.tex` non è cambiato da allora.
+  `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (96 pp) restano in repo come
+  riferimento storico, non più usati per il PDF definitivo (README aggiornato:
+  struttura, sezione PDF definitivo, nota "File in lavorazione").
 - **Ultimo intervento.** **Nuovo Colab: raccomandazione musicale (Logistic
   Matrix Factorization).** Aggiunto `tesi/nsynth/music_reco_riproduzione.ipynb`:
   riproduzione di un nuovo esperimento applicativo (candidato per una futura
