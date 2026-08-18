@@ -20,7 +20,7 @@ Roma (A.A. 2025–2026).
     ├── tesi.pdf                   PDF compilato del documento di lavoro
     ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
     ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
-    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (96 pp)
+    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (92 pp)
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -113,6 +113,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: corrette le 5 figure TikZ
+  della rete neurale (Figg. 6.5--6.9), che erano enormi e sforavano la
+  pagina.** Causa: `\resizebox{0.92\textwidth}{!}` scalava a tutta larghezza
+  diagrammi stretti e alti, ingrandendoli fino a ~38~cm di altezza (grad,
+  ccv, hess finivano tagliati sotto il bordo pagina, sulle pp. 60/62/64).
+  Fix: (1) pipeline (6.5) ristrutturata a *flusso unico* data->feat->net->
+  algs->eval: eliminata la freccia `(feat) -| (net)` che si sovrapponeva al
+  nodo `algs`; (2) gradiente (6.7) e varianza CCV (6.8) ridisegnate a **due
+  colonne** (serpentina 3+3 e 3+2); (3) Hessiano--vettore (6.9) a griglia
+  **2$\times$2**. Larghezze ridotte: pipeline 0.78, grad/ccv 0.62, hess 0.58
+  di `\textwidth`. Architettura (6.6) invariata. Verificato: nessuna pagina
+  ha più contenuto sotto il footer e ogni figura sta su una sola pagina.
+  `bozza.tex` non allineata (la sezione non c'è). Documento da 96 a **92 pp**
+  (`tesi.pdf`, `tesi_finale.pdf`).
+
 - **Ultimo intervento (18/08/2026).** **Appendice E: riscritta la spiegazione
   del passo di Barzilai--Borwein (Sottosezione E.1).** Nuovo testo al posto
   della versione precedente: espansione di Taylor del gradiente (E.1),

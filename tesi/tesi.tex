@@ -3133,35 +3133,32 @@ sperimentale.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.95\textwidth}{!}{%
+\resizebox{0.78\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.8cm and 2.0cm,
+  node distance=1.0cm and 1.4cm,
   every node/.style={font=\small},
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.1cm,
-    inner sep=4pt
+    text width=3.6cm, align=center, minimum height=1.1cm,
+    inner sep=5pt
   },
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.2cm, align=center, minimum height=1.0cm,
-    inner sep=4pt
+    text width=3.4cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
-  % Colonna sinistra: preparazione dati
+  % Flusso unico: dati -> feature -> rete -> algoritmi -> valutazione
   \node[io] (data) {Dati: clip audio\\[2pt] (addestramento e test)};
-  \node[box, below=of data] (feat) {Rappresentazione e normalizzazione\\[2pt] ogni clip $\to$ vettore $x_i \in \mathbb{R}^d$};
-
-  % Colonna destra: modello e algoritmi
-  \node[box, right=2.0cm of data] (net) {Definizione della rete\\[2pt] parametri $w = \mathrm{vec}(W_l, b_l)$};
+  \node[box, right=of data] (feat) {Rappresentazione e normalizzazione\\[2pt] ogni clip $\to$ vettore $x_i \in \mathbb{R}^d$};
+  \node[box, right=of feat] (net) {Definizione della rete\\[2pt] parametri $w = \mathrm{vec}(W_l, b_l)$};
   \node[box, below=of net] (algs) {Esecuzione dei quattro algoritmi\\[2pt] (listati B.1--B.4)};
-  \node[io, below=of algs] (eval) {Valutazione su test\\[2pt] accuratezza, figure, tabelle};
+  \node[io, right=of algs] (eval) {Valutazione su test\\[2pt] accuratezza, figure, tabelle};
 
-  % Frecce
   \draw[arrow] (data) -- (feat);
-  \draw[arrow] (feat) -| (net);
+  \draw[arrow] (feat) -- (net);
   \draw[arrow] (net) -- (algs);
   \draw[arrow] (algs) -- (eval);
 
@@ -3239,27 +3236,30 @@ calcolata però in un solo passaggio matriciale sull'intero batch
 
 \begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{%
+\resizebox{0.62\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 2.4cm,
+  node distance=1.0cm and 2.0cm,
   every node/.style={font=\small},
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.6cm, align=center, minimum height=1.2cm,
-    inner sep=6pt
+    text width=4.4cm, align=center, minimum height=1.1cm,
+    inner sep=5pt
   },
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.0cm,
+    text width=4.2cm, align=center, minimum height=1.0cm,
     inner sep=5pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
+  % Colonna sinistra: batch, forward, errore
   \node[io] (in) {Batch $\mathcal{S}$\\[2pt] (feature e label)};
   \node[box, below=of in] (fwd) {Forward su tutto il batch\\[2pt] attivazioni $a_1, a_2$, probabilità $P$};
   \node[box, below=of fwd] (err) {Errore\\[2pt] $\delta = (P - Y)/|\mathcal{S}|$};
-  \node[box, below=of err] (bp) {Retropropagazione\\[2pt] $\delta_2 = (\delta W_3^{\top}) \odot (1-a_2^2)$\\[1pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1-a_1^2)$};
+
+  % Colonna destra: retropropagazione e uscita
+  \node[box, right=2.0cm of err] (bp) {Retropropagazione\\[2pt] $\delta_2 = (\delta W_3^{\top}) \odot (1-a_2^2)$\\[1pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1-a_1^2)$};
   \node[box, below=of bp] (reg) {Gradienti dei pesi\\[2pt] $\nabla_{W_l} + \lambda W_l$, \quad $l = 1,2,3$};
   \node[io, below=of reg] (out) {$\nabla J_\mathcal{S}(w)$};
 
@@ -3289,27 +3289,30 @@ quello del listato B.1. La Figura~\ref{fig:nn_ccv} riassume il procedimento.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{%
+\resizebox{0.62\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 2.4cm,
+  node distance=1.0cm and 2.0cm,
   every node/.style={font=\small},
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.6cm, align=center, minimum height=1.2cm,
-    inner sep=6pt
+    text width=4.4cm, align=center, minimum height=1.1cm,
+    inner sep=5pt
   },
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.0cm,
+    text width=4.2cm, align=center, minimum height=1.0cm,
     inner sep=5pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
+  % Colonna sinistra: batch, media, norme
   \node[io] (in) {Batch $\mathcal{S}$\\[2pt] di dimensione $n_k$};
   \node[box, below=of in] (mean) {Gradiente medio\\[2pt] $\bar g = \texttt{grad\_batch}(w, \mathcal{S})$};
-  \node[box, below=of mean] (norms) {Norme per-esempio\\[2pt] per blocchi di 32: accumula $\sum_i\|g_i\|^2$};
-  \node[box, below=of norms] (var) {Varianza\\[2pt] $V = \dfrac{\sum_i\|g_i\|^2 - n_k\|\bar g\|^2}{n_k - 1}$};
+  \node[box, below=of mean] (norms) {Norme per-esempio\\[2pt] a blocchi di 32: accumula $\sum_i\|g_i\|^2$};
+
+  % Colonna destra: varianza e uscita
+  \node[box, right=2.0cm of norms] (var) {Varianza\\[2pt] $V = \dfrac{\sum_i\|g_i\|^2 - n_k\|\bar g\|^2}{n_k - 1}$};
   \node[io, below=of var] (out) {$(V, \|\bar g\|^2)$\\[2pt] per la verifica CCV};
 
   \draw[arrow] (in) -- (mean);
@@ -3338,27 +3341,30 @@ search, come nel resto della tesi.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{%
+\resizebox{0.58\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 2.4cm,
+  node distance=1.2cm and 2.0cm,
   every node/.style={font=\small},
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.6cm, align=center, minimum height=1.2cm,
-    inner sep=6pt
+    text width=4.4cm, align=center, minimum height=1.2cm,
+    inner sep=5pt
   },
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.0cm,
+    text width=4.2cm, align=center, minimum height=1.0cm,
     inner sep=5pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
+  % Riga superiore: ingresso e loss media
   \node[io] (in) {Sottocampione $\mathcal{H} \subseteq \mathcal{S}$\\[2pt] e vettore $v$};
-  \node[box, below=of in] (f) {Loss media sul sottocampione\\[2pt] $f(w') = J_\mathcal{H}(w')$};
+  \node[box, right=2.0cm of in] (f) {Loss media sul sottocampione\\[2pt] $f(w') = J_\mathcal{H}(w')$};
+
+  % Riga inferiore: Hessiano-vettore e uscita
   \node[box, below=of f] (hvp) {Differenziazione automatica\\[2pt] $\nabla^2 f(w)\,v$ (una sola chiamata)};
-  \node[io, below=of hvp] (out) {Vettore per il gradiente coniugato};
+  \node[io, left=2.0cm of hvp] (out) {Vettore per il\\[2pt] gradiente coniugato};
 
   \draw[arrow] (in) -- (f);
   \draw[arrow] (f) -- (hvp);
