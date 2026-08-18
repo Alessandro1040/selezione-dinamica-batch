@@ -175,6 +175,20 @@ Da tenere presente nelle sessioni di lavoro successive:
   `bozza.tex` non allineata (l'appendice non c'è). Documento da 98 a
   **96 pp** (`tesi.pdf`, `tesi_finale.pdf`).
 
+- **Ultimo intervento (18/08/2026).** **Tesi: Sez. 6.5.1 arricchita con i
+  risultati dell'esperimento rete neurale.** Aggiunto in `tesi/tesi.tex`
+  (sottosezione `sec:nsynth-net`): la tabella dei risultati
+  (`tab:nsynth_net`: accuratezze test 96.9/99.2/97.3/96.2%, norme del
+  gradiente, batch finale 2048, tempi su Apple M5, sparsità L1 58 412/234 122),
+  le due figure dell'esperimento da `tesi/figure_nsynth_net/`
+  (`fig:nsynth_net_acc` accuratezza vs iterazioni, `fig:nsynth_net_batch`
+  dinamica del batch), i link ai notebook Colab
+  (`nsynth_net_riproduzione`, `nsynth_net_test`) e al repository, e la
+  descrizione del test su clip reali con etichette vere (es. clip keyboard
+  classificata da tutti i metodi con probabilità > 99%). Ricompilati `tesi.pdf`
+  e `tesi_finale.pdf` (96 pp invariati); `bozza.tex` non toccata (non contiene
+  la sezione 6.5). Sincronizzati tesi.tex/tesi.pdf/tesi_finale.pdf nella repo
+  (md5 verificati).
 - **Ultimo intervento (18/08/2026).** **Notebook NSynth rete neurale: esecuzione
   locale con batch cap 2048.** Modificato `tesi/nsynth/nsynth_net_riproduzione.ipynb`:
   Cella 6 con `MAX_ITER = 200` (era 400); in **tutte le funzioni** della Cella 4

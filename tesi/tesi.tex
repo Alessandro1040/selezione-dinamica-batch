@@ -3520,6 +3520,67 @@ piccolo batch, che le funzioni batch coincidano con le versioni per-esempio
 (errori $< 10^{-8}$), garantendo che l'uso delle versioni vettorizzate non
 altera i risultati degli algoritmi.
 
+\textbf{Risultati dell'esperimento.}
+I quattro metodi sono stati applicati alla rete con $200$ iterazioni, seed $42$,
+batch iniziale $128$ e soglia CCV $\theta=0{,}3$; per contenere il costo delle
+iterazioni la dimensione del batch è stata limitata a $n_k\le 2048$ (senza
+limite la CCV tenderebbe a far crescere il batch verso l'intero training set,
+$N = 12\,678$). La Tabella~\ref{tab:nsynth_net} riporta per ogni metodo
+l'accuratezza sul test set ($4\,096$ clip), la norma del gradiente finale, la
+dimensione del batch finale, il tempo di addestramento e, per il metodo con
+regolarizzazione $L_1$, il numero di coefficienti non nulli. La
+Figura~\ref{fig:nsynth_net_acc} mostra l'accuratezza di test al variare
+dell'iterazione $k$, mentre la Figura~\ref{fig:nsynth_net_batch} mostra la
+dinamica della dimensione del batch $n_k$ scelta dal controllo CCV.
+
+\begin{table}[H]
+\centering
+\caption{Rete neurale su NSynth: risultati dei quattro metodi (200 iterazioni,
+cap del batch a 2048, seed 42; tempi su Apple M5).}
+\label{tab:nsynth_net}
+\begin{tabular}{lccccc}
+\toprule
+Metodo & Acc. test & $\|\nabla J(w)\|_2$ & Batch fin. & Tempo (s) & Coeff. $\neq 0$\\
+\midrule
+Dynamic GD      & 96.9\% & $4.1\times10^{-1}$ & 2048 & 175.8 & ---\\
+Newton-CG       & 99.2\% & $3.0\times10^{-2}$ & 2048 & 269.7 & ---\\
+Newton-CG $L_1$ & 97.3\% & $7.0\times10^{-1}$ & 2048 & 263.3 & $58\,412/234\,122$\\
+BB-CCV          & 96.2\% & $8.4\times10^{-2}$ & 2048 & 246.7 & ---\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figure_nsynth_net/nsynth_accuracy_net.pdf}
+\caption{NSynth (rete neurale): accuratezza sul test set in funzione delle
+iterazioni per i quattro metodi; la linea tratteggiata indica la frequenza
+della classe maggioritaria (20.8\%).}
+\label{fig:nsynth_net_acc}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figure_nsynth_net/nsynth_batch_net.pdf}
+\caption{NSynth (rete neurale): dimensione del batch $n_k$ scelta dal controllo
+CCV a ogni iterazione per i quattro metodi (tetto a 2048).}
+\label{fig:nsynth_net_batch}
+\end{figure}
+
+Il codice completo è disponibile nel notebook Colab
+\texttt{nsynth\_net\_riproduzione},
+\url{https://colab.research.google.com/github/Alessandro1040/selezione-dinamica-batch/blob/main/tesi/nsynth/nsynth_net_riproduzione.ipynb};
+un secondo notebook, \texttt{nsynth\_net\_test},
+\url{https://colab.research.google.com/github/Alessandro1040/selezione-dinamica-batch/blob/main/tesi/nsynth/nsynth_net_test.ipynb},
+carica i pesi addestrati e lo scaler e verifica i modelli su clip reali con le
+etichette vere: per una clip scelta (per indice o nome) stampa la famiglia vera
+e le predizioni dei quattro metodi --- ad esempio la clip
+\texttt{keyboard\_electronic\_078-053-050} del test set è classificata come
+\emph{keyboard} da tutti i metodi con probabilità superiore al 99\% --- e
+permette inoltre di caricare un proprio file audio e di ascoltare le clip.
+L'intero repository, con script, figure e note operative, è disponibile su
+\url{https://github.com/Alessandro1040/selezione-dinamica-batch}.
+
 
 
 
