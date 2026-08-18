@@ -175,6 +175,21 @@ Da tenere presente nelle sessioni di lavoro successive:
   `bozza.tex` non allineata (l'appendice non c'è). Documento da 98 a
   **96 pp** (`tesi.pdf`, `tesi_finale.pdf`).
 
+- **Ultimo intervento (18/08/2026).** **Notebook NSynth rete neurale: esecuzione
+  locale con batch cap 2048.** Modificato `tesi/nsynth/nsynth_net_riproduzione.ipynb`:
+  Cella 6 con `MAX_ITER = 200` (era 400); in **tutte le funzioni** della Cella 4
+  (listati B.1–B.4) il cap della CCV passa da `N` a **2048**
+  (`n = min(n_new, 2048)`, inclusa la forma inline di Newton-CG); aggiunto il
+  salvataggio dei pesi finali in `pesi_net.npz` (chiavi `Dynamic_GD`,
+  `Newton-CG`, `Newton-CG_L1`, `BB-CCV`). Eseguito **interamente in locale sul
+  Mac** (non Colab): celle 0, 2, 3, 3b, 4, 5, 6 con le features dai `.npz`
+  cache (valid 12 678, test 4 096). Risultati (seed 42, MAX_ITER=200, batch
+  cap 2048): **Dynamic GD** acc 96.9% (176 s), **Newton-CG** acc 99.2% (270 s),
+  **Newton-CG L1** acc 97.3% (263 s, nnz 58 412/234 122 ≈ 25%, sparsità 75%),
+  **BB-CCV** acc 96.2% (247 s); batch finale 2048 per tutti; cella 6 in ~973 s
+  (~16 min). `results_net.json` e `pesi_net.npz` salvati nella cartella di
+  esecuzione locale (`Documents/placeholder/nsynth_net_locale/`, NON in repo
+  per dimensione). Nessun sorgente LaTeX toccato.
 - **Ultimo intervento (18/08/2026).** **Nuovo Colab: NSynth con rete neurale
   (esplorativo, oltre le ipotesi convesse).** Aggiunto
   `tesi/nsynth/nsynth_net_riproduzione.ipynb`: gli stessi algoritmi dei listati
