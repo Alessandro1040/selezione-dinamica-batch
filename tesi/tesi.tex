@@ -3133,33 +3133,35 @@ sperimentale.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.92\textwidth}{!}{%
+\resizebox{0.95\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 2.4cm,
+  node distance=0.8cm and 2.0cm,
   every node/.style={font=\small},
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.6cm, align=center, minimum height=1.2cm,
-    inner sep=6pt
+    text width=4.4cm, align=center, minimum height=1.1cm,
+    inner sep=4pt
   },
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.0cm,
-    inner sep=5pt
+    text width=4.2cm, align=center, minimum height=1.0cm,
+    inner sep=4pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
+  % Colonna sinistra: preparazione dati
   \node[io] (data) {Dati: clip audio\\[2pt] (addestramento e test)};
-  \node[box, below=of data] (feat) {Rappresentazione di ogni clip\\[2pt] $x_i \in \mathbb{R}^d$\\[1pt] (descrittori spettrali e temporali)};
-  \node[box, below=of feat] (norm) {Normalizzazione dei dati\\[2pt] (mediana e dispersione uniformi)};
-  \node[box, below=of norm] (net) {Definizione della rete\\[2pt] $w = \mathrm{vec}(W_1, b_1, W_2, b_2, W_3, b_3)$};
-  \node[box, below=of net] (algs) {Esecuzione dei quattro algoritmi\\[2pt] (listati B.1--B.4) con funzioni batch};
+  \node[box, below=of data] (feat) {Rappresentazione e normalizzazione\\[2pt] ogni clip $\to$ vettore $x_i \in \mathbb{R}^d$};
+
+  % Colonna destra: modello e algoritmi
+  \node[box, right=2.0cm of data] (net) {Definizione della rete\\[2pt] parametri $w = \mathrm{vec}(W_l, b_l)$};
+  \node[box, below=of net] (algs) {Esecuzione dei quattro algoritmi\\[2pt] (listati B.1--B.4)};
   \node[io, below=of algs] (eval) {Valutazione su test\\[2pt] accuratezza, figure, tabelle};
 
+  % Frecce
   \draw[arrow] (data) -- (feat);
-  \draw[arrow] (feat) -- (norm);
-  \draw[arrow] (norm) -- (net);
+  \draw[arrow] (feat) -| (net);
   \draw[arrow] (net) -- (algs);
   \draw[arrow] (algs) -- (eval);
 
