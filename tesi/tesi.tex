@@ -3113,6 +3113,147 @@ con la soglia $\nu$. Le differenze sono dell'ordine di qualche decimo di punto
 percentuale e non cambiano le conclusioni; i tempi di esecuzione in Colab sono
 invece molto più lunghi (minuti, contro pochi secondi sulla macchina locale).
 
+\subsubsection{Estensione oltre le ipotesi: implementazione vettorizzata per la rete neurale}\label{sec:nsynth-net}
+
+Per indagare il comportamento dei quattro metodi quando la loss è
+\textbf{non convessa}, gli stessi algoritmi dei listati B.1--B.4 sono stati
+applicati a una \textbf{rete neurale a due strati nascosti} al posto della
+regressione logistica. La logica matematica degli algoritmi (line search di
+Wolfe, CCV, gradiente coniugato, proiezione sull'ortante) resta \emph{identica}
+ai listati; cambia soltanto il modo in cui vengono calcolati gradiente, loss e
+prodotto Hessiano--vettore. Le funzioni per-esempio \texttt{loss\_i},
+\texttt{grad\_i} e \texttt{hessvec\_i} dell'Appendice~B sono infatti sostituite
+dalle equivalenti versioni \textbf{batch matriciali} \texttt{loss\_batch},
+\texttt{grad\_batch} e \texttt{hess\_batch}, che restituiscono gli stessi
+valori (la verifica numerica contro la differenziazione automatica per-esempio
+dà errori dell'ordine di $10^{-15}$) ma calcolati senza loop Python su $N$
+esempi, requisito indispensabile per rendere l'esperimento eseguibile su Colab
+(il numero di parametri della rete è $\approx 234\,000$). Gli schemi seguenti
+descrivono la pipeline sperimentale e le funzioni vettorizzate.
+
+\begin{actionbox}
+  Pipeline sperimentale: NSynth con rete neurale\\[0.3cm]
+  \textit{Input:} split \texttt{valid} ($12\,678$ clip) e \texttt{test} ($4\,096$ clip) di NSynth.\\[0.1cm]
+  \textit{Output:} figure e tabelle della Sezione~\ref{sec:nsynth}.
+  \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
+    \item Scarica ed estrai gli split \texttt{valid} e \texttt{test} del dataset.
+    \item Estrai le features audio (log-mel, MFCC, CQT, tonnetz, spectral
+      contrast, chroma, descrittori spettrali e dinamica), con cache su disco.
+    \item Standardizza con \texttt{RobustScaler} e tronca a $[-10,10]$.
+    \item Definisci la rete neurale e il vettore dei parametri
+      $w = \mathrm{vec}(W_1, b_1, W_2, b_2, W_3, b_3)$ (inizializzazione Xavier).
+    \item Esegui i quattro algoritmi dei listati B.1--B.4 usando le funzioni
+      batch vettorizzate (Sezione~\ref{sec:nsynth-net}).
+    \item Valuta l'accuratezza sul test, genera le figure e la tabella dei risultati.
+  \end{enumerate}
+\end{actionbox}
+
+\textbf{La rete neurale.} L'architettura è $d \to 256 \to 128 \to 10$ con
+funzione di attivazione $\tanh$ sui due strati nascosti e softmax in uscita:
+$z_1 = x W_1 + b_1$, $a_1 = \tanh(z_1)$, $z_2 = a_1 W_2 + b_2$,
+$a_2 = \tanh(z_2)$, $\mathrm{logits} = a_2 W_3 + b_3$. I parametri sono
+appiattiti in un unico vettore $w$ e la regolarizzazione $L_2$ ($\lambda =
+10^{-4}$) è applicata solo ai pesi $W_1, W_2, W_3$ (non ai bias). La loss del
+singolo esempio è la cross-entropia stabilizzata più il termine di
+regolarizzazione; la loss di batch è la media su $\mathcal{S}$ delle loss
+per-esempio.
+
+\begin{actionbox}
+  Rete neurale: forward pass e loss del batch ($\texttt{loss\_batch}$)\\[0.3cm]
+  \textit{Input:} $w = \mathrm{vec}(W_1,b_1,W_2,b_2,W_3,b_3)$, batch $\mathcal{S}$ con feature $X_\mathcal{S}$ e label $Y_\mathcal{S}$.\\[0.1cm]
+  \textit{Output:} $J_\mathcal{S}(w) = \frac{1}{|\mathcal{S}|}\sum_{i\in\mathcal{S}}\ell(w;i)$.
+  \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
+    \item $z_1 = X_\mathcal{S} W_1 + b_1$, \quad $a_1 = \tanh(z_1)$.
+    \item $z_2 = a_1 W_2 + b_2$, \quad $a_2 = \tanh(z_2)$.
+    \item $\mathrm{logits} = a_2 W_3 + b_3$.
+    \item Softmax stabile: $p_c = \frac{e^{z_c - \max_c z_c}}{\sum_{c'} e^{z_{c'} - \max_c z_c}}$.
+    \item $J_\mathcal{S}(w) = -\frac{1}{|\mathcal{S}|}\sum_{i\in\mathcal{S}}\log p_{y_i}(x_i)
+      + \frac{\lambda}{2}\sum_{l=1}^{3}\|W_l\|_F^2$.
+  \end{enumerate}
+\end{actionbox}
+
+\textbf{Gradiente del batch.} Il gradiente della loss media sul batch si
+ottiene con una backpropagation vettorizzata: si calcola il forward su tutto
+il batch in un'unica operazione matriciale, poi si propaga all'indietro
+l'errore $\delta = (P - Y)/|\mathcal{S}|$ (dove $P$ è la matrice delle
+probabilità softmax e $Y$ la codifica one-hot delle label) attraverso i tre
+strati. Il risultato coincide con la media dei gradienti per-esempio
+$\frac{1}{|\mathcal{S}|}\sum_{i\in\mathcal{S}}\nabla\ell(w;i)$, ma senza
+alcun loop su $i$.
+
+\begin{actionbox}
+  Gradiente del batch ($\texttt{grad\_batch}$)\\[0.3cm]
+  \textit{Input:} $w$, batch $\mathcal{S}$; \textit{Output:} $\nabla J_\mathcal{S}(w)$.
+  \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
+    \item Forward: $\mathrm{logits}, a_1, a_2$ (come in \texttt{loss\_batch}).
+    \item $\delta = (P - Y)/|\mathcal{S}|$, con $P$ softmax e $Y$ one-hot.
+    \item $\nabla_{W_3} = a_2^{\top}\delta$, \quad $\nabla_{b_3} = \mathbf{1}^{\top}\delta$.
+    \item $\delta_2 = (\delta W_3^{\top}) \odot (1 - a_2^2)$,
+      $\nabla_{W_2} = a_1^{\top}\delta_2$, \quad $\nabla_{b_2} = \mathbf{1}^{\top}\delta_2$.
+    \item $\delta_1 = (\delta_2 W_2^{\top}) \odot (1 - a_1^2)$,
+      $\nabla_{W_1} = X_\mathcal{S}^{\top}\delta_1$, \quad $\nabla_{b_1} = \mathbf{1}^{\top}\delta_1$.
+    \item Aggiungi la regolarizzazione: $\nabla_{W_l} \gets \nabla_{W_l} + \lambda W_l$, $l=1,2,3$.
+    \item Restituisci $\nabla J_\mathcal{S}(w) = \mathrm{vec}(\nabla_{W_1},\nabla_{b_1},\nabla_{W_2},\nabla_{b_2},\nabla_{W_3},\nabla_{b_3})$.
+  \end{enumerate}
+\end{actionbox}
+
+\textbf{Varianza per-esempio per la CCV.} La condizione di controllo della
+varianza (listato B.1) richiede la varianza campionaria dei gradienti
+per-esempio sul batch corrente. Per non materializzare la matrice
+$(n_k \times D)$ (che con $n_k \approx N$ e $D \approx 234\,000$ supererebbe la
+memoria di Colab), si usa l'identità algebrica
+$\sum_j \mathrm{Var}_i(g_{ij}) = \frac{\sum_i\|g_i\|^2 - n_k\|\bar g\|^2}{n_k - 1}$:
+basta accumulare $\sum_i\|g_i\|^2$ calcolando i gradienti per-esempio a
+blocchi di 32 elementi. Il valore ottenuto è \emph{identico} a quello del
+listato B.1.
+
+\begin{actionbox}
+  Varianza per-esempio per la CCV ($\texttt{ccv\_stats}$)\\[0.3cm]
+  \textit{Input:} $w$, batch $\mathcal{S}$ di dimensione $n_k$; \textit{Output:} $(V, \|\bar g\|^2)$.
+  \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
+    \item $\bar g = \texttt{grad\_batch}(w, \mathcal{S})$.
+    \item Per blocchi $\mathcal{B}$ di 32 esempi di $\mathcal{S}$:
+      calcola i gradienti per-esempio $g_i$ e accumula $\sum_i\|g_i\|^2$.
+    \item $V = \frac{\sum_i\|g_i\|^2 - n_k\|\bar g\|^2}{n_k - 1}$.
+    \item Restituisci $(V, \|\bar g\|^2)$ (la CCV testa $V/n_k > \theta^2\|\bar g\|^2$).
+  \end{enumerate}
+\end{actionbox}
+
+\textbf{Prodotto Hessiano--vettore.} Per il metodo di Newton-CG il prodotto
+$\nabla^2 J_{\mathcal{H}_k}(w)\,v$ sul sottocampione Hessiano
+$\mathcal{H}_k \subseteq \mathcal{S}_k$ è calcolato con una sola chiamata di
+differenziazione automatica sulla loss media del batch: per linearità
+$\frac{1}{|\mathcal{H}_k|}\sum_{i\in\mathcal{H}_k}\nabla^2\ell(w;i)\,v$ coincide
+con l'Hessiano della media, quindi il risultato è identico alla versione
+per-esempio. Nel codice $\gamma$ è posto a $0$ (la stima della varianza degli
+Hessiani per-esempio sarebbe proibitiva su $D \approx 234\,000$); il passo
+iniziale delle line search è $\alpha = 1$ come nella Sezione~\ref{sec:setup}
+(con $\alpha = 0.1$ la condizione di Wolfe non trovava passi accettabili).
+
+\begin{actionbox}
+  Prodotto Hessiano--vettore su batch ($\texttt{hess\_batch}$)\\[0.3cm]
+  \textit{Input:} $w$, sottocampione $\mathcal{H} \subseteq \mathcal{S}$, vettore $v$; \textit{Output:} $\nabla^2 J_\mathcal{H}(w)\,v$.
+  \begin{enumerate}
+  \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
+    \item Definisci $f(w') = J_\mathcal{H}(w')$ (forward vettorizzato su $\mathcal{H}$).
+    \item Calcola $\nabla^2 f(w)\,v$ con un'unica differenziazione automatica
+      (Hessiano--vettore) sulla funzione $f$.
+    \item Restituisci il vettore risultante (da usare nel gradiente coniugato).
+  \end{enumerate}
+\end{actionbox}
+
+Il notebook \texttt{nsynth\_net\_riproduzione}, disponibile nella cartella
+\texttt{tesi/nsynth/} del repository, implementa fedelmente gli schemi qui
+descritti: la cella di validazione interna verifica numericamente, su un
+piccolo batch, che le funzioni batch coincidano con le versioni per-esempio
+(errori $< 10^{-8}$), garantendo che l'uso delle versioni vettorizzate non
+altera i risultati degli algoritmi.
+
+
 
 
 
