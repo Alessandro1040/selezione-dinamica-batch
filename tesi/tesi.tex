@@ -3137,26 +3137,25 @@ il dettaglio di ciascuna, con la \emph{firma} (ingressi $\to$ uscite) e le
 formule esatte implementate. I nomi coincidono con quelli del notebook Colab
 \texttt{nsynth\_net\_riproduzione}, così gli schemi si confrontano
 direttamente con il codice.
-
 \begin{figure}[H]
 \centering
 \resizebox{0.94\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.85cm and 1.2cm,
+  node distance=2.0cm and 3.0cm,
   every node/.style={font=\small},
   io/.style={
     draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.2cm, align=center, minimum height=1.0cm,
+    text width=3.8cm, align=center, minimum height=1.0cm,
     inner sep=5pt
   },
   box/.style={
     draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.2cm, align=center, minimum height=1.0cm,
+    text width=3.8cm, align=center, minimum height=1.0cm,
     inner sep=5pt
   },
   fcn/.style={
     draw=coverblue, fill=coverblue!15, rounded corners=3pt,
-    text width=4.4cm, align=center, minimum height=1.05cm,
+    text width=3.4cm, align=center, minimum height=1.05cm,
     inner sep=5pt
   },
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
@@ -3164,21 +3163,21 @@ direttamente con il codice.
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Preparazione dei dati (riga superiore)
-  \node[io] (wav) at (-6.6, 3.9) {Clip audio wav\\(note monofoniche, 4~s, 16~kHz)};
-  \node[fcn] (feat) at (-1.7, 3.9) {\texttt{estrai\_features}\\[2pt] clip $\to$ vettore $x_i \in \mathbb{R}^{780}$};
-  \node[box] (scal) at (3.0, 3.9) {\texttt{RobustScaler}\\[2pt] $X \in \mathbb{R}^{N\times 780}$, $y$};
+  % Preparazione dei dati (riga superiore) - coordinate X ampiamente distanziate
+  \node[io] (wav) at (-8.0, 5.5) {Clip audio wav\\(note monofoniche, 4~s, 16~kHz)};
+  \node[fcn] (feat) at (-2.0, 5.5) {\texttt{estrai\_features}\\[2pt] clip $\to$ vettore $x_i \in \mathbb{R}^{780}$};
+  \node[box] (scal) at (4.0, 5.5) {\texttt{RobustScaler}\\[2pt] $X \in \mathbb{R}^{N\times 780}$, $y$};
 
-  % Funzioni nucleo
-  \node[fcn] (fwd) at (3.0, 2.0) {\texttt{forward}($w$, $X_b$)\\[2pt] $\to$ \texttt{logits}, $a_1$, $a_2$};
-  \node[fcn] (loss) at (-4.2, -0.1) {\texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_{\mathcal{S}}(w)$};
-  \node[fcn] (grad) at (-1.4, -0.1) {\texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_{\mathcal{S}}(w)$};
-  \node[fcn] (ccv) at (1.4, -0.1) {\texttt{ccv\_stats}($w$, $\mathcal{S}$)\\[2pt] $\to (V,\, \|\bar g\|^2)$};
-  \node[fcn] (hess) at (4.2, -0.1) {\texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_{\mathcal{H}}(w)\,v$};
+  % Funzioni nucleo - coordinate X ampiamente distanziate
+  \node[fcn] (fwd) at (4.0, 3.0) {\texttt{forward}($w$, $X_b$)\\[2pt] $\to$ \texttt{logits}, $a_1$, $a_2$};
+  \node[fcn] (loss) at (-8.0, 0.0) {\texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_{\mathcal{S}}(w)$};
+  \node[fcn] (grad) at (-3.0, 0.0) {\texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_{\mathcal{S}}(w)$};
+  \node[fcn] (ccv) at (3.0, 0.0) {\texttt{ccv\_stats}($w$, $\mathcal{S}$)\\[2pt] $\to (V,\, \|\bar g\|^2)$};
+  \node[fcn] (hess) at (8.0, 0.0) {\texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_{\mathcal{H}}(w)\,v$};
 
   % Algoritmi e valutazione
-  \node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -2.7) {Quattro algoritmi (listati B.1--B.4), logica invariata\\[2pt] Dynamic GD \quad$\cdot$\quad Newton-CG \quad$\cdot$\quad Newton-CG $L_1$ \quad$\cdot$\quad BB-CCV};
-  \node[io] (eval) at (0.0, -4.5) {\texttt{acc\_test}($w$)\\[2pt] accuratezza su test, tabelle, figure};
+  \node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.5) {Quattro algoritmi (listati B.1--B.4), logica invariata\\[2pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
+  \node[io] (eval) at (0.0, -6.5) {\texttt{acc\_test}($w$)\\[2pt] accuratezza su test, tabelle, figure};
 
   % Frecce dati
   \draw[arrow] (wav) -- (feat);
@@ -3224,37 +3223,36 @@ descrittore nel tempo con media e deviazione standard
 \texttt{RobustScaler}. Un programmatore non deve conoscere l'audio: basta
 sapere che $x_i$ è l'input della rete e che ogni sua componente misura una
 caratteristica statistica del suono.
-
 \begin{figure}[H]
 \centering
 \resizebox{0.88\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.9cm and 1.2cm,
+  node distance=2.0cm and 2.0cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=4.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=4.4cm, align=center, minimum height=1.1cm, inner sep=5pt},
-  feat/.style={draw=coverblue, fill=coverblue!15, rounded corners=3pt, text width=4.2cm, align=center, minimum height=1.5cm, inner sep=5pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=3.8cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=3.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  feat/.style={draw=coverblue, fill=coverblue!15, rounded corners=3pt, text width=3.4cm, align=center, minimum height=1.5cm, inner sep=5pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Segnale e separazione
-  \node[io] (y) at (0, 4.4) {Clip wav\\(4~s, 16~kHz): $y \in \mathbb{R}^{T}$ con $T=64\,000$ campioni};
-  \node[box] (hpss) at (0, 2.8) {Separazione armonico-percussiva: $\operatorname{hpss}(y)$\\[2pt] $y_h$ = tono (armonica), \quad $y_p$ = attacchi (percussiva)};
+  \node[io] (y) at (0, 8.5) {Clip wav\\(4~s, 16~kHz): $y \in \mathbb{R}^{T}$ con $T=64\,000$ campioni};
+  \node[box] (hpss) at (0, 6.0) {Separazione armonico-percussiva: $\operatorname{hpss}(y)$\\[2pt] $y_h$ = tono (armonica), \quad $y_p$ = attacchi (percussiva)};
 
   % Riga 1
-  \node[feat] (mel) at (-5.2, 1.0) {\textbf{Mel-spettrogramma}\\[1pt] $S=\operatorname{mel}(y_h)$, 96 bande,\\[1pt] dB, $\Delta$, $\Delta^2$ nel tempo;\\[1pt] media e dev.\ std $\to$ \textbf{384}};
-  \node[feat] (mfcc) at (0.0, 1.0) {\textbf{MFCC}\\[1pt] $\operatorname{mfcc}(y_h)$: 40 coeff.\ cepstrali\\[1pt] $+ \Delta$ nel tempo;\\[1pt] media e dev.\ std $\to$ \textbf{160}};
-  \node[feat] (cqt) at (5.2, 1.0) {\textbf{CQT}\\[1pt] $|CQT(y_h)|$: 84 bins log-frequenza\\[1pt] in dB;\\[1pt] media e dev.\ std $\to$ \textbf{168}};
+  \node[feat] (mel) at (-8.0, 2.8) {\textbf{Mel-spettrogramma}\\[1pt] $S=\operatorname{mel}(y_h)$, 96 bande,\\[1pt] dB, $\Delta$, $\Delta^2$ nel tempo;\\[1pt] media e dev.\ std $\to$ \textbf{384}};
+  \node[feat] (mfcc) at (0.0, 2.8) {\textbf{MFCC}\\[1pt] $\operatorname{mfcc}(y_h)$: 40 coeff.\ cepstrali\\[1pt] $+ \Delta$ nel tempo;\\[1pt] media e dev.\ std $\to$ \textbf{160}};
+  \node[feat] (cqt) at (8.0, 2.8) {\textbf{CQT}\\[1pt] $|CQT(y_h)|$: 84 bins log-frequenza\\[1pt] in dB;\\[1pt] media e dev.\ std $\to$ \textbf{168}};
 
   % Riga 2
-  \node[feat] (ton) at (-5.2, -1.7) {\textbf{Tonnetz}\\[1pt] $\operatorname{tonnetz}(y_h)$: note\\[1pt] in cerchio di quinte;\\[1pt] media e dev.\ std $\to$ \textbf{12}};
-  \node[feat] (spet) at (0.0, -1.7) {\textbf{Contrasto e chroma}\\[1pt] $\operatorname{contrast}(y_h)$ (7 bande),\\[1pt] $\operatorname{chroma}(y_h)$ (12 note);\\[1pt] media e dev.\ std $\to$ \textbf{38}};
-  \node[feat] (din) at (5.2, -1.7) {\textbf{Forma spettrale e dinamica}\\[1pt] centroid, bandwidth, rolloff,\\[1pt] flatness, zero-crossing (10); onset,\\[1pt] rms, energie, centroide (8) $\to$ \textbf{18}};
+  \node[feat] (ton) at (-8.0, -2.8) {\textbf{Tonnetz}\\[1pt] $\operatorname{tonnetz}(y_h)$: note\\[1pt] in cerchio di quinte;\\[1pt] media e dev.\ std $\to$ \textbf{12}};
+  \node[feat] (spet) at (0.0, -2.8) {\textbf{Contrasto e chroma}\\[1pt] $\operatorname{contrast}(y_h)$ (7 bande),\\[1pt] $\operatorname{chroma}(y_h)$ (12 note);\\[1pt] media e dev.\ std $\to$ \textbf{38}};
+  \node[feat] (din) at (8.0, -2.8) {\textbf{Forma spettrale e dinamica}\\[1pt] centroid, bandwidth, rolloff,\\[1pt] flatness, zero-crossing (10); onset,\\[1pt] rms, energie, centroide (8) $\to$ \textbf{18}};
 
   % Concatenazione e normalizzazione
-  \node[io] (concat) at (0, -3.9) {Vettore delle feature: $x_i \in \mathbb{R}^{780}$\\[2pt] $384 + 160 + 168 + 12 + 38 + 18$};
-  \node[box] (scaler) at (0, -5.5) {\texttt{RobustScaler} (quantili 5--95), clip a $[-10,10]$\\[2pt] $\to$ riga normalizzata di $X \in \mathbb{R}^{N\times 780}$};
+  \node[io] (concat) at (0, -6.8) {Vettore delle feature: $x_i \in \mathbb{R}^{780}$\\[2pt] $384 + 160 + 168 + 12 + 38 + 18$};
+  \node[box] (scaler) at (0, -9.5) {\texttt{RobustScaler} (quantili 5--95), clip a $[-10,10]$\\[2pt] $\to$ riga normalizzata di $X \in \mathbb{R}^{N\times 780}$};
 
   % Frecce
   \draw[arrow] (y) -- (hpss);
@@ -3295,7 +3293,7 @@ anche le attivazioni $a_1, a_2$, che servono alla retropropagazione.
 \centering
 \resizebox{0.6\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.8cm and 1.6cm,
+  node distance=1.2cm and 2.0cm,
   every node/.style={font=\small},
   io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=4.6cm, align=center, minimum height=0.9cm, inner sep=4pt},
   box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=4.6cm, align=center, minimum height=0.9cm, inner sep=4pt},
@@ -3311,7 +3309,7 @@ anche le attivazioni $a_1, a_2$, che servono alla retropropagazione.
   \node[box, below=of l2] (l3) {Strato 3\\[2pt] $\mathrm{logits} = a_2 W_3 + b_3$\\[1pt] $W_3 \in \mathbb{R}^{128\times 10}$};
   \node[io, below=of l3] (out) {Uscite: \texttt{logits} (per la softmax),\\[1pt] $a_1$, $a_2$ (per la retropropagazione)};
 
-  \node[io, right=1.8cm of l2, text width=4.6cm, minimum height=3.2cm] (w) {Parametri\\[2pt] $w = [W_1; b_1; W_2; b_2; W_3; b_3]$\\[1pt] $\approx 234\,000$ valori};
+  \node[io, right=2.0cm of l2, text width=4.6cm, minimum height=3.2cm] (w) {Parametri\\[2pt] $w = [W_1; b_1; W_2; b_2; W_3; b_3]$\\[1pt] $\approx 234\,000$ valori};
 
   \draw[arrow] (sig) -- (l1);
   \draw[arrow] (l1) -- (l2);
@@ -3342,7 +3340,7 @@ dei pesi $W_l$, non ai bias. La Figura~\ref{fig:nn_loss} riassume i passaggi.
 \centering
 \resizebox{0.72\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.8cm and 1.0cm,
+  node distance=0.8cm and 1.2cm,
   every node/.style={font=\small},
   io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
   box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
@@ -3351,16 +3349,16 @@ dei pesi $W_l$, non ai bias. La Figura~\ref{fig:nn_loss} riassume i passaggi.
 ]
 
   % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 4.2) {Firma: \texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_\mathcal{S}(w) \in \mathbb{R}$, \quad $m = |\mathcal{S}|$ esempi\\[1pt] $X_b = X[\mathcal{S}]$, \quad $Y_b = Y[\mathcal{S}]$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.5) {Firma: \texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_\mathcal{S}(w) \in \mathbb{R}$, \quad $m = |\mathcal{S}|$ esempi\\[1pt] $X_b = X[\mathcal{S}]$, \quad $Y_b = Y[\mathcal{S}]$};
 
   % Passi in fila
-  \node[box] (fwd) at (-5.4, 1.7) {Logits dalla \texttt{forward}\\[2pt] $(\mathrm{logits}, \cdot, \cdot) = \texttt{forward}(w, X_b)$};
-  \node[box] (sm) at (0.0, 1.7) {Softmax stabile (shift del massimo)\\[2pt] $P_{ic} = \dfrac{e^{\,z_{ic} - \max_{c'} z_{ic'}}}{\sum_{c'} e^{\,z_{ic'} - \max_{c'} z_{ic'}}}$};
-  \node[box] (ce) at (5.4, 1.7) {Cross-entropia media\\[2pt] $-\dfrac{1}{m}\sum_{i=1}^{m} \log P_{i, Y_{b,i}}$};
+  \node[box] (fwd) at (-6.0, 2.0) {Logits dalla \texttt{forward}\\[2pt] $(\mathrm{logits}, \cdot, \cdot) = \texttt{forward}(w, X_b)$};
+  \node[box] (sm) at (0.0, 2.0) {Softmax stabile (shift del massimo)\\[2pt] $P_{ic} = \dfrac{e^{\,z_{ic} - \max_{c'} z_{ic'}}}{\sum_{c'} e^{\,z_{ic'} - \max_{c'} z_{ic'}}}$};
+  \node[box] (ce) at (6.0, 2.0) {Cross-entropia media\\[2pt] $-\dfrac{1}{m}\sum_{i=1}^{m} \log P_{i, Y_{b,i}}$};
 
   % Regolarizzazione e uscita
-  \node[box] (reg) at (0.0, -0.6) {Regolarizzazione $L_2$ (solo pesi, $\lambda = 10^{-4}$)\\[2pt] $\dfrac{\lambda}{2}\bigl(\|W_1\|_F^2 + \|W_2\|_F^2 + \|W_3\|_F^2\bigr)$};
-  \node[io] (out) at (0.0, -2.7) {Uscita: $J_\mathcal{S}(w)$ = cross-entropia $+$ regolarizzazione\\[2pt] usata dalla line search di Wolfe};
+  \node[box] (reg) at (0.0, -0.8) {Regolarizzazione $L_2$ (solo pesi, $\lambda = 10^{-4}$)\\[2pt] $\dfrac{\lambda}{2}\bigl(\|W_1\|_F^2 + \|W_2\|_F^2 + \|W_3\|_F^2\bigr)$};
+  \node[io] (out) at (0.0, -3.2) {Uscita: $J_\mathcal{S}(w)$ = cross-entropia $+$ regolarizzazione\\[2pt] usata dalla line search di Wolfe};
 
   \draw[arrow] (sig) -- (fwd);
   \draw[arrow] (fwd) -- (sm);
@@ -3384,32 +3382,31 @@ di regolarizzazione $\lambda W_l$. Il risultato è la media dei gradienti
 individuali, $\nabla J_\mathcal{S}(w) = \frac{1}{m}\sum_{i\in\mathcal{S}}\nabla\ell(w;i)$,
 calcolata però in un solo passaggio matriciale sull'intero batch
 (Figura~\ref{fig:nn_grad}).
-
 \begin{figure}[H]
 \centering
 \resizebox{0.78\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=0.8cm and 1.2cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=0.95cm, inner sep=4pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=0.95cm, inner sep=4pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=4.8cm, align=center, minimum height=0.95cm, inner sep=4pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=4.8cm, align=center, minimum height=0.95cm, inner sep=4pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Firma e passi iniziali
-  \node[io, text width=6.2cm] (sig) at (0, 4.6) {Firma: \texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_\mathcal{S}(w)$};
-  \node[box] (fwd) at (0, 2.9) {Forward e probabilità\\[2pt] $(\mathrm{logits}, a_1, a_2) = \texttt{forward}(w, X_b)$, \; $P = \mathrm{softmax}(\mathrm{logits})$};
-  \node[box] (err) at (0, 1.4) {Errore di output\\[2pt] $\delta = (P - Y_b)/m$ \quad ($Y_b$ = one-hot delle classi)};
+  \node[io, text width=6.2cm] (sig) at (0, 6.8) {Firma: \texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_\mathcal{S}(w)$};
+  \node[box] (fwd) at (0, 4.8) {Forward e probabilità\\[2pt] $(\mathrm{logits}, a_1, a_2) = \texttt{forward}(w, X_b)$, \; $P = \mathrm{softmax}(\mathrm{logits})$};
+  \node[box] (err) at (0, 2.8) {Errore di output\\[2pt] $\delta = (P - Y_b)/m$ \quad ($Y_b$ = one-hot delle classi)};
 
   % Retropropagazione (tre strati in fila)
-  \node[box] (b3) at (-6.0, 0.0) {Strato 3\\[2pt] $dW_3 = a_2^{\top}\delta$, \; $db_3 = \delta^{\top}\mathbf{1}$};
+  \node[box] (b3) at (-7.0, 0.0) {Strato 3\\[2pt] $dW_3 = a_2^{\top}\delta$, \; $db_3 = \delta^{\top}\mathbf{1}$};
   \node[box] (b2) at (0.0, 0.0) {Strato 2\\[2pt] $\delta_2 = (\delta\, W_3^{\top}) \odot (1 - a_2^2)$\\[1pt] $dW_2 = a_1^{\top}\delta_2$, \; $db_2 = \delta_2^{\top}\mathbf{1}$};
-  \node[box] (b1) at (6.0, 0.0) {Strato 1\\[2pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1 - a_1^2)$\\[1pt] $dW_1 = X_b^{\top}\delta_1$, \; $db_1 = \delta_1^{\top}\mathbf{1}$};
+  \node[box] (b1) at (7.0, 0.0) {Strato 1\\[2pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1 - a_1^2)$\\[1pt] $dW_1 = X_b^{\top}\delta_1$, \; $db_1 = \delta_1^{\top}\mathbf{1}$};
 
-  % Regolarizzazione e uscita
-  \node[box] (reg) at (0, -2.1) {Regolarizzazione (sui pesi)\\[2pt] $dW_l \leftarrow dW_l + \lambda W_l$ \qquad ($l = 1, 2, 3$)};
-  \node[io, text width=6.2cm] (out) at (0, -3.8) {Uscita: $\nabla J_\mathcal{S}(w) = \bigl[dW_1;\, db_1;\, dW_2;\, db_2;\, dW_3;\, db_3\bigr]$\\[2pt] $= \dfrac{1}{m}\sum_{i\in\mathcal{S}} \nabla\ell(w; i)$ \quad ($1 - a^2$ = derivata di $\tanh$)};
+  % Regolarizzazione e uscita (distanziati ulteriormente)
+  \node[box] (reg) at (0, -2.5) {Regolarizzazione (sui pesi)\\[2pt] $dW_l \leftarrow dW_l + \lambda W_l$ \qquad ($l = 1, 2, 3$)};
+  \node[io, text width=6.2cm] (out) at (0, -5.5) {Uscita: $\nabla J_\mathcal{S}(w) = \bigl[dW_1;\, db_1;\, dW_2;\, db_2;\, dW_3;\, db_3\bigr]$\\[2pt] $= \dfrac{1}{m}\sum_{i\in\mathcal{S}} \nabla\ell(w; i)$ \quad ($1 - a^2$ = derivata di $\tanh$)};
 
   \draw[arrow] (sig) -- (fwd);
   \draw[arrow] (fwd) -- (err);
@@ -3426,7 +3423,6 @@ derivata di $\tanh$ ($1-a^2$); a ogni matrice dei pesi si somma $\lambda W_l$.
 Il risultato coincide con la media dei gradienti per-esempio del listato B.1.}
 \label{fig:nn_grad}
 \end{figure}
-
 \textbf{Varianza per-esempio per la CCV.}
 La condizione di controllo della varianza (listato B.1) richiede la varianza
 campionaria dei gradienti individuali sul batch corrente. In forma esatta essa
@@ -3451,12 +3447,12 @@ del listato B.1. La Figura~\ref{fig:nn_ccv} riassume la funzione
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  \node[io, text width=6.4cm] (sig) at (0, 3.8) {Firma: \texttt{ccv\_stats}($w$, $\mathcal{S}$, \texttt{chunk}=32)\\[2pt] $\to (V, \|\bar g\|^2)$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.2) {Firma: \texttt{ccv\_stats}($w$, $\mathcal{S}$, \texttt{chunk}=32)\\[2pt] $\to (V, \|\bar g\|^2)$};
 
-  \node[box] (gbar) at (-3.4, 1.6) {Gradiente medio\\[2pt] $\bar g = \texttt{grad\_batch}(w, \mathcal{S})$};
-  \node[box] (loop) at (3.4, 1.6) {\texttt{per\_example\_sq\_norms}\\[2pt] a blocchi di 32 esempi:\\[1pt] $s_2 \leftarrow s_2 + \sum_{i\in B}\|g_i\|^2$};
-  \node[box] (var) at (-3.4, -0.5) {Varianza per-esempio esatta\\[2pt] $V = \dfrac{s_2 - m\,\|\bar g\|^2}{m - 1}$, \quad $m=|\mathcal{S}|$};
-  \node[io] (out) at (0, -2.5) {Uscita: $(V, \|\bar g\|^2)$ per la verifica CCV\\[2pt] $\dfrac{V}{m} \le \theta^2 \|\bar g\|^2$};
+  \node[box] (gbar) at (-4.0, 2.0) {Gradiente medio\\[2pt] $\bar g = \texttt{grad\_batch}(w, \mathcal{S})$};
+  \node[box] (loop) at (4.0, 2.0) {\texttt{per\_example\_sq\_norms}\\[2pt] a blocchi di 32 esempi:\\[1pt] $s_2 \leftarrow s_2 + \sum_{i\in B}\|g_i\|^2$};
+  \node[box] (var) at (-4.0, -0.8) {Varianza per-esempio esatta\\[2pt] $V = \dfrac{s_2 - m\,\|\bar g\|^2}{m - 1}$, \quad $m=|\mathcal{S}|$};
+  \node[io] (out) at (0, -3.2) {Uscita: $(V, \|\bar g\|^2)$ per la verifica CCV\\[2pt] $\dfrac{V}{m} \le \theta^2 \|\bar g\|^2$};
 
   \draw[arrow] (sig) -- (gbar);
   \draw[arrow] (gbar) -- (loop) node[label, midway, above] {norme $\|G_B\|^2$};
@@ -3495,13 +3491,13 @@ come passo iniziale delle line search, come nel resto della tesi.
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
-  \node[io, text width=6.4cm] (sig) at (0, 4.0) {Firma: \texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_\mathcal{H}(w)\,v$, \quad $\mathcal{H} \subseteq \mathcal{S}$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.5) {Firma: \texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_\mathcal{H}(w)\,v$, \quad $\mathcal{H} \subseteq \mathcal{S}$};
 
-  \node[box] (f) at (-5.4, 1.5) {Loss media sul sottocampione\\[2pt] $f(w') = J_\mathcal{H}(w')$};
-  \node[box] (hvp) at (0.0, 1.5) {Differenziazione automatica\\[2pt] $\texttt{hessian\_vector\_product}(f)$\\[1pt] in una sola chiamata};
-  \node[box] (eq) at (5.4, 1.5) {Equivalenza per-esempio\\[2pt] $\nabla^2 J_\mathcal{H}(w)\,v$\\[1pt] $= \frac{1}{|\mathcal{H}|}\sum_{i\in\mathcal{H}}\nabla^2\ell(w;i)\,v$};
+  \node[box] (f) at (-6.0, 2.0) {Loss media sul sottocampione\\[2pt] $f(w') = J_\mathcal{H}(w')$};
+  \node[box] (hvp) at (0.0, 2.0) {Differenziazione automatica\\[2pt] $\texttt{hessian\_vector\_product}(f)$\\[1pt] in una sola chiamata};
+  \node[box] (eq) at (6.0, 2.0) {Equivalenza per-esempio\\[2pt] $\nabla^2 J_\mathcal{H}(w)\,v$\\[1pt] $= \frac{1}{|\mathcal{H}|}\sum_{i\in\mathcal{H}}\nabla^2\ell(w;i)\,v$};
 
-  \node[io] (out) at (0, -1.0) {Vettore per il gradiente coniugato\\[2pt] $\gamma = 0$ nel criterio di arresto, $\alpha = 1$ nelle line search};
+  \node[io] (out) at (0, -1.8) {Vettore per il gradiente coniugato\\[2pt] $\gamma = 0$ nel criterio di arresto, $\alpha = 1$ nelle line search};
 
   \draw[arrow] (sig) -- (f);
   \draw[arrow] (f) -- (hvp);
