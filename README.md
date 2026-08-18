@@ -189,7 +189,10 @@ Da tenere presente nelle sessioni di lavoro successive:
   **BB-CCV** acc 96.2% (247 s); batch finale 2048 per tutti; cella 6 in ~973 s
   (~16 min). `results_net.json` e `pesi_net.npz` salvati nella cartella di
   esecuzione locale (`Documents/placeholder/nsynth_net_locale/`, NON in repo
-  per dimensione). Nessun sorgente LaTeX toccato.
+  per dimensione). Generate anche le **figure dell'esperimento** con le celle
+  7–8 (`nsynth_accuracy_net.png/pdf`, `nsynth_batch_net.png/pdf` + 
+  `results_net.json`) in **`tesi/figure_nsynth_net/`** (nuova cartella,
+  in repo). Nessun sorgente LaTeX toccato.
 - **Ultimo intervento (18/08/2026).** **Nuovo Colab: NSynth con rete neurale
   (esplorativo, oltre le ipotesi convesse).** Aggiunto
   `tesi/nsynth/nsynth_net_riproduzione.ipynb`: gli stessi algoritmi dei listati
