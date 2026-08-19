@@ -133,6 +133,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Font URW Gothic (Avant Garde) per tutto il
+  documento, scala 0.90.** In `tesi/tesi.tex` aggiunto il blocco font
+  `\usepackage{avant}` + `\renewcommand{\familydefault}{\sfdefault}` (testo
+  completo in sans). URW Gothic è più largo di Computer Modern: misurate le
+  righe identiche al layout CM per varie scale (sweep con confronto riga-riga
+  su 6161 righe): 1.0→107 pp/21%, 0.95→105 pp/22%, **0.90→100 pp/73.5%**,
+  0.85→97 pp/67%, 0.80→95 pp/41%, 0.75→95 pp/11%. Scelta la **scala 0.90**
+  (miglior compromesso righe identiche, +3 pp). La scala si applica
+  ridefinendo le forme del family `pag` via NFSS (`s * [0.90]`): `avant.sty`
+  non supporta l'opzione `scaled`. Due trappole documentate nel sorgente:
+  (1) le `\DeclareFontShape` NON vanno in una `\newcommand` (non registra le
+  forme → "Font T1/pag/m/n/12 not found"); (2) serve `\input{t1pag.fd}` prima
+  di ridefinire le forme, altrimenti `\DeclareFontFamily{T1}{pag}{}` marca la
+  famiglia come definita e le forme `it`/`b`/`bx` (corsivo e grassetto)
+  restano non definite ("Font shape 'T1/pag/m/it' undefined" → ricaduta su
+  CM). Verificato nel PDF: `URWGothicL-Book`, `-Demi`, `-BookObli`; i font
+  matematici restano Computer Modern. Nessun errore né riferimento
+  indefinito; overfull 14→22 (conseguenza del reflow). Documento da 97 a
+  **100 pp** (`tesi.pdf`, `tesi_finale.pdf`). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  allineata; frontespizio (sapthesis, documento separato) invariato.
 - **Ultimo intervento (19/08/2026).** **Intestazioni e link interni in nero.**
   In `tesi/tesi.tex`: (1) rimossi i `\textcolor{coverblue}{...}` da `\lhead`
   (Alessandro Lo Curcio) e `\rhead` (Selezione Dinamica del Campione in ML):
