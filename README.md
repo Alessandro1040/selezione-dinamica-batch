@@ -133,6 +133,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Ripristinato font Computer Modern.** Dopo
+  aver provato URW Gothic (scala 0.90, vedi nota sotto), su richiesta si torna
+  al font originale: rimosso l'intero blocco `avant`/`\DeclareFontShape` da
+  `tesi.tex` (la modifica era solo lì). Verificato che il layout è tornato
+  **identico all'originale riga per riga** (confronto LCS: 6161/6161 righe,
+  100%; 97 pp). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp);
+  sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati;
+  `tesi.tex` e `tesi_finale.pdf` coincidono con lo stato pre-font).
+  `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Font URW Gothic (Avant Garde) per tutto il
   documento, scala 0.90.** In `tesi/tesi.tex` aggiunto il blocco font
   `\usepackage{avant}` + `\renewcommand{\familydefault}{\sfdefault}` (testo
