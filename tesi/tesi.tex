@@ -212,7 +212,7 @@ necessario, si formula il problema di ottimizzazione, si passano in rassegna i
 lavori correlati, si descrivono gli algoritmi studiati, se ne discute
 l'implementazione interattiva con i risultati sperimentali e si traggono le
 conclusioni con le prospettive di lavoro futuro. I dettagli dimostrativi e i
-listati Python completi sono raccolti in appendice.
+codici Python completi sono raccolti in appendice.
 \begin{center}
   \rule{0.8\textwidth}{0.4pt}
 \end{center}
@@ -298,7 +298,7 @@ risultati di convergenza e l'implementazione:
   \item Implementazioni. I tre algoritmi (gradiente a campione
   dinamico, Newton-CG e variante $L_1$) sono implementati in Python e resi
   disponibili in un'applicazione web interattiva, con esperimenti numerici
-  (Capitolo~\ref{sec:esperimenti}) e listati completi (Appendice~B).
+  (Capitolo~\ref{sec:esperimenti}) e codici completi (Appendice~B).
 \end{enumerate}
 
 \subsection{Struttura della tesi}
@@ -311,7 +311,7 @@ lavori correlati; il Capitolo~\ref{sec:algoritmi} descrive gli algoritmi
 proposti con i risultati di convergenza e complessità; il
 Capitolo~\ref{sec:esperimenti} illustra l'implementazione e i risultati
 numerici; il Capitolo~\ref{sec:conclusioni} riassume i risultati e delinea le
-direzioni di lavoro futuro. Le dimostrazioni, i listati Python, le istruzioni
+direzioni di lavoro futuro. Le dimostrazioni, i codici Python, le istruzioni
 di esecuzione e gli schemi degli algoritmi aggiuntivi sono raccolti nelle
 Appendici~A--E.
 
@@ -2199,8 +2199,8 @@ In questo capitolo descriviamo l'ambiente sperimentale utilizzato per
 validare gli algoritmi del Capitolo~\ref{sec:algoritmi}, l'architettura
 software dell'applicazione web interattiva e i risultati numerici ottenuti,
 confrontando il metodo del gradiente a campione dinamico con SGD e batch
-gradient descent, e Newton-CG con il gradiente dinamico. I listati Python
-completi sono riportati nell'Appendice~\ref{app:listati}.
+gradient descent, e Newton-CG con il gradiente dinamico. I codici Python
+completi sono riportati nell'Appendice~\ref{app:codici}.
 
 \subsection{Setup Sperimentale}\label{sec:setup}
 
@@ -2858,7 +2858,7 @@ L'utente può:
 \end{itemize}
 
 Il codice completo degli algoritmi eseguiti nell'applicazione è riportato
-nell'Appendice~\ref{app:listati}; le istruzioni per l'esecuzione e per
+nell'Appendice~\ref{app:codici}; le istruzioni per l'esecuzione e per
 l'avvio dell'applicazione sono nell'Appendice~\ref{app:istruzioni}.
 
 
@@ -2929,7 +2929,7 @@ Il codice del notebook \texttt{nsynth\_nota\_riproduzione} è organizzato in
 un piccolo numero di \textbf{funzioni} che si richiamano tra loro: la
 Figura~\ref{fig:nota_funzioni} ne mostra la mappa completa, mentre le
 Figure~\ref{fig:nota_chroma}--\ref{fig:nota_grad_full} mostrano il dettaglio
-di ciascuna, con la \emph{firma} (ingressi $\to$ uscite) e le formule esatte
+di ciascuna, (ingressi $\to$ uscite) e le formule esatte
 implementate. I nomi coincidono con quelli del notebook, così gli schemi si
 confrontano direttamente con il codice.
 
@@ -2972,7 +2972,7 @@ confrontano direttamente con il codice.
 \node[fcn] (gfull) at (9.0, 1.5) {\texttt{grad\_full}\\($w$)\\[2pt] $\to \nabla J(w)$};
 
   % Algoritmi e valutazione
-\node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.0) {Quattro algoritmi\\[2pt] (listati B.1--B.4), logica invariata\\[1pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
+\node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.0) {Quattro algoritmi\\[2pt] (codici B.1--B.4), logica invariata\\[1pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
 \node[io, text width=8.5cm] (eval) at (0.0, -6.5) {\texttt{acc\_test}($w$)\\[2pt] accuratezza su test, tabelle,\\[1pt] figure; riferimento scikit-learn (L-BFGS)};
 
   % Frecce dati
@@ -2996,7 +2996,7 @@ confrontano direttamente con il codice.
 \caption{Mappa delle funzioni del notebook \texttt{nsynth\_nota\_riproduzione}.
 Dalle clip di uno split si estraggono i vettori $x_i$ (Figura~\ref{fig:nota_chroma}),
 raccolti in $X$ con le etichette delle note da \texttt{costruisci\_dati}; le quattro
-funzioni del nucleo forniscono agli algoritmi dei listati B.1--B.4 proprio gli oggetti
+funzioni del nucleo forniscono agli algoritmi dei codici B.1--B.4 proprio gli oggetti
 che essi richiedono: la loss per la line search di Wolfe, il gradiente per il passo,
 il prodotto Hessiano--vettore per il gradiente coniugato; \texttt{grad\_full} e
 \texttt{acc\_test} servono alle metriche di valutazione. Frecce continue: flusso dei
@@ -3025,8 +3025,7 @@ sull'intera clip.
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 3.6) {Firma: \texttt{estrai\_chroma}(clip)\\[2pt] $\to x_i \in \mathbb{R}^{24}$};
+  \node[io, text width=6.4cm] (sig) at (0, 3.6) {\texttt{estrai\_chroma}(clip)\\[2pt] $\to x_i \in \mathbb{R}^{24}$};
 
   % Passi (flusso da sinistra a destra)
   \node[box] (load) at (-7.4, 0.8) {Caricamento\\ $y = \texttt{librosa.load}(clip,\  \texttt{sr}=16\,000,\  \texttt{mono})$\\[1pt] $y \in \mathbb{R}^{T}$, $T \approx 64\,000$ campioni};
@@ -3070,8 +3069,7 @@ training set, applicando le stesse statistiche a test
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.8cm] (sig) at (0, 3.6) {Firma: \texttt{costruisci\_dati}(split)\\[2pt] $\to (X,\; y)$};
+  \node[io, text width=6.8cm] (sig) at (0, 3.6) {\texttt{costruisci\_dati}(split)\\[2pt] $\to (X,\; y)$};
 
   % Passi
   \node[box] (loop) at (-6.5, 0.8) {Per ogni clip dello split\\ $x_i = \texttt{estrai\_chroma}(clip_i)$,\\[1pt] $y_i = \texttt{pitch}_i \bmod 12$\\[1pt] ($0{=}C, \dots, 11{=}B$)};
@@ -3095,7 +3093,7 @@ statistiche sono applicate a test).}
 \end{figure}
 
 \textbf{Le funzioni per-esempio.}
-I listati B.1--B.4 operano per-esempio: a ogni iterazione richiamano in loop
+I codici B.1--B.4 operano per-esempio: a ogni iterazione richiamano in loop
 \texttt{loss\_i}, \texttt{grad\_i} e \texttt{hessvec\_i} sul sottocampione
 corrente, con $w$ fissato. Le tre funzioni condividono una cache sui pesi (le
 quantità che dipendono solo da $w$ sono ricalcolate una volta sola). Il modello
@@ -3115,8 +3113,7 @@ e la Figura~\ref{fig:nota_hess} il prodotto Hessiano--vettore.
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.6cm] (sig) at (0, 5.5) {Firma: \texttt{loss\_i}($w$, $i$)\\[2pt] $\to \ell_i(w)$, per il singolo esempio $i$};
+  \node[io, text width=6.6cm] (sig) at (0, 5.5) {\texttt{loss\_i}($w$, $i$)\\[2pt] $\to \ell_i(w)$, per il singolo esempio $i$};
 
   % Passi
   \node[box] (W) at (0, 3.0) {Pesi e esempio\\ $W = \mathrm{reshape}(w, 12, 25)$, \quad $x = X_{\mathrm{aug}}[i]$\\[1pt] ($x$: 24 features + bias, 25 valori)};
@@ -3154,8 +3151,7 @@ contributi.}
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 3.6) {Firma: \texttt{grad\_i}($w$, $i$)\\[2pt] $\to \nabla \ell_i(w) \in \mathbb{R}^{300}$};
+  \node[io, text width=6.4cm] (sig) at (0, 3.6) {\texttt{grad\_i}($w$, $i$)\\[2pt] $\to \nabla \ell_i(w) \in \mathbb{R}^{300}$};
 
   % Passi
   \node[box] (fwd) at (-6.5, 0.8) {Forward\\ $z = W x$ (shift del massimo), \quad $p = \mathrm{softmax}(z)$\\[1pt] $e_{y_i}$: one-hot della classe vera};
@@ -3190,8 +3186,7 @@ la colonna del bias (l'ultima) non riceve regolarizzazione.}
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.6cm] (sig) at (0, 3.6) {Firma: \texttt{hessvec\_i}($w$, $i$, $v$)\\[2pt] $\to \nabla^2 \ell_i(w)\, v$};
+  \node[io, text width=6.6cm] (sig) at (0, 3.6) {\texttt{hessvec\_i}($w$, $i$, $v$)\\[2pt] $\to \nabla^2 \ell_i(w)\, v$};
 
   % Passi
   \node[box] (W) at (-6.5, 0.8) {Pesi e direzione\\ $V = \mathrm{reshape}(v, 12, 25)$, \quad $q = V x$};
@@ -3232,8 +3227,7 @@ $J$ su tutto il training set, con la stessa formula di \texttt{grad\_i}
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.8cm] (sig) at (0, 3.6) {Firma: \texttt{grad\_full}($w$)\\[2pt] $\to \nabla J(w)$ (su tutto il training set, vettorizzato)};
+  \node[io, text width=6.8cm] (sig) at (0, 3.6) {\texttt{grad\_full}($w$)\\[2pt] $\to \nabla J(w)$ (su tutto il training set, vettorizzato)};
 
   % Passi (4 colonne)
   \node[box] (Z) at (-9.6, 0.8) {Logits su tutto il train\\ $Z = X_{\mathrm{aug}} W^{\top} \in \mathbb{R}^{N\times 12}$,\\[1pt] shift del massimo, $P = \mathrm{softmax}(Z)$};
@@ -3350,7 +3344,7 @@ invece molto più lunghi (minuti, contro pochi secondi sulla macchina locale).
 \subsection{Estensione oltre le ipotesi: implementazione vettorizzata per la rete neurale}\label{sec:nsynth-net}
 
 Per verificare come si comportano i quattro metodi quando la funzione obiettivo
-\textbf{non} è convessa, gli stessi algoritmi dei listati B.1--B.4 sono stati
+\textbf{non} è convessa, gli stessi algoritmi dei codici B.1--B.4 sono stati
 applicati a una \textbf{rete neurale}, una famiglia di modelli in cui la loss
 dipende in modo non lineare dai parametri e non è convessa. Le regole degli
 algoritmi (line search di Wolfe, controllo della varianza CCV, gradiente
@@ -3367,7 +3361,7 @@ dell'ordine di $10^{-15}$).
 L'implementazione è organizzata in un piccolo numero di \textbf{funzioni} che
 si richiamano tra loro: la Figura~\ref{fig:nn_funzioni} ne mostra la mappa
 completa, mentre le Figure~\ref{fig:nn_features}--\ref{fig:nn_hess} mostrano
-il dettaglio di ciascuna, con la \emph{firma} (ingressi $\to$ uscite) e le
+il dettaglio di ciascuna, (ingressi $\to$ uscite) e le
 formule esatte implementate. I nomi coincidono con quelli del notebook Colab
 \texttt{nsynth\_net\_riproduzione}, così gli schemi si confrontano
 direttamente con il codice.
@@ -3410,7 +3404,7 @@ direttamente con il codice.
   \node[fcn] (hess) at (8.0, 0.0) {\texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_{\mathcal{H}}(w)\,v$};
 
   % Algoritmi e valutazione
-  \node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.5) {Quattro algoritmi (listati B.1--B.4), logica invariata\\[2pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
+  \node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.5) {Quattro algoritmi (codici B.1--B.4), logica invariata\\[2pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
   \node[io] (eval) at (0.0, -6.5) {\texttt{acc\_test}($w$)\\[2pt] accuratezza su test, tabelle, figure};
 
   % Frecce dati
@@ -3435,7 +3429,7 @@ direttamente con il codice.
 \caption{Mappa delle funzioni dell'implementazione vettorizzata. Dalle clip si
 estraggono i vettori $x_i$ (Figura~\ref{fig:nn_features}), normalizzati nella
 matrice $X$; \texttt{forward} calcola le attivazioni della rete e le quattro
-funzioni che la richiamano forniscono agli algoritmi dei listati B.1--B.4
+funzioni che la richiamano forniscono agli algoritmi dei codici B.1--B.4
 proprio gli oggetti che essi richiedono: la loss per la line search di Wolfe,
 il gradiente per il passo, la varianza per la verifica CCV e il prodotto
 Hessiano--vettore per il gradiente coniugato; \texttt{acc\_test} valuta infine
@@ -3536,7 +3530,7 @@ anche le attivazioni $a_1, a_2$, che servono alla retropropagazione.
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  \node[io, text width=6.2cm] (sig) {Firma: \texttt{forward}($w$, $X_b$)\\[2pt] $\to$ (\texttt{logits}, $a_1$, $a_2$), \quad $X_b \in \mathbb{R}^{m\times 780}$};
+  \node[io, text width=6.2cm] (sig) {\texttt{forward}($w$, $X_b$)\\[2pt] $\to$ (\texttt{logits}, $a_1$, $a_2$), \quad $X_b \in \mathbb{R}^{m\times 780}$};
 
   \node[box, below=of sig] (l1) {Strato 1\\[2pt] $z_1 = X_b W_1 + b_1$, \quad $a_1 = \tanh(z_1)$\\[1pt] $W_1 \in \mathbb{R}^{780\times 256}$};
   \node[box, below=of l1] (l2) {Strato 2\\[2pt] $z_2 = a_1 W_2 + b_2$, \quad $a_2 = \tanh(z_2)$\\[1pt] $W_2 \in \mathbb{R}^{256\times 128}$};
@@ -3582,8 +3576,7 @@ dei pesi $W_l$, non ai bias. La Figura~\ref{fig:nn_loss} riassume i passaggi.
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 4.5) {Firma: \texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_\mathcal{S}(w) \in \mathbb{R}$, \quad $m = |\mathcal{S}|$ esempi\\[1pt] $X_b = X[\mathcal{S}]$, \quad $Y_b = Y[\mathcal{S}]$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.5) {\texttt{loss\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to J_\mathcal{S}(w) \in \mathbb{R}$, \quad $m = |\mathcal{S}|$ esempi\\[1pt] $X_b = X[\mathcal{S}]$, \quad $Y_b = Y[\mathcal{S}]$};
 
   % Passi in fila
   \node[box] (fwd) at (-6.0, 2.0) {Logits dalla \texttt{forward}\\[2pt] $(\mathrm{logits}, \cdot, \cdot) = \texttt{forward}(w, X_b)$};
@@ -3628,8 +3621,8 @@ calcolata però in un solo passaggio matriciale sull'intero batch
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  % Firma e passi iniziali
-  \node[io, text width=6.2cm] (sig) at (0, 6.8) {Firma: \texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_\mathcal{S}(w)$};
+  % Passi iniziali
+  \node[io, text width=6.2cm] (sig) at (0, 6.8) {\texttt{grad\_batch}($w$, $\mathcal{S}$)\\[2pt] $\to \nabla J_\mathcal{S}(w)$};
   \node[box] (fwd) at (0, 4.8) {Forward e probabilità\\[2pt] $(\mathrm{logits}, a_1, a_2) = \texttt{forward}(w, X_b)$, \; $P = \mathrm{softmax}(\mathrm{logits})$};
   \node[box] (err) at (0, 2.8) {Errore di output\\[2pt] $\delta = (P - Y_b)/m$ \quad ($Y_b$ = one-hot delle classi)};
 
@@ -3654,18 +3647,18 @@ calcolata però in un solo passaggio matriciale sull'intero batch
 \caption{Funzione \texttt{grad\_batch}: retropropagazione vettorizzata.
 L'errore $\delta$ tra probabilità e one-hot è propagato all'indietro con la
 derivata di $\tanh$ ($1-a^2$); a ogni matrice dei pesi si somma $\lambda W_l$.
-Il risultato coincide con la media dei gradienti per-esempio del listato B.1.}
+Il risultato coincide con la media dei gradienti per-esempio del codice B.1.}
 \label{fig:nn_grad}
 \end{figure}
 \textbf{Varianza per-esempio per la CCV.}
-La condizione di controllo della varianza (listato B.1) richiede la varianza
+La condizione di controllo della varianza (codice B.1) richiede la varianza
 campionaria dei gradienti individuali sul batch corrente. In forma esatta essa
 vale $V = \frac{\sum_i\|g_i\|^2 - n_k\|\bar g\|^2}{n_k - 1}$: per calcolarla
 non serve materializzare la matrice $(n_k \times D)$ dei gradienti individuali
 (che richiederebbe $n_k \cdot D$ valori, troppi per la memoria di Colab), basta
 accumulare la somma dei quadrati delle norme $\sum_i\|g_i\|^2$ calcolando i
 gradienti a blocchi di 32 esempi. Il valore ottenuto è \emph{identico} a quello
-del listato B.1. La Figura~\ref{fig:nn_ccv} riassume la funzione
+del codice B.1. La Figura~\ref{fig:nn_ccv} riassume la funzione
 \texttt{ccv\_stats} e la sua dipendenza da \texttt{grad\_batch} e
 \texttt{per\_example\_sq\_norms}.
 
@@ -3681,7 +3674,7 @@ del listato B.1. La Figura~\ref{fig:nn_ccv} riassume la funzione
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
-  \node[io, text width=6.4cm] (sig) at (0, 4.2) {Firma: \texttt{ccv\_stats}($w$, $\mathcal{S}$, \texttt{chunk}=32)\\[2pt] $\to (V, \|\bar g\|^2)$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.2) {\texttt{ccv\_stats}($w$, $\mathcal{S}$, \texttt{chunk}=32)\\[2pt] $\to (V, \|\bar g\|^2)$};
 
   \node[box] (gbar) at (-4.0, 2.0) {Gradiente medio\\[2pt] $\bar g = \texttt{grad\_batch}(w, \mathcal{S})$};
   \node[box] (loop) at (4.0, 2.0) {\texttt{per\_example\_sq\_norms}\\[2pt] a blocchi di 32 esempi:\\[1pt] $s_2 \leftarrow s_2 + \sum_{i\in B}\|g_i\|^2$};
@@ -3699,7 +3692,7 @@ del listato B.1. La Figura~\ref{fig:nn_ccv} riassume la funzione
 somma dei quadrati delle norme per-esempio calcolata a blocchi di 32 esempi
 (per non materializzare la matrice $n_k \times D$) e combinazione nella
 formula esatta della varianza campionaria; l'uscita alimenta la verifica CCV
-del listato B.1.}
+del codice B.1.}
 \label{fig:nn_ccv}
 \end{figure}
 
@@ -3725,7 +3718,7 @@ come passo iniziale delle line search, come nel resto della tesi.
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue}
 ]
 
-  \node[io, text width=6.4cm] (sig) at (0, 4.5) {Firma: \texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_\mathcal{H}(w)\,v$, \quad $\mathcal{H} \subseteq \mathcal{S}$};
+  \node[io, text width=6.4cm] (sig) at (0, 4.5) {\texttt{hess\_batch}($w$, $\mathcal{H}$, $v$)\\[2pt] $\to \nabla^2 J_\mathcal{H}(w)\,v$, \quad $\mathcal{H} \subseteq \mathcal{S}$};
 
   \node[box] (f) at (-6.0, 2.0) {Loss media sul sottocampione\\[2pt] $f(w') = J_\mathcal{H}(w')$};
   \node[box] (hvp) at (0.0, 2.0) {Differenziazione automatica\\[2pt] $\texttt{hessian\_vector\_product}(f)$\\[1pt] in una sola chiamata};
@@ -4411,12 +4404,12 @@ La condizione $0<c_1<c_2<1$ garantisce che le due disuguaglianze siano compatibi
 % Bibliografia
 % ═══════════════════════════════════════════════════════════════════════════
 % ═══════════════════════════════════════════════════════════════════════════
-\section{Listati Python completi}\label{app:listati}
+\section{Codici Python completi}\label{app:codici}
 % ═══════════════════════════════════════════════════════════════════════════
 
-In questa appendice sono riportati i listati Python completi dei tre algoritmi
+In questa appendice sono riportati i codici Python completi dei tre algoritmi
 discussi nel Capitolo~\ref{sec:algoritmi} e implementati nell'applicazione
-interattiva (Capitolo~\ref{sec:esperimenti}). I listati fanno riferimento alle
+interattiva (Capitolo~\ref{sec:esperimenti}). I codici fanno riferimento alle
 seguenti funzioni ausiliarie, definite dall'utente e dipendenti dal dataset:
 
 \begin{itemize}
@@ -4428,7 +4421,7 @@ seguenti funzioni ausiliarie, definite dall'utente e dipendenti dal dataset:
   \item $N$: dimensione del dataset.
 \end{itemize}
 
-\subsection{B.1: metodo del gradiente a campione dinamico}
+\subsection{Metodo del gradiente a campione dinamico}
 \begin{pythoncode}[title= Dynamic GD]
 
 import numpy as np
@@ -4536,7 +4529,7 @@ history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
 \end{pythoncode}
 
 Infine, si controlla la norma del gradiente esatto (calcolato su tutti i dati) tramite grad\_full(w): se $\|\nabla J(w_{k})\|_2 < 10^{-6}$, si considera raggiunta la convergenza e si interrompe il ciclo, registrando l'ultimo punto. Altrimenti, si continua registrando la storia dei pesi e delle dimensioni del batch. Al termine, la funzione restituisce le liste history (contenente i pesi $w_k$ a ogni iterazione) e batch\_sizes (contenente le corrispondenti dimensioni $n_k$ del batch).
-\subsection{B.2: Newton-CG con campionamento dinamico}
+\subsection{Newton-CG con campionamento dinamico}
 \begin{pythoncode}[title= Newton-CG]
 
 import numpy as np
@@ -4703,7 +4696,7 @@ Infine, si controlla la norma del gradiente esatto (calcolato su tutto il datase
 \underline{L'algoritmo Newton CG è sostanzialmente Dynamic GD ma la direzione di}
 
  \underline{discesa è quella di Newton anziche l'antigradiente}
-\subsection{B.3: Newton-CG per problemi $L_1$-regolarizzati}
+\subsection{Newton-CG per problemi $L_1$-regolarizzati}
 \begin{pythoncode}[title= Newton-L1]
 
 import numpy as np
@@ -5045,7 +5038,7 @@ $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$. Al termine la funzione restituisce le liste
 % ═══════════════════════════════════════════════════════════════════════════
 
 In questa appendice sono raccolte le istruzioni per eseguire il codice
-Python presentato nell'Appendice~\ref{app:listati} e per avviare
+Python presentato nell'Appendice~\ref{app:codici} e per avviare
 l'applicazione web interattiva descritta nella Sezione~\ref{sec:architettura}.
 
 \subsection{Dipendenze}
@@ -5093,7 +5086,7 @@ del batch raggiunta.
 
 \subsection{Esecuzione dei singoli algoritmi}
 
-I listati dell'Appendice~\ref{app:listati} possono essere eseguiti anche in
+I codici dell'Appendice~\ref{app:codici} possono essere eseguiti anche in
 modo isolato, previa definizione delle funzioni ausiliarie
 \texttt{loss\_i}, \texttt{grad\_i}, \texttt{hessvec\_i}, \texttt{grad\_full}
 e della costante $N$, che dipendono dal dataset. Un esempio completo per la

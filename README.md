@@ -113,6 +113,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (19/08/2026).** **"Codici" al posto di "listati",
+  eliminato il doppio numero B.1--B.3 nei titoli, rimossa la parola "firma"
+  dalle sezioni NSynth.** In `tesi/tesi.tex`: (1) l'Appendice B si intitola ora
+  "Codici Python completi" e "listati"/"listato" sono stati sostituiti con
+  "codici"/"codice" in tutto il documento (incluso il label interno
+  `app:listati` → `app:codici`, riferimenti aggiornati); (2) rimossi i prefissi
+  manuali "B.1:"/"B.2:"/"B.3:" dai titoli delle tre sottosezioni dell'Appendice
+  B, che comparivano due volte nel PDF ("B.1 B.1: …") perché il numero è già
+  generato automaticamente da `\appendix`; (3) eliminata la parola "firma" nelle
+  sezioni NSynth (6.5 nota e 6.5.1 rete): le 11 etichette "Firma:" nei nodi TikZ
+  ora mostrano solo la chiamata di funzione con ingressi → uscite, e in prosa
+  "con la *firma* (ingressi → uscite)" è diventato "(ingressi → uscite)".
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp invariati); `bozza.tex` non
+  toccata (non contiene Appendice B né NSynth). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
 - **Ultimo intervento (19/08/2026).** **Figure 6.2, 6.3, 6.5, 6.6 e 6.7
   rimpicciolite (layout orizzontale).** Le 5 figure delle funzioni del notebook
   nota erano a colonna verticale (5–6 nodi impilati, strette ma altissime) e il
