@@ -133,6 +133,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Intestazioni e link interni in nero.**
+  In `tesi/tesi.tex`: (1) rimossi i `\textcolor{coverblue}{...}` da `\lhead`
+  (Alessandro Lo Curcio) e `\rhead` (Selezione Dinamica del Campione in ML):
+  le intestazioni in alto a sinistra/destra sono ora nere; (2) `\hypersetup`
+  passa da `linkcolor=coverblue` a `linkcolor=black`: le voci dell'indice e
+  tutti i riferimenti interni nel testo (Sezione/Figura/Tabella) sono ora
+  neri; citazioni e URL restano `coverblue`. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (97 pp invariati); sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  allineata.
 - **Ultimo intervento (19/08/2026).** **Ringraziamenti centrati e in corsivo.**
   In `tesi/tesi.tex` la frase di ringraziamento è ora centrata e in `\emph`
   (corsivo), sotto il titolo, in parallelo con la pagina dell'Abstract (prima
