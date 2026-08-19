@@ -113,6 +113,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (19/08/2026).** **Figure 6.2, 6.3, 6.5, 6.6 e 6.7
+  rimpicciolite (layout orizzontale).** Le 5 figure delle funzioni del notebook
+  nota erano a colonna verticale (5–6 nodi impilati, strette ma altissime) e il
+  `\resizebox{0.72–0.8\textwidth}` le ingrandiva (scala > 1 rispetto alla
+  larghezza naturale). Ristrutturate in layout orizzontale come le figure della
+  sottosezione rete neurale: firma in alto, passi in fila da sinistra a destra,
+  uscita in basso; `\resizebox` ~0.72\textwidth (0.88 per la Fig. 6.7
+  `grad_full`, 4 colonne), box da 5.2 a 6.5 cm, distanze compatte. Compilazione
+  senza errori né riferimenti indefiniti, nessun overfull nuovo (i 13 residui
+  sono preesistenti). Documento da 101 a **97 pp** (`tesi.pdf`,
+  `tesi_finale.pdf`). `bozza.tex` non toccata. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
 - **Ultimo intervento (19/08/2026).** **Sez. 6.5 divisa in due subsection e
   schemi delle funzioni del notebook nota.** (1) La Sez. 6.5 ora è composta da
   due `\subsection`: "Validazione su un benchmark musicale: riconoscimento

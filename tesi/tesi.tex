@@ -3015,31 +3015,31 @@ sull'intera clip.
 
 \begin{figure}[H]
 \centering
-\resizebox{0.8\textwidth}{!}{%
+\resizebox{0.72\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 1.4cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=6.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=6.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=6.5cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=6.5cm, align=center, minimum height=1.0cm, inner sep=5pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 5.5) {Firma: \texttt{estrai\_chroma}(clip)\\[2pt] $\to x_i \in \mathbb{R}^{24}$};
+  \node[io, text width=6.4cm] (sig) at (0, 3.6) {Firma: \texttt{estrai\_chroma}(clip)\\[2pt] $\to x_i \in \mathbb{R}^{24}$};
 
-  % Passi
-  \node[box] (load) at (0, 3.0) {Caricamento\\ $y = \texttt{librosa.load}(clip,\; \texttt{sr}{=}16\,000,\; \texttt{mono})$\\[1pt] $y \in \mathbb{R}^{T}$, $T \approx 64\,000$ campioni};
-  \node[box] (chroma) at (0, 0.0) {Chromagramma\\ $C = \texttt{chroma\allowbreak\_stft}(y)$\\[1pt] energia nelle 12 classi per frame,\\[1pt] $C \in \mathbb{R}^{12 \times F}$};
-  \node[box] (stat) at (0, -3.0) {Statistiche nel tempo\\ $x_i = \bigl[\, \mathrm{mean}(C);\; \mathrm{std}(C) \bigr]$\\[1pt] 12 medie + 12 deviazioni standard};
+  % Passi (flusso da sinistra a destra)
+  \node[box] (load) at (-7.4, 0.8) {Caricamento\\ $y = \texttt{librosa.load}(clip,\  \texttt{sr}=16\,000,\  \texttt{mono})$\\[1pt] $y \in \mathbb{R}^{T}$, $T \approx 64\,000$ campioni};
+  \node[box] (chroma) at (0, 0.8) {Chromagramma\\ $C = \texttt{chroma\allowbreak\_stft}(y)$\\[1pt] energia nelle 12 classi per frame,\\[1pt] $C \in \mathbb{R}^{12 \times F}$};
+  \node[box] (stat) at (7.4, 0.8) {Statistiche nel tempo\\ $x_i = \bigl[\, \mathrm{mean}(C);\; \mathrm{std}(C) \bigr]$\\[1pt] 12 medie + 12 deviazioni standard};
 
   % Uscita
-  \node[io] (out) at (0, -5.5) {Uscita: $x_i \in \mathbb{R}^{24}$\\[2pt] (riga di $X$ per \texttt{costruisci\_dati})};
+  \node[io] (out) at (0, -2.4) {Uscita: $x_i \in \mathbb{R}^{24}$\\[2pt] (riga di $X$ per \texttt{costruisci\allowbreak\_dati})};
 
   \draw[arrow] (sig) -- (load);
   \draw[arrow] (load) -- (chroma);
   \draw[arrow] (chroma) -- (stat);
-  \draw[arrow] (stat) -- (out);
+  \draw[arrow] (stat.south) -- (out.north);
 
 \end{tikzpicture}}
 \caption{Funzione \texttt{estrai\_chroma}: da clip audio a vettore di 24
@@ -3062,29 +3062,29 @@ training set, applicando le stesse statistiche a test
 \centering
 \resizebox{0.72\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 1.4cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=7.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=7.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Firma
-  \node[io, text width=6.8cm] (sig) at (0, 6.0) {Firma: \texttt{costruisci\_dati}(split)\\[2pt] $\to (X,\; y)$};
+  \node[io, text width=6.8cm] (sig) at (0, 3.6) {Firma: \texttt{costruisci\_dati}(split)\\[2pt] $\to (X,\; y)$};
 
   % Passi
-  \node[box] (loop) at (0, 3.5) {Per ogni clip dello split\\ $x_i = \texttt{estrai\_chroma}(clip_i)$,\\[1pt] $y_i = \texttt{pitch}_i \bmod 12$\\[1pt] ($0{=}C, \dots, 11{=}B$)};
+  \node[box] (loop) at (-6.5, 0.8) {Per ogni clip dello split\\ $x_i = \texttt{estrai\_chroma}(clip_i)$,\\[1pt] $y_i = \texttt{pitch}_i \bmod 12$\\[1pt] ($0{=}C, \dots, 11{=}B$)};
   \node[box] (mat) at (0, 0.8) {Matrice e etichette\\ $X \in \mathbb{R}^{N \times 24}$, \quad $y \in \{0,\dots,11\}^{N}$};
-  \node[box] (std) at (0, -1.9) {Standardizzazione (sul training set)\\ $\mu = X_{tr}.\mathrm{mean}(0)$, \quad $\sigma = X_{tr}.\mathrm{std}(0)$\\[1pt] $\sigma[\sigma < 10^{-8}] = 1$; \quad $X \leftarrow (X - \mu)/\sigma$};
+  \node[box] (std) at (6.5, 0.8) {Standardizzazione (sul training set)\\ $\mu = X_{tr}.\mathrm{mean}(0)$, \quad $\sigma = X_{tr}.\mathrm{std}(0)$\\[1pt] $\sigma[\sigma < 10^{-8}] = 1$; \quad $X \leftarrow (X - \mu)/\sigma$};
 
   % Uscita
-  \node[io] (out) at (0, -4.8) {Uscita: $X$ (normalizzata), $y$\\[2pt] train: split valid (12\,678 clip),\\[1pt] test (4\,096 clip)};
+  \node[io] (out) at (0, -2.4) {Uscita: $X$ (normalizzata), $y$\\[2pt] train: split valid (12\,678 clip),\\[1pt] test (4\,096 clip)};
 
   \draw[arrow] (sig) -- (loop);
   \draw[arrow] (loop) -- (mat);
   \draw[arrow] (mat) -- (std);
-  \draw[arrow] (std) -- (out);
+  \draw[arrow] (std.south) -- (out.north);
 
 \end{tikzpicture}}
 \caption{Funzione \texttt{costruisci\_dati}: costruisce la matrice delle
@@ -3146,7 +3146,7 @@ contributi.}
 \centering
 \resizebox{0.72\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 1.4cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
   io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
   box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
@@ -3155,20 +3155,20 @@ contributi.}
 ]
 
   % Firma
-  \node[io, text width=6.4cm] (sig) at (0, 5.5) {Firma: \texttt{grad\_i}($w$, $i$)\\[2pt] $\to \nabla \ell_i(w) \in \mathbb{R}^{300}$};
+  \node[io, text width=6.4cm] (sig) at (0, 3.6) {Firma: \texttt{grad\_i}($w$, $i$)\\[2pt] $\to \nabla \ell_i(w) \in \mathbb{R}^{300}$};
 
   % Passi
-  \node[box] (fwd) at (0, 3.0) {Forward\\ $z = W x$ (shift del massimo), \quad $p = \mathrm{softmax}(z)$\\[1pt] $e_{y_i}$: one-hot della classe vera};
-  \node[box] (err) at (0, 0.2) {Errore di output\\ $G = (p - e_{y_i})\, x^{\top}$ \quad (prodotto esterno $12 \times 25$)};
-  \node[box] (reg) at (0, -2.6) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W_{\mathrm{nb}}$};
+  \node[box] (fwd) at (-6.5, 0.8) {Forward\\ $z = W x$ (shift del massimo), \quad $p = \mathrm{softmax}(z)$\\[1pt] $e_{y_i}$: one-hot della classe vera};
+  \node[box] (err) at (0, 0.8) {Errore di output\\ $G = (p - e_{y_i})\, x^{\top}$ \quad (prodotto esterno $12 \times 25$)};
+  \node[box] (reg) at (6.5, 0.8) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W_{\mathrm{nb}}$};
 
   % Uscita
-  \node[io] (out) at (0, -5.5) {Uscita: $\nabla \ell_i(w) = \mathrm{vec}(G)$};
+  \node[io] (out) at (0, -2.4) {Uscita: $\nabla \ell_i(w) = \mathrm{vec}(G)$};
 
   \draw[arrow] (sig) -- (fwd);
   \draw[arrow] (fwd) -- (err);
   \draw[arrow] (err) -- (reg);
-  \draw[arrow] (reg) -- (out);
+  \draw[arrow] (reg.south) -- (out.north);
 
 \end{tikzpicture}}
 \caption{Funzione \texttt{grad\_i}: gradiente per-esempio della regressione
@@ -3182,29 +3182,29 @@ la colonna del bias (l'ultima) non riceve regolarizzazione.}
 \centering
 \resizebox{0.72\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 1.4cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Firma
-  \node[io, text width=6.6cm] (sig) at (0, 5.5) {Firma: \texttt{hessvec\_i}($w$, $i$, $v$)\\[2pt] $\to \nabla^2 \ell_i(w)\, v$};
+  \node[io, text width=6.6cm] (sig) at (0, 3.6) {Firma: \texttt{hessvec\_i}($w$, $i$, $v$)\\[2pt] $\to \nabla^2 \ell_i(w)\, v$};
 
   % Passi
-  \node[box] (W) at (0, 3.0) {Pesi e direzione\\ $V = \mathrm{reshape}(v, 12, 25)$, \quad $q = V x$};
-  \node[box] (r) at (0, 0.2) {Derivata della softmax\\ $r = p \odot q - p\,(p \cdot q)$};
-  \node[box] (hv) at (0, -2.6) {Prodotto esterno\\ $Hv = r\, x^{\top}$, \quad $Hv[:, :-1] \leftarrow Hv[:, :-1] + \lambda\, V[:, :-1]$};
+  \node[box] (W) at (-6.5, 0.8) {Pesi e direzione\\ $V = \mathrm{reshape}(v, 12, 25)$, \quad $q = V x$};
+  \node[box] (r) at (0, 0.8) {Derivata della softmax\\ $r = p \odot q - p\,(p \cdot q)$};
+  \node[box] (hv) at (6.5, 0.8) {Prodotto esterno\\ $Hv = r\, x^{\top}$, \quad $Hv[:, :-1] \leftarrow Hv[:, :-1] + \lambda\, V[:, :-1]$};
 
   % Uscita
-  \node[io] (out) at (0, -5.5) {Uscita: $\mathrm{vec}(Hv)$\\[2pt] per il gradiente coniugato (B.2 e B.3)};
+  \node[io] (out) at (0, -2.4) {Uscita: $\mathrm{vec}(Hv)$\\[2pt] per il gradiente coniugato (B.2 e B.3)};
 
   \draw[arrow] (sig) -- (W);
   \draw[arrow] (W) -- (r);
   \draw[arrow] (r) -- (hv);
-  \draw[arrow] (hv) -- (out);
+  \draw[arrow] (hv.south) -- (out.north);
 
 \end{tikzpicture}}
 \caption{Funzione \texttt{hessvec\_i}: prodotto Hessiano--vettore per-esempio.
@@ -3222,33 +3222,33 @@ $J$ su tutto il training set, con la stessa formula di \texttt{grad\_i}
 
 \begin{figure}[H]
 \centering
-\resizebox{0.72\textwidth}{!}{%
+\resizebox{0.88\textwidth}{!}{%
 \begin{tikzpicture}[
-  node distance=1.0cm and 1.4cm,
+  node distance=1.2cm and 1.5cm,
   every node/.style={font=\small},
-  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
-  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.4cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.4cm, align=center, minimum height=1.0cm, inner sep=5pt},
   arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
   label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
 ]
 
   % Firma
-  \node[io, text width=6.8cm] (sig) at (0, 6.0) {Firma: \texttt{grad\_full}($w$)\\[2pt] $\to \nabla J(w)$ (su tutto il training set, vettorizzato)};
+  \node[io, text width=6.8cm] (sig) at (0, 3.6) {Firma: \texttt{grad\_full}($w$)\\[2pt] $\to \nabla J(w)$ (su tutto il training set, vettorizzato)};
 
-  % Passi
-  \node[box] (Z) at (0, 3.5) {Logits su tutto il train\\ $Z = X_{\mathrm{aug}} W^{\top} \in \mathbb{R}^{N\times 12}$, shift del massimo,\\[1pt] $P = \mathrm{softmax}(Z)$ (per righe)};
-  \node[box] (Y) at (0, 1.0) {One-hot\\ $Y$: matrice $N\times12$ con $Y_{i,y_i} = 1$};
-  \node[box] (G) at (0, -1.5) {Media del gradiente\\ $G = (P - Y)^{\top} X_{\mathrm{aug}}\, /\, N$};
-  \node[box] (reg) at (0, -4.0) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W[:, :-1]$};
+  % Passi (4 colonne)
+  \node[box] (Z) at (-9.6, 0.8) {Logits su tutto il train\\ $Z = X_{\mathrm{aug}} W^{\top} \in \mathbb{R}^{N\times 12}$,\\[1pt] shift del massimo, $P = \mathrm{softmax}(Z)$};
+  \node[box] (Y) at (-3.2, 0.8) {One-hot\\ $Y$: matrice $N\times12$ con $Y_{i,y_i} = 1$};
+  \node[box] (G) at (3.2, 0.8) {Media del gradiente\\ $G = (P - Y)^{\top} X_{\mathrm{aug}}\, /\, N$};
+  \node[box] (reg) at (9.6, 0.8) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W[:, :-1]$};
 
   % Uscita
-  \node[io] (out) at (0, -6.5) {Uscita: $\nabla J(w) = \mathrm{vec}(G)$\\[2pt] norma finale del gradiente (e subgradiente $L_1$)};
+  \node[io] (out) at (0, -2.4) {Uscita: $\nabla J(w) = \mathrm{vec}(G)$\\[2pt] norma finale del gradiente (e subgradiente $L_1$)};
 
   \draw[arrow] (sig) -- (Z);
   \draw[arrow] (Z) -- (Y);
   \draw[arrow] (Y) -- (G);
   \draw[arrow] (G) -- (reg);
-  \draw[arrow] (reg) -- (out);
+  \draw[arrow] (reg.south) -- (out.north);
 
 \end{tikzpicture}}
 \caption{Funzione \texttt{grad\_full}: gradiente di $J$ su tutto il training
