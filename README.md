@@ -113,6 +113,29 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (19/08/2026).** **Sez. 6.5 divisa in due subsection e
+  schemi delle funzioni del notebook nota.** (1) La Sez. 6.5 ora è composta da
+  due `\subsection`: "Validazione su un benchmark musicale: riconoscimento
+  della nota con NSynth" (`sec:nsynth`) e "Estensione oltre le ipotesi:
+  implementazione vettorizzata per la rete neurale" (`sec:nsynth-net`, prima
+  `\subsubsection` 6.5.1, ora `\subsection` 6.6, contenuto invariato). (2)
+  Rimosso il titolo in grassetto "Cosa significa 'modello lineare'." (il testo
+  del paragrafo è conservato). (3) Aggiunti 7 schemi TikZ delle funzioni del
+  primo notebook (`nsynth_nota_riproduzione`, riconoscimento della nota),
+  strutturati esattamente come quelli della sottosezione rete neurale (firma
+  ingressi→uscite e formule esatte): Fig. 6.1 mappa delle funzioni
+  (scarica_estrai → estrai_chroma → costruisci_dati → loss_i/grad_i/hessvec_i/
+  grad_full → algoritmi B.1–B.4 → acc_test), Fig. 6.2 estrai_chroma (clip →
+  x_i in R^24: media e dev. std del chromagramma), Fig. 6.3 costruisci_dati
+  (X, y, standardizzazione sul train), Fig. 6.4 loss_i (softmax stabile,
+  cross-entropia, L2), Fig. 6.5 grad_i, Fig. 6.6 hessvec_i, Fig. 6.7 grad_full.
+  Le figure della sottosezione rete neurale (già 6.5–6.11) sono ora 6.8–6.14.
+  (4) Paragrafo "Riproducibilità": aggiunto il link Colab diretto del notebook
+  `nsynth_nota_riproduzione`. Compilazione senza errori né riferimenti
+  indefiniti, nessun overfull nuovo (i 13 residui sono preesistenti).
+  Documento da 94 a **101 pp** (`tesi.pdf`, `tesi_finale.pdf`). `bozza.tex`
+  non toccata (la sezione NSynth non c'è). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
 - **Ultimo intervento (19/08/2026).** **Sez. 6.5: tagliato l'esperimento NSynth
   sulla famiglia strumentale; la sezione tratta solo il riconoscimento della
   nota (pitch class).** Riscritta in `tesi/tesi.tex` la sottosezione

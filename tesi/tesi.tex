@@ -2904,7 +2904,7 @@ quelli della Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$,
 budget di 300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è
 selezionata dinamicamente dalla CCV.
 
-\textbf{Cosa significa ``modello lineare''.} Il modello è una regressione
+Il modello è una regressione
 logistica multinomiale: per ogni clip $x$ (vettore di 24 features) assegna a
 ogni nota $c$ un punteggio
 \[
@@ -2924,6 +2924,341 @@ modello è semplificato in due modi: (i)~l'input non è lo spettrogramma
 completo con la sua evoluzione temporale, ma 24 statistiche aggregate (media e
 deviazione standard delle 12 componenti cromatiche nel tempo); (ii)~la
 decisione è lineare e non usa features apprese.
+
+Il codice del notebook \texttt{nsynth\_nota\_riproduzione} è organizzato in
+un piccolo numero di \textbf{funzioni} che si richiamano tra loro: la
+Figura~\ref{fig:nota_funzioni} ne mostra la mappa completa, mentre le
+Figure~\ref{fig:nota_chroma}--\ref{fig:nota_grad_full} mostrano il dettaglio
+di ciascuna, con la \emph{firma} (ingressi $\to$ uscite) e le formule esatte
+implementate. I nomi coincidono con quelli del notebook, così gli schemi si
+confrontano direttamente con il codice.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.94\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=2.0cm and 3.0cm,
+  every node/.style={font=\small},
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=3.8cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=3.8cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  fcn/.style={
+    draw=coverblue, fill=coverblue!15, rounded corners=3pt,
+    text width=3.4cm, align=center, minimum height=1.05cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  call/.style={-{Stealth[length=2.2mm]}, thick, dashed, color=gray!65},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Preparazione dei dati (riga superiore)
+\node[io] (split) at (-9.0, 5.5) {Split NSynth\\(valid: 12\,678 clip,\\[1pt] test: 4\,096 clip)};
+\node[fcn] (scarica) at (-3.0, 5.5) {\texttt{scarica\_estrai}\\(split)\\[2pt] scarica ed estrae};
+\node[fcn] (chroma) at (3.0, 5.5) {\texttt{estrai\_chroma}\\(clip)\\[2pt] clip $\to$ $x_i \in \mathbb{R}^{24}$};
+\node[fcn] (dati) at (9.0, 5.5) {\texttt{costruisci\_dati}\\(split)\\[2pt] $X \in \mathbb{R}^{N\times 24}$, $y$};
+
+  % Funzioni nucleo
+\node[fcn] (loss) at (-9.0, 1.5) {\texttt{loss\_i}\\($w$, $i$)\\[2pt] $\to \ell_i(w)$};
+\node[fcn] (grad) at (-3.0, 1.5) {\texttt{grad\_i}\\($w$, $i$)\\[2pt] $\to \nabla\ell_i(w)$};
+\node[fcn] (hess) at (3.0, 1.5) {\texttt{hessvec\_i}\\($w$, $i$, $v$)\\[2pt] $\to \nabla^2\ell_i(w)\,v$};
+\node[fcn] (gfull) at (9.0, 1.5) {\texttt{grad\_full}\\($w$)\\[2pt] $\to \nabla J(w)$};
+
+  % Algoritmi e valutazione
+\node[box, text width=11.0cm, minimum height=1.5cm] (algs) at (0.0, -3.0) {Quattro algoritmi\\[2pt] (listati B.1--B.4), logica invariata\\[1pt] Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV};
+\node[io, text width=8.5cm] (eval) at (0.0, -6.5) {\texttt{acc\_test}($w$)\\[2pt] accuratezza su test, tabelle,\\[1pt] figure; riferimento scikit-learn (L-BFGS)};
+
+  % Frecce dati
+  \draw[arrow] (split) -- (scarica);
+  \draw[arrow] (scarica) -- (chroma);
+  \draw[arrow] (chroma) -- (dati) node[label, midway, above] {$x_i$};
+  \draw[arrow] (dati.south) -- (loss.north) node[label, pos=0.75, above] {$X$, $y$};
+  \draw[arrow] (dati.south) -- (grad.north);
+  \draw[arrow] (dati.south) -- (hess.north);
+  \draw[arrow] (dati.south) -- (gfull.north);
+
+  % Nucleo -> algoritmi
+  \draw[arrow] (loss.south) -- (algs.north) node[label, pos=0.55, left] {Wolfe};
+  \draw[arrow] (grad.south) -- (algs.north) node[label, pos=0.55, left] {passo};
+  \draw[arrow] (hess.south) -- (algs.north) node[label, pos=0.55, right] {CG};
+  \draw[call] (gfull.south) -- (eval.north) node[label, pos=0.55, right] {norma finale};
+
+  \draw[arrow] (algs.south) -- (eval.north);
+
+\end{tikzpicture}}
+\caption{Mappa delle funzioni del notebook \texttt{nsynth\_nota\_riproduzione}.
+Dalle clip di uno split si estraggono i vettori $x_i$ (Figura~\ref{fig:nota_chroma}),
+raccolti in $X$ con le etichette delle note da \texttt{costruisci\_dati}; le quattro
+funzioni del nucleo forniscono agli algoritmi dei listati B.1--B.4 proprio gli oggetti
+che essi richiedono: la loss per la line search di Wolfe, il gradiente per il passo,
+il prodotto Hessiano--vettore per il gradiente coniugato; \texttt{grad\_full} e
+\texttt{acc\_test} servono alle metriche di valutazione. Frecce continue: flusso dei
+dati; frecce tratteggiate: chiamate tra funzioni.}
+\label{fig:nota_funzioni}
+\end{figure}
+
+\textbf{Estrazione delle features (audio $\to$ vettore).}
+La funzione \texttt{estrai\_chroma} converte una clip in un vettore
+$x_i \in \mathbb{R}^{24}$ di statistiche cromatiche: calcola il chromagramma,
+cioè l'energia in ciascuna delle 12 classi di altezza in ogni frame temporale,
+e lo riassume nel tempo con media e deviazione standard
+(Figura~\ref{fig:nota_chroma}). Ogni componente misura quindi quanta energia
+porta una determinata classe di nota, mediata (o la sua variabilità)
+sull'intera clip.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.8\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=6.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=6.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.4cm] (sig) at (0, 5.5) {Firma: \texttt{estrai\_chroma}(clip)\\[2pt] $\to x_i \in \mathbb{R}^{24}$};
+
+  % Passi
+  \node[box] (load) at (0, 3.0) {Caricamento\\ $y = \texttt{librosa.load}(clip,\; \texttt{sr}{=}16\,000,\; \texttt{mono})$\\[1pt] $y \in \mathbb{R}^{T}$, $T \approx 64\,000$ campioni};
+  \node[box] (chroma) at (0, 0.0) {Chromagramma\\ $C = \texttt{chroma\allowbreak\_stft}(y)$\\[1pt] energia nelle 12 classi per frame,\\[1pt] $C \in \mathbb{R}^{12 \times F}$};
+  \node[box] (stat) at (0, -3.0) {Statistiche nel tempo\\ $x_i = \bigl[\, \mathrm{mean}(C);\; \mathrm{std}(C) \bigr]$\\[1pt] 12 medie + 12 deviazioni standard};
+
+  % Uscita
+  \node[io] (out) at (0, -5.5) {Uscita: $x_i \in \mathbb{R}^{24}$\\[2pt] (riga di $X$ per \texttt{costruisci\_dati})};
+
+  \draw[arrow] (sig) -- (load);
+  \draw[arrow] (load) -- (chroma);
+  \draw[arrow] (chroma) -- (stat);
+  \draw[arrow] (stat) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{estrai\_chroma}: da clip audio a vettore di 24
+statistiche cromatiche. Il chromagramma $C$ misura l'energia in ciascuna delle
+12 classi di altezza in ogni frame temporale; media e deviazione standard nel
+tempo producono il vettore $x_i$.}
+\label{fig:nota_chroma}
+\end{figure}
+
+\textbf{Costruzione del dataset.}
+La funzione \texttt{costruisci\_dati} passa le clip di uno split a
+\texttt{estrai\_chroma} e costruisce la matrice $X$ e il vettore delle
+etichette $y$: per ogni clip l'etichetta è la \emph{pitch class}
+$p \bmod 12$ della nota annotata ($0 = C$, \dots, $11 = B$). Le colonne
+sono poi standardizzate con media e deviazione standard calcolate sul solo
+training set, applicando le stesse statistiche a test
+(Figura~\ref{fig:nota_dati}).
+
+\begin{figure}[H]
+\centering
+\resizebox{0.72\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=7.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=7.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.8cm] (sig) at (0, 6.0) {Firma: \texttt{costruisci\_dati}(split)\\[2pt] $\to (X,\; y)$};
+
+  % Passi
+  \node[box] (loop) at (0, 3.5) {Per ogni clip dello split\\ $x_i = \texttt{estrai\_chroma}(clip_i)$,\\[1pt] $y_i = \texttt{pitch}_i \bmod 12$\\[1pt] ($0{=}C, \dots, 11{=}B$)};
+  \node[box] (mat) at (0, 0.8) {Matrice e etichette\\ $X \in \mathbb{R}^{N \times 24}$, \quad $y \in \{0,\dots,11\}^{N}$};
+  \node[box] (std) at (0, -1.9) {Standardizzazione (sul training set)\\ $\mu = X_{tr}.\mathrm{mean}(0)$, \quad $\sigma = X_{tr}.\mathrm{std}(0)$\\[1pt] $\sigma[\sigma < 10^{-8}] = 1$; \quad $X \leftarrow (X - \mu)/\sigma$};
+
+  % Uscita
+  \node[io] (out) at (0, -4.8) {Uscita: $X$ (normalizzata), $y$\\[2pt] train: split valid (12\,678 clip),\\[1pt] test (4\,096 clip)};
+
+  \draw[arrow] (sig) -- (loop);
+  \draw[arrow] (loop) -- (mat);
+  \draw[arrow] (mat) -- (std);
+  \draw[arrow] (std) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{costruisci\_dati}: costruisce la matrice delle
+features e le etichette della pitch class per uno split, poi le normalizza con
+media e deviazione standard calcolate sul solo training set (le stesse
+statistiche sono applicate a test).}
+\label{fig:nota_dati}
+\end{figure}
+
+\textbf{Le funzioni per-esempio.}
+I listati B.1--B.4 operano per-esempio: a ogni iterazione richiamano in loop
+\texttt{loss\_i}, \texttt{grad\_i} e \texttt{hessvec\_i} sul sottocampione
+corrente, con $w$ fissato. Le tre funzioni condividono una cache sui pesi (le
+quantità che dipendono solo da $w$ sono ricalcolate una volta sola). Il modello
+è una regressione logistica multinomiale: la Figura~\ref{fig:nota_loss} mostra
+la loss di un singolo esempio, la Figura~\ref{fig:nota_grad} il suo gradiente
+e la Figura~\ref{fig:nota_hess} il prodotto Hessiano--vettore.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.74\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.6cm] (sig) at (0, 5.5) {Firma: \texttt{loss\_i}($w$, $i$)\\[2pt] $\to \ell_i(w)$, per il singolo esempio $i$};
+
+  % Passi
+  \node[box] (W) at (0, 3.0) {Pesi e esempio\\ $W = \mathrm{reshape}(w, 12, 25)$, \quad $x = X_{\mathrm{aug}}[i]$\\[1pt] ($x$: 24 features + bias, 25 valori)};
+  \node[box] (soft) at (0, 0.2) {Logits e softmax stabile\\ $z = W x$, \quad $z \leftarrow z - \max(z)$, \quad $p = \mathrm{softmax}(z)$};
+  \node[box] (ce) at (-4.2, -2.6) {Cross-entropia\\ $-\log p_{y_i}$};
+  \node[box] (reg) at (4.2, -2.6) {Regolarizzazione $L_2$\\ $\tfrac{\lambda}{2}\|W_{\mathrm{nb}}\|_F^2$, \quad $\lambda = 10^{-4}$\\[1pt] ($W_{\mathrm{nb}}$: senza la colonna del bias)};
+
+  % Uscita
+  \node[io] (out) at (0, -5.5) {Uscita: $\ell_i(w) = {}$ cross-entropia $+$ regolarizzazione\\[2pt] usata dalla line search di Wolfe};
+
+  \draw[arrow] (sig) -- (W);
+  \draw[arrow] (W) -- (soft);
+  \draw[arrow] (soft) -- (ce);
+  \draw[arrow] (soft) -- (reg);
+  \draw[arrow] (ce) -- (out) node[label, pos=0.3, above] {$+$};
+  \draw[arrow] (reg) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{loss\_i}: logits della regressione logistica
+multinomiale, softmax stabile (shift del massimo), cross-entropia per
+l'esempio $i$ e regolarizzazione $L_2$ sui pesi; l'uscita è la somma dei due
+contributi.}
+\label{fig:nota_loss}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.72\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.4cm] (sig) at (0, 5.5) {Firma: \texttt{grad\_i}($w$, $i$)\\[2pt] $\to \nabla \ell_i(w) \in \mathbb{R}^{300}$};
+
+  % Passi
+  \node[box] (fwd) at (0, 3.0) {Forward\\ $z = W x$ (shift del massimo), \quad $p = \mathrm{softmax}(z)$\\[1pt] $e_{y_i}$: one-hot della classe vera};
+  \node[box] (err) at (0, 0.2) {Errore di output\\ $G = (p - e_{y_i})\, x^{\top}$ \quad (prodotto esterno $12 \times 25$)};
+  \node[box] (reg) at (0, -2.6) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W_{\mathrm{nb}}$};
+
+  % Uscita
+  \node[io] (out) at (0, -5.5) {Uscita: $\nabla \ell_i(w) = \mathrm{vec}(G)$};
+
+  \draw[arrow] (sig) -- (fwd);
+  \draw[arrow] (fwd) -- (err);
+  \draw[arrow] (err) -- (reg);
+  \draw[arrow] (reg) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{grad\_i}: gradiente per-esempio della regressione
+logistica. L'errore $p - e_{y_i}$ tra le probabilità e la codifica one-hot
+della classe vera, esteriorizzato con l'input $x$, dà la matrice $12\times25$;
+la colonna del bias (l'ultima) non riceve regolarizzazione.}
+\label{fig:nota_grad}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.72\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.2cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.6cm] (sig) at (0, 5.5) {Firma: \texttt{hessvec\_i}($w$, $i$, $v$)\\[2pt] $\to \nabla^2 \ell_i(w)\, v$};
+
+  % Passi
+  \node[box] (W) at (0, 3.0) {Pesi e direzione\\ $V = \mathrm{reshape}(v, 12, 25)$, \quad $q = V x$};
+  \node[box] (r) at (0, 0.2) {Derivata della softmax\\ $r = p \odot q - p\,(p \cdot q)$};
+  \node[box] (hv) at (0, -2.6) {Prodotto esterno\\ $Hv = r\, x^{\top}$, \quad $Hv[:, :-1] \leftarrow Hv[:, :-1] + \lambda\, V[:, :-1]$};
+
+  % Uscita
+  \node[io] (out) at (0, -5.5) {Uscita: $\mathrm{vec}(Hv)$\\[2pt] per il gradiente coniugato (B.2 e B.3)};
+
+  \draw[arrow] (sig) -- (W);
+  \draw[arrow] (W) -- (r);
+  \draw[arrow] (r) -- (hv);
+  \draw[arrow] (hv) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{hessvec\_i}: prodotto Hessiano--vettore per-esempio.
+L'Hessiana della regressione logistica applicata a $v$ richiede la derivata
+della softmax lungo la direzione $q = Vx$; la regolarizzazione $L_2$
+contribuisce solo sulle colonne dei pesi.}
+\label{fig:nota_hess}
+\end{figure}
+
+\textbf{Gradiente sul training set completo.}
+La funzione \texttt{grad\_full} calcola in forma vettorizzata il gradiente di
+$J$ su tutto il training set, con la stessa formula di \texttt{grad\_i}
+(Figura~\ref{fig:nota_grad_full}); serve per le metriche di valutazione
+(norma del gradiente finale) e per il subgradiente del metodo $L_1$.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.72\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 1.4cm,
+  every node/.style={font=\small},
+  io/.style={draw=gray!60, fill=gray!8, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  box/.style={draw=coverblue, fill=coverblue!6, rounded corners=3pt, text width=5.6cm, align=center, minimum height=1.0cm, inner sep=5pt},
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Firma
+  \node[io, text width=6.8cm] (sig) at (0, 6.0) {Firma: \texttt{grad\_full}($w$)\\[2pt] $\to \nabla J(w)$ (su tutto il training set, vettorizzato)};
+
+  % Passi
+  \node[box] (Z) at (0, 3.5) {Logits su tutto il train\\ $Z = X_{\mathrm{aug}} W^{\top} \in \mathbb{R}^{N\times 12}$, shift del massimo,\\[1pt] $P = \mathrm{softmax}(Z)$ (per righe)};
+  \node[box] (Y) at (0, 1.0) {One-hot\\ $Y$: matrice $N\times12$ con $Y_{i,y_i} = 1$};
+  \node[box] (G) at (0, -1.5) {Media del gradiente\\ $G = (P - Y)^{\top} X_{\mathrm{aug}}\, /\, N$};
+  \node[box] (reg) at (0, -4.0) {Regolarizzazione\\ $G[:, :-1] \leftarrow G[:, :-1] + \lambda\, W[:, :-1]$};
+
+  % Uscita
+  \node[io] (out) at (0, -6.5) {Uscita: $\nabla J(w) = \mathrm{vec}(G)$\\[2pt] norma finale del gradiente (e subgradiente $L_1$)};
+
+  \draw[arrow] (sig) -- (Z);
+  \draw[arrow] (Z) -- (Y);
+  \draw[arrow] (Y) -- (G);
+  \draw[arrow] (G) -- (reg);
+  \draw[arrow] (reg) -- (out);
+
+\end{tikzpicture}}
+\caption{Funzione \texttt{grad\_full}: gradiente di $J$ su tutto il training
+set in forma matriciale. Le probabilità di tutte le $N$ clip sono calcolate in
+un unico prodotto; la media degli errori $(P-Y)$ pesati con le features dà il
+gradiente, usato per la norma finale e per il subgradiente del metodo $L_1$.}
+\label{fig:nota_grad_full}
+\end{figure}
+
+% ===== fine schemi NSynth nota =====
 
 Abbiamo applicato gli stessi metodi anche al riconoscimento della famiglia
 strumentale (10 classi, features di mel), dove il modello lineare si ferma a
@@ -2994,7 +3329,8 @@ riferimento.
 \textbf{Riproducibilità.} Tutti gli esperimenti di questa sezione
 (estrazione delle features, esecuzione dei quattro metodi, figure e tabelle)
 sono riproducibili con il notebook Colab \texttt{nsynth\_nota\_riproduzione},
-disponibile nel repository GitHub
+\url{https://colab.research.google.com/github/Alessandro1040/selezione-dinamica-batch/blob/main/tesi/nsynth/nsynth_nota_riproduzione.ipynb};
+il codice è anche disponibile nel repository GitHub
 (\url{https://github.com/Alessandro1040/selezione-dinamica-batch}), nella
 cartella \texttt{tesi/nsynth/}.
 
@@ -3011,7 +3347,7 @@ leggermente diversi. Le differenze sono dell'ordine di qualche decimo di punto
 percentuale e non cambiano le conclusioni; i tempi di esecuzione in Colab sono
 invece molto più lunghi (minuti, contro pochi secondi sulla macchina locale).
 
-\subsubsection{Estensione oltre le ipotesi: implementazione vettorizzata per la rete neurale}\label{sec:nsynth-net}
+\subsection{Estensione oltre le ipotesi: implementazione vettorizzata per la rete neurale}\label{sec:nsynth-net}
 
 Per verificare come si comportano i quattro metodi quando la funzione obiettivo
 \textbf{non} è convessa, gli stessi algoritmi dei listati B.1--B.4 sono stati
