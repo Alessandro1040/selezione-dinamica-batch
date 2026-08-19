@@ -20,7 +20,7 @@ Roma (A.A. 2025–2026).
     ├── tesi.pdf                   PDF compilato del documento di lavoro
     ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
     ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
-    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (92 pp)
+    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (94 pp)
     ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
     ├── bozza.pdf                  PDF compilato della bozza
     ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
@@ -83,7 +83,7 @@ pezzi sono documenti separati). `tesi_sapthesis.tex`/`tesi_sapthesis.pdf`
 `sapthesis`) restano in repo come riferimento storico. `bozza.tex`/`bozza.pdf`
 sono la versione bozza.
 
-## Note operative e stato corrente (18/08/2026)
+## Note operative e stato corrente (19/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -113,6 +113,26 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (19/08/2026).** **Sez. 6.5: tagliato l'esperimento NSynth
+  sulla famiglia strumentale; la sezione tratta solo il riconoscimento della
+  nota (pitch class).** Riscritta in `tesi/tesi.tex` la sottosezione
+  `sec:nsynth` (ora "Validazione su un benchmark musicale: riconoscimento
+  della nota con NSynth"): mantiene l'introduzione sul dataset NSynth e lo
+  split validation/test, e sposta qui le features (chromagramma, 24 dimensioni)
+  e il problema di apprendimento (12 classi, 300 parametri) del pitch;
+  eliminati il riconoscimento della famiglia strumentale (10 classi, features
+  mel, 810 parametri), la tabella `tab:nsynth` (57.8--59.3%), le figure
+  `fig:nsynth_acc`/`fig:nsynth_batch`, le "quattro osservazioni" e la tabella
+  del trade-off $L_1$ `tab:nsynth_l1`. La famiglia resta citata in una sola
+  frase di passaggio (~59% contro il 20.8% della classe maggioritaria; il
+  limite è nella rappresentazione) e come compito della rete neurale
+  (Sez. 6.5.1, invariata, 96.9--99.2%). Adattati il paragrafo riassuntivo, la
+  "Riproducibilità" (resta solo il notebook `nsynth_nota_riproduzione`) e la
+  "Precisione sui valori numerici" (rimosso l'esempio Colab della famiglia).
+  Nessun altro capitolo citava i label rimossi; compilazione senza errori né
+  riferimenti indefiniti. Documento da 96 a **94 pp** (`tesi.pdf`,
+  `tesi_finale.pdf`). `bozza.tex` non toccata (la sezione NSynth non c'è).
+  Sincronizzati tesi.tex/tesi.pdf/tesi_finale.pdf nella repo (md5 verificati).
 - **Ultimo intervento (18/08/2026).** **Sez. 6.5.1: figure 6.5--6.11 distanziate
   per eliminare le sovrapposizioni tra i box.** Le 7 figure a livello di
   funzione (6.5--6.11) avevano i box dei nodi che si toccavano/sovrapponevano

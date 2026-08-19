@@ -2862,173 +2862,77 @@ nell'Appendice~\ref{app:listati}; le istruzioni per l'esecuzione e per
 l'avvio dell'applicazione sono nell'Appendice~\ref{app:istruzioni}.
 
 
-\subsection{Validazione su un benchmark reale: NSynth}\label{sec:nsynth}
+\subsection{Validazione su un benchmark musicale: riconoscimento della nota con NSynth}\label{sec:nsynth}
 
 I test delle Sezioni precedenti usano i preset quadratici sintetici
 dell'applicazione. Per verificare i metodi su un problema di apprendimento
-reale, li applichiamo al riconoscimento della famiglia strumentale sul
-dataset \textbf{NSynth}~\cite{engel2017}: un benchmark di riferimento per la
-ricerca audio, contenente circa $306\,000$ note monofoniche di quattro
-secondi (16~kHz) generate da 1006 strumenti di biblioteche campione
-commerciali, ciascuna annotata con la famiglia strumentale di appartenenza.
+reale, li applichiamo al riconoscimento della \emph{nota} suonata (pitch
+class) sul dataset \textbf{NSynth}~\cite{engel2017}: un benchmark di
+riferimento per la ricerca audio, contenente circa $306\,000$ note
+monofoniche di quattro secondi (16~kHz) generate da 1006 strumenti di
+biblioteche campione commerciali, ciascuna annotata con la nota e la famiglia
+strumentale di appartenenza.
 
 Per contenere il costo del download (lo split di addestramento completo
 occupa circa 24~GB), usiamo lo split \emph{validation} ($12\,678$ clip) come
 insieme di addestramento e lo split \emph{test} ($4\,096$ clip) come insieme
 di valutazione. Per costruzione del dataset gli strumenti dei due split sono
 disgiunti: il test misura quindi la generalizzazione a strumenti mai
-incontrati durante l'addestramento. Nelle due suddivisioni compaiono dieci
-famiglie strumentali: bass, keyboard, guitar, organ, brass, string, reed,
-mallet, flute e vocal.
+incontrati durante l'addestramento.
 
-\textbf{Features audio.} Da ogni clip estraiamo lo spettrogramma di mel a
-40 bande (in decibel) e ne calcoliamo media e deviazione standard nel tempo,
-ottenendo un vettore di 80 features per clip, successivamente standardizzate
-sui dati di addestramento.
+\textbf{Features audio.} Da ogni clip estraiamo il \emph{chromagramma}: le
+dodici componenti cromatiche, cioè l'energia in ciascuna delle 12 classi di
+altezza ($C$, $C\#$, $D$, \dots, $B$), indipendenti dall'ottava, e ne
+prendiamo media e deviazione standard nel tempo, ottenendo 24 features per
+clip. Il chromagramma è una rappresentazione musicalmente significativa e,
+essendo per costruzione indipendente dall'ottava, è particolarmente adatto a
+questo compito.
 
 \textbf{Problema di apprendimento.} Il compito è la classificazione
-multinomiale in dieci classi mediante regressione logistica (softmax). La
-perdita empirica è
+multinomiale in dodici classi di altezza mediante regressione logistica
+(softmax). La perdita empirica è
 \[
   J(w) = -\frac{1}{N}\sum_{i=1}^{N}\log p_{y_i}(x_i; w)
          + \frac{\lambda}{2}\|W\|_F^2,
 \]
-con $p_c(x; w) \propto \exp(e_c^{\top} W x)$, dove $W \in \mathbb{R}^{10\times 81}$
-(80 features + bias) e $w = \mathrm{vec}(W)$. I metodi a gradiente e Newton
-usano la regolarizzazione $L_2$ con $\lambda = 10^{-4}$; il metodo
-Newton-CG~$L_1$ risolve la versione $L_1$-regolarizzata con $\nu = 10^{-3}$
-(Sezione~\ref{sec:l1}). I parametri degli algoritmi sono quelli della
-Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$, budget di
-300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è selezionata
-dinamicamente dalla CCV.
+con $p_c(x; w) \propto \exp(e_c^{\top} W x)$, dove $W \in \mathbb{R}^{12\times 25}$
+(24 features + bias) e $w = \mathrm{vec}(W)$: 300 parametri in tutto. I metodi
+a gradiente e Newton usano la regolarizzazione $L_2$ con $\lambda = 10^{-4}$;
+il metodo Newton-CG~$L_1$ risolve la versione $L_1$-regolarizzata con
+$\nu = 10^{-3}$ (Sezione~\ref{sec:l1}). I parametri degli algoritmi sono
+quelli della Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$,
+budget di 300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è
+selezionata dinamicamente dalla CCV.
 
 \textbf{Cosa significa ``modello lineare''.} Il modello è una regressione
-logistica multinomiale: per ogni clip $x$ (vettore di 80 features) assegna a
-ogni famiglia $c$ un punteggio
+logistica multinomiale: per ogni clip $x$ (vettore di 24 features) assegna a
+ogni nota $c$ un punteggio
 \[
-  s_c(x) = w_{c,1}x_1 + \cdots + w_{c,80}x_{80} + b_c,
+  s_c(x) = w_{c,1}x_1 + \cdots + w_{c,24}x_{24} + b_c,
 \]
-cioè una combinazione lineare delle features (ogni banda contribuisce in modo
-indipendente, con il proprio peso), e trasforma i dieci punteggi in
-probabilità con la softmax. Il modello è ``lineare'' nel senso che la
-decisione è una somma pesata degli input, senza interazioni tra le bande (in
-due dimensioni la separazione tra due classi sarebbe una retta); l'unica
+cioè una combinazione lineare delle features (ogni componente cromatica
+contribuisce in modo indipendente, con il proprio peso), e trasforma i dodici
+punteggi in probabilità con la softmax. Il modello è ``lineare'' nel senso che
+la decisione è una somma pesata degli input, senza interazioni tra le features
+(in due dimensioni la separazione tra due classi sarebbe una retta); l'unica
 non-linearità è la softmax, che serve solo a ottenere probabilità. Questa
 scelta è deliberata: la loss è convessa e liscia, quindi la teoria della tesi
 (CCV, convergenza, complessità) si applica direttamente, a differenza delle
 reti profonde su spettrogrammi, dove la loss è non convessa e i milioni di
 parametri rendono impraticabile l'analisi. Rispetto a una rete profonda il
 modello è semplificato in due modi: (i)~l'input non è lo spettrogramma
-completo con la sua evoluzione temporale, ma 80 statistiche aggregate (media
-e deviazione standard delle 40 bande di mel nel tempo); (ii)~la decisione è
-lineare e non usa features apprese. Di conseguenza l'accuratezza sul compito
-difficile (famiglia strumentale, $\approx 59\%$) è modesta ma comunque circa
-tre volte la predizione banale della classe maggioritaria ($20.8\%$): il
-limite è nella rappresentazione, non negli algoritmi di ottimizzazione.
+completo con la sua evoluzione temporale, ma 24 statistiche aggregate (media e
+deviazione standard delle 12 componenti cromatiche nel tempo); (ii)~la
+decisione è lineare e non usa features apprese.
 
-I risultati sono riportati nella Tabella~\ref{tab:nsynth} e nelle
-Figure~\ref{fig:nsynth_acc}--\ref{fig:nsynth_batch}.
+Abbiamo applicato gli stessi metodi anche al riconoscimento della famiglia
+strumentale (10 classi, features di mel), dove il modello lineare si ferma a
+circa il $59\%$ di accuratezza contro il $20.8\%$ della classe maggioritaria:
+il limite è nella rappresentazione, non negli algoritmi di ottimizzazione.
+Riportiamo qui il compito del pitch class perché più pulito e direttamente
+confrontabile con il solutore di riferimento.
 
-\begin{table}[H]
-\centering
-\small
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{l r r r r r}
-\toprule
-Metodo & Acc.\ test & $\|\nabla J(w)\|_2$ & Batch finale & Tempo (s) & Coeff.\ non nulli \\
-\midrule
-Dynamic GD      & 57.8\% & $3.8\times10^{-2}$ & 12\,678 & 6.8 & --- \\
-Newton-CG       & 59.3\% & $1.8\times10^{-3}$ & 12\,678 & 10.7 & --- \\
-Newton-CG~$L_1$ & 58.5\% & $1.6\times10^{-3}$ & 12\,678 & 8.8 & 424/810 \\
-BB-CCV          & 58.5\% & $5.7\times10^{-2}$ & 12\,678 & 5.3 & --- \\
-\bottomrule
-\end{tabular}
-\caption{Risultati sul benchmark NSynth dopo 300 iterazioni (budget): i metodi
-sono eseguiti sui preset di features mel con i parametri della
-Sezione~\ref{sec:setup}. L'accuratezza di test misura la generalizzazione a
-strumenti non visti in addestramento; la predizione banale della classe
-maggioritaria vale il 20.8\%.}
-\label{tab:nsynth}
-\end{table}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{figure_nsynth/nsynth_accuracy.pdf}
-\caption{Accuratezza sul test NSynth in funzione delle iterazioni $k$ per i
-quattro metodi. La linea tratteggiata indica la predizione banale della
-classe maggioritaria (20.8\%).}
-\label{fig:nsynth_acc}
-\end{figure}
-
-\begin{figure}[H]
-\centering
-\includegraphics[width=0.8\textwidth]{figure_nsynth/nsynth_batch.pdf}
-\caption{Dimensione del batch $n_k$ in funzione delle iterazioni $k$ sui
-quattro metodi: la CCV aumenta il campione fino all'intero dataset man mano
-che il gradiente si riduce.}
-\label{fig:nsynth_batch}
-\end{figure}
-
-Dai risultati emergono quattro osservazioni. In primo luogo, tutti i metodi
-superano nettamente la predizione banale della classe maggioritaria (20.8\%)
-e raggiungono valori tra il 58\% e il 59\% di accuratezza sul test. In
-secondo luogo, Newton-CG è il metodo più accurato (59.3\%) e il più veloce:
-è il primo a superare il 55\% di accuratezza ($k = 31$ iterazioni, contro 55
-di BB-CCV, 65 di Dynamic GD e 118 di Newton-CG~$L_1$), e riduce la norma del
-gradiente di oltre un ordine di grandezza rispetto ai metodi del primo ordine
-($1.8\times10^{-3}$ contro $4$--$6\times10^{-2}$). In terzo luogo, la
-CCV funziona su dati reali: la dimensione del batch cresce da $n_0 = 64$
-fino all'intero campione ($N = 12\,678$) man mano che i metodi si avvicinano
-al minimo, perché il rapporto tra varianza dei gradienti per-esempio e
-$\|g\|^2$ aumenta quando il gradiente si riduce
-(Figura~\ref{fig:nsynth_batch}). In quarto luogo, la regolarizzazione $L_1$
-seleziona automaticamente le variabili rilevanti: con $\nu = 10^{-3}$ il
-metodo Newton-CG~$L_1$ azzera circa il 48\% dei coefficienti (424 su 810)
-con una perdita di accuratezza trascurabile (58.5\% contro 59.3\% del caso
-denso), individuando le bande di mel che contano per il riconoscimento dello
-strumento e rendendo il modello più facile da interpretare
-(Sezione~\ref{sec:l1}).
-
-\begin{table}[H]
-\centering
-\small
-\renewcommand{\arraystretch}{1.3}
-\begin{tabular}{l r r r}
-\toprule
-$\nu$ & Acc.\ test & Coeff.\ non nulli & Sparsità \\
-\midrule
-$10^{-4}$      & 59.5\% & 695/810 & 14\% \\
-$10^{-3}$      & 58.5\% & 424/810 & 48\% \\
-$5\times10^{-3}$ & 53.7\% & 228/810 & 72\% \\
-\bottomrule
-\end{tabular}
-\caption{Trade-off tra accuratezza e sparsità per il metodo Newton-CG~$L_1$
-al variare della penalità $\nu$: aumentando $\nu$ la soluzione diventa più
-sparsa al prezzo di una minore accuratezza.}
-\label{tab:nsynth_l1}
-\end{table}
-
-Il trade-off tra sparsità e accuratezza al variare della penalità $\nu$ è
-riportato nella Tabella~\ref{tab:nsynth_l1}: all'aumentare di $\nu$ la
-soluzione diventa più sparsa, fino al 72\% di coefficienti nulli, al prezzo
-di una minore accuratezza. Il valore $\nu = 10^{-3}$ rappresenta un buon
-compromesso: circa metà dei coefficienti azzerati con una perdita inferiore
-a un punto percentuale.
-
-\textbf{Riconoscimento della nota (pitch class).} Per mostrare che gli
-stessi metodi raggiungono un'accuratezza elevata quando il problema è ben
-posto, consideriamo un secondo compito musicale: riconoscere la
-\emph{nota} suonata (pitch class), cioè una delle 12 classi di altezza
-($C$, $C\#$, $D$, \dots, $B$), indipendente dall'ottava. Le features sono il
-\emph{chromagramma}: per ogni clip calcoliamo le 12 componenti cromatiche
-(l'energia in ciascuna classe di altezza) e ne prendiamo media e deviazione
-standard nel tempo, ottenendo 24 features per clip. Il chromagramma è una
-rappresentazione musicalmente significativa e, essendo per costruzione
-indipendente dall'ottava, è particolarmente adatto a questo compito. Il
-modello è la stessa regressione logistica multinomiale (softmax) con
-regolarizzazione $L_2$ ($\lambda = 10^{-4}$), ora su 12 classi e 300
-parametri, con gli stessi iperparametri degli algoritmi. I risultati sono
-riportati nella Tabella~\ref{tab:nsynth_nota} e nelle
+I risultati sono riportati nella Tabella~\ref{tab:nsynth_nota} e nelle
 Figure~\ref{fig:nota_acc}--\ref{fig:nota_batch}.
 
 \begin{table}[H]
@@ -3082,34 +2986,28 @@ criterio di arresto in 128 iterazioni, azzerando il 51\% dei coefficienti
 (146 su 300): la regolarizzazione $L_1$ seleziona le componenti cromatiche
 rilevanti per il riconoscimento della nota. Anche su questo compito la CCV
 aumenta la dimensione del batch man mano che il gradiente si riduce
-(Figura~\ref{fig:nota_batch}). In sintesi, gli stessi algoritmi validati sul
-compito difficile della famiglia strumentale raggiungono un'accuratezza
-elevata ($\approx 91\%$) sul compito musicale del riconoscimento della nota:
-il limite del primo esperimento è dovuto alla rappresentazione delle
-features, non all'ottimizzazione.
+(Figura~\ref{fig:nota_batch}). In sintesi, gli stessi algoritmi validati sui
+problemi sintetici raggiungono un'accuratezza elevata ($\approx 91\%$) sul
+compito musicale del riconoscimento della nota, in linea con il solutore di
+riferimento.
 
 \textbf{Riproducibilità.} Tutti gli esperimenti di questa sezione
 (estrazione delle features, esecuzione dei quattro metodi, figure e tabelle)
-sono riproducibili con i notebook Colab \texttt{nsynth\_riproduzione} (famiglia
-strumentale) e \texttt{nsynth\_nota\_riproduzione} (riconoscimento della nota),
-disponibili nel repository GitHub
+sono riproducibili con il notebook Colab \texttt{nsynth\_nota\_riproduzione},
+disponibile nel repository GitHub
 (\url{https://github.com/Alessandro1040/selezione-dinamica-batch}), nella
 cartella \texttt{tesi/nsynth/}.
 
 \textbf{Precisione sui valori numerici.} I dati riportati in questa sezione
 (accuratezze, norme del gradiente, dimensioni del batch e tempi) si
 riferiscono alla run di riferimento eseguita sul computer dell'autore, non a
-un'esecuzione in Colab. I notebook Colab riproducono lo stesso codice con lo
+un'esecuzione in Colab. Il notebook Colab riproduce lo stesso codice con lo
 stesso seme casuale (seed 42), ma la riproducibilità non è esatta: gli
 algoritmi sono stocastici e i calcoli in virgola mobile dipendono
 dall'ambiente di esecuzione (versione di NumPy e libreria BLAS sottostante,
 OpenBLAS in Colab contro Accelerate su macOS), per cui piccole differenze di
 arrotondamento, accumulate sulle 300 iterazioni, producono valori finali
-leggermente diversi. Ad esempio, sul riconoscimento della famiglia
-strumentale l'accuratezza di BB-CCV è $58.5\%$ nella run locale e $58.8\%$ in
-Colab, e il numero di coefficienti non nulli di Newton-CG~$L_1$ è 424 contro
-404, perché l'azzeramento dei coefficienti dipende dal confronto del gradiente
-con la soglia $\nu$. Le differenze sono dell'ordine di qualche decimo di punto
+leggermente diversi. Le differenze sono dell'ordine di qualche decimo di punto
 percentuale e non cambiano le conclusioni; i tempi di esecuzione in Colab sono
 invece molto più lunghi (minuti, contro pochi secondi sulla macchina locale).
 
