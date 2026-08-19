@@ -133,6 +133,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Tabella 5.2: da float `[h]` a `[H]`.** La
+  tabella `tab:5_1` (confronto dei tre metodi) era dichiarata `\begin{table}[h]`
+  e LaTeX la spostava in cima alla pagina successiva, compilando prima il
+  titolo "6 Esperimenti e Visualizzazione Interattiva" e l'inizio del
+  paragrafo introduttivo: nel PDF la caption terminava con "...m il numero di
+  variabili." seguita direttamente dalla seconda metà del paragrafo ("e i
+  risultati numerici ottenuti..."), come se mancasse una riga. Passata a
+  `[H]` (posizionamento rigoroso, coerente con le altre figure del documento):
+  la tabella resta alla fine del Cap. 5 e la Sez. 6 segue intatta. Corretto
+  anche il commento interno ("Tabella 5.1" → "Tabella 5.2"). Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (97 pp invariati); sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Appendice Istruzioni: riscritta la
   sottosezione "Esecuzione degli esperimenti numerici".** Prima affermava che
   gli esperimenti del Capitolo 6 si riproducono eseguendo `sim_exp.py`; non è
