@@ -133,6 +133,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Ringraziamenti centrati e in corsivo.**
+  In `tesi/tesi.tex` la frase di ringraziamento è ora centrata e in `\emph`
+  (corsivo), sotto il titolo, in parallelo con la pagina dell'Abstract (prima
+  era `\noindent` allineata a sinistra in tondo). Scelta di stile: centratura
+  e corsivo per una pagina dedicata di solo testo (allineare a destra avrebbe
+  richiamato una firma). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp
+  invariati); sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5
+  verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Tabella 5.2: da float `[h]` a `[H]`.** La
   tabella `tab:5_1` (confronto dei tre metodi) era dichiarata `\begin{table}[h]`
   e LaTeX la spostava in cima alla pagina successiva, compilando prima il
