@@ -2813,8 +2813,9 @@ $k$ & $\|w_k-w_*\|_2$\\
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono le seguenti
 indicazioni. Sul problema ben condizionato tutti i metodi progrediscono
 lentamente (l'errore $\|w_k-w_*\|_2$ resta dell'ordine $10^{-1}$ dopo 30
-iterazioni): i più veloci sono Dynamic GD e Newton-CG~$L_1$
-($\approx 10^{-1}$), mentre Newton-CG è il più lento
+iterazioni): i più veloci sono Dynamic GD, Newton-CG~$L_1$ e BB-CCV
+($\approx 10^{-1}$, con BB-CCV che si ferma già alla 12ª iterazione), mentre
+Newton-CG è il più lento
 ($\approx 4\times10^{-1}$). Sul problema molto mal condizionato il quadro
 cambia drasticamente: Dynamic GD e Newton-CG~$L_1$ restano bloccati sopra
 $10^{-1}$, mentre BB-CCV converge alla precisione macchina
@@ -4886,7 +4887,7 @@ dove $g_{k+1}$ è il gradiente della parte liscia sul nuovo campione. Se la cond
 n \;\leftarrow\; \min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_{k+1}\|_2^2}\right\rceil+1\right\}.
 \]
 Questa è un'estensione dinamica rispetto al paper originale, dove il campione per il caso $L_1$ era mantenuto fisso. Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch, quindi si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
-\subsection{B.4: metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}
+\subsection{Metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}
 
 Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
 adattivo di Barzilai--Borwein, che stima la curvatura di $J$ usando solo i
