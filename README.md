@@ -133,6 +133,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Tabella nota: corretto "Batch finale" di
+  Dynamic GD (12 678 → 5 297) e aggiunta la spiegazione del plateau in Sez.
+  6.5.** I dati salvati (`colab_risorse/figure/nota/curves.npz` e
+  `results.json`) mostrano che nell'esperimento nota il solo Dynamic GD porta
+  il batch a 5 297 (non a 12 678 = N): la sua norma del gradiente ristagna a
+  ~6.8e-2 (mai sotto la tolleranza di arresto) e la CCV si stabilizza a
+  n_k ≈ 5 297. BB-CCV invece raggiunge N=12 678 più velocemente di tutti
+  (iterazione 23); il plateau a ~5000 nella figura è la linea blu di Dynamic
+  GD, non BB-CCV. Corretta la cella della Tab. (tab:nsynth_nota) in `tesi.tex`
+  e aggiunta una frase esplicativa nella prosa della Sez. 6.5. Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (pagine invariate); sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Riorganizzata la struttura della repo:
   cartelle `colab_risorse/` e `altro/`; `tesi/` ridotta al minimo per
   compilare.** `tesi/` ora contiene solo ciò che serve a compilare

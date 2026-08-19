@@ -3272,7 +3272,7 @@ Figure~\ref{fig:nota_acc}--\ref{fig:nota_batch}.
 \toprule
 Metodo & Acc.\ test & $\|\nabla J(w)\|_2$ & Batch finale & Tempo (s) & Coeff.\ non nulli \\
 \midrule
-Dynamic GD      & 88.0\% & $6.8\times10^{-2}$ & 12\,678 & 7.3 & --- \\
+Dynamic GD      & 88.0\% & $6.8\times10^{-2}$ & 5\,297 & 7.3 & --- \\
 Newton-CG       & 91.4\% & $2.8\times10^{-6}$ & 12\,678 & 6.3 & --- \\
 Newton-CG~$L_1$ & 89.8\% & $8.5\times10^{-7}$ & 12\,678 & 1.1 & 146/300 \\
 BB-CCV          & 90.8\% & $3.1\times10^{-3}$ & 12\,678 & 2.4 & --- \\
@@ -3315,7 +3315,10 @@ criterio di arresto in 128 iterazioni, azzerando il 51\% dei coefficienti
 (146 su 300): la regolarizzazione $L_1$ seleziona le componenti cromatiche
 rilevanti per il riconoscimento della nota. Anche su questo compito la CCV
 aumenta la dimensione del batch man mano che il gradiente si riduce
-(Figura~\ref{fig:nota_batch}). In sintesi, gli stessi algoritmi validati sui
+(Figura~\ref{fig:nota_batch}). Il solo Dynamic GD fa eccezione: la norma del
+suo gradiente ristagna a $\approx 6.8\times10^{-2}$ (non scende mai sotto la
+tolleranza di arresto) e perciò la CCV si stabilizza a $n_k = 5\,297$ invece di
+spingere il campione fino a $N$. In sintesi, gli stessi algoritmi validati sui
 problemi sintetici raggiungono un'accuratezza elevata ($\approx 91\%$) sul
 compito musicale del riconoscimento della nota, in linea con il solutore di
 riferimento.
