@@ -13,22 +13,38 @@ Roma (A.A. 2025–2026).
 ├── visualizzazione.html           applicazione web interattiva (Pyodide + Plotly)
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
-└── tesi/                          sorgenti LaTeX e PDF della tesi
-    ├── tesi_sapthesis.tex         documento unico sapthesis (riferimento storico)
-    ├── tesi_sapthesis.pdf         PDF compilato del documento unico (96 pp, storico)
-    ├── tesi.tex                   documento di lavoro (article, con copertina)
-    ├── tesi.pdf                   PDF compilato del documento di lavoro
-    ├── frontespizio.tex           vecchio frontespizio separato (riferimento storico)
-    ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
-    ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento (94 pp)
-    ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
-    ├── bozza.pdf                  PDF compilato della bozza
-    ├── contenuti/                 frammenti LaTeX dei capitoli (intro, lavori, sezione6, ...)
-    ├── figure/                    figure usate nella tesi (PDF/PNG)
-    ├── conodiscesa2.jpeg          figura del cono di discesa
-    ├── nsynth/                    notebook Colab di riproduzione (NSynth, musica) e script
-    ├── sim_exp.py                 suite completa di esperimenti (rigenera tabelle e figure)
-    └── ... (script di supporto, frammenti di tabelle)
+├── tesi/                          SOLO ciò che serve a compilare tesi_finale.pdf
+│   ├── tesi.tex                   documento di lavoro (article, con copertina)
+│   ├── tesi.pdf                   PDF compilato del documento di lavoro
+│   ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento
+│   ├── frontespizio.tex           frontespizio istituzionale (sapthesis, 1 p)
+│   ├── compila_tesi.sh            compila frontespizio + tesi.tex -> tesi_finale.pdf
+│   ├── bozza.tex                  versione bozza/draft (senza Introduzione, ecc.)
+│   ├── bozza.pdf                  PDF compilato della bozza
+│   ├── conodiscesa2.jpeg          figura del cono di discesa (copertina)
+│   ├── figure_sim/                solo batch_size_app.png (Fig. 5.x usata in tesi.tex)
+│   ├── figure_nsynth_nota/        SOLO i PDF usati in tesi.tex (nota_accuracy, nota_batch)
+│   ├── figure_nsynth_net/         SOLO i PDF usati in tesi.tex (nsynth_accuracy_net, nsynth_batch_net)
+│   ├── nsynth/                    SOLO i notebook Colab citati nella tesi + script che li testano
+│   └── sim_exp.py                 suite completa di esperimenti (citata nell'Appendice C)
+├── colab_risorse/                 risorse per far funzionare i Colab
+│   ├── pesi_net.npz               pesi dei 4 modelli (rete neurale NSynth)
+│   ├── scaler_net.npz             RobustScaler 5–95 del training
+│   └── figure/                    figure prodotte dai Colab
+│       ├── nota/                  esperimento riconoscimento della nota
+│       ├── net/                   esperimento rete neurale
+│       └── famiglia/              esperimento famiglia strumentale (tagliato dalla tesi)
+└── altro/                         materiale storico/non usato (non serve a compilare)
+    ├── tesi_sapthesis.tex/.pdf    documento unico sapthesis (riferimento storico)
+    ├── metodinumerici.tex         vecchia bozza completa (riferimento storico)
+    ├── contenuti/                 frammenti LaTeX dei capitoli (già incorporati in tesi.tex)
+    ├── figure/                    vecchie figure non più usate in tesi.tex
+    ├── figure_test/               PNG di test (analisi OCR)
+    ├── figure_sim/                vecchia copia di batch_size.pdf
+    ├── ocr_f/ + ocr_appendix_f.swift   testi estratti con OCR dall'Appendice F
+    ├── script/                    script di supporto storici (bbccv.py, rapg.py, restructure.py, ...)
+    ├── tabelle/                   frammenti di tabelle (tabella6_1, tabella6_2)
+    └── nsynth/                    notebook famiglia e music_reco (NON citati nella tesi)
 ```
 
 ## Applicazione web interattiva
@@ -78,10 +94,10 @@ cd tesi
 `tesi_finale.pdf` è il PDF definitivo: **frontespizio istituzionale**
 (`frontespizio.tex`, sapthesis) come prima pagina + il documento di lavoro
 `tesi.tex` (article) senza la copertina, uniti con un **merge pypdf** (i due
-pezzi sono documenti separati). `tesi_sapthesis.tex`/`tesi_sapthesis.pdf`
-(il periodo in cui il PDF definitivo era un documento unico in classe
-`sapthesis`) restano in repo come riferimento storico. `bozza.tex`/`bozza.pdf`
-sono la versione bozza.
+pezzi sono documenti separati). `bozza.tex`/`bozza.pdf` sono la versione
+bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
+definitivo era un documento unico in classe `sapthesis`) sono spostati in
+`altro/` come riferimento storico.
 
 ## Note operative e stato corrente (19/08/2026)
 
@@ -93,16 +109,22 @@ Da tenere presente nelle sessioni di lavoro successive:
   Campione in Metodi di Ottimizzazione per il Machine Learning/`. Le modifiche
   si fanno in `tesi/tesi.tex` lì (documento di lavoro, article); il PDF
   definitivo si rigenera con `./compila_tesi.sh` (frontespizio + `tesi.tex`,
-  merge pypdf -> `tesi_finale.pdf`). `tesi_sapthesis.tex` resta solo come
-  riferimento storico (non si aggiorna più). I PDF si rigenerano sul posto e
+  merge pypdf -> `tesi_finale.pdf`). I PDF si rigenerano sul posto e
   prima del commit i file vanno copiati nella repo
   (`cp <Desktop>/.../tesi/<file> tesi/<file>`), verificando con `md5` che
   copia Desktop e repo coincidano. La vecchia copia
   `/Users/alessandrolocurcio/Downloads/tesi/main.tex` resta solo come
-  riferimento storico.
+  riferimento storico. **Struttura della repo (19/08/2026):** `tesi/` contiene
+  solo ciò che serve a compilare `tesi_finale.pdf` (documento, frontespizio,
+  PDF usati, notebook Colab citati nella tesi, `sim_exp.py`); le figure
+  complete prodotte dai Colab (PDF/PNG/npz/json) sono in `colab_risorse/figure/`
+  (sottocartelle `nota/`, `net/`, `famiglia/`) con i pesi dei modelli in
+  `colab_risorse/` (`pesi_net.npz`, `scaler_net.npz`); tutto il materiale
+  storico/non usato è in `altro/` (tesi_sapthesis, contenuti/, figure_test/,
+  script di supporto, ecc.).
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
-  `contenuti/` sono già incorporati nel file. Non tentare di ricostruire il
-  documento a partire da `contenuti/`.
+  `altro/contenuti/` sono già incorporati nel file. Non tentare di ricostruire
+  il documento a partire da `altro/contenuti/`.
 - **Figura di copertina.** La compilazione della copia di lavoro richiede
   `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
   Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
@@ -113,6 +135,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `tesi/bozza.tex` (+ `bozza.pdf`) è la versione bozza: numerazione
   ed equazioni diverse. Allinearla solo se la modifica tocca contenuti presenti
   anche lì.
+- **Ultimo intervento (19/08/2026).** **Riorganizzata la struttura della repo:
+  cartelle `colab_risorse/` e `altro/`.** `tesi/` ora contiene solo ciò che
+  serve a compilare `tesi_finale.pdf` (documento, frontespizio, `bozza`,
+  `conodiscesa2.jpeg`, i 4 PDF di figure usati da `tesi.tex` — `figure_sim/
+  batch_size_app.png`, `figure_nsynth_nota/{nota_accuracy,nota_batch}.pdf`,
+  `figure_nsynth_net/{nsynth_accuracy_net,nsynth_batch_net}.pdf` —, i 3
+  notebook Colab citati nella tesi con i loro script di test e `sim_exp.py`).
+  I PNG/npz/json delle figure prodotte dai Colab sono stati spostati in
+  **`colab_risorse/figure/`** (sottocartelle `nota/`, `net/`, `famiglia/`);
+  i pesi dei modelli della rete neurale ora sono in repo in **`colab_risorse/`**
+  (`pesi_net.npz` copiato da `Documents/placeholder/nsynth_net_locale/`,
+  `scaler_net.npz` spostato da `tesi/nsynth/`). Tutto il materiale non usato
+  dalla tesi è in **`altro/`**: `tesi_sapthesis.tex/pdf`, `metodinumerici.tex`,
+  `contenuti/` (frammenti già incorporati), `figure/` (vecchie, non referenziate),
+  `figure_test/`, `figure_sim/batch_size.pdf`, `ocr_f/` + `ocr_appendix_f.swift`,
+  `script/` (bbccv.py, rapg.py, restructure*, splice*, ecc.), `tabelle/`
+  (tabella6_1/6_2) e `nsynth/` con i notebook famiglia (`nsynth_riproduzione`)
+  e `music_reco_riproduzione` (non citati nella tesi). Nessun sorgente LaTeX
+  toccato: `tesi.pdf`/`tesi_finale.pdf` invariati, compilazione non necessaria.
+  Verificato che tutti i file referenziati da `tesi.tex` esistano ancora in
+  `tesi/`.
 - **Ultimo intervento (19/08/2026).** **"Codici" al posto di "listati",
   eliminato il doppio numero B.1--B.3 nei titoli, rimossa la parola "firma"
   dalle sezioni NSynth.** In `tesi/tesi.tex`: (1) l'Appendice B si intitola ora
