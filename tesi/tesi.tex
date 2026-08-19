@@ -2904,26 +2904,21 @@ quelli della Sezione~\ref{sec:setup}: $\theta = 0.5$, $n_0 = 64$, $\alpha = 1$,
 budget di 300 iterazioni, $R = 0.1$ e seed 42; la dimensione del batch è
 selezionata dinamicamente dalla CCV.
 
-Il modello è una regressione
-logistica multinomiale: per ogni clip $x$ (vettore di 24 features) assegna a
-ogni nota $c$ un punteggio
+Il modello è una regressione logistica multinomiale: a ogni clip $x$
+(vettore di 24 features) assegna a ogni nota $c$ un punteggio
 \[
   s_c(x) = w_{c,1}x_1 + \cdots + w_{c,24}x_{24} + b_c,
 \]
-cioè una combinazione lineare delle features (ogni componente cromatica
-contribuisce in modo indipendente, con il proprio peso), e trasforma i dodici
-punteggi in probabilità con la softmax. Il modello è ``lineare'' nel senso che
-la decisione è una somma pesata degli input, senza interazioni tra le features
-(in due dimensioni la separazione tra due classi sarebbe una retta); l'unica
-non-linearità è la softmax, che serve solo a ottenere probabilità. Questa
-scelta è deliberata: la loss è convessa e liscia, quindi la teoria della tesi
-(CCV, convergenza, complessità) si applica direttamente, a differenza delle
-reti profonde su spettrogrammi, dove la loss è non convessa e i milioni di
-parametri rendono impraticabile l'analisi. Rispetto a una rete profonda il
-modello è semplificato in due modi: (i)~l'input non è lo spettrogramma
-completo con la sua evoluzione temporale, ma 24 statistiche aggregate (media e
-deviazione standard delle 12 componenti cromatiche nel tempo); (ii)~la
-decisione è lineare e non usa features apprese.
+combinazione lineare delle features, poi convertito in probabilità dalla
+softmax. È ``lineare'' perché la decisione è una somma pesata degli input,
+senza interazioni tra le features (in due dimensioni due classi sarebbero
+separate da una retta); l'unica non-linearità è la softmax, che serve solo a
+produrre probabilità. La scelta è deliberata: la loss è convessa e liscia,
+quindi la teoria della tesi (CCV, convergenza, complessità) si applica
+direttamente, a differenza delle reti profonde su spettrogrammi (loss non
+convessa, milioni di parametri). Rispetto a una rete profonda il modello è più
+semplice: input di 24 statistiche aggregate invece dello spettrogramma e
+decisione lineare senza features apprese.
 
 Il codice del notebook \texttt{nsynth\_nota\_riproduzione} è organizzato in
 un piccolo numero di \textbf{funzioni} che si richiamano tra loro: la
