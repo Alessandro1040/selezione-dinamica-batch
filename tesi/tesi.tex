@@ -6,6 +6,31 @@
 \usepackage{geometry}
 \geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm, headheight=15pt}
 \usepackage{fancyhdr}
+
+% --- Font URW Gothic (Avant Garde) ---
+% Scelta 19/08/2026: URW Gothic (= clone URW di Avant Garde, pacchetto
+% `avant`) per tutto il documento, scala 0.90 (miglior compromesso misurato:
+% 73% delle righe identiche al layout Computer Modern, 100 pp vs 97).
+% NB: avant.sty NON supporta l'opzione scaled (solo \sfdefault=pag);
+% la scala si applica ridefinendo le forme del family pag via NFSS.
+% NB2: le dichiarazioni NON vanno dentro una \newcommand (non registra le
+% forme -> "Font T1/pag/m/n/12 not found"); la scala va in un \def.
+\usepackage{avant}
+\renewcommand{\familydefault}{\sfdefault}
+\makeatletter
+% Carica t1pag.fd completo (regole ssub per it/b/bx) e poi sovrascrive
+% solo le 6 forme base con la scala; NON chiamare \DeclareFontFamily
+% prima dell'\input, altrimenti l'fd non viene caricato e it/b restano
+% non definiti (Font shape 'T1/pag/m/it' undefined).
+\input{t1pag.fd}
+\def\pagg@scale{0.90}
+\DeclareFontShape{T1}{pag}{m}{n}{<-> s * [\pagg@scale] pagk8t}{}
+\DeclareFontShape{T1}{pag}{m}{sc}{<-> s * [\pagg@scale] pagkc8t}{}
+\DeclareFontShape{T1}{pag}{m}{sl}{<-> s * [\pagg@scale] pagko8t}{}
+\DeclareFontShape{T1}{pag}{db}{n}{<-> s * [\pagg@scale] pagd8t}{}
+\DeclareFontShape{T1}{pag}{db}{sc}{<-> s * [\pagg@scale] pagdc8t}{}
+\DeclareFontShape{T1}{pag}{db}{sl}{<-> s * [\pagg@scale] pagdo8t}{}
+\makeatother
 \usepackage{xcolor}
 \usepackage{booktabs}
 \usepackage{array}
