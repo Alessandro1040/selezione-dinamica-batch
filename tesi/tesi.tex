@@ -5072,18 +5072,25 @@ pip install numpy matplotlib plotly
 
 \subsection{Esecuzione degli esperimenti numerici}
 
-Gli esperimenti del Capitolo~\ref{sec:esperimenti} (convergenza, dinamica del
-batch e confronto tra metodi) possono essere riprodotti eseguendo lo script
-\texttt{sim\_exp.py}, che genera automaticamente le figure in formato PDF/PNG e
-le tabelle dei risultati in formato LaTeX:
+Gli esperimenti del Capitolo~\ref{sec:esperimenti} sono condotti con
+l'applicazione web interattiva descritta nella Sezione~\ref{sec:architettura}:
+i valori riportati nel capitolo (tabelle e figure) sono quelli mostrati dal
+pannello \emph{Analisi} dell'applicazione, con i preset, i parametri e il
+seme descritti nella Sezione~\ref{sec:setup}. Aprendo
+\texttt{visualizzazione.html} in un browser e selezionando il preset,
+l'algoritmo e i parametri indicati, i risultati sono riproducibili a parità
+di seed.
+
+Per eseguire i metodi anche senza browser, lo script \texttt{sim\_exp.py}
+implementa in forma standalone il gradiente a campione dinamico e Newton-CG
+su problemi test sintetici (tra cui la regressione lineare), generando figure
+in formato PDF/PNG e tabelle dei risultati in formato LaTeX:
 
 \begin{verbatim}
 python3 sim_exp.py
 \end{verbatim}
 
-Lo script accetta i parametri descritti nel Capitolo~\ref{sec:esperimenti}
-(numero di esempi $N$, dimensionalità $m$, tolleranza $\theta$, rapporto
-$R$) e stampa a video, per ogni funzione test, il numero di iterazioni, il
+Lo script stampa a video, per ogni problema test, il numero di iterazioni, il
 tempo di esecuzione, l'errore finale $\|w_k - w^*\|$ e la dimensione massima
 del batch raggiunta.
 

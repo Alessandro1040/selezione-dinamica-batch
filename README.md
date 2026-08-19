@@ -133,6 +133,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Appendice Istruzioni: riscritta la
+  sottosezione "Esecuzione degli esperimenti numerici".** Prima affermava che
+  gli esperimenti del Capitolo 6 si riproducono eseguendo `sim_exp.py`; non è
+  vero (lo script usa problemi e versioni diverse, senza `newton_l1`/BB-CCV,
+  e non accetta parametri da CLI). Ora il testo spiega che gli esperimenti del
+  Cap. 6 sono quelli dell'app `visualizzazione.html` (pannello Analisi,
+  riproducibili a parità di seed) e che `sim_exp.py` è solo un esempio
+  standalone (Dynamic GD e Newton-CG) su problemi test sintetici, con figure
+  PDF/PNG e tabelle LaTeX. Conservata la frase (vera) sull'esempio di
+  regressione lineare nella sottosezione successiva. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (97 pp invariati); sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Tabella nota: corretto "Batch finale" di
   Dynamic GD (12 678 → 5 297) e aggiunta la spiegazione del plateau in Sez.
   6.5.** I dati salvati (`colab_risorse/figure/nota/curves.npz` e
