@@ -133,6 +133,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (19/08/2026).** **Sez. 6.5: compattata la spiegazione sulla
+  linearità del modello.** Il paragrafo "Il modello è una regressione logistica
+  multinomiale…" (spiegazione di cosa significa "lineare" e perché la scelta è
+  deliberata) passa da 20 a 15 righe: rimossi i giri di parole ("ogni componente
+  cromatica contribuisce in modo indipendente", "trasforma i dodici punteggi",
+  "dove la loss è non convessa e i milioni di parametri rendono impraticabile
+  l'analisi" → "(loss non convessa, milioni di parametri)", l'enumerazione
+  (i)/(ii) del confronto con la rete profonda). Contenuto invariato: formula
+  $s_c(x)$, significato di "lineare", unica non-linearità = softmax, motivo
+  (loss convessa e liscia → teoria applicabile), due semplificazioni vs rete
+  profonda. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp, 0 errori, 0
+  riferimenti indefiniti); sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Ripristinato font Computer Modern.** Dopo
   aver provato URW Gothic (scala 0.90, vedi nota sotto), su richiesta si torna
   al font originale: rimosso l'intero blocco `avant`/`\DeclareFontShape` da
