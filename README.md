@@ -133,6 +133,26 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (20/08/2026).** **Sez. 6 "Osservazioni comparative":
+  riscritto il paragrafo con le giustificazioni dei risultati, interamente su
+  una sola pagina.** Il paragrafo dopo le Tabelle 6.1--6.3 sforava di ~4 parole
+  ("BB-CCV, permette di progredire.") sulla pagina successiva. Riscritto in
+  forma più compatta e con i "perché" dei risultati osservati: (i)~sul ben
+  condizionato ($\kappa\approx1.1$) la curvatura quasi isotropa rende un passo
+  scalare adeguato in ogni direzione, perciò Dynamic GD/Newton-CG-$L_1$/BB-CCV
+  sono i più veloci e Newton-CG il più lento (paga la soluzione del sistema di
+  Newton senza guadagnarne); (ii)~sul molto mal condizionato ($\kappa\approx
+  100$) il numero di condizionamento entra nel tasso dei metodi del primo
+  ordine (Sez. 4), quindi Dynamic GD/Newton-CG-$L_1$/Newton-CG restano sopra
+  $10^{-1}$, mentre BB-CCV raggiunge la precisione macchina in 11 iterazioni
+  perché il passo di Barzilai--Borwein stima la curvatura dai soli gradienti
+  (App. E) e si adatta all'anisotropia; (iii)~con il termine incrociato BB-CCV
+  è di nuovo il migliore. Rimossi i dettagli numerici già presenti nelle
+  tabelle. Ora il paragrafo entra tutto nella pagina in cui inizia (niente
+  riga orfana in cima alla successiva: lì inizia la Sez. 6.4). Documento
+  invariato a **97 pp** (`tesi.pdf`, `tesi_finale.pdf`). `bozza.tex` non
+  toccata. Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5
+  verificati).
 - **Ultimo intervento (20/08/2026).** **Corrette le Tabelle 6.1--6.3 dei
   risultati numerici (errore $\|w_k-w_*\|_2$ a ogni iterazione).** Aggiunto lo
   script di riproduzione fedele `altro/script/riproduci_tabelle.py` (codice
