@@ -133,6 +133,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (20/08/2026).** **Corrette le Tabelle 6.1--6.3 dei
+  risultati numerici (errore $\|w_k-w_*\|_2$ a ogni iterazione).** Aggiunto lo
+  script di riproduzione fedele `altro/script/riproduci_tabelle.py` (codice
+  esatto dell'app `visualizzazione.html` per GD/Newton-CG/Newton-CG-L1 con i
+  default N=200, seed 42, w0=(2,-3), α=0.1, θ=0.5, n0=5, 30 iterazioni, R=0.2,
+  maxcg=10, ν=0.1, σ=0.1, η=0.5, line search di Wolfe; BB-CCV dal codice
+  `altro/script/bbccv.py`, line search di Armijo). Confronto riga-riga (5 cifre
+  significative, differenze ~1e-16): le Tabb. 6.1 e 6.3 erano già identiche
+  alla riproduzione; nella Tab. 6.2 (molto mal condizionato, κ≈100) le colonne
+  ``Dynamic GD'' e ``Newton-CG $L_1$'' erano **scambiate** — corretto
+  mantenendo l'ordine delle colonne coerente con le altre tabelle. Corretti
+  anche i valori k=26..30 della colonna Newton-CG (errori da lettura OCR:
+  2.6912, 2.6912, 2.2653, 2.0761, 2.0761 → 2.4956, 2.4956, 2.4956, 2.2864,
+  2.0969) e l'ultima cifra di BB-CCV (1.1324e-14 → 1.0991e-14). Verificato che
+  il valore ≈10^-14 di BB-CCV sul problema mal condizionato **non è un
+  artefatto OCR**: si riproduce deterministicamente (il passo di
+  Barzilai--Borwein salvaguardato + Armijo porta $w_{11}$ a
+  $\|w-w_*\|≈1.1\times10^{-14}$, con il gradiente pieno sotto la tolleranza di
+  arresto 1e-6). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp, 0 errori,
+  0 riferimenti indefiniti); sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Sez. 6.5: compattata la spiegazione sulla
   linearità del modello.** Il paragrafo "Il modello è una regressione logistica
   multinomiale…" (spiegazione di cosa significa "lineare" e perché la scelta è
