@@ -3276,8 +3276,8 @@ BB-CCV          & 90.8\% & $3.1\times10^{-3}$ & 12\,678 & 2.4 & --- \\
 \end{tabular}
 \caption{Riconoscimento della nota (12 classi di altezza) su NSynth con
 features chroma (24 dimensioni): accuratezza di test dopo 300 iterazioni di
-budget e norma del gradiente finale. Newton-CG e Newton-CG~$L_1$ raggiungono
-il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$.}
+budget e norma del gradiente finale. Newton-CG~$L_1$ raggiunge il criterio di
+arresto $\|\nabla J\|_2 < 10^{-6}$.}
 \label{tab:nsynth_nota}
 \end{table}
 
@@ -3306,7 +3306,7 @@ secondo ordine converge quindi allo stesso ottimo del solutore standard, con
 una differenza inferiore a un decimo di punto percentuale. Il metodo
 Newton-CG~$L_1$ ($\nu = 10^{-3}$) raggiunge l'89.8\% e termina entro il
 criterio di arresto in 128 iterazioni, azzerando il 51\% dei coefficienti
-(146 su 300): la regolarizzazione $L_1$ seleziona le componenti cromatiche
+(146 restano non nulli su 300): la regolarizzazione $L_1$ seleziona le componenti cromatiche
 rilevanti per il riconoscimento della nota. Anche su questo compito la CCV
 aumenta la dimensione del batch man mano che il gradiente si riduce
 (Figura~\ref{fig:nota_batch}). Il solo Dynamic GD fa eccezione: la norma del
@@ -3766,10 +3766,10 @@ cap del batch a 2048, seed 42; tempi su Apple M5).}
 \toprule
 Metodo & Acc. test & $\|\nabla J(w)\|_2$ & Batch fin. & Tempo (s) & Coeff. $\neq 0$\\
 \midrule
-Dynamic GD      & 96.9\% & $4.1\times10^{-1}$ & 2048 & 175.8 & ---\\
-Newton-CG       & 99.2\% & $3.0\times10^{-2}$ & 2048 & 269.7 & ---\\
-Newton-CG $L_1$ & 97.3\% & $7.0\times10^{-1}$ & 2048 & 263.3 & $58\,412/234\,122$\\
-BB-CCV          & 96.2\% & $8.4\times10^{-2}$ & 2048 & 246.7 & ---\\
+Dynamic GD      & 96.9\% & $4.1\times10^{-1}$ & 2048 & 148.8 & ---\\
+Newton-CG       & 99.2\% & $3.0\times10^{-2}$ & 2048 & 210.2 & ---\\
+Newton-CG $L_1$ & 97.3\% & $7.0\times10^{-1}$ & 2048 & 196.9 & $58\,412/234\,122$\\
+BB-CCV          & 96.2\% & $8.4\times10^{-2}$ & 2048 & 216.9 & ---\\
 \bottomrule
 \end{tabular}
 \end{table}

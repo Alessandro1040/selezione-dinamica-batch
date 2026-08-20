@@ -133,6 +133,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (20/08/2026).** **Corretti 3 errori nei dati della Sez. 6.5
+  (nota) e 6.5.1 (rete neurale).** (1)~Caption Tab. 6.5: rimosso Newton-CG da
+  "raggiungono il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$": dal
+  `results.json` Newton-CG termina a `iter=300` (usa tutto il budget) con
+  gnorm finale $2.8\times10^{-6} > 10^{-6}$; solo Newton-CG-$L_1$ (iter=128,
+  gnorm $8.5\times10^{-7}$) lo raggiunge. (2)~Testo Sez. 6.5: "azzerando il
+  51% dei coefficienti (146 su 300)" era ambiguo/errato: 146 è il numero di
+  coefficienti **non nulli** (nnz), gli azzerati sono 154 (51.3%); corretto in
+  "(146 restano non nulli su 300)". (3)~Tab. 6.6 (rete): tempi allineati al
+  `colab_risorse/figure/net/results_net.json` (file dati ufficiale, identico
+  in repo e in `Documents/placeholder/nsynth_net_locale/`): Dynamic GD
+  175.8 $\to$ **148.8** s, Newton-CG 269.7 $\to$ **210.2** s, Newton-CG-$L_1$
+  263.3 $\to$ **196.9** s, BB-CCV 246.7 $\to$ **216.9** s (i valori 175.8/... 
+  della run precedente non corrispondevano al file dati). Verificati tutti gli
+  altri valori delle Tabb. 6.5 e 6.6 contro i `results.json` (accuratezze,
+  norme del gradiente, batch, nnz): coerenti. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (97 pp invariati); `bozza.tex` non toccata. Sincronizzati
+  nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
 - **Ultimo intervento (20/08/2026).** **Sez. 6 "Osservazioni comparative":
   riscritto il paragrafo con le giustificazioni dei risultati, interamente su
   una sola pagina.** Il paragrafo dopo le Tabelle 6.1--6.3 sforava di ~4 parole
