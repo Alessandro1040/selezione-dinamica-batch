@@ -27,6 +27,8 @@ Roma (A.A. 2025–2026).
 ├── colab_risorse/                 risorse per far funzionare i Colab
 │   ├── pesi_net.npz               pesi dei 4 modelli (rete neurale NSynth)
 │   ├── scaler_net.npz             RobustScaler 5–95 del training
+│   ├── pesi_nota.npz              pesi dei 4 modelli (riconoscimento della nota) + mu/sd
+│   ├── features_nota.npz          features del test set NSynth (Xte standardizzato, Yte, nomi clip)
 │   └── figure/                    figure prodotte dai Colab
 │       ├── nota/                  esperimento riconoscimento della nota
 │       ├── net/                   esperimento rete neurale
@@ -117,7 +119,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   PDF usati, notebook Colab citati nella tesi); le figure
   complete prodotte dai Colab (PDF/PNG/npz/json) sono in `colab_risorse/figure/`
   (sottocartelle `nota/`, `net/`, `famiglia/`) con i pesi dei modelli in
-  `colab_risorse/` (`pesi_net.npz`, `scaler_net.npz`); tutto il materiale
+  `colab_risorse/` (`pesi_net.npz`, `scaler_net.npz`, `pesi_nota.npz`,
+  `features_nota.npz`); tutto il materiale
   storico/non usato è in `altro/` (tesi_sapthesis, bozza, contenuti/,
   figure_test/, script di supporto, notebook non citati, ecc.).
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
@@ -133,6 +136,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (20/08/2026).** **Notebook nota aggiornati (solo repo,
+  copia Desktop non toccata).** `tesi/nsynth/nsynth_nota_riproduzione.ipynb`:
+  (1) la tabella stampata ora riporta il **batch finale reale** per ogni metodo
+  (`{r['batch']:,}`; prima era hardcodato `12\,678`, che mostrava 12\,678 anche
+  per Dynamic GD il cui batch vero è 5\,297); (2) l'esempio casuale ora usa
+  `random.randrange(len(names_test))` quando `nota = None` (prima restava
+  sempre l'indice 42); (3) la cella predizioni mostra l'**incertezza del
+  modello**: softmax top-3 con probabilità + entropia normalizzata
+  (es. `Newton-CG: A (20.2%) ✘ | 2°: A# (15.7%) | 3°: B (12.2%) | incertezza
+  93%`); rimosse le celle di prova temporanee (verifica audio/f0). Anche
+  `tesi/nsynth/nsynth_nota_test.ipynb` ora mostra la colonna "Inc."
+  (entropia normalizzata) nelle predizioni (celle 5 e 8). Aggiunti
+  `colab_risorse/pesi_nota.npz` (pesi dei 4 modelli + mu/sd) e
+  `colab_risorse/features_nota.npz` (Xte/Yte/names del test set), scaricati
+  dalla run Colab. Nessun sorgente LaTeX toccato: documento invariato.
 - **Ultimo intervento (20/08/2026).** **Corretti 3 errori nei dati della Sez. 6.5
   (nota) e 6.5.1 (rete neurale).** (1)~Caption Tab. 6.5: rimosso Newton-CG da
   "raggiungono il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$": dal
