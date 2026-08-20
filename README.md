@@ -29,6 +29,8 @@ Roma (A.A. 2025–2026).
 │   ├── scaler_net.npz             RobustScaler 5–95 del training
 │   ├── pesi_nota.npz              pesi dei 4 modelli (riconoscimento della nota) + mu/sd
 │   ├── features_nota.npz          features del test set NSynth (Xte standardizzato, Yte, nomi clip)
+│   ├── features_opt_net_test.npz  features della rete, split test (4 096 clip, X/y/names)
+│   ├── features_opt_net_valid.npz features della rete, split valid (12 678 clip, X/y/names)
 │   └── figure/                    figure prodotte dai Colab
 │       ├── nota/                  esperimento riconoscimento della nota
 │       ├── net/                   esperimento rete neurale
@@ -120,7 +122,8 @@ Da tenere presente nelle sessioni di lavoro successive:
   complete prodotte dai Colab (PDF/PNG/npz/json) sono in `colab_risorse/figure/`
   (sottocartelle `nota/`, `net/`, `famiglia/`) con i pesi dei modelli in
   `colab_risorse/` (`pesi_net.npz`, `scaler_net.npz`, `pesi_nota.npz`,
-  `features_nota.npz`); tutto il materiale
+  `features_nota.npz`) e le features già estratte della rete
+  (`features_opt_net_test.npz`, `features_opt_net_valid.npz`); tutto il materiale
   storico/non usato è in `altro/` (tesi_sapthesis, bozza, contenuti/,
   figure_test/, script di supporto, notebook non citati, ecc.).
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
@@ -150,7 +153,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   (entropia normalizzata) nelle predizioni (celle 5 e 8). Aggiunti
   `colab_risorse/pesi_nota.npz` (pesi dei 4 modelli + mu/sd) e
   `colab_risorse/features_nota.npz` (Xte/Yte/names del test set), scaricati
-  dalla run Colab. Nessun sorgente LaTeX toccato: documento invariato.
+  dalla run Colab. Aggiunte anche le features già estratte della rete
+  (`colab_risorse/features_opt_net_test.npz`, split test 4 096 clip, e
+  `features_opt_net_valid.npz`, split valid 12 678 clip) per saltare
+  l'estrazione librosa (~20-60 min) nei Colab della rete. Nessun sorgente
+  LaTeX toccato: documento invariato.
 - **Ultimo intervento (20/08/2026).** **Corretti 3 errori nei dati della Sez. 6.5
   (nota) e 6.5.1 (rete neurale).** (1)~Caption Tab. 6.5: rimosso Newton-CG da
   "raggiungono il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$": dal
