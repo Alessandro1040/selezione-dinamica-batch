@@ -154,6 +154,15 @@ Da tenere presente nelle sessioni di lavoro successive:
   arresto 1e-6). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (97 pp, 0 errori,
   0 riferimenti indefiniti); sincronizzati nella repo tesi.tex/tesi.pdf/
   tesi_finale.pdf (md5 verificati). `bozza.tex` non allineata.
+- **Ultimo intervento (20/08/2026, follow-up).** **Caption Figura E.2 (schema
+  BB-CCV): corretto ``~18 iterazioni medie'' in ``media ≈13''.** Il numero
+  ``~18'' era stato scritto il 16/08 (commit `bfb7e53`, aggiunta dello schema
+  BB-CCV) prima dell'allineamento delle tabelle all'app: non corrisponde agli
+  esperimenti attuali. La riproduzione fedele dà BB-CCV a k=12, 11 e 16 sui
+  tre problemi (media 13) contro le 30 del GD; la frase ora cita
+  esplicitamente i tre esperimenti della Sezione~6. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (97 pp); sincronizzati in repo (md5 verificati).
+  `bozza.tex` non allineata.
 - **Ultimo intervento (19/08/2026).** **Sez. 6.5: compattata la spiegazione sulla
   linearità del modello.** Il paragrafo "Il modello è una regressione logistica
   multinomiale…" (spiegazione di cosa significa "lineare" e perché la scelta è

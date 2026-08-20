@@ -5430,9 +5430,10 @@ e $y = g_k - g_{k-1}$, con la formula $\alpha_k^{BB} = \frac{s^T s}{s^T y}$ di
 Barzilai--Borwein (per $k = 0$, $\alpha_0 = \alpha$); il passo è salvaguardato in
 $[\alpha/20,\, 5\alpha]$ per la stabilità sui problemi non quadratici e rifinito
 da una line search di Armijo con backtracking. BB usa solo quantità già
-disponibili, quindi non richiede la Hessiana: negli esperimenti il metodo impiega
-~18 iterazioni medie (contro le 30 del GD) e sui problemi mal condizionati
-raggiunge precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
+disponibili, quindi non richiede la Hessiana: nei tre esperimenti della
+Sezione~6 il metodo impiega in media $\approx 13$ iterazioni (12, 11 e 16 sui
+tre problemi) contro le 30 del GD, e sui problemi mal condizionati raggiunge
+precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
 \label{fig:bbccv}
 \end{figure}
 
