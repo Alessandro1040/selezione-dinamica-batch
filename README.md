@@ -139,6 +139,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (20/08/2026).** **"Retropropagazione" → "backpropagation";
+  spiegato meglio il termine "vettorizzata".** In `tesi/tesi.tex` tutte le
+  occorrenze di *retropropagazione* (5: testo del forward, un nodo della figura
+  del forward, il paragrafo "Gradiente del batch", un commento e la caption di
+  `grad_batch`) sono state sostituite con *backpropagation*; stesso cambio in
+  `altro/tesi_sapthesis.tex` (3: testo, nodo e caption). Inoltre il termine
+  *vettorizzata* è ora spiegato esplicitamente: (1) nel paragrafo "Gradiente sul
+  training set completo" si definisce cosa significa — formule applicate a
+  matrici che raccolgono tutto il dataset in un solo passaggio (es.
+  $Z=X_{\mathrm{aug}}W^{\top}$) anziché un ciclo per-esempio — e il perché
+  (kernel di algebra lineare ottimizzati di NumPy); (2) nella sottosezione sulla
+  rete neurale le versioni `batch` sono dette *vettorizzate* con rinvio a
+  "Sezione 6.5". Ricompilati `tesi.pdf`, `tesi_finale.pdf` (**97 pp**, +1 dal
+  testo aggiunto) e `tesi_sapthesis.pdf`; copia Desktop e repo sincronizzate
+  (md5 verificati).
 - **Ultimo intervento (20/08/2026).** **Notebook nota aggiornati (solo repo,
   copia Desktop non toccata).** `tesi/nsynth/nsynth_nota_riproduzione.ipynb`:
   (1) la tabella stampata ora riporta il **batch finale reale** per ogni metodo

@@ -3211,7 +3211,7 @@ classi e la loss misura l'errore sulla previsione più la regolarizzazione.}
 
 \textbf{Gradiente del batch.} Per minimizzare la loss con gli algoritmi della
 tesi serve il gradiente rispetto ai parametri. Lo si calcola con la
-\textbf{retropropagazione}: dopo il forward si definisce l'errore
+\textbf{backpropagation}: dopo il forward si definisce l'errore
 $\delta = (P - Y)/|\mathcal{S}|$ tra le probabilità previste $P$ e la codifica
 one-hot $Y$ delle classi vere, e lo si propaga all'indietro attraverso i tre
 strati usando la derivata di $\tanh$, che vale $1 - a^2$; a ogni peso si
@@ -3243,7 +3243,7 @@ calcolata però in un solo passaggio matriciale sull'intero batch
   \node[io] (in) {Batch $\mathcal{S}$\\[2pt] (feature e label)};
   \node[box, below=of in] (fwd) {Forward su tutto il batch\\[2pt] attivazioni $a_1, a_2$, probabilità $P$};
   \node[box, below=of fwd] (err) {Errore\\[2pt] $\delta = (P - Y)/|\mathcal{S}|$};
-  \node[box, below=of err] (bp) {Retropropagazione\\[2pt] $\delta_2 = (\delta W_3^{\top}) \odot (1-a_2^2)$\\[1pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1-a_1^2)$};
+  \node[box, below=of err] (bp) {Backpropagation\\[2pt] $\delta_2 = (\delta W_3^{\top}) \odot (1-a_2^2)$\\[1pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1-a_1^2)$};
   \node[box, below=of bp] (reg) {Gradienti dei pesi\\[2pt] $\nabla_{W_l} + \lambda W_l$, \quad $l = 1,2,3$};
   \node[io, below=of reg] (out) {$\nabla J_\mathcal{S}(w)$};
 
@@ -3254,7 +3254,7 @@ calcolata però in un solo passaggio matriciale sull'intero batch
   \draw[arrow] (reg) -- (out);
 
 \end{tikzpicture}}
-\caption{Calcolo vettorizzato del gradiente sul batch (retropropagazione):
+\caption{Calcolo vettorizzato del gradiente sul batch (backpropagation):
 il forward produce le probabilità, l'errore $\delta$ viene propagato
 all'indietro attraverso i tre strati e si somma la regolarizzazione; il
 risultato coincide con la media dei gradienti per-esempio.}

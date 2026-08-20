@@ -3206,8 +3206,17 @@ contribuisce solo sulle colonne dei pesi.}
 \textbf{Gradiente sul training set completo.}
 La funzione \texttt{grad\_full} calcola in forma vettorizzata il gradiente di
 $J$ su tutto il training set, con la stessa formula di \texttt{grad\_i}
-(Figura~\ref{fig:nota_grad_full}); serve per le metriche di valutazione
-(norma del gradiente finale) e per il subgradiente del metodo $L_1$.
+(Figura~\ref{fig:nota_grad_full}). \emph{Vettorizzata} significa che il
+calcolo non è ripetuto in un ciclo sui singoli esempi (una chiamata a
+\texttt{grad\_i} per ciascuna delle $N$ clip), ma eseguito una sola volta su
+matrici che raccolgono l'intero dataset: un unico prodotto
+$Z = X_{\mathrm{aug}} W^{\top}$ dà i logits di tutte le clip, la softmax è
+applicata per righe e la media $(P-Y)^{\top} X_{\mathrm{aug}}/N$ somma i
+contributi in forma matriciale. Il risultato è matematicamente identico alla
+somma dei contributi individuali, ma le operazioni vettoriali di NumPy
+delegano i prodotti a kernel di algebra lineare ottimizzati e risultano molto
+più veloci. La funzione serve per le metriche di valutazione (norma del
+gradiente finale) e per il subgradiente del metodo $L_1$.
 
 \begin{figure}[H]
 \centering
@@ -3350,10 +3359,14 @@ modo in cui si calcolano gradiente, loss e prodotto Hessiano--vettore. Nelle
 versioni originali questi oggetti si ottengono sommando, per ogni esempio del
 batch, il contributo individuale: con una rete di $\approx 234\,000$ parametri
 e $N = 12\,678$ esempi questo costo (e la memoria necessaria) rende
-l'esecuzione impraticabile su Colab. Si usano quindi versioni \emph{batch} che
-calcolano le stesse quantità con operazioni matriciali sull'intero batch; la
-corrispondenza con le versioni per-esempio è verificata numericamente (errori
-dell'ordine di $10^{-15}$).
+l'esecuzione impraticabile su Colab. Si usano quindi versioni \emph{batch},
+dette \emph{vettorizzate}: applicano le stesse formule a matrici che
+rappresentano l'intero batch in una sola volta, i prodotti $X_b W_1$,
+$a_1 W_2$ e $a_2 W_3$ del forward e i prodotti matriciali del passaggio
+all'indietro, invece di ripetere il calcolo in un ciclo per ogni esempio
+(come definito nella Sezione~\ref{sec:nsynth}). La corrispondenza con le
+versioni per-esempio è verificata numericamente (errori dell'ordine di
+$10^{-15}$).
 
 L'implementazione è organizzata in un piccolo numero di \textbf{funzioni} che
 si richiamano tra loro: la Figura~\ref{fig:nn_funzioni} ne mostra la mappa
@@ -3512,7 +3525,7 @@ dello strato $l$, $a_l = \tanh(z_l)$ la sua uscita, e l'ultimo strato produce
 i \emph{logits}, che la softmax convertirà in probabilità. I parametri sono
 raccolti nel vettore $w = [W_1; b_1; W_2; b_2; W_3; b_3]$ di
 $\approx 234\,000$ valori (Figura~\ref{fig:nn_forward}); la funzione restituisce
-anche le attivazioni $a_1, a_2$, che servono alla retropropagazione.
+anche le attivazioni $a_1, a_2$, che servono alla backpropagation.
 
 \begin{figure}[H]
 \centering
@@ -3532,7 +3545,7 @@ anche le attivazioni $a_1, a_2$, che servono alla retropropagazione.
   \node[box, below=of sig] (l1) {Strato 1\\[2pt] $z_1 = X_b W_1 + b_1$, \quad $a_1 = \tanh(z_1)$\\[1pt] $W_1 \in \mathbb{R}^{780\times 256}$};
   \node[box, below=of l1] (l2) {Strato 2\\[2pt] $z_2 = a_1 W_2 + b_2$, \quad $a_2 = \tanh(z_2)$\\[1pt] $W_2 \in \mathbb{R}^{256\times 128}$};
   \node[box, below=of l2] (l3) {Strato 3\\[2pt] $\mathrm{logits} = a_2 W_3 + b_3$\\[1pt] $W_3 \in \mathbb{R}^{128\times 10}$};
-  \node[io, below=of l3] (out) {Uscite: \texttt{logits} (per la softmax),\\[1pt] $a_1$, $a_2$ (per la retropropagazione)};
+  \node[io, below=of l3] (out) {Uscite: \texttt{logits} (per la softmax),\\[1pt] $a_1$, $a_2$ (per la backpropagation)};
 
   \node[io, right=2.0cm of l2, text width=4.6cm, minimum height=3.2cm] (w) {Parametri\\[2pt] $w = [W_1; b_1; W_2; b_2; W_3; b_3]$\\[1pt] $\approx 234\,000$ valori};
 
@@ -3598,7 +3611,7 @@ l'uscita è la somma dei due contributi.}
 \end{figure}
 \textbf{Gradiente del batch.}
 Per minimizzare la loss serve il gradiente rispetto ai parametri. Lo si calcola
-con la \textbf{retropropagazione}: dopo il forward si definisce l'errore
+con la \textbf{backpropagation}: dopo il forward si definisce l'errore
 $\delta = (P - Y_b)/m$ tra le probabilità $P$ e la codifica one-hot $Y_b$
 delle classi vere, e lo si propaga all'indietro attraverso i tre strati usando
 la derivata di $\tanh$, che vale $1 - a^2$; a ogni peso si somma il contributo
@@ -3623,7 +3636,7 @@ calcolata però in un solo passaggio matriciale sull'intero batch
   \node[box] (fwd) at (0, 4.8) {Forward e probabilità\\[2pt] $(\mathrm{logits}, a_1, a_2) = \texttt{forward}(w, X_b)$, \; $P = \mathrm{softmax}(\mathrm{logits})$};
   \node[box] (err) at (0, 2.8) {Errore di output\\[2pt] $\delta = (P - Y_b)/m$ \quad ($Y_b$ = one-hot delle classi)};
 
-  % Retropropagazione (tre strati in fila)
+  % Backpropagation (tre strati in fila)
   \node[box] (b3) at (-7.0, 0.0) {Strato 3\\[2pt] $dW_3 = a_2^{\top}\delta$, \; $db_3 = \delta^{\top}\mathbf{1}$};
   \node[box] (b2) at (0.0, 0.0) {Strato 2\\[2pt] $\delta_2 = (\delta\, W_3^{\top}) \odot (1 - a_2^2)$\\[1pt] $dW_2 = a_1^{\top}\delta_2$, \; $db_2 = \delta_2^{\top}\mathbf{1}$};
   \node[box] (b1) at (7.0, 0.0) {Strato 1\\[2pt] $\delta_1 = (\delta_2 W_2^{\top}) \odot (1 - a_1^2)$\\[1pt] $dW_1 = X_b^{\top}\delta_1$, \; $db_1 = \delta_1^{\top}\mathbf{1}$};
@@ -3641,7 +3654,7 @@ calcolata però in un solo passaggio matriciale sull'intero batch
   \draw[arrow] (reg) -- (out);
 
 \end{tikzpicture}}
-\caption{Funzione \texttt{grad\_batch}: retropropagazione vettorizzata.
+\caption{Funzione \texttt{grad\_batch}: backpropagation vettorizzata.
 L'errore $\delta$ tra probabilità e one-hot è propagato all'indietro con la
 derivata di $\tanh$ ($1-a^2$); a ogni matrice dei pesi si somma $\lambda W_l$.
 Il risultato coincide con la media dei gradienti per-esempio del codice B.1.}
