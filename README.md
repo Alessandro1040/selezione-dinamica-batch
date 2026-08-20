@@ -101,7 +101,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (19/08/2026)
+## Note operative e stato corrente (20/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -158,6 +158,16 @@ Da tenere presente nelle sessioni di lavoro successive:
   `features_opt_net_valid.npz`, split valid 12 678 clip) per saltare
   l'estrazione librosa (~20-60 min) nei Colab della rete. Nessun sorgente
   LaTeX toccato: documento invariato.
+- **Ultimo intervento (20/08/2026).** **Filtro anti-clip-anomale e incertezza
+  anche per la rete.** In `tesi/nsynth/nsynth_nota_riproduzione.ipynb` la cella
+  dell'esempio casuale ora evita le clip rumorose/difettose di NSynth: sceglie
+  a caso finché il modello più accurato (Newton-CG) non ha entropia normalizzata
+  < 0.5 (max 30 tentativi); con `nota = "C"` (o altra nota) il filtro non si
+  applica e si scelgono clip di quella nota. In
+  `tesi/nsynth/nsynth_nota_riproduzione` (cella 21) e
+  `tesi/nsynth/nsynth_net_test.ipynb` (celle 5 e 8) le predizioni mostrano ora
+  l'incertezza (entropia normalizzata, colonna "Inc." / "incertezza %").
+  Nessun sorgente LaTeX toccato: documento invariato.
 - **Ultimo intervento (20/08/2026).** **Corretti 3 errori nei dati della Sez. 6.5
   (nota) e 6.5.1 (rete neurale).** (1)~Caption Tab. 6.5: rimosso Newton-CG da
   "raggiungono il criterio di arresto $\|\nabla J\|_2 < 10^{-6}$": dal
