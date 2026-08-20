@@ -163,6 +163,24 @@ Da tenere presente nelle sessioni di lavoro successive:
   esplicitamente i tre esperimenti della Sezione~6. Ricompilati `tesi.pdf` e
   `tesi_finale.pdf` (97 pp); sincronizzati in repo (md5 verificati).
   `bozza.tex` non allineata.
+- **Ultimo intervento (20/08/2026).** **Notebook di test per il pitch: nuovo
+  `tesi/nsynth/nsynth_nota_test.ipynb` + salvataggio dei pesi nel notebook di
+  riproduzione.** Il notebook `nsynth_nota_riproduzione.ipynb` NON salvava i
+  pesi addestrati (variabile `pesi` solo in memoria): aggiunta la cella
+  ``4b. Salva i pesi...'' che salva e scarica `pesi_nota.npz` (pesi finali dei
+  4 metodi + `mu`/`sd` della standardizzazione, chiavi `Dynamic_GD`,
+  `Newton-CG`, `Newton-CG_L1`, `BB-CCV`) e `features_nota.npz` (Xte/Yte/nomi
+  delle clip di test). Corretti anche i nomi dei file scaricati dalla cella
+  opzionale finale (erano `nsynth_accuracy.*`, ora `nota_accuracy.*`/
+  `nota_batch.*`, coerenti con le figure salvate). Nuovo
+  **`tesi/nsynth/nsynth_nota_test.ipynb`** speculare a `nsynth_net_test.ipynb`:
+  carica `pesi_nota.npz` via upload e permette di (1) testare su un
+  **qualsiasi file .wav** (chroma 24-dim + standardizzazione, stessi parametri
+  della Sez. 6.5), (2) ascoltare la clip, (3) calcolare l'accuratezza sul test
+  set e (4) provare singole clip NSynth con la nota vera (e ascoltarle,
+  scaricando una volta sola il tar di test ~350 MB). Pipeline validato con uno
+  smoke test sintetico end-to-end (features chroma + standardizzazione +
+  softmax: 4 note predette correttamente). Nessun sorgente LaTeX toccato.
 - **Ultimo intervento (19/08/2026).** **Sez. 6.5: compattata la spiegazione sulla
   linearità del modello.** Il paragrafo "Il modello è una regressione logistica
   multinomiale…" (spiegazione di cosa significa "lineare" e perché la scelta è
