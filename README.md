@@ -143,6 +143,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **Tesi: sottosezioni 6.5 e 6.6 estratte in
+  un documento separato e ridotte a segnaposto.** In `tesi/tesi.tex` il testo
+  delle sottosezioni 6.5 ("Validazione su un benchmark musicale: riconoscimento
+  della nota con NSynth") e 6.6 ("Estensione oltre le ipotesi: implementazione
+  vettorizzata per la rete neurale") è stato sostituito con `(PLACEHOLDER)`,
+  mantenendo le `\label` (`sec:nsynth`, `sec:nsynth-net`) e i titoli abbreviati
+  in modo che entrino in una riga: **"Riconoscimento Note"** (6.5) e
+  **"Riconoscimento Strumenti"** (6.6). Il contenuto integrale delle due
+  sottosezioni è stato spostato nel nuovo documento autonomo
+  `tesi/sezioni_65_66.tex` (preambolo minimale + le sole due sottosezioni,
+  figure da `figure_nsynth_nota/` e `figure_nsynth_net/`; riferimenti esterni
+  risolti: `sec:l1` → 5.3 e `sec:setup` → 6.1 via label segnaposto, citazione
+  `engel2017` con bibliografia minima), compilato in `tesi/sezioni_65_66.pdf`
+  (**14 pp**). Ricompilati `tesi.pdf` (**117 → 103 pp**) e `tesi_finale.pdf`
+  (**103 pp**), 0 errori, 0 riferimenti undefined. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf/sezioni_65_66.tex/sezioni_65_66.pdf (md5
+  verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (21/08/2026).** **Tesi: nuova Appendice E "Riuso del
   mini-batch: iterazioni consecutive sullo stesso campione".** Nuovo file
   `tesi/appendice_riuso.tex` (incluso da `tesi.tex` con `\input` prima della
