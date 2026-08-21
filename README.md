@@ -15,6 +15,7 @@ Roma (A.A. 2025–2026).
 ├── figure_sim/                    figure generate da simulazione_batch.py
 ├── tesi/                          SOLO ciò che serve a compilare tesi_finale.pdf
 │   ├── tesi.tex                   documento di lavoro (article, con copertina)
+│   ├── appendice_riuso.tex        Appendice E: riuso del mini-batch (inclusa da tesi.tex)
 │   ├── tesi.pdf                   PDF compilato del documento di lavoro
 │   ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento
 │   ├── frontespizio.tex           frontespizio istituzionale (sapthesis, 1 p)
@@ -126,9 +127,12 @@ Da tenere presente nelle sessioni di lavoro successive:
   (`features_opt_net_test.npz`, `features_opt_net_valid.npz`); tutto il materiale
   storico/non usato è in `altro/` (tesi_sapthesis, bozza, contenuti/,
   figure_test/, script di supporto, notebook non citati, ecc.).
-- **Documento autocontenuto.** `tesi.tex` NON usa `\input`: i frammenti in
+- **Documento autocontenuto.** `tesi.tex` NON usa `\input` per i capitoli: i frammenti in
   `altro/contenuti/` sono già incorporati nel file. Non tentare di ricostruire
-  il documento a partire da `altro/contenuti/`.
+  il documento a partire da `altro/contenuti/`. **Unica eccezione (21/08/2026):**
+  l'Appendice E (riuso del mini-batch) vive nel file `tesi/appendice_riuso.tex`
+  ed è inclusa con `\input{appendice_riuso}` prima della bibliografia; se si
+  modifica quel file va ricompilato tutto (`tesi.pdf` + `tesi_finale.pdf`).
 - **Figura di copertina.** La compilazione della copia di lavoro richiede
   `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
   Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
@@ -139,6 +143,31 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **Tesi: nuova Appendice E "Riuso del
+  mini-batch: iterazioni consecutive sullo stesso campione".** Nuovo file
+  `tesi/appendice_riuso.tex` (incluso da `tesi.tex` con `\input` prima della
+  bibliografia) che analizza l'opzione "Iterazioni consecutive" dell'app web
+  introdotta nel commit precedente. Contiene: descrizione della variante
+  (riuso degli indici del campione, CCV come test di esaurimento, M=1 coincide
+  con la base per GD/BB), spiegazione del meccanismo (passi coerenti su
+  sottoproblema fisso → meno rumore, CCV come salvaguardia), setup sperimentale
+  (4 preset × 4 algoritmi × M∈{∞,10,5,3,2,1}, seed 42 e 5 seed per la
+  robustezza), 16 tabelle per-iterazione (E.1–E.16, errore ||w_k−w_*|| a ogni
+  k=0..30, base vs M=∞/10/5/2, formato identico alle Tabelle 6.1–6.3) e 2
+  tabelle di sintesi: E.17 (errore finale e_30 per tutte le M, con ▲/▼/= rispetto
+  alla base) ed E.18 (robustezza su 5 seed, M=∞ e M=10). Dati generati da
+  replica esatta del codice dell'app (`/tmp/verifica_reuse2.py` +
+  `/tmp/gen_tabelle2.py`), valori base coincidenti con le Tabelle 6.1–6.3.
+  **Risultato dell'analisi**: il riuso aiuta sistematicamente GD/BB sui problemi
+  ben condizionati (5/5 seed su κ≈1.1) e spesso su quello incrociato, ma non è
+  una garanzia universale: peggiora GD/BB sul mal condizionato (3/5 seed su
+  κ≈20 con M=∞) e Newton-CG quasi sempre (0/5 con M=10 su κ≈20, κ≈100,
+  incrociato). Il testo spiega i "perché" (bias del sottoproblema non catturato
+  dalla CCV; Hessiana riusata obsoleta; line search solo sulla loss del batch).
+  Ricompilati `tesi.pdf` (96 → 117 pp) e `tesi_finale.pdf` (117 pp), 0 errori, 0
+  overfull nell'appendice. Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf/appendice_riuso.tex (md5 verificati). `bozza.tex` non toccata.
+
 - **Ultimo intervento (21/08/2026).** **App web: opzione "Iterazioni consecutive
   sullo stesso mini-batch" per tutti i metodi.** In `visualizzazione.html` (solo
   repo, la copia Desktop non contiene l'app) sono stati aggiunti due controlli

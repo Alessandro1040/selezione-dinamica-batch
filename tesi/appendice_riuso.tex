@@ -1,0 +1,1097 @@
+\section{Riuso del mini-batch: iterazioni consecutive sullo stesso campione}\label{app:riuso}
+
+L'applicazione interattiva descritta nella Sezione~\ref{sec:visualizzazione} offre
+un'opzione che modifica il comportamento di tutti gli algoritmi della
+Sezione~\ref{sec:risultati}: la possibilit\`a di \emph{riusare lo stesso
+mini-batch per pi\`u iterazioni consecutive}, invece di ricampionare a ogni
+iterazione. Questa appendice descrive la variante, ne spiega il meccanismo e ne
+quantifica i benefici e i limiti su un insieme ampio di esperimenti controllati.
+
+\subsection{Descrizione della variante}\label{app:riuso-descrizione}
+
+Nella versione standard a ricampionamento (Sezione~\ref{sec:risultati}), a ogni
+iterazione $k$ si estrae un nuovo campione $\mathcal{S}_k$ di dimensione $n_k$
+e lo si usa per stimare il gradiente (e, per i metodi di Newton, anche la
+Hessiana). La variante analizzata qui mantiene \emph{lo stesso campione} per
+$M\ge 1$ iterazioni consecutive. \`E importante notare che non si riusa il
+\emph{valore} del gradiente: a ogni iterazione interna il gradiente del campione
+viene ricalcolato al nuovo punto $w$, esattamente come nella versione standard.
+Ci\`o che viene riusato sono gli \emph{indici} del campione.
+
+Il comportamento \`e governato da due regole, coerenti con lo pseudocodice
+mostrato nell'applicazione:
+
+\begin{itemize}
+\item \textbf{La CCV come test di esaurimento.} A ogni iterazione interna la
+  condizione di controllo della varianza (CCV, Sezione~\ref{sec:algoritmi})
+  viene valutata \emph{gratuitamente} sul campione in uso, al punto corrente:
+  i gradienti del batch servono comunque per il passo, quindi il test non
+  richiede valutazioni aggiuntive. Se la CCV non \`e pi\`u soddisfatta, il
+  campione \`e considerato \emph{esaurito}: la dimensione $n_k$ cresce secondo
+  la regola della Sezione~\ref{sec:algoritmi} e al passo successivo si
+  ricampiona con la nuova dimensione.
+\item \textbf{Numero massimo di riusi.} Se $M$ \`e finito, si ricampiona
+  comunque dopo $M$ iterazioni consecutive; se $M=\infty$ (opzione
+  ``illimitato''), il campione si riusa finch\'e la CCV resta soddisfatta.
+\end{itemize}
+
+Il caso $M=1$ coincide con la versione standard a ricampionamento per Dynamic
+GD e BB-CCV (si ricampiona a ogni iterazione). Per i metodi di Newton anche
+$M=1$ differisce leggermente dalla base: la CCV \`e valutata sul batch in uso
+invece che su un nuovo campione estratto a ogni iterazione.
+
+\subsection{Perch\'e il riuso pu\`o migliorare i risultati}\label{app:riuso-perche}
+
+Quando si ricampiona a ogni iterazione, il gradiente stimato
+$g_k=\nabla J_{\mathcal{S}_k}(w_k)$ \`e una variabile aleatoria indipendente a
+ogni passo. Il rumore dello stimatore fa ``rimbalzare'' l'iterato attorno al
+minimo e, quando il batch \`e piccolo, l'errore $\|w_k-w_*\|_2$ si assesta su
+un \emph{pavimento di rumore}: la varianza dello stimatore impedisce di
+scendere sotto una certa precisione, qualunque sia il numero di iterazioni.
+
+Ripetendo alcune iterazioni sullo stesso campione si ottengono passi
+\emph{coerenti}, cio\`e direzioni correlate tra loro, calcolate su un problema
+subcampionato fisso $J_{\mathcal{S}}$. L'iterato avanza in modo pi\`u regolare
+verso la regione del minimo $w_*$, scendendo sotto il pavimento di rumore del
+singolo batch. La CCV fa da salvaguardia: il campione viene riusato solo
+finch\'e \`e statisticamente adeguato al punto corrente, e viene ingrandito non
+appena la sua varianza diventa troppo alta rispetto al quadrato del gradiente.
+
+In sintesi, il riuso \`e una \emph{accelerazione gratuita}: non richiede
+valutazioni aggiuntive del gradiente e, quando il campione resta affidabile,
+produce pi\`u progresso per iterazione. Come mostreranno gli esperimenti,
+
+\subsection{Risultati numerici}\label{app:riuso-risultati}
+
+Le Tabelle~\ref{tab:riuso_bencond_gd}--\ref{tab:riuso_offdiag_bb} riportano
+l'errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k=0,\dots,30$ per i quattro
+algoritmi e i quattro problemi, confrontando la versione a ricampionamento
+(colonna \emph{base}) con il riuso a $M=\infty$, $M=10$, $M=5$ e $M=2$. La
+colonna \emph{base} coincide con i valori delle Tabelle~6.1--6.3: i numeri sono
+quindi direttamente confrontabili. Leggendo le tabelle per riga (a parit\`a di
+iterazione) si vede dove il riuso anticipa o ritarda la convergenza.
+
+Nel complesso il comportamento \`e qualitativamente coerente tra i quattro
+problemi per quanto riguarda i metodi del secondo ordine, mentre per i metodi
+del primo ordine dipende dal condizionamento:
+
+\begin{itemize}
+\item \textbf{Dynamic GD e BB-CCV} traggono vantaggio dal riuso sul problema
+  ben condizionato ($\kappa\approx1.1$): gi\`a da $k\approx8$ l'errore con il
+  riuso resta sistematicamente sotto quello della base (Tabelle~\ref{tab:riuso_bencond_gd}
+  e~\ref{tab:riuso_bencond_bb}). Il vantaggio si riduce e talvolta si inverte
+
+\subsection{Sintesi: quando il riuso aiuta e quando no}\label{app:riuso-sintesi}
+
+La Tabella~\ref{tab:riuso_sintesi} riassume l'errore finale $e_{30}$ per tutti
+i valori di $M$; i simboli indicano se, rispetto alla base, il riuso migliora
+($\blacktriangle$), peggiora ($\blacktriangledown$) o lascia invariato ($=$) il
+risultato. La Tabella~\ref{tab:riuso_robustezza} riporta, su cinque seed
+indipendenti, quante volte il riuso (a $M=\infty$ e $M=10$) migliora o peggiora
+l'errore finale. Dai dati emergono conclusioni chiare.
+
+\paragraph{Quando il riuso aiuta.}
+\begin{itemize}
+\item Sui problemi \emph{ben condizionati} ($\kappa\approx1.1$) il riuso
+  migliora sistematicamente l'errore finale di Dynamic GD e BB-CCV: $5$ seed
+  su $5$ con $M=\infty$ e con $M=10$ (Tabella~\ref{tab:riuso_robustezza}). Con
+  un paesaggio quasi isotropo il campione resta valido per pi\`u iterazioni e i
+  passi coerenti riducono il rumore dello stimatore.
+\item Anche con il \emph{termine incrociato} Dynamic GD e BB-CCV traggono
+  beneficio dal riuso ($4$ seed su $5$ con $M=\infty$), con un errore finale
+  che scende da $9.42\times10^{-3}$ a $5.53\times10^{-3}$ (seed 42).
+\item Il vantaggio emerge soprattutto nella seconda met\`a delle iterazioni,
+  quando il gradiente diventa piccolo e il pavimento di rumore del singolo
+  batch diventa il fattore dominante: \`e l\`i che i passi coerenti fanno la
+  differenza.
+\end{itemize}
+
+\paragraph{Quando il riuso non aiuta (o peggiora).}
+\begin{itemize}
+\item Sui problemi \emph{mal condizionati} ($\kappa\approx20$ e
+  $\kappa\approx100$) il quadro \`e misto e il riuso illimitato pu\`o
+  peggiorare i metodi del primo ordine: su $\kappa\approx20$ Dynamic GD e
+  BB-CCV peggiorano in $3$ seed su $5$ (Tabella~\ref{tab:riuso_robustezza}).
+  Ottimizzare per pi\`u passi su un campione fisso fa \emph{derivare} l'iterato
+  verso il minimo di quel campione, che non coincide con $w_*$. La CCV
+  controlla la \emph{varianza} dello stimatore, ma non questo spostamento
+  sistematico (bias): se il campione \`e sfortunato, i passi coerenti portano
+  nella direzione sbagliata senza che il test lo rilevi.
+\item I metodi di \emph{Newton} sono i pi\`u penalizzati. Newton-CG peggiora in
+  quasi tutti i casi (in $5$ seed su $5$ con $M=10$ sui problemi
+  $\kappa\approx20$, $\kappa\approx100$ e con termine incrociato). La causa \`e
+  duplice: (i)~riusare la Hessiana insieme al gradiente rende la direzione di
+  Newton \emph{obsoleta}, calcolata su un problema subcampionato il cui punto
+  di riferimento si sposta; (ii)~la CCV valutata sul batch in uso \`e un
+  controllo di varianza pi\`u debole di quello su un campione fresco, che la
+  versione base esegue a ogni iterazione.
+\item La line search certifica la discesa solo sulla loss del batch, non su
+  $J$: passi consecutivi batch-discesi possono aumentare temporaneamente
+  l'errore vero. Le tabelle mostrano infatti che le curve con il riuso non
+  sono monotonicamente sotto la base a ogni iterazione, anche quando l'errore
+  finale \`e migliore.
+\end{itemize}
+
+  sui problemi mal condizionati, dove il riuso illimitato pu\`o peggiorare
+  l'errore finale (Tabelle~\ref{tab:riuso_malcond_gd} e~\ref{tab:riuso_malcond_bb}).
+\item \textbf{Newton-CG} \`e l'algoritmo che pi\`u risente negativamente del
+  riuso: in quasi tutte le tabelle l'errore con il riuso resta sopra quello
+  della base per tutta la traiettoria (ad esempio
+  Tabelle~\ref{tab:riuso_bencond_ncg},~\ref{tab:riuso_malcond_ncg} e~\ref{tab:riuso_veryill_ncg}).
+\item \textbf{Newton-CG~$L_1$} mostra un comportamento intermedio: il riuso
+  aiuta su alcuni problemi (in particolare il molto mal condizionato) e
+  peggiora su altri, senza una direzione netta.
+\end{itemize}
+
+per\`o, questo vantaggio non \`e universale: dipende in modo cruciale dal
+problema e dall'algoritmo.
+
+\subsection{Setup sperimentale}\label{app:riuso-setup}
+
+Gli esperimenti usano gli stessi problemi, gli stessi parametri e lo stesso
+seed della Sezione~\ref{sec:setup}: i quattro preset quadratici
+dell'applicazione ($\kappa\approx1.1$, $\kappa\approx20$, $\kappa\approx100$ e
+termine incrociato), $N=200$ esempi sintetici, $w_0=(2,-3)$, $\alpha=0.1$,
+$\theta=0.5$, $n_0=5$, $30$ iterazioni, line search di Wolfe (Armijo per
+BB-CCV) e seed 42. Per ciascuno dei quattro algoritmi -- Dynamic GD,
+Newton-CG, Newton-CG~$L_1$ e BB-CCV -- si confrontano la versione a
+ricampionamento (indicata come \emph{base}) e il riuso del mini-batch con
+$M\in\{\infty,10,5,3,2,1\}$ iterazioni consecutive.
+
+\paragraph{Lettura complessiva.} Il riuso \`e una modifica economica e a volte
+molto efficace per i metodi del primo ordine (Dynamic GD, BB-CCV) su problemi
+morbidi e ben condizionati, dove il campione resta statisticamente valido per
+diverse iterazioni consecutive. Su problemi mal condizionati o con metodi del
+secondo ordine la versione a ricampionamento resta preferibile: il guadagno in
+coerenza dei passi non compensa il rischio di derivare verso minimi
+subcampionati e di usare direzioni di Newton obsolete. Questi risultati
+suggeriscono che l'opzione ``iterazioni consecutive'' vada usata con
+consapevolezza, verificando di volta in volta il condizionamento del problema
+e la natura dell'algoritmo.
+
+\medskip
+\textit{Osservazione sul costo.} Il confronto \`e per iterazione. Con il riuso
+il costo di una iterazione resta essenzialmente invariato per Dynamic GD e
+BB-CCV (il gradiente del batch si ricalcola comunque a ogni punto), mentre per
+i metodi di Newton la versione base spende in pi\`u un campione fresco a ogni
+iterazione, usato solo per la CCV, che il riuso evita. Il confronto \`e quindi
+gi\`a favorevole al riuso dal punto di vista del lavoro per iterazione, e
+nonostante questo non \`e sempre vincente: i casi negativi sono ancora pi\`u
+significativi, perch\'e non si spiegano con un semplice risparmio di
+valutazioni.
+
+
+% ====================================================================================================
+% Tabelle E.1-E.16: errore a ogni iterazione (riuso del mini-batch)
+% Generate da /tmp/gen_tabelle2.py - NON modificare a mano i valori.
+% ====================================================================================================
+
+% Tabella E.1 - quad_well, Dynamic GD
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_bencond_gd}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$\\
+2 & $9.5519\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$\\
+3 & $7.8850\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.8293\times10^{-1}$\\
+4 & $6.7471\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.5623\times10^{-1}$\\
+5 & $5.5214\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.4593\times10^{-1}$\\
+6 & $4.3385\times10^{-1}$ & $4.2731\times10^{-1}$ & $4.2731\times10^{-1}$ & $4.4035\times10^{-1}$ & $4.5648\times10^{-1}$\\
+7 & $3.8792\times10^{-1}$ & $3.5451\times10^{-1}$ & $3.5451\times10^{-1}$ & $3.7811\times10^{-1}$ & $4.0797\times10^{-1}$\\
+8 & $3.5366\times10^{-1}$ & $2.9583\times10^{-1}$ & $2.9583\times10^{-1}$ & $3.2801\times10^{-1}$ & $3.7052\times10^{-1}$\\
+9 & $3.0927\times10^{-1}$ & $2.4860\times10^{-1}$ & $2.4860\times10^{-1}$ & $2.8772\times10^{-1}$ & $3.1646\times10^{-1}$\\
+10 & $2.5516\times10^{-1}$ & $2.1063\times10^{-1}$ & $2.1063\times10^{-1}$ & $2.4659\times10^{-1}$ & $2.7796\times10^{-1}$\\
+11 & $2.3129\times10^{-1}$ & $1.7823\times10^{-1}$ & $1.7823\times10^{-1}$ & $2.4346\times10^{-1}$ & $2.3093\times10^{-1}$\\
+12 & $2.1401\times10^{-1}$ & $1.5662\times10^{-1}$ & $1.5662\times10^{-1}$ & $2.2097\times10^{-1}$ & $1.9685\times10^{-1}$\\
+13 & $2.0084\times10^{-1}$ & $1.4060\times10^{-1}$ & $1.4060\times10^{-1}$ & $2.0277\times10^{-1}$ & $1.8284\times10^{-1}$\\
+14 & $1.8252\times10^{-1}$ & $1.3342\times10^{-1}$ & $1.3342\times10^{-1}$ & $1.8804\times10^{-1}$ & $1.6456\times10^{-1}$\\
+15 & $1.6601\times10^{-1}$ & $1.2886\times10^{-1}$ & $1.2886\times10^{-1}$ & $1.7613\times10^{-1}$ & $1.5065\times10^{-1}$\\
+16 & $1.6395\times10^{-1}$ & $1.3345\times10^{-1}$ & $1.3345\times10^{-1}$ & $1.6649\times10^{-1}$ & $1.4519\times10^{-1}$\\
+17 & $1.5471\times10^{-1}$ & $1.3005\times10^{-1}$ & $1.3005\times10^{-1}$ & $1.5698\times10^{-1}$ & $1.3899\times10^{-1}$\\
+18 & $1.4730\times10^{-1}$ & $1.2735\times10^{-1}$ & $1.2735\times10^{-1}$ & $1.4930\times10^{-1}$ & $1.3420\times10^{-1}$\\
+19 & $1.4134\times10^{-1}$ & $1.2521\times10^{-1}$ & $1.2521\times10^{-1}$ & $1.4302\times10^{-1}$ & $1.3048\times10^{-1}$\\
+20 & $1.3654\times10^{-1}$ & $1.2350\times10^{-1}$ & $1.2350\times10^{-1}$ & $1.3796\times10^{-1}$ & $1.2758\times10^{-1}$\\
+21 & $1.3268\times10^{-1}$ & $1.2214\times10^{-1}$ & $1.2214\times10^{-1}$ & $1.3388\times10^{-1}$ & $1.2531\times10^{-1}$\\
+22 & $1.2957\times10^{-1}$ & $1.2105\times10^{-1}$ & $1.2105\times10^{-1}$ & $1.3058\times10^{-1}$ & $1.2353\times10^{-1}$\\
+23 & $1.2707\times10^{-1}$ & $1.2017\times10^{-1}$ & $1.2017\times10^{-1}$ & $1.2791\times10^{-1}$ & $1.2212\times10^{-1}$\\
+24 & $1.2505\times10^{-1}$ & $1.1948\times10^{-1}$ & $1.1948\times10^{-1}$ & $1.2576\times10^{-1}$ & $1.2101\times10^{-1}$\\
+25 & $1.2342\times10^{-1}$ & $1.1891\times10^{-1}$ & $1.1891\times10^{-1}$ & $1.2402\times10^{-1}$ & $1.2012\times10^{-1}$\\
+26 & $1.2211\times10^{-1}$ & $1.1846\times10^{-1}$ & $1.1846\times10^{-1}$ & $1.2261\times10^{-1}$ & $1.1942\times10^{-1}$\\
+27 & $1.2105\times10^{-1}$ & $1.1810\times10^{-1}$ & $1.1810\times10^{-1}$ & $1.2147\times10^{-1}$ & $1.1886\times10^{-1}$\\
+28 & $1.2020\times10^{-1}$ & $1.1781\times10^{-1}$ & $1.1781\times10^{-1}$ & $1.2055\times10^{-1}$ & $1.1842\times10^{-1}$\\
+29 & $1.1951\times10^{-1}$ & $1.1758\times10^{-1}$ & $1.1758\times10^{-1}$ & $1.1980\times10^{-1}$ & $1.1806\times10^{-1}$\\
+30 & $1.1895\times10^{-1}$ & $1.1739\times10^{-1}$ & $1.1739\times10^{-1}$ & $1.1920\times10^{-1}$ & $1.1777\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.2 - quad_well, Newton-CG
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_bencond_ncg}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2767\times10^{0}$ & $1.2767\times10^{0}$ & $1.2767\times10^{0}$ & $1.2767\times10^{0}$ & $1.2767\times10^{0}$\\
+2 & $1.2767\times10^{0}$ & $1.1529\times10^{0}$ & $1.1529\times10^{0}$ & $1.1529\times10^{0}$ & $1.1529\times10^{0}$\\
+3 & $1.2767\times10^{0}$ & $1.0416\times10^{0}$ & $1.0416\times10^{0}$ & $1.0416\times10^{0}$ & $1.1529\times10^{0}$\\
+4 & $1.1445\times10^{0}$ & $9.4152\times10^{-1}$ & $9.4152\times10^{-1}$ & $9.4152\times10^{-1}$ & $1.1529\times10^{0}$\\
+5 & $1.1445\times10^{0}$ & $8.5149\times10^{-1}$ & $8.5149\times10^{-1}$ & $8.5149\times10^{-1}$ & $1.1529\times10^{0}$\\
+6 & $1.0480\times10^{0}$ & $7.7051\times10^{-1}$ & $7.7051\times10^{-1}$ & $8.5149\times10^{-1}$ & $1.1529\times10^{0}$\\
+7 & $1.0480\times10^{0}$ & $6.9769\times10^{-1}$ & $6.9769\times10^{-1}$ & $8.5149\times10^{-1}$ & $1.1529\times10^{0}$\\
+8 & $1.0480\times10^{0}$ & $6.3220\times10^{-1}$ & $6.3220\times10^{-1}$ & $8.5149\times10^{-1}$ & $1.1529\times10^{0}$\\
+9 & $9.5228\times10^{-1}$ & $5.7332\times10^{-1}$ & $5.7332\times10^{-1}$ & $8.5149\times10^{-1}$ & $1.0311\times10^{0}$\\
+10 & $9.5228\times10^{-1}$ & $5.2038\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $9.2168\times10^{-1}$\\
+11 & $9.5228\times10^{-1}$ & $4.7278\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $9.2168\times10^{-1}$\\
+12 & $8.5485\times10^{-1}$ & $4.3000\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $9.2168\times10^{-1}$\\
+13 & $8.5485\times10^{-1}$ & $3.9156\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $9.2168\times10^{-1}$\\
+14 & $7.7082\times10^{-1}$ & $3.5701\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $9.2168\times10^{-1}$\\
+15 & $7.0423\times10^{-1}$ & $3.2598\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $8.4854\times10^{-1}$\\
+16 & $6.3968\times10^{-1}$ & $2.9811\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $7.8303\times10^{-1}$\\
+17 & $5.7274\times10^{-1}$ & $2.7308\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $7.0160\times10^{-1}$\\
+18 & $5.7274\times10^{-1}$ & $2.5062\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $6.2847\times10^{-1}$\\
+19 & $5.2456\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $6.2847\times10^{-1}$\\
+20 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $8.5149\times10^{-1}$ & $6.2847\times10^{-1}$\\
+21 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $7.6043\times10^{-1}$ & $6.2847\times10^{-1}$\\
+22 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $6.7869\times10^{-1}$ & $6.2847\times10^{-1}$\\
+23 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $6.0531\times10^{-1}$ & $5.6737\times10^{-1}$\\
+24 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $5.3943\times10^{-1}$ & $5.1260\times10^{-1}$\\
+25 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $4.7068\times10^{-1}$\\
+26 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $4.3297\times10^{-1}$\\
+27 & $4.8185\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $3.9953\times10^{-1}$\\
+28 & $4.4183\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $3.7015\times10^{-1}$\\
+29 & $4.1307\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $3.4710\times10^{-1}$\\
+30 & $4.1307\times10^{-1}$ & $2.3047\times10^{-1}$ & $5.2038\times10^{-1}$ & $4.8030\times10^{-1}$ & $3.2637\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.3 - quad_well, Newton-CG $L_1$
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_bencond_l1}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2693\times10^{0}$ & $1.2693\times10^{0}$ & $1.2693\times10^{0}$ & $1.2693\times10^{0}$ & $1.2693\times10^{0}$\\
+2 & $1.1553\times10^{0}$ & $1.1389\times10^{0}$ & $1.1389\times10^{0}$ & $1.1389\times10^{0}$ & $1.1389\times10^{0}$\\
+3 & $1.0553\times10^{0}$ & $1.0216\times10^{0}$ & $1.0216\times10^{0}$ & $1.0216\times10^{0}$ & $1.0298\times10^{0}$\\
+4 & $9.3944\times10^{-1}$ & $9.1613\times10^{-1}$ & $9.1613\times10^{-1}$ & $9.1613\times10^{-1}$ & $9.3116\times10^{-1}$\\
+5 & $8.6293\times10^{-1}$ & $8.2126\times10^{-1}$ & $8.2126\times10^{-1}$ & $8.2126\times10^{-1}$ & $8.3412\times10^{-1}$\\
+6 & $7.8727\times10^{-1}$ & $7.3594\times10^{-1}$ & $7.3594\times10^{-1}$ & $7.4242\times10^{-1}$ & $7.4706\times10^{-1}$\\
+7 & $7.1535\times10^{-1}$ & $6.5921\times10^{-1}$ & $6.5921\times10^{-1}$ & $6.7111\times10^{-1}$ & $6.8635\times10^{-1}$\\
+8 & $6.4784\times10^{-1}$ & $5.9022\times10^{-1}$ & $5.9022\times10^{-1}$ & $6.0662\times10^{-1}$ & $6.3149\times10^{-1}$\\
+9 & $5.8489\times10^{-1}$ & $5.2819\times10^{-1}$ & $5.2819\times10^{-1}$ & $5.4829\times10^{-1}$ & $5.5548\times10^{-1}$\\
+10 & $5.2732\times10^{-1}$ & $4.7243\times10^{-1}$ & $4.7243\times10^{-1}$ & $4.9555\times10^{-1}$ & $4.8725\times10^{-1}$\\
+11 & $4.7897\times10^{-1}$ & $4.2231\times10^{-1}$ & $4.2671\times10^{-1}$ & $4.4200\times10^{-1}$ & $4.4326\times10^{-1}$\\
+12 & $4.2220\times10^{-1}$ & $3.7728\times10^{-1}$ & $3.8537\times10^{-1}$ & $3.9448\times10^{-1}$ & $4.0426\times10^{-1}$\\
+13 & $3.9078\times10^{-1}$ & $3.3682\times10^{-1}$ & $3.4802\times10^{-1}$ & $3.5248\times10^{-1}$ & $3.7330\times10^{-1}$\\
+14 & $3.4772\times10^{-1}$ & $3.0050\times10^{-1}$ & $3.1426\times10^{-1}$ & $3.1557\times10^{-1}$ & $3.4590\times10^{-1}$\\
+15 & $3.1663\times10^{-1}$ & $2.6789\times10^{-1}$ & $2.8036\times10^{-1}$ & $2.8336\times10^{-1}$ & $3.2352\times10^{-1}$\\
+16 & $2.8327\times10^{-1}$ & $2.3865\times10^{-1}$ & $2.5168\times10^{-1}$ & $2.6693\times10^{-1}$ & $2.9006\times10^{-1}$\\
+17 & $2.5753\times10^{-1}$ & $2.1244\times10^{-1}$ & $2.2789\times10^{-1}$ & $2.4431\times10^{-1}$ & $2.6035\times10^{-1}$\\
+18 & $2.3154\times10^{-1}$ & $1.8946\times10^{-1}$ & $2.0870\times10^{-1}$ & $2.2401\times10^{-1}$ & $2.3456\times10^{-1}$\\
+19 & $2.1416\times10^{-1}$ & $1.6815\times10^{-1}$ & $1.9376\times10^{-1}$ & $2.0582\times10^{-1}$ & $2.1143\times10^{-1}$\\
+20 & $1.9294\times10^{-1}$ & $1.5008\times10^{-1}$ & $1.8267\times10^{-1}$ & $1.8953\times10^{-1}$ & $1.9501\times10^{-1}$\\
+21 & $1.7848\times10^{-1}$ & $1.3507\times10^{-1}$ & $1.7496\times10^{-1}$ & $1.7495\times10^{-1}$ & $1.8559\times10^{-1}$\\
+22 & $1.6444\times10^{-1}$ & $1.2294\times10^{-1}$ & $1.5854\times10^{-1}$ & $1.6475\times10^{-1}$ & $1.7043\times10^{-1}$\\
+23 & $1.5280\times10^{-1}$ & $1.1351\times10^{-1}$ & $1.4700\times10^{-1}$ & $1.5296\times10^{-1}$ & $1.5685\times10^{-1}$\\
+24 & $1.4180\times10^{-1}$ & $1.1006\times10^{-1}$ & $1.4168\times10^{-1}$ & $1.4237\times10^{-1}$ & $1.4700\times10^{-1}$\\
+25 & $1.3197\times10^{-1}$ & $1.0378\times10^{-1}$ & $1.3256\times10^{-1}$ & $1.3285\times10^{-1}$ & $1.3689\times10^{-1}$\\
+26 & $1.2319\times10^{-1}$ & $9.8146\times10^{-2}$ & $1.2434\times10^{-1}$ & $1.2430\times10^{-1}$ & $1.2782\times10^{-1}$\\
+27 & $1.1534\times10^{-1}$ & $9.3102\times10^{-2}$ & $1.1695\times10^{-1}$ & $1.1663\times10^{-1}$ & $1.1969\times10^{-1}$\\
+28 & $1.0831\times10^{-1}$ & $8.8588\times10^{-2}$ & $1.1028\times10^{-1}$ & $1.0969\times10^{-1}$ & $1.1240\times10^{-1}$\\
+29 & $1.0204\times10^{-1}$ & $8.4547\times10^{-2}$ & $1.0428\times10^{-1}$ & $1.0347\times10^{-1}$ & $1.0587\times10^{-1}$\\
+30 & $9.6484\times10^{-2}$ & $8.0932\times10^{-2}$ & $9.8879\times10^{-2}$ & $9.7895\times10^{-2}$ & $1.0003\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.4 - quad_well, BB-CCV
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_bencond_bb}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$ & $1.1516\times10^{0}$\\
+2 & $9.5519\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$ & $9.3935\times10^{-1}$\\
+3 & $7.8850\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.6789\times10^{-1}$ & $7.8293\times10^{-1}$\\
+4 & $6.7471\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.2940\times10^{-1}$ & $6.5623\times10^{-1}$\\
+5 & $5.5214\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.1757\times10^{-1}$ & $5.4593\times10^{-1}$\\
+6 & $4.3385\times10^{-1}$ & $4.2731\times10^{-1}$ & $4.2731\times10^{-1}$ & $4.4035\times10^{-1}$ & $4.5648\times10^{-1}$\\
+7 & $3.8792\times10^{-1}$ & $3.5451\times10^{-1}$ & $3.5451\times10^{-1}$ & $3.7811\times10^{-1}$ & $4.0797\times10^{-1}$\\
+8 & $3.5366\times10^{-1}$ & $2.9583\times10^{-1}$ & $2.9583\times10^{-1}$ & $3.2801\times10^{-1}$ & $3.7052\times10^{-1}$\\
+9 & $3.0927\times10^{-1}$ & $2.4860\times10^{-1}$ & $2.4860\times10^{-1}$ & $2.8772\times10^{-1}$ & $3.1646\times10^{-1}$\\
+10 & $2.5516\times10^{-1}$ & $2.1063\times10^{-1}$ & $2.1063\times10^{-1}$ & $2.4659\times10^{-1}$ & $2.7796\times10^{-1}$\\
+11 & $2.3129\times10^{-1}$ & $1.7823\times10^{-1}$ & $1.7823\times10^{-1}$ & $2.4346\times10^{-1}$ & $2.3093\times10^{-1}$\\
+12 & $2.1401\times10^{-1}$ & $1.5662\times10^{-1}$ & $1.5662\times10^{-1}$ & $2.2097\times10^{-1}$ & $1.9685\times10^{-1}$\\
+13 & $2.0084\times10^{-1}$ & $1.4060\times10^{-1}$ & $1.4060\times10^{-1}$ & $2.0277\times10^{-1}$ & $1.8284\times10^{-1}$\\
+14 & $1.8252\times10^{-1}$ & $1.3342\times10^{-1}$ & $1.3342\times10^{-1}$ & $1.8804\times10^{-1}$ & $1.6456\times10^{-1}$\\
+15 & $1.6601\times10^{-1}$ & $1.2886\times10^{-1}$ & $1.2886\times10^{-1}$ & $1.7613\times10^{-1}$ & $1.5065\times10^{-1}$\\
+16 & $1.6395\times10^{-1}$ & $1.3345\times10^{-1}$ & $1.3345\times10^{-1}$ & $1.6649\times10^{-1}$ & $1.4519\times10^{-1}$\\
+17 & $1.5471\times10^{-1}$ & $1.3005\times10^{-1}$ & $1.3005\times10^{-1}$ & $1.5698\times10^{-1}$ & $1.3899\times10^{-1}$\\
+18 & $1.4730\times10^{-1}$ & $1.2735\times10^{-1}$ & $1.2735\times10^{-1}$ & $1.4930\times10^{-1}$ & $1.3420\times10^{-1}$\\
+19 & $1.4134\times10^{-1}$ & $1.2521\times10^{-1}$ & $1.2521\times10^{-1}$ & $1.4302\times10^{-1}$ & $1.3048\times10^{-1}$\\
+20 & $1.3654\times10^{-1}$ & $1.2350\times10^{-1}$ & $1.2350\times10^{-1}$ & $1.3796\times10^{-1}$ & $1.2758\times10^{-1}$\\
+21 & $1.3268\times10^{-1}$ & $1.2214\times10^{-1}$ & $1.2214\times10^{-1}$ & $1.3388\times10^{-1}$ & $1.2531\times10^{-1}$\\
+22 & $1.2957\times10^{-1}$ & $1.2105\times10^{-1}$ & $1.2105\times10^{-1}$ & $1.3058\times10^{-1}$ & $1.2353\times10^{-1}$\\
+23 & $1.2707\times10^{-1}$ & $1.2017\times10^{-1}$ & $1.2017\times10^{-1}$ & $1.2791\times10^{-1}$ & $1.2212\times10^{-1}$\\
+24 & $1.2505\times10^{-1}$ & $1.1948\times10^{-1}$ & $1.1948\times10^{-1}$ & $1.2576\times10^{-1}$ & $1.2101\times10^{-1}$\\
+25 & $1.2342\times10^{-1}$ & $1.1891\times10^{-1}$ & $1.1891\times10^{-1}$ & $1.2402\times10^{-1}$ & $1.2012\times10^{-1}$\\
+26 & $1.2211\times10^{-1}$ & $1.1846\times10^{-1}$ & $1.1846\times10^{-1}$ & $1.2261\times10^{-1}$ & $1.1942\times10^{-1}$\\
+27 & $1.2105\times10^{-1}$ & $1.1810\times10^{-1}$ & $1.1810\times10^{-1}$ & $1.2147\times10^{-1}$ & $1.1886\times10^{-1}$\\
+28 & $1.2020\times10^{-1}$ & $1.1781\times10^{-1}$ & $1.1781\times10^{-1}$ & $1.2055\times10^{-1}$ & $1.1842\times10^{-1}$\\
+29 & $1.1951\times10^{-1}$ & $1.1758\times10^{-1}$ & $1.1758\times10^{-1}$ & $1.1980\times10^{-1}$ & $1.1806\times10^{-1}$\\
+30 & $1.1895\times10^{-1}$ & $1.1739\times10^{-1}$ & $1.1739\times10^{-1}$ & $1.1920\times10^{-1}$ & $1.1777\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% Tabella E.5 - quad_ill, Dynamic GD
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_malcond_gd}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$\\
+2 & $1.2440\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$\\
+3 & $1.3338\times10^{0}$ & $1.1003\times10^{0}$ & $1.1003\times10^{0}$ & $1.1003\times10^{0}$ & $1.1459\times10^{0}$\\
+4 & $1.3196\times10^{0}$ & $1.2001\times10^{0}$ & $1.2001\times10^{0}$ & $1.2001\times10^{0}$ & $1.2007\times10^{0}$\\
+5 & $1.1515\times10^{0}$ & $1.0149\times10^{0}$ & $1.0149\times10^{0}$ & $1.0149\times10^{0}$ & $1.3173\times10^{0}$\\
+6 & $1.3192\times10^{0}$ & $1.1372\times10^{0}$ & $1.1372\times10^{0}$ & $1.0853\times10^{0}$ & $1.1370\times10^{0}$\\
+7 & $1.3119\times10^{0}$ & $9.5415\times10^{-1}$ & $9.5415\times10^{-1}$ & $9.5470\times10^{-1}$ & $1.0904\times10^{0}$\\
+8 & $1.1849\times10^{0}$ & $1.0936\times10^{0}$ & $1.0936\times10^{0}$ & $1.0399\times10^{0}$ & $1.0950\times10^{0}$\\
+9 & $1.1914\times10^{0}$ & $9.1173\times10^{-1}$ & $9.1173\times10^{-1}$ & $9.1259\times10^{-1}$ & $9.3482\times10^{-1}$\\
+10 & $1.3429\times10^{0}$ & $1.0637\times10^{0}$ & $1.0637\times10^{0}$ & $1.0086\times10^{0}$ & $1.0622\times10^{0}$\\
+11 & $1.3922\times10^{0}$ & $8.8246\times10^{-1}$ & $9.3840\times10^{-1}$ & $1.1610\times10^{0}$ & $8.4194\times10^{-1}$\\
+12 & $2.9524\times10^{-1}$ & $1.0434\times10^{0}$ & $1.0437\times10^{0}$ & $9.8645\times10^{-1}$ & $1.0399\times10^{0}$\\
+13 & $2.6608\times10^{-1}$ & $8.6245\times10^{-1}$ & $9.1986\times10^{-1}$ & $1.1455\times10^{0}$ & $1.0468\times10^{0}$\\
+14 & $2.3965\times10^{-1}$ & $1.0296\times10^{0}$ & $1.0301\times10^{0}$ & $9.7151\times10^{-1}$ & $1.0255\times10^{0}$\\
+15 & $2.1588\times10^{-1}$ & $8.4883\times10^{-1}$ & $9.0722\times10^{-1}$ & $1.1350\times10^{0}$ & $1.1311\times10^{0}$\\
+16 & $1.9451\times10^{-1}$ & $1.0203\times10^{0}$ & $1.0209\times10^{0}$ & $2.1297\times10^{-1}$ & $1.0139\times10^{0}$\\
+17 & $1.7531\times10^{-1}$ & $2.1374\times10^{-1}$ & $2.0559\times10^{-1}$ & $1.7879\times10^{-1}$ & $1.6351\times10^{-1}$\\
+18 & $1.5805\times10^{-1}$ & $1.8311\times10^{-1}$ & $1.7350\times10^{-1}$ & $1.6101\times10^{-1}$ & $1.4840\times10^{-1}$\\
+19 & $1.4254\times10^{-1}$ & $1.6945\times10^{-1}$ & $1.5836\times10^{-1}$ & $1.4502\times10^{-1}$ & $1.3362\times10^{-1}$\\
+20 & $1.2862\times10^{-1}$ & $1.5752\times10^{-1}$ & $1.4495\times10^{-1}$ & $1.3065\times10^{-1}$ & $1.2033\times10^{-1}$\\
+21 & $1.1613\times10^{-1}$ & $1.4715\times10^{-1}$ & $1.3311\times10^{-1}$ & $1.1772\times10^{-1}$ & $1.0838\times10^{-1}$\\
+22 & $1.0492\times10^{-1}$ & $1.3818\times10^{-1}$ & $1.2267\times10^{-1}$ & $1.0611\times10^{-1}$ & $9.7628\times10^{-2}$\\
+23 & $9.4880\times10^{-2}$ & $1.3047\times10^{-1}$ & $1.1352\times10^{-1}$ & $9.5672\times10^{-2}$ & $8.7964\times10^{-2}$\\
+24 & $8.5890\times10^{-2}$ & $1.2387\times10^{-1}$ & $1.0552\times10^{-1}$ & $8.6298\times10^{-2}$ & $7.9276\times10^{-2}$\\
+25 & $7.7851\times10^{-2}$ & $1.1825\times10^{-1}$ & $9.8576\times10^{-2}$ & $7.7882\times10^{-2}$ & $7.1470\times10^{-2}$\\
+26 & $7.0673\times10^{-2}$ & $1.1350\times10^{-1}$ & $9.2566\times10^{-2}$ & $7.0330\times10^{-2}$ & $6.4457\times10^{-2}$\\
+27 & $6.4273\times10^{-2}$ & $1.0950\times10^{-1}$ & $8.7395\times10^{-2}$ & $6.3559\times10^{-2}$ & $5.8160\times10^{-2}$\\
+28 & $5.8579\times10^{-2}$ & $1.0614\times10^{-1}$ & $8.2971\times10^{-2}$ & $5.7493\times10^{-2}$ & $5.2508\times10^{-2}$\\
+29 & $5.3525\times10^{-2}$ & $1.0335\times10^{-1}$ & $7.9206\times10^{-2}$ & $5.2064\times10^{-2}$ & $4.7440\times10^{-2}$\\
+30 & $4.9050\times10^{-2}$ & $1.0103\times10^{-1}$ & $7.6020\times10^{-2}$ & $4.7211\times10^{-2}$ & $4.2898\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.6 - quad_ill, Newton-CG
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_malcond_ncg}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+2 & $1.1565\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+3 & $1.0389\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+4 & $9.3818\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+5 & $9.3818\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+6 & $9.3818\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+7 & $8.3222\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$\\
+8 & $8.3222\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$\\
+9 & $7.4294\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$\\
+10 & $7.4294\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$\\
+11 & $6.6618\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$\\
+12 & $5.9217\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$\\
+13 & $5.3889\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$\\
+14 & $5.0367\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$\\
+15 & $4.6450\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $8.4638\times10^{-1}$\\
+16 & $4.2282\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$ & $7.6982\times10^{-1}$\\
+17 & $4.2282\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$ & $7.6982\times10^{-1}$\\
+18 & $3.8282\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$ & $7.6982\times10^{-1}$\\
+19 & $3.8282\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$ & $6.8064\times10^{-1}$\\
+20 & $3.4597\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1507\times10^{0}$ & $6.8064\times10^{-1}$\\
+21 & $3.0237\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$ & $6.8064\times10^{-1}$\\
+22 & $2.8328\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$ & $6.8064\times10^{-1}$\\
+23 & $2.6244\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$ & $6.8064\times10^{-1}$\\
+24 & $2.6244\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$ & $6.8064\times10^{-1}$\\
+25 & $2.3496\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.0411\times10^{0}$ & $6.0643\times10^{-1}$\\
+26 & $2.1624\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$ & $5.3967\times10^{-1}$\\
+27 & $1.9193\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$ & $5.3967\times10^{-1}$\\
+28 & $1.6780\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$ & $5.3967\times10^{-1}$\\
+29 & $1.6780\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$ & $4.8872\times10^{-1}$\\
+30 & $1.5442\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $9.3148\times10^{-1}$ & $4.8872\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.7 - quad_ill, Newton-CG $L_1$
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_malcond_l1}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$\\
+2 & $1.2844\times10^{0}$ & $1.2892\times10^{0}$ & $1.2892\times10^{0}$ & $1.2892\times10^{0}$ & $1.2892\times10^{0}$\\
+3 & $1.2288\times10^{0}$ & $1.2389\times10^{0}$ & $1.2389\times10^{0}$ & $1.2389\times10^{0}$ & $1.2283\times10^{0}$\\
+4 & $1.1862\times10^{0}$ & $1.1954\times10^{0}$ & $1.1954\times10^{0}$ & $1.1954\times10^{0}$ & $1.1765\times10^{0}$\\
+5 & $1.1446\times10^{0}$ & $1.1577\times10^{0}$ & $1.1577\times10^{0}$ & $1.1577\times10^{0}$ & $1.1408\times10^{0}$\\
+6 & $1.1026\times10^{0}$ & $1.1250\times10^{0}$ & $1.1250\times10^{0}$ & $1.1162\times10^{0}$ & $1.1098\times10^{0}$\\
+7 & $1.0700\times10^{0}$ & $1.0966\times10^{0}$ & $1.0966\times10^{0}$ & $1.0811\times10^{0}$ & $1.0791\times10^{0}$\\
+8 & $1.0502\times10^{0}$ & $1.0719\times10^{0}$ & $1.0719\times10^{0}$ & $1.0515\times10^{0}$ & $1.0528\times10^{0}$\\
+9 & $1.0271\times10^{0}$ & $1.0502\times10^{0}$ & $1.0502\times10^{0}$ & $1.0265\times10^{0}$ & $1.0306\times10^{0}$\\
+10 & $1.0119\times10^{0}$ & $1.0312\times10^{0}$ & $1.0312\times10^{0}$ & $1.0053\times10^{0}$ & $1.0115\times10^{0}$\\
+11 & $9.9326\times10^{-1}$ & $1.0144\times10^{0}$ & $1.0082\times10^{0}$ & $9.9185\times10^{-1}$ & $9.9367\times10^{-1}$\\
+12 & $9.7574\times10^{-1}$ & $9.9946\times10^{-1}$ & $9.8871\times10^{-1}$ & $9.7968\times10^{-1}$ & $9.7815\times10^{-1}$\\
+13 & $9.6280\times10^{-1}$ & $9.8606\times10^{-1}$ & $9.7213\times10^{-1}$ & $9.6857\times10^{-1}$ & $9.6537\times10^{-1}$\\
+14 & $8.7359\times10^{-1}$ & $9.7394\times10^{-1}$ & $9.5796\times10^{-1}$ & $9.5832\times10^{-1}$ & $9.5399\times10^{-1}$\\
+15 & $8.6549\times10^{-1}$ & $9.5799\times10^{-1}$ & $9.4574\times10^{-1}$ & $9.4876\times10^{-1}$ & $9.4483\times10^{-1}$\\
+16 & $8.5632\times10^{-1}$ & $9.4444\times10^{-1}$ & $9.3512\times10^{-1}$ & $9.3836\times10^{-1}$ & $9.3644\times10^{-1}$\\
+17 & $8.4815\times10^{-1}$ & $9.3284\times10^{-1}$ & $9.2578\times10^{-1}$ & $9.2891\times10^{-1}$ & $9.2904\times10^{-1}$\\
+18 & $8.3837\times10^{-1}$ & $9.2281\times10^{-1}$ & $9.1748\times10^{-1}$ & $9.2022\times10^{-1}$ & $9.2070\times10^{-1}$\\
+19 & $8.2838\times10^{-1}$ & $9.1406\times10^{-1}$ & $9.0998\times10^{-1}$ & $9.1213\times10^{-1}$ & $9.1269\times10^{-1}$\\
+20 & $8.2111\times10^{-1}$ & $9.0632\times10^{-1}$ & $9.0313\times10^{-1}$ & $9.0451\times10^{-1}$ & $9.0502\times10^{-1}$\\
+21 & $8.1378\times10^{-1}$ & $8.9937\times10^{-1}$ & $8.0682\times10^{-1}$ & $8.9799\times10^{-1}$ & $8.9799\times10^{-1}$\\
+22 & $7.3846\times10^{-1}$ & $8.9305\times10^{-1}$ & $8.0077\times10^{-1}$ & $8.9174\times10^{-1}$ & $8.9123\times10^{-1}$\\
+23 & $6.5919\times10^{-1}$ & $8.8719\times10^{-1}$ & $7.9475\times10^{-1}$ & $8.8567\times10^{-1}$ & $8.8466\times10^{-1}$\\
+24 & $5.9014\times10^{-1}$ & $8.8168\times10^{-1}$ & $7.1029\times10^{-1}$ & $8.7970\times10^{-1}$ & $7.8800\times10^{-1}$\\
+25 & $5.8456\times10^{-1}$ & $8.7642\times10^{-1}$ & $6.3428\times10^{-1}$ & $8.7303\times10^{-1}$ & $7.0261\times10^{-1}$\\
+26 & $5.7983\times10^{-1}$ & $8.7131\times10^{-1}$ & $5.6587\times10^{-1}$ & $8.6639\times10^{-1}$ & $6.2576\times10^{-1}$\\
+27 & $5.7545\times10^{-1}$ & $8.6626\times10^{-1}$ & $5.0431\times10^{-1}$ & $7.7034\times10^{-1}$ & $5.5995\times10^{-1}$\\
+28 & $5.7119\times10^{-1}$ & $8.6005\times10^{-1}$ & $4.4891\times10^{-1}$ & $6.8391\times10^{-1}$ & $5.0072\times10^{-1}$\\
+29 & $5.0986\times10^{-1}$ & $7.6279\times10^{-1}$ & $4.0458\times10^{-1}$ & $5.9837\times10^{-1}$ & $4.9709\times10^{-1}$\\
+30 & $4.5455\times10^{-1}$ & $6.8845\times10^{-1}$ & $3.5861\times10^{-1}$ & $5.3636\times10^{-1}$ & $4.9359\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.8 - quad_ill, BB-CCV
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_malcond_bb}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$ & $1.2185\times10^{0}$\\
+2 & $1.2440\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$ & $1.2895\times10^{0}$\\
+3 & $1.3338\times10^{0}$ & $1.1003\times10^{0}$ & $1.1003\times10^{0}$ & $1.1003\times10^{0}$ & $1.1459\times10^{0}$\\
+4 & $1.3196\times10^{0}$ & $1.2001\times10^{0}$ & $1.2001\times10^{0}$ & $1.2001\times10^{0}$ & $1.2007\times10^{0}$\\
+5 & $1.1515\times10^{0}$ & $1.0149\times10^{0}$ & $1.0149\times10^{0}$ & $1.0149\times10^{0}$ & $1.3173\times10^{0}$\\
+6 & $1.3192\times10^{0}$ & $1.1372\times10^{0}$ & $1.1372\times10^{0}$ & $1.0853\times10^{0}$ & $1.1370\times10^{0}$\\
+7 & $1.3119\times10^{0}$ & $9.5415\times10^{-1}$ & $9.5415\times10^{-1}$ & $9.5470\times10^{-1}$ & $1.0904\times10^{0}$\\
+8 & $1.1849\times10^{0}$ & $1.0936\times10^{0}$ & $1.0936\times10^{0}$ & $1.0399\times10^{0}$ & $1.0950\times10^{0}$\\
+9 & $1.1914\times10^{0}$ & $9.1173\times10^{-1}$ & $9.1173\times10^{-1}$ & $9.1259\times10^{-1}$ & $9.3482\times10^{-1}$\\
+10 & $1.3429\times10^{0}$ & $1.0637\times10^{0}$ & $1.0637\times10^{0}$ & $1.0086\times10^{0}$ & $1.0622\times10^{0}$\\
+11 & $1.3922\times10^{0}$ & $8.8246\times10^{-1}$ & $9.3840\times10^{-1}$ & $1.1610\times10^{0}$ & $8.4194\times10^{-1}$\\
+12 & $2.9524\times10^{-1}$ & $1.0434\times10^{0}$ & $1.0437\times10^{0}$ & $9.8645\times10^{-1}$ & $1.0399\times10^{0}$\\
+13 & $2.6608\times10^{-1}$ & $8.6245\times10^{-1}$ & $9.1986\times10^{-1}$ & $1.1455\times10^{0}$ & $1.0468\times10^{0}$\\
+14 & $2.3965\times10^{-1}$ & $1.0296\times10^{0}$ & $1.0301\times10^{0}$ & $9.7151\times10^{-1}$ & $1.0255\times10^{0}$\\
+15 & $2.1588\times10^{-1}$ & $8.4883\times10^{-1}$ & $9.0722\times10^{-1}$ & $1.1350\times10^{0}$ & $1.1311\times10^{0}$\\
+16 & $1.9451\times10^{-1}$ & $1.0203\times10^{0}$ & $1.0209\times10^{0}$ & $2.1297\times10^{-1}$ & $1.0139\times10^{0}$\\
+17 & $1.7531\times10^{-1}$ & $2.1374\times10^{-1}$ & $2.0559\times10^{-1}$ & $1.7879\times10^{-1}$ & $1.6351\times10^{-1}$\\
+18 & $1.5805\times10^{-1}$ & $1.8311\times10^{-1}$ & $1.7350\times10^{-1}$ & $1.6101\times10^{-1}$ & $1.4840\times10^{-1}$\\
+19 & $1.4254\times10^{-1}$ & $1.6945\times10^{-1}$ & $1.5836\times10^{-1}$ & $1.4502\times10^{-1}$ & $1.3362\times10^{-1}$\\
+20 & $1.2862\times10^{-1}$ & $1.5752\times10^{-1}$ & $1.4495\times10^{-1}$ & $1.3065\times10^{-1}$ & $1.2033\times10^{-1}$\\
+21 & $1.1613\times10^{-1}$ & $1.4715\times10^{-1}$ & $1.3311\times10^{-1}$ & $1.1772\times10^{-1}$ & $1.0838\times10^{-1}$\\
+22 & $1.0492\times10^{-1}$ & $1.3818\times10^{-1}$ & $1.2267\times10^{-1}$ & $1.0611\times10^{-1}$ & $9.7628\times10^{-2}$\\
+23 & $9.4880\times10^{-2}$ & $1.3047\times10^{-1}$ & $1.1352\times10^{-1}$ & $9.5672\times10^{-2}$ & $8.7964\times10^{-2}$\\
+24 & $8.5890\times10^{-2}$ & $1.2387\times10^{-1}$ & $1.0552\times10^{-1}$ & $8.6298\times10^{-2}$ & $7.9276\times10^{-2}$\\
+25 & $7.7851\times10^{-2}$ & $1.1825\times10^{-1}$ & $9.8576\times10^{-2}$ & $7.7882\times10^{-2}$ & $7.1470\times10^{-2}$\\
+26 & $7.0673\times10^{-2}$ & $1.1350\times10^{-1}$ & $9.2566\times10^{-2}$ & $7.0330\times10^{-2}$ & $6.4457\times10^{-2}$\\
+27 & $6.4273\times10^{-2}$ & $1.0950\times10^{-1}$ & $8.7395\times10^{-2}$ & $6.3559\times10^{-2}$ & $5.8160\times10^{-2}$\\
+28 & $5.8579\times10^{-2}$ & $1.0614\times10^{-1}$ & $8.2971\times10^{-2}$ & $5.7493\times10^{-2}$ & $5.2508\times10^{-2}$\\
+29 & $5.3525\times10^{-2}$ & $1.0335\times10^{-1}$ & $7.9206\times10^{-2}$ & $5.2064\times10^{-2}$ & $4.7440\times10^{-2}$\\
+30 & $4.9050\times10^{-2}$ & $1.0103\times10^{-1}$ & $7.6020\times10^{-2}$ & $4.7211\times10^{-2}$ & $4.2898\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% Tabella E.9 - quad_very_ill, Dynamic GD
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_veryill_gd}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$\\
+2 & $9.8193\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$\\
+3 & $9.7324\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$\\
+4 & $9.5355\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$\\
+5 & $9.4387\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$\\
+6 & $9.2830\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$\\
+7 & $8.8226\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$\\
+8 & $8.6034\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$\\
+9 & $8.4937\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$\\
+10 & $8.0714\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$\\
+11 & $7.9682\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$\\
+12 & $7.5723\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$\\
+13 & $7.4751\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$\\
+14 & $7.1041\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$\\
+15 & $7.0126\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$\\
+16 & $6.6649\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$\\
+17 & $6.5788\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$\\
+18 & $6.2529\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$\\
+19 & $6.1717\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$\\
+20 & $6.0177\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$\\
+21 & $5.8679\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$\\
+22 & $5.7227\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$\\
+23 & $5.6488\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$\\
+24 & $5.3689\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$\\
+25 & $5.2993\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$\\
+26 & $5.0370\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$\\
+27 & $4.9714\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$\\
+28 & $4.8474\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$\\
+29 & $4.7267\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$\\
+30 & $4.6668\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.10 - quad_very_ill, Newton-CG
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_veryill_ncg}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+2 & $1.1565\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
+3 & $1.0389\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$\\
+4 & $1.0389\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$\\
+5 & $1.0389\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$\\
+6 & $9.2715\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+7 & $9.2715\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+8 & $8.3588\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+9 & $7.4621\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+10 & $7.4621\times10^{-1}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+11 & $7.4621\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+12 & $7.4621\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+13 & $6.7734\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+14 & $6.7734\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+15 & $6.7734\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+16 & $6.1434\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+17 & $5.5940\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+18 & $5.0595\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$\\
+19 & $4.4436\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.0206\times10^{0}$\\
+20 & $4.0156\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $1.0206\times10^{0}$\\
+21 & $4.0156\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $9.1907\times10^{-1}$\\
+22 & $3.7258\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $8.2789\times10^{-1}$\\
+23 & $3.7258\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $8.2789\times10^{-1}$\\
+24 & $3.3549\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $8.2789\times10^{-1}$\\
+25 & $3.0118\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $7.3889\times10^{-1}$\\
+26 & $2.7058\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $6.5879\times10^{-1}$\\
+27 & $2.4212\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $5.9029\times10^{-1}$\\
+28 & $2.4212\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $5.9029\times10^{-1}$\\
+29 & $2.1652\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $5.9029\times10^{-1}$\\
+30 & $2.1652\times10^{-1}$ & $1.2807\times10^{0}$ & $1.1476\times10^{0}$ & $1.1476\times10^{0}$ & $5.9029\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.11 - quad_very_ill, Newton-CG $L_1$
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_veryill_l1}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$\\
+2 & $1.2912\times10^{0}$ & $1.2961\times10^{0}$ & $1.2961\times10^{0}$ & $1.2961\times10^{0}$ & $1.2961\times10^{0}$\\
+3 & $1.2395\times10^{0}$ & $1.2496\times10^{0}$ & $1.2496\times10^{0}$ & $1.2496\times10^{0}$ & $1.2390\times10^{0}$\\
+4 & $1.2010\times10^{0}$ & $1.2099\times10^{0}$ & $1.2099\times10^{0}$ & $1.2099\times10^{0}$ & $1.1911\times10^{0}$\\
+5 & $1.1635\times10^{0}$ & $1.1761\times10^{0}$ & $1.1761\times10^{0}$ & $1.1761\times10^{0}$ & $1.1595\times10^{0}$\\
+6 & $1.1257\times10^{0}$ & $1.1475\times10^{0}$ & $1.1475\times10^{0}$ & $1.1387\times10^{0}$ & $1.1328\times10^{0}$\\
+7 & $1.0977\times10^{0}$ & $1.1232\times10^{0}$ & $1.1232\times10^{0}$ & $1.1078\times10^{0}$ & $1.1064\times10^{0}$\\
+8 & $1.0827\times10^{0}$ & $1.1025\times10^{0}$ & $1.1025\times10^{0}$ & $1.0824\times10^{0}$ & $1.0844\times10^{0}$\\
+9 & $1.0641\times10^{0}$ & $1.0851\times10^{0}$ & $1.0851\times10^{0}$ & $1.0617\times10^{0}$ & $1.0661\times10^{0}$\\
+10 & $1.0537\times10^{0}$ & $1.0702\times10^{0}$ & $1.0702\times10^{0}$ & $1.0448\times10^{0}$ & $1.0510\times10^{0}$\\
+11 & $1.0392\times10^{0}$ & $1.0576\times10^{0}$ & $1.0514\times10^{0}$ & $1.0358\times10^{0}$ & $1.0376\times10^{0}$\\
+12 & $1.0259\times10^{0}$ & $1.0468\times10^{0}$ & $1.0362\times10^{0}$ & $1.0281\times10^{0}$ & $1.0266\times10^{0}$\\
+13 & $1.0166\times10^{0}$ & $1.0376\times10^{0}$ & $1.0238\times10^{0}$ & $1.0215\times10^{0}$ & $1.0181\times10^{0}$\\
+14 & $1.0144\times10^{0}$ & $1.0297\times10^{0}$ & $1.0138\times10^{0}$ & $1.0157\times10^{0}$ & $1.0110\times10^{0}$\\
+15 & $1.0110\times10^{0}$ & $1.0178\times10^{0}$ & $1.0057\times10^{0}$ & $1.0107\times10^{0}$ & $1.0057\times10^{0}$\\
+16 & $1.0059\times10^{0}$ & $1.0083\times10^{0}$ & $9.9915\times10^{-1}$ & $1.0046\times10^{0}$ & $1.0011\times10^{0}$\\
+17 & $1.0018\times10^{0}$ & $1.0006\times10^{0}$ & $9.9386\times10^{-1}$ & $9.9937\times10^{-1}$ & $9.9844\times10^{-1}$\\
+18 & $9.9555\times10^{-1}$ & $9.9449\times10^{-1}$ & $9.8957\times10^{-1}$ & $9.9497\times10^{-1}$ & $9.9483\times10^{-1}$\\
+19 & $9.8962\times10^{-1}$ & $9.8961\times10^{-1}$ & $9.8608\times10^{-1}$ & $9.9121\times10^{-1}$ & $9.9165\times10^{-1}$\\
+20 & $9.8626\times10^{-1}$ & $9.8571\times10^{-1}$ & $9.8323\times10^{-1}$ & $9.8796\times10^{-1}$ & $9.8776\times10^{-1}$\\
+21 & $9.8273\times10^{-1}$ & $9.8258\times10^{-1}$ & $8.7893\times10^{-1}$ & $9.8523\times10^{-1}$ & $9.8452\times10^{-1}$\\
+22 & $8.9043\times10^{-1}$ & $9.8006\times10^{-1}$ & $8.7722\times10^{-1}$ & $9.8285\times10^{-1}$ & $9.8209\times10^{-1}$\\
+23 & $8.8906\times10^{-1}$ & $9.7801\times10^{-1}$ & $8.7565\times10^{-1}$ & $9.8074\times10^{-1}$ & $9.7995\times10^{-1}$\\
+24 & $8.8766\times10^{-1}$ & $9.7633\times10^{-1}$ & $8.7420\times10^{-1}$ & $9.7887\times10^{-1}$ & $8.7382\times10^{-1}$\\
+25 & $8.8604\times10^{-1}$ & $9.7493\times10^{-1}$ & $8.7284\times10^{-1}$ & $9.7678\times10^{-1}$ & $8.7213\times10^{-1}$\\
+26 & $8.8439\times10^{-1}$ & $9.7375\times10^{-1}$ & $8.7156\times10^{-1}$ & $9.7494\times10^{-1}$ & $8.7058\times10^{-1}$\\
+27 & $8.8287\times10^{-1}$ & $9.7273\times10^{-1}$ & $8.7034\times10^{-1}$ & $9.7331\times10^{-1}$ & $8.6915\times10^{-1}$\\
+28 & $8.8145\times10^{-1}$ & $9.7164\times10^{-1}$ & $8.6916\times10^{-1}$ & $9.7184\times10^{-1}$ & $8.6781\times10^{-1}$\\
+29 & $8.8012\times10^{-1}$ & $8.6279\times10^{-1}$ & $8.6801\times10^{-1}$ & $9.7074\times10^{-1}$ & $8.6654\times10^{-1}$\\
+30 & $8.7886\times10^{-1}$ & $7.7151\times10^{-1}$ & $8.6689\times10^{-1}$ & $9.6948\times10^{-1}$ & $8.6533\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.12 - quad_very_ill, BB-CCV
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_veryill_bb}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$ & $9.9721\times10^{-1}$\\
+2 & $9.8193\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$ & $9.8675\times10^{-1}$\\
+3 & $9.7324\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$ & $9.6394\times10^{-1}$\\
+4 & $9.5355\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$ & $9.5558\times10^{-1}$\\
+5 & $9.4387\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$ & $9.4047\times10^{-1}$\\
+6 & $9.2830\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$ & $7.4773\times10^{-1}$\\
+7 & $8.8226\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$ & $7.3764\times10^{-1}$\\
+8 & $8.6034\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$ & $7.1927\times10^{-1}$\\
+9 & $8.4937\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$ & $7.0145\times10^{-1}$\\
+10 & $8.0714\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$ & $6.9243\times10^{-1}$\\
+11 & $7.9682\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$ & $6.5808\times10^{-1}$\\
+12 & $7.5723\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$ & $6.4958\times10^{-1}$\\
+13 & $7.4751\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$ & $6.1740\times10^{-1}$\\
+14 & $7.1041\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$ & $6.0939\times10^{-1}$\\
+15 & $7.0126\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$ & $5.7923\times10^{-1}$\\
+16 & $6.6649\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$ & $5.7169\times10^{-1}$\\
+17 & $6.5788\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$ & $5.5743\times10^{-1}$\\
+18 & $6.2529\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$ & $5.4355\times10^{-1}$\\
+19 & $6.1717\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$ & $5.3666\times10^{-1}$\\
+20 & $6.0177\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$ & $5.0994\times10^{-1}$\\
+21 & $5.8679\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$ & $5.0345\times10^{-1}$\\
+22 & $5.7227\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$ & $4.7840\times10^{-1}$\\
+23 & $5.6488\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$ & $4.7230\times10^{-1}$\\
+24 & $5.3689\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$ & $4.4881\times10^{-1}$\\
+25 & $5.2993\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$ & $4.4308\times10^{-1}$\\
+26 & $5.0370\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$ & $4.2106\times10^{-1}$\\
+27 & $4.9714\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$ & $4.1567\times10^{-1}$\\
+28 & $4.8474\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$ & $3.9503\times10^{-1}$\\
+29 & $4.7267\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$ & $3.8995\times10^{-1}$\\
+30 & $4.6668\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$ & $3.7060\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+% Tabella E.13 - quad_offdiag, Dynamic GD
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_offdiag_gd}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$\\
+2 & $1.0131\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$\\
+3 & $8.5375\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.5313\times10^{-1}$\\
+4 & $7.4106\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.2418\times10^{-1}$\\
+5 & $6.1967\times10^{-1}$ & $5.9687\times10^{-1}$ & $5.9687\times10^{-1}$ & $5.9687\times10^{-1}$ & $6.0766\times10^{-1}$\\
+6 & $5.0270\times10^{-1}$ & $5.0043\times10^{-1}$ & $5.0043\times10^{-1}$ & $5.0534\times10^{-1}$ & $5.0843\times10^{-1}$\\
+7 & $4.3324\times10^{-1}$ & $4.1896\times10^{-1}$ & $4.1896\times10^{-1}$ & $4.2773\times10^{-1}$ & $4.4882\times10^{-1}$\\
+8 & $3.8973\times10^{-1}$ & $3.5026\times10^{-1}$ & $3.5026\times10^{-1}$ & $3.6188\times10^{-1}$ & $4.0025\times10^{-1}$\\
+9 & $3.1558\times10^{-1}$ & $2.9247\times10^{-1}$ & $2.9247\times10^{-1}$ & $3.0596\times10^{-1}$ & $3.3397\times10^{-1}$\\
+10 & $2.5451\times10^{-1}$ & $2.4405\times10^{-1}$ & $2.4405\times10^{-1}$ & $2.5847\times10^{-1}$ & $2.8054\times10^{-1}$\\
+11 & $2.1774\times10^{-1}$ & $2.0372\times10^{-1}$ & $2.0300\times10^{-1}$ & $2.0792\times10^{-1}$ & $2.1825\times10^{-1}$\\
+12 & $1.9163\times10^{-1}$ & $1.7042\times10^{-1}$ & $1.5608\times10^{-1}$ & $1.9085\times10^{-1}$ & $1.6712\times10^{-1}$\\
+13 & $1.5804\times10^{-1}$ & $1.2452\times10^{-1}$ & $1.1778\times10^{-1}$ & $1.6226\times10^{-1}$ & $1.3247\times10^{-1}$\\
+14 & $1.2980\times10^{-1}$ & $9.1739\times10^{-2}$ & $1.1521\times10^{-1}$ & $1.3808\times10^{-1}$ & $1.2269\times10^{-1}$\\
+15 & $1.1956\times10^{-1}$ & $6.6717\times10^{-2}$ & $9.9627\times10^{-2}$ & $1.0996\times10^{-1}$ & $1.0335\times10^{-1}$\\
+16 & $1.0807\times10^{-1}$ & $5.4355\times10^{-2}$ & $8.6414\times10^{-2}$ & $8.6370\times10^{-2}$ & $8.7256\times10^{-2}$\\
+17 & $9.1075\times10^{-2}$ & $4.7829\times10^{-2}$ & $7.5203\times10^{-2}$ & $6.6753\times10^{-2}$ & $7.1346\times10^{-2}$\\
+18 & $6.9281\times10^{-2}$ & $4.1403\times10^{-2}$ & $6.5689\times10^{-2}$ & $5.0755\times10^{-2}$ & $5.8653\times10^{-2}$\\
+19 & $5.8837\times10^{-2}$ & $3.4210\times10^{-2}$ & $5.6584\times10^{-2}$ & $3.6824\times10^{-2}$ & $5.1121\times10^{-2}$\\
+20 & $5.1543\times10^{-2}$ & $2.8493\times10^{-2}$ & $4.8917\times10^{-2}$ & $2.8740\times10^{-2}$ & $4.3280\times10^{-2}$\\
+21 & $4.2974\times10^{-2}$ & $2.3845\times10^{-2}$ & $4.1611\times10^{-2}$ & $2.4971\times10^{-2}$ & $3.6695\times10^{-2}$\\
+22 & $3.5601\times10^{-2}$ & $2.0037\times10^{-2}$ & $3.5413\times10^{-2}$ & $2.1132\times10^{-2}$ & $3.1151\times10^{-2}$\\
+23 & $2.9857\times10^{-2}$ & $1.6898\times10^{-2}$ & $3.0152\times10^{-2}$ & $1.7921\times10^{-2}$ & $2.6473\times10^{-2}$\\
+24 & $2.5128\times10^{-2}$ & $1.4296\times10^{-2}$ & $2.5686\times10^{-2}$ & $1.5228\times10^{-2}$ & $2.2521\times10^{-2}$\\
+25 & $2.1212\times10^{-2}$ & $1.2128\times10^{-2}$ & $2.1893\times10^{-2}$ & $1.2962\times10^{-2}$ & $1.9177\times10^{-2}$\\
+26 & $1.7954\times10^{-2}$ & $1.0316\times10^{-2}$ & $1.8672\times10^{-2}$ & $1.1053\times10^{-2}$ & $1.6346\times10^{-2}$\\
+27 & $1.5232\times10^{-2}$ & $8.7958\times10^{-3}$ & $1.5935\times10^{-2}$ & $9.4410\times10^{-3}$ & $1.3946\times10^{-2}$\\
+28 & $1.2950\times10^{-2}$ & $7.5175\times10^{-3}$ & $1.3610\times10^{-2}$ & $8.0783\times10^{-3}$ & $1.1912\times10^{-2}$\\
+29 & $1.1032\times10^{-2}$ & $6.4404\times10^{-3}$ & $1.1635\times10^{-2}$ & $6.9253\times10^{-3}$ & $1.0186\times10^{-2}$\\
+30 & $9.4161\times10^{-3}$ & $5.5315\times10^{-3}$ & $9.9566\times10^{-3}$ & $5.9490\times10^{-3}$ & $8.7213\times10^{-3}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.14 - quad_offdiag, Newton-CG
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_offdiag_ncg}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2673\times10^{0}$ & $1.2673\times10^{0}$ & $1.2673\times10^{0}$ & $1.2673\times10^{0}$ & $1.2673\times10^{0}$\\
+2 & $1.2673\times10^{0}$ & $1.1351\times10^{0}$ & $1.1351\times10^{0}$ & $1.1351\times10^{0}$ & $1.1351\times10^{0}$\\
+3 & $1.2673\times10^{0}$ & $1.0163\times10^{0}$ & $1.0163\times10^{0}$ & $1.0163\times10^{0}$ & $1.1351\times10^{0}$\\
+4 & $1.1229\times10^{0}$ & $9.0954\times10^{-1}$ & $9.0954\times10^{-1}$ & $9.0954\times10^{-1}$ & $1.1351\times10^{0}$\\
+5 & $1.1229\times10^{0}$ & $8.1353\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.1353\times10^{-1}$ & $1.1351\times10^{0}$\\
+6 & $1.0200\times10^{0}$ & $7.2725\times10^{-1}$ & $7.2725\times10^{-1}$ & $8.1353\times10^{-1}$ & $1.1351\times10^{0}$\\
+7 & $1.0200\times10^{0}$ & $6.4972\times10^{-1}$ & $6.4972\times10^{-1}$ & $8.1353\times10^{-1}$ & $1.1351\times10^{0}$\\
+8 & $1.0200\times10^{0}$ & $5.8007\times10^{-1}$ & $5.8007\times10^{-1}$ & $8.1353\times10^{-1}$ & $1.1351\times10^{0}$\\
+9 & $9.1520\times10^{-1}$ & $5.1753\times10^{-1}$ & $5.1753\times10^{-1}$ & $8.1353\times10^{-1}$ & $1.0049\times10^{0}$\\
+10 & $9.1520\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.8812\times10^{-1}$\\
+11 & $9.1520\times10^{-1}$ & $4.1105\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.8812\times10^{-1}$\\
+12 & $8.1143\times10^{-1}$ & $3.6592\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.8812\times10^{-1}$\\
+13 & $8.1143\times10^{-1}$ & $3.2551\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.8812\times10^{-1}$\\
+14 & $7.1986\times10^{-1}$ & $2.8938\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.8812\times10^{-1}$\\
+15 & $6.4501\times10^{-1}$ & $2.5712\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $8.0804\times10^{-1}$\\
+16 & $5.7587\times10^{-1}$ & $2.2838\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $7.3621\times10^{-1}$\\
+17 & $5.0281\times10^{-1}$ & $2.0285\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $6.4918\times10^{-1}$\\
+18 & $5.0281\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $5.7102\times10^{-1}$\\
+19 & $4.5386\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $5.7102\times10^{-1}$\\
+20 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $8.1353\times10^{-1}$ & $5.7102\times10^{-1}$\\
+21 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $7.1645\times10^{-1}$ & $5.7102\times10^{-1}$\\
+22 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $6.2937\times10^{-1}$ & $5.7102\times10^{-1}$\\
+23 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $5.5125\times10^{-1}$ & $5.0599\times10^{-1}$\\
+24 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.8117\times10^{-1}$ & $4.4769\times10^{-1}$\\
+25 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $4.0010\times10^{-1}$\\
+26 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $3.5727\times10^{-1}$\\
+27 & $4.0938\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $3.2263\times10^{-1}$\\
+28 & $3.6917\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $2.9004\times10^{-1}$\\
+29 & $3.6917\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $2.6076\times10^{-1}$\\
+30 & $3.6917\times10^{-1}$ & $1.8027\times10^{-1}$ & $4.6140\times10^{-1}$ & $4.1832\times10^{-1}$ & $2.3247\times10^{-1}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.15 - quad_offdiag, Newton-CG $L_1$
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_offdiag_l1}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.2585\times10^{0}$ & $1.2585\times10^{0}$ & $1.2585\times10^{0}$ & $1.2585\times10^{0}$ & $1.2585\times10^{0}$\\
+2 & $1.1382\times10^{0}$ & $1.1185\times10^{0}$ & $1.1185\times10^{0}$ & $1.1185\times10^{0}$ & $1.1185\times10^{0}$\\
+3 & $1.0249\times10^{0}$ & $9.9251\times10^{-1}$ & $9.9251\times10^{-1}$ & $9.9251\times10^{-1}$ & $9.9848\times10^{-1}$\\
+4 & $9.0317\times10^{-1}$ & $8.7922\times10^{-1}$ & $8.7922\times10^{-1}$ & $8.7922\times10^{-1}$ & $8.8977\times10^{-1}$\\
+5 & $8.1322\times10^{-1}$ & $7.7737\times10^{-1}$ & $7.7737\times10^{-1}$ & $7.7737\times10^{-1}$ & $7.8920\times10^{-1}$\\
+6 & $7.3947\times10^{-1}$ & $6.8582\times10^{-1}$ & $6.8582\times10^{-1}$ & $6.8957\times10^{-1}$ & $6.9850\times10^{-1}$\\
+7 & $6.6209\times10^{-1}$ & $6.0357\times10^{-1}$ & $6.0357\times10^{-1}$ & $6.1002\times10^{-1}$ & $6.2756\times10^{-1}$\\
+8 & $5.9451\times10^{-1}$ & $5.2971\times10^{-1}$ & $5.2971\times10^{-1}$ & $5.3794\times10^{-1}$ & $5.6329\times10^{-1}$\\
+9 & $5.2287\times10^{-1}$ & $4.6343\times10^{-1}$ & $4.6343\times10^{-1}$ & $4.7263\times10^{-1}$ & $4.8237\times10^{-1}$\\
+10 & $4.6030\times10^{-1}$ & $4.0400\times10^{-1}$ & $4.0400\times10^{-1}$ & $4.1347\times10^{-1}$ & $4.0975\times10^{-1}$\\
+11 & $4.1049\times10^{-1}$ & $3.5079\times10^{-1}$ & $3.5169\times10^{-1}$ & $3.6146\times10^{-1}$ & $3.5983\times10^{-1}$\\
+12 & $3.4862\times10^{-1}$ & $3.0322\times10^{-1}$ & $3.0424\times10^{-1}$ & $3.1498\times10^{-1}$ & $3.1915\times10^{-1}$\\
+13 & $3.1284\times10^{-1}$ & $2.6081\times10^{-1}$ & $2.6121\times10^{-1}$ & $2.7377\times10^{-1}$ & $2.8273\times10^{-1}$\\
+14 & $2.7310\times10^{-1}$ & $2.2315\times10^{-1}$ & $2.2220\times10^{-1}$ & $2.3762\times10^{-1}$ & $2.5444\times10^{-1}$\\
+15 & $2.3408\times10^{-1}$ & $1.8990\times10^{-1}$ & $1.9121\times10^{-1}$ & $2.0645\times10^{-1}$ & $2.1589\times10^{-1}$\\
+16 & $1.9558\times10^{-1}$ & $1.6082\times10^{-1}$ & $1.6561\times10^{-1}$ & $1.8327\times10^{-1}$ & $1.8128\times10^{-1}$\\
+17 & $1.6480\times10^{-1}$ & $1.2925\times10^{-1}$ & $1.4561\times10^{-1}$ & $1.5485\times10^{-1}$ & $1.5317\times10^{-1}$\\
+18 & $1.3614\times10^{-1}$ & $1.0526\times10^{-1}$ & $1.3137\times10^{-1}$ & $1.2901\times10^{-1}$ & $1.2775\times10^{-1}$\\
+19 & $1.1476\times10^{-1}$ & $8.5061\times10^{-2}$ & $1.2283\times10^{-1}$ & $1.0555\times10^{-1}$ & $1.0834\times10^{-1}$\\
+20 & $9.1347\times10^{-2}$ & $6.9194\times10^{-2}$ & $1.1950\times10^{-1}$ & $8.4276\times10^{-2}$ & $9.4691\times10^{-2}$\\
+21 & $7.2384\times10^{-2}$ & $5.8551\times10^{-2}$ & $1.2047\times10^{-1}$ & $7.1224\times10^{-2}$ & $7.5367\times10^{-2}$\\
+22 & $5.5063\times10^{-2}$ & $5.3921\times10^{-2}$ & $1.2457\times10^{-1}$ & $5.5902\times10^{-2}$ & $6.0606\times10^{-2}$\\
+23 & $4.0836\times10^{-2}$ & $5.5010\times10^{-2}$ & $1.0055\times10^{-1}$ & $4.2855\times10^{-2}$ & $4.5331\times10^{-2}$\\
+24 & $2.7445\times10^{-2}$ & $4.3474\times10^{-2}$ & $8.4065\times10^{-2}$ & $3.0802\times10^{-2}$ & $3.1617\times10^{-2}$\\
+25 & $1.5526\times10^{-2}$ & $3.5274\times10^{-2}$ & $7.1000\times10^{-2}$ & $2.1645\times10^{-2}$ & $1.9414\times10^{-2}$\\
+26 & $5.5206\times10^{-3}$ & $2.9070\times10^{-2}$ & $7.4994\times10^{-2}$ & $1.5910\times10^{-2}$ & $9.0164\times10^{-3}$\\
+27 & $6.5600\times10^{-3}$ & $2.5817\times10^{-2}$ & $6.7729\times10^{-2}$ & $1.5739\times10^{-2}$ & $5.5185\times10^{-3}$\\
+28 & $1.4789\times10^{-2}$ & $2.5858\times10^{-2}$ & $6.2038\times10^{-2}$ & $1.9970\times10^{-2}$ & $1.2610\times10^{-2}$\\
+29 & $2.2558\times10^{-2}$ & $2.8407\times10^{-2}$ & $5.7868\times10^{-2}$ & $2.5757\times10^{-2}$ & $2.0479\times10^{-2}$\\
+30 & $2.9558\times10^{-2}$ & $3.2347\times10^{-2}$ & $5.5121\times10^{-2}$ & $3.1742\times10^{-2}$ & $2.7758\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.16 - quad_offdiag, BB-CCV
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{4pt}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\label{tab:riuso_offdiag_bb}
+\begin{tabular}{@{}rrrrrr@{}}
+\toprule
+$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
+\midrule
+0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
+1 & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$ & $1.1925\times10^{0}$\\
+2 & $1.0131\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$ & $1.0047\times10^{0}$\\
+3 & $8.5375\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.4561\times10^{-1}$ & $8.5313\times10^{-1}$\\
+4 & $7.4106\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.1089\times10^{-1}$ & $7.2418\times10^{-1}$\\
+5 & $6.1967\times10^{-1}$ & $5.9687\times10^{-1}$ & $5.9687\times10^{-1}$ & $5.9687\times10^{-1}$ & $6.0766\times10^{-1}$\\
+6 & $5.0270\times10^{-1}$ & $5.0043\times10^{-1}$ & $5.0043\times10^{-1}$ & $5.0534\times10^{-1}$ & $5.0843\times10^{-1}$\\
+7 & $4.3324\times10^{-1}$ & $4.1896\times10^{-1}$ & $4.1896\times10^{-1}$ & $4.2773\times10^{-1}$ & $4.4882\times10^{-1}$\\
+8 & $3.8973\times10^{-1}$ & $3.5026\times10^{-1}$ & $3.5026\times10^{-1}$ & $3.6188\times10^{-1}$ & $4.0025\times10^{-1}$\\
+9 & $3.1558\times10^{-1}$ & $2.9247\times10^{-1}$ & $2.9247\times10^{-1}$ & $3.0596\times10^{-1}$ & $3.3397\times10^{-1}$\\
+10 & $2.5451\times10^{-1}$ & $2.4405\times10^{-1}$ & $2.4405\times10^{-1}$ & $2.5847\times10^{-1}$ & $2.8054\times10^{-1}$\\
+11 & $2.1774\times10^{-1}$ & $2.0372\times10^{-1}$ & $2.0300\times10^{-1}$ & $2.0792\times10^{-1}$ & $2.1825\times10^{-1}$\\
+12 & $1.9163\times10^{-1}$ & $1.7042\times10^{-1}$ & $1.5608\times10^{-1}$ & $1.9085\times10^{-1}$ & $1.6712\times10^{-1}$\\
+13 & $1.5804\times10^{-1}$ & $1.2452\times10^{-1}$ & $1.1778\times10^{-1}$ & $1.6226\times10^{-1}$ & $1.3247\times10^{-1}$\\
+14 & $1.2980\times10^{-1}$ & $9.1739\times10^{-2}$ & $1.1521\times10^{-1}$ & $1.3808\times10^{-1}$ & $1.2269\times10^{-1}$\\
+15 & $1.1956\times10^{-1}$ & $6.6717\times10^{-2}$ & $9.9627\times10^{-2}$ & $1.0996\times10^{-1}$ & $1.0335\times10^{-1}$\\
+16 & $1.0807\times10^{-1}$ & $5.4355\times10^{-2}$ & $8.6414\times10^{-2}$ & $8.6370\times10^{-2}$ & $8.7256\times10^{-2}$\\
+17 & $9.1075\times10^{-2}$ & $4.7829\times10^{-2}$ & $7.5203\times10^{-2}$ & $6.6753\times10^{-2}$ & $7.1346\times10^{-2}$\\
+18 & $6.9281\times10^{-2}$ & $4.1403\times10^{-2}$ & $6.5689\times10^{-2}$ & $5.0755\times10^{-2}$ & $5.8653\times10^{-2}$\\
+19 & $5.8837\times10^{-2}$ & $3.4210\times10^{-2}$ & $5.6584\times10^{-2}$ & $3.6824\times10^{-2}$ & $5.1121\times10^{-2}$\\
+20 & $5.1543\times10^{-2}$ & $2.8493\times10^{-2}$ & $4.8917\times10^{-2}$ & $2.8740\times10^{-2}$ & $4.3280\times10^{-2}$\\
+21 & $4.2974\times10^{-2}$ & $2.3845\times10^{-2}$ & $4.1611\times10^{-2}$ & $2.4971\times10^{-2}$ & $3.6695\times10^{-2}$\\
+22 & $3.5601\times10^{-2}$ & $2.0037\times10^{-2}$ & $3.5413\times10^{-2}$ & $2.1132\times10^{-2}$ & $3.1151\times10^{-2}$\\
+23 & $2.9857\times10^{-2}$ & $1.6898\times10^{-2}$ & $3.0152\times10^{-2}$ & $1.7921\times10^{-2}$ & $2.6473\times10^{-2}$\\
+24 & $2.5128\times10^{-2}$ & $1.4296\times10^{-2}$ & $2.5686\times10^{-2}$ & $1.5228\times10^{-2}$ & $2.2521\times10^{-2}$\\
+25 & $2.1212\times10^{-2}$ & $1.2128\times10^{-2}$ & $2.1893\times10^{-2}$ & $1.2962\times10^{-2}$ & $1.9177\times10^{-2}$\\
+26 & $1.7954\times10^{-2}$ & $1.0316\times10^{-2}$ & $1.8672\times10^{-2}$ & $1.1053\times10^{-2}$ & $1.6346\times10^{-2}$\\
+27 & $1.5232\times10^{-2}$ & $8.7958\times10^{-3}$ & $1.5935\times10^{-2}$ & $9.4410\times10^{-3}$ & $1.3946\times10^{-2}$\\
+28 & $1.2950\times10^{-2}$ & $7.5175\times10^{-3}$ & $1.3610\times10^{-2}$ & $8.0783\times10^{-3}$ & $1.1912\times10^{-2}$\\
+29 & $1.1032\times10^{-2}$ & $6.4404\times10^{-3}$ & $1.1635\times10^{-2}$ & $6.9253\times10^{-3}$ & $1.0186\times10^{-2}$\\
+30 & $9.4161\times10^{-3}$ & $5.5315\times10^{-3}$ & $9.9566\times10^{-3}$ & $5.9490\times10^{-3}$ & $8.7213\times10^{-3}$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+
+% ====================================================================================================
+
+% Tabella E.17 - sintesi: errore finale (k=30), tutte le M (seed 42)
+
+% ====================================================================================================
+
+
+
+\begin{table}[H]
+
+\centering
+
+\tiny
+
+\renewcommand{\arraystretch}{1.0}
+
+\setlength{\tabcolsep}{1.5pt}
+
+\caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi alla colonna \emph{base}: $\blacktriangle$ = il riuso migliora, $\blacktriangledown$ = il riuso peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative.}
+
+\label{tab:riuso_sintesi}
+
+\begin{tabular}{@{}lrrrrrrr@{}}
+
+\toprule
+
+Metodo & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}3$ & $M{=}2$ & $M{=}1$\\
+
+\midrule
+
+$\kappa\approx1.1$ - Dynamic GD & $1.19\times10^{-1}$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.18\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$=$\\
+
+$\kappa\approx1.1$ - Newton-CG & $4.13\times10^{-1}$ & $2.30\times10^{-1}$$\blacktriangle$ & $5.20\times10^{-1}$$\blacktriangledown$ & $4.80\times10^{-1}$$\blacktriangledown$ & $4.26\times10^{-1}$$\blacktriangledown$ & $3.26\times10^{-1}$$\blacktriangle$ & $2.97\times10^{-1}$$\blacktriangle$\\
+
+$\kappa\approx1.1$ - Newton-CG $L_1$ & $9.65\times10^{-2}$ & $8.09\times10^{-2}$$\blacktriangle$ & $9.89\times10^{-2}$$\blacktriangledown$ & $9.79\times10^{-2}$$\blacktriangledown$ & $9.77\times10^{-2}$$\blacktriangledown$ & $1.00\times10^{-1}$$\blacktriangledown$ & $1.02\times10^{-1}$$\blacktriangledown$\\
+
+$\kappa\approx1.1$ - BB-CCV & $1.19\times10^{-1}$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.18\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$=$\\
+
+\midrule
+
+$\kappa\approx20$ - Dynamic GD & $4.91\times10^{-2}$ & $1.01\times10^{-1}$$\blacktriangledown$ & $7.60\times10^{-2}$$\blacktriangledown$ & $4.72\times10^{-2}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangledown$ & $4.29\times10^{-2}$$\blacktriangle$ & $4.91\times10^{-2}$$=$\\
+
+$\kappa\approx20$ - Newton-CG & $1.54\times10^{-1}$ & $1.28\times10^{0}$$\blacktriangledown$ & $1.28\times10^{0}$$\blacktriangledown$ & $9.31\times10^{-1}$$\blacktriangledown$ & $3.98\times10^{-1}$$\blacktriangledown$ & $4.89\times10^{-1}$$\blacktriangledown$ & $2.26\times10^{-1}$$\blacktriangledown$\\
+
+$\kappa\approx20$ - Newton-CG $L_1$ & $4.55\times10^{-1}$ & $6.88\times10^{-1}$$\blacktriangledown$ & $3.59\times10^{-1}$$\blacktriangle$ & $5.36\times10^{-1}$$\blacktriangledown$ & $5.56\times10^{-1}$$\blacktriangledown$ & $4.94\times10^{-1}$$\blacktriangledown$ & $3.96\times10^{-1}$$\blacktriangle$\\
+
+$\kappa\approx20$ - BB-CCV & $4.91\times10^{-2}$ & $1.01\times10^{-1}$$\blacktriangledown$ & $7.60\times10^{-2}$$\blacktriangledown$ & $4.72\times10^{-2}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangledown$ & $4.29\times10^{-2}$$\blacktriangle$ & $4.91\times10^{-2}$$=$\\
+
+\midrule
+
+$\kappa\approx100$ - Dynamic GD & $4.67\times10^{-1}$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $4.67\times10^{-1}$$=$\\
+
+$\kappa\approx100$ - Newton-CG & $2.17\times10^{-1}$ & $1.28\times10^{0}$$\blacktriangledown$ & $1.15\times10^{0}$$\blacktriangledown$ & $1.15\times10^{0}$$\blacktriangledown$ & $1.02\times10^{0}$$\blacktriangledown$ & $5.90\times10^{-1}$$\blacktriangledown$ & $2.32\times10^{-1}$$\blacktriangledown$\\
+
+$\kappa\approx100$ - Newton-CG $L_1$ & $8.79\times10^{-1}$ & $7.72\times10^{-1}$$\blacktriangle$ & $8.67\times10^{-1}$$\blacktriangle$ & $9.69\times10^{-1}$$\blacktriangledown$ & $9.69\times10^{-1}$$\blacktriangledown$ & $8.65\times10^{-1}$$\blacktriangle$ & $9.70\times10^{-1}$$\blacktriangledown$\\
+
+$\kappa\approx100$ - BB-CCV & $4.67\times10^{-1}$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $4.67\times10^{-1}$$=$\\
+
+\midrule
+
+incrociato - Dynamic GD & $9.42\times10^{-3}$ & $5.53\times10^{-3}$$\blacktriangle$ & $9.96\times10^{-3}$$\blacktriangledown$ & $5.95\times10^{-3}$$\blacktriangle$ & $7.58\times10^{-3}$$\blacktriangle$ & $8.72\times10^{-3}$$\blacktriangle$ & $9.42\times10^{-3}$$=$\\
+
+incrociato - Newton-CG & $3.69\times10^{-1}$ & $1.80\times10^{-1}$$\blacktriangle$ & $4.61\times10^{-1}$$\blacktriangledown$ & $4.18\times10^{-1}$$\blacktriangledown$ & $3.54\times10^{-1}$$\blacktriangle$ & $2.32\times10^{-1}$$\blacktriangle$ & $2.30\times10^{-1}$$\blacktriangle$\\
+
+incrociato - Newton-CG $L_1$ & $2.96\times10^{-2}$ & $3.23\times10^{-2}$$\blacktriangledown$ & $5.51\times10^{-2}$$\blacktriangledown$ & $3.17\times10^{-2}$$\blacktriangledown$ & $3.24\times10^{-2}$$\blacktriangledown$ & $2.78\times10^{-2}$$\blacktriangle$ & $2.12\times10^{-2}$$\blacktriangle$\\
+
+incrociato - BB-CCV & $9.42\times10^{-3}$ & $5.53\times10^{-3}$$\blacktriangle$ & $9.96\times10^{-3}$$\blacktriangledown$ & $5.95\times10^{-3}$$\blacktriangle$ & $7.58\times10^{-3}$$\blacktriangle$ & $8.72\times10^{-3}$$\blacktriangle$ & $9.42\times10^{-3}$$=$\\
+
+\bottomrule
+
+\end{tabular}
+
+\end{table}
+
+
+
+% ====================================================================================================
+
+% Tabella E.18 - robustezza su 5 seed (riuso illimitato e M=10)
+
+% ====================================================================================================
+
+
+
+\begin{table}[H]
+
+\centering
+
+\footnotesize
+
+\renewcommand{\arraystretch}{1.0}
+
+\setlength{\tabcolsep}{2pt}
+
+\caption{Robustezza del riuso del mini-batch su 5 seed indipendenti ($\{42,7,123,2024,999\}$): per ogni problema e algoritmo, numero di seed su 5 in cui il riuso migliora (\emph{meglio}), peggiora (\emph{peggio}) o lascia invariato (\emph{uguale}) l'errore finale rispetto alla versione a ricampionamento, per $M=\infty$ e $M=10$.}
+
+\label{tab:riuso_robustezza}
+
+\begin{tabular}{@{}llrrr|rrr@{}}
+
+\toprule
+
+Problema & Algoritmo & \multicolumn{3}{c}{$M=\infty$: meglio / peggio / uguale} & \multicolumn{3}{c}{$M=10$: meglio / peggio / uguale}\\
+
+\midrule
+
+$\kappa\approx1.1$ & Dynamic GD & 5 / 0 / 0 & 5 / 0 / 0\\
+
+ & Newton-CG & 1 / 4 / 0 & 0 / 5 / 0\\
+
+ & Newton-CG $L_1$ & 3 / 2 / 0 & 2 / 3 / 0\\
+
+ & BB-CCV & 5 / 0 / 0 & 5 / 0 / 0\\
+
+\midrule
+
+$\kappa\approx20$ & Dynamic GD & 2 / 3 / 0 & 1 / 4 / 0\\
+
+ & Newton-CG & 0 / 5 / 0 & 0 / 5 / 0\\
+
+ & Newton-CG $L_1$ & 1 / 4 / 0 & 3 / 2 / 0\\
+
+ & BB-CCV & 2 / 3 / 0 & 1 / 4 / 0\\
+
+\midrule
+
+$\kappa\approx100$ & Dynamic GD & 3 / 2 / 0 & 3 / 2 / 0\\
+
+ & Newton-CG & 0 / 5 / 0 & 0 / 5 / 0\\
+
+ & Newton-CG $L_1$ & 4 / 1 / 0 & 3 / 2 / 0\\
+
+ & BB-CCV & 3 / 2 / 0 & 3 / 2 / 0\\
+
+\midrule
+
+incrociato & Dynamic GD & 4 / 1 / 0 & 3 / 2 / 0\\
+
+ & Newton-CG & 1 / 4 / 0 & 0 / 5 / 0\\
+
+ & Newton-CG $L_1$ & 3 / 2 / 0 & 3 / 2 / 0\\
+
+ & BB-CCV & 4 / 1 / 0 & 3 / 2 / 0\\
+
+\bottomrule
+
+\end{tabular}
+
+\end{table}
+
+
