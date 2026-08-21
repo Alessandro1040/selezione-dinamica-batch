@@ -139,6 +139,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **BB-CCV: la trattazione teorica si
+  sposta dall'Appendice E alla Sezione 5.4.** In `tesi/tesi.tex` l'intera
+  appendice "Schema dell'algoritmo BB-CCV" (passo di Barzilai--Borwein +
+  schema a blocchi) è stata spostata alla fine del Capitolo 5 "Algoritmi
+  Proposti" come nuova sottosezione **5.4 "Metodo BB-CCV (Barzilai--Borwein
+  con campionamento dinamico)"**, con le due sotto-sottosezioni 5.4.1 "Il
+  metodo di Barzilai--Borwein" e 5.4.2 "Schema dell'algoritmo BB-CCV".
+  Adattamenti: le equazioni E.1–E.5 sono rinumerate (5.52)–(5.56) (continuano
+  la numerazione manuale del capitolo, che arrivava a 5.51); il paragrafo
+  introduttivo "Questa appendice..." è riscritto come incipit della
+  sottosezione; la figura a blocchi diventa la **Figura 5.6** (caption
+  aggiornata: `Sezione~\ref{sec:esperimenti}` al posto di "Sezione~6"); la
+  tabella di confronto diventa la **Tabella 5.3**. Il listato Python resta in
+  Appendice **B.4**, rinominata "**Codice BB-CCV (Barzilai--Borwein con
+  campionamento dinamico)**" per evitare il doppione col titolo 5.4; i 4
+  riferimenti `Appendice~\ref{app:bbccv}` diventano `Sezione~\ref{sec:bbccv}`
+  (Sez. 6.1, 6.3 e Appendice B.4). Le appendici ora sono A–D (la bibliografia
+  segue l'Appendice D). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**97 pp
+  invariate**, 0 errori, 0 riferimenti indefiniti, 14 overfull preesistenti);
+  sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non allineata.
+
 - **Ultimo intervento (21/08/2026).** **BB-CCV esteso allo script di
   simulazione (`simulazione_batch.py`).** Lo script che genera le figure di
   `figure_sim/` (n_k vs k e convergenza) eseguiva solo Dynamic GD: ora esegue

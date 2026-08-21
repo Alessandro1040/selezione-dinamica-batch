@@ -2191,6 +2191,182 @@ gradiente coniugato, $m$ il numero di variabili.}
 \label{tab:5_1}
 \end{table}
 
+\subsection{Metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}\label{sec:bbccv}
+
+Il metodo BB-CCV (gradiente a campione dinamico con passo di
+Barzilai--Borwein) è il metodo aggiuntivo usato per i test comparativi della
+Sezione~\ref{sec:risultati}. Ne illustriamo il passo di Barzilai--Borwein su
+cui si basa e riportiamo lo schema a blocchi corrispondente.
+
+\subsubsection{Il metodo di Barzilai--Borwein}\label{sec:bb}
+
+Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
+adattivo di Barzilai--Borwein, che stima la curvatura di $J$ lungo la
+direzione percorsa usando soltanto le quantità già disponibili, senza
+richiedere la Hessiana.
+
+Consideriamo due iterazioni consecutive, $w_k$ e $w_{k+1} = w_k + \Delta w_k$.
+Lo sviluppo al primo ordine del gradiente $g(w) = \nabla J(w)$ attorno a $w_k$
+è
+\[
+g(w_{k+1}) \approx g(w_k) + \nabla^2 J(w_k)\, \Delta w_k. \tag{5.52}
+\]
+Definiamo lo spostamento e la variazione del gradiente:
+\[
+s_k \triangleq \Delta w_k = w_{k+1} - w_k, \qquad
+y_k \triangleq g(w_{k+1}) - g(w_k). \tag{5.53}
+\]
+Dalla (5.52) si ottiene la relazione fondamentale
+\[
+y_k \approx \nabla^2 J(w_k)\, s_k. \tag{5.54}
+\]
+
+I metodi quasi Newton approssimano la Hessiana con $B_{k+1}$ imponendo
+l'equazione della secante $B_{k+1} s_k = y_k$. Barzilai--Borwein estremizza
+l'approssimazione: pone $B_{k+1} = \alpha_{k+1}^{-1} I$, riducendo la
+secante a
+\[
+\alpha^{-1} s \approx y,
+\]
+un sistema di $n$ equazioni scalari nell'incognita $\alpha$: in generale
+nessun singolo scalare può soddisfarle esattamente, quindi il problema si
+risolve ai minimi quadrati. Dalla relazione $\alpha^{-1} s \approx y$ si
+ottengono due formule classiche. La prima, minimizzando
+$\|\alpha y - s\|_2^2$, dà
+\[
+\alpha_k^{(1)} = \frac{s_k^\top y_k}{y_k^\top y_k}; \tag{5.55}
+\]
+la seconda, minimizzando $\|\alpha^{-1} s - y\|_2^2$, dà
+\[
+\alpha_k^{(2)} = \frac{s_k^\top s_k}{s_k^\top y_k}. \tag{5.56}
+\]
+
+La seconda formula è più aggressiva della prima: produce passi più grandi
+quando il gradiente cambia poco lungo la direzione percorsa (cioè quando la
+funzione è piatta in quella direzione), e passi più piccoli quando il
+gradiente cambia molto. Tuttavia, se lo spostamento $s$ e la variazione del
+gradiente $y$ sono quasi perpendicolari (cioè $s^\top y \approx 0$), il
+denominatore si annulla e il passo diventa enorme, facendo esplodere
+l'iterazione. Per questo BB-CCV introduce la salvaguardia
+$\mathrm{clip}(\cdot, \alpha/20, 5\alpha)$, che mantiene il passo in un
+intervallo ragionevole anche in presenza di curvature anomale.
+
+Sulle funzioni quadratiche, dove $y = A s$ è esatta e $A$ è definita positiva,
+il passo di Barzilai--Borwein è ottimale e il metodo converge in poche
+iterazioni. Sulle funzioni generali, invece, le proprietà precedenti vengono
+meno: la relazione secante è solo locale, l'Hessiana varia nel tempo, il
+denominatore $s^\top y$ può diventare negativo o nullo (curvatura negativa o
+Hessiana singolare), e la presenza di derivate terze rende il passo non più
+ottimale. BB-CCV gestisce queste difficoltà con la salvaguardia e la line
+search di Armijo.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.7cm}
+                >{\raggedright\arraybackslash}p{5.6cm}
+                >{\raggedright\arraybackslash}p{5.6cm}@{}}
+\toprule
+Caratteristica & Funzione quadratica & Funzione generale \\
+\midrule
+Hessiana & costante, $\nabla^2 J = A$ & varia nel tempo, $\nabla^2 J(w)$ \\
+Relazione fondamentale & $y = A s$, esatta e globale & approssimata: media della Hessiana lungo il percorso \\
+Passo calcolato & inverso del quoziente di Rayleigh (ottimale) & media degli ultimi passi, obsoleta al passo successivo \\
+Denominatore $s^\top y$ & sempre positivo, stabile & può essere $\le 0$ o $\approx 0$: serve la salvaguardia \\
+Convergenza & superlineare (in due dimensioni bastano 2--3 passi) & lineare lenta, o divergente senza salvaguardia \\
+\bottomrule
+\end{tabular}
+\caption{Il passo di Barzilai--Borwein sulle funzioni quadratiche e generali.}
+\label{tab:bb_confronto}
+\end{table}
+
+Nella pratica, sui problemi della Sezione~\ref{sec:risultati} la salvaguardia
+di BB-CCV è sufficiente: il metodo risulta il più veloce tra quelli testati e
+raggiunge la precisione macchina sui problemi mal condizionati.
+
+\subsubsection{Schema dell'algoritmo BB-CCV}\label{sec:bbccv-schema}
+
+% Schema 5.6 - BB-CCV (Barzilai-Borwein con campionamento dinamico)
+\begin{figure}[H]
+\centering
+\resizebox{0.85\textwidth}{!}{%
+\begin{tikzpicture}[
+  node distance=1.0cm and 2.4cm,
+  every node/.style={font=\small},
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=4.2cm, align=center, minimum height=1.2cm,
+    inner sep=6pt
+  },
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=4.0cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Nodi principali (colonna centrale)
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$};
+  \node[box, below=of init] (batch) {Estrazione batch\\[2pt] $\mathcal{S}_k \subseteq \{1,\dots,N\}$, $|\mathcal{S}_k| = n_k$};
+  \node[box, below=of batch] (grad) {Calcolo gradiente\\[2pt] $g_k = \nabla J_{\mathcal{S}_k}(w_k)$\\[1pt] e varianza campionaria $\widehat{\mathcal{V}}$};
+  \node[box, below=of grad] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \le \theta^2 \|g_k\|^2$};
+  \node[box, below=of ccv, text width=5.9cm, minimum height=1.9cm] (bb) {Passo di Barzilai-Borwein\\[2pt] $s = w_k - w_{k-1}$, \; $y = g_k - g_{k-1}$\\[2pt] $\alpha_k = \mathrm{clip}\!\Bigl(\dfrac{s^T s}{s^T y}, \dfrac{\alpha}{20}, 5\alpha\Bigr)$};
+  \node[box, below=of bb] (ls) {Line search di Armijo\\[2pt] backtracking $\alpha_k \leftarrow \alpha_k / 2$};
+  \node[box, below=of ls] (upd) {Aggiornamento\\[2pt] $w_{k+1} = w_k - \alpha_k g_k$};
+  \node[io, below=of upd] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
+  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
+
+  % Nodo laterale (aumento batch)
+  \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
+    CCV violata:\\[2pt]
+    aumento del batch\\[2pt]
+    $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
+  };
+
+  % Frecce verticali principali
+  \draw[arrow] (init) -- (batch);
+  \draw[arrow] (batch) -- (grad);
+  \draw[arrow] (grad) -- (ccv);
+  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (bb) -- (ls);
+  \draw[arrow] (ls) -- (upd);
+  \draw[arrow] (upd) -- (conv);
+
+  % Freccia uscita
+  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
+
+  % Freccia CCV violata
+  \draw[arrow] (ccv) -- (grow) node[label, midway, above] {no};
+
+  % Loop ritorno da grow a batch (percorso esterno destro)
+  \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
+    node[label, pos=0.25, right] {nuovo $n_k$};
+
+  % Loop ritorno da conv a batch (percorso esterno sinistro)
+  \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
+    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
+
+\end{tikzpicture}}
+\caption{Schema dell'algoritmo \emph{BB-CCV} (gradiente a campione dinamico con
+passo di Barzilai--Borwein). Il flusso è quello del Dynamic GD
+(Figura~\ref{fig:block_diagram}): estrazione del batch $\mathcal{S}_k$, calcolo
+di gradiente e varianza campionaria $\widehat{\mathcal{V}}$, verifica della CCV
+con eventuale aumento di $n_k$. La differenza è nel passo: per $k > 0$ si stima
+la curvatura di $J$ usando solo i gradienti già calcolati, $s = w_k - w_{k-1}$
+e $y = g_k - g_{k-1}$, con la formula $\alpha_k^{BB} = \frac{s^T s}{s^T y}$ di
+Barzilai--Borwein (per $k = 0$, $\alpha_0 = \alpha$); il passo è salvaguardato in
+$[\alpha/20,\, 5\alpha]$ per la stabilità sui problemi non quadratici e rifinito
+da una line search di Armijo con backtracking. BB usa solo quantità già
+disponibili, quindi non richiede la Hessiana: nei tre esperimenti della
+Sezione~\ref{sec:esperimenti} il metodo impiega in media $\approx 13$ iterazioni (12, 11 e 16 sui
+tre problemi) contro le 30 del GD, e sui problemi mal condizionati raggiunge
+precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
+\label{fig:bbccv}
+\end{figure}
+
 \section{Esperimenti e Visualizzazione Interattiva}\label{sec:esperimenti}
 % ═══════════════════════════════════════════════════════════════════════════
 
@@ -2235,7 +2411,7 @@ CCV $\theta = 0.5$, batch iniziale $n_0 = 5$ e un budget di 30 iterazioni; la
 convergenza è dichiarata quando $\|\nabla J(w_k)\|_2 < 10^{-6}$. Gli algoritmi
 confrontati sono i tre implementati nell'applicazione -- Dynamic GD,
 Newton-CG e Newton-CG~$L_1$ -- e il metodo BB-CCV descritto
-nell'Appendice~\ref{app:bbccv}, eseguito sugli stessi preset.
+nella Sezione~\ref{sec:bbccv}, eseguito sugli stessi preset.
 
 Tutti i valori riportati in questo capitolo sono quelli mostrati dal pannello
 ``Analisi'' dell'applicazione: selezionando il preset, l'algoritmo e i
@@ -2330,7 +2506,7 @@ dell'applicazione web (Sezione~\ref{sec:visualizzazione}). Le
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} riportano la norma
 dell'errore $\|w_k - w_*\|_2$ a ogni iterazione $k$ per i quattro algoritmi
 -- Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
-(Appendice~\ref{app:bbccv}) -- sui tre problemi test: quadratico ben
+(Sezione~\ref{sec:bbccv}) -- sui tre problemi test: quadratico ben
 condizionato ($\kappa \approx 1.1$), molto mal condizionato
 ($\kappa \approx 100$) e con termine incrociato, con i quattro algoritmi
 affiancati in ordine: (a)~Dynamic GD, (b)~Newton-CG, (c)~Newton-CG~$L_1$,
@@ -2820,7 +2996,7 @@ del primo ordine (Sezione~\ref{sec:lavori}): Dynamic GD, Newton-CG~$L_1$ e
 Newton-CG restano bloccati sopra $10^{-1}$, mentre BB-CCV raggiunge la
 precisione macchina in
 11 iterazioni, perché il passo di Barzilai--Borwein stima la curvatura dai
-soli gradienti già calcolati (Appendice~\ref{app:bbccv}) e si adatta
+soli gradienti già calcolati (Sezione~\ref{sec:bbccv}) e si adatta
 all'anisotropia, dove un passo fisso non può essere insieme abbastanza
 piccolo nella direzione ripida e abbastanza grande in quella piatta.
 (iii)~Con il termine incrociato BB-CCV è di nuovo il migliore
@@ -4893,12 +5069,12 @@ dove $g_{k+1}$ è il gradiente della parte liscia sul nuovo campione. Se la cond
 n \;\leftarrow\; \min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_{k+1}\|_2^2}\right\rceil+1\right\}.
 \]
 Questa è un'estensione dinamica rispetto al paper originale, dove il campione per il caso $L_1$ era mantenuto fisso. Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch, quindi si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
-\subsection{Metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}
+\subsection{Codice BB-CCV (Barzilai--Borwein con campionamento dinamico)}
 
 Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
 adattivo di Barzilai--Borwein, che stima la curvatura di $J$ usando solo i
 gradienti già calcolati, mantenendo la Condizione di Controllo della Varianza
-per il campionamento dinamico del batch (Appendice~\ref{app:bbccv}).
+per il campionamento dinamico del batch (Sezione~\ref{sec:bbccv}).
 
 \begin{pythoncode}[title= BB-CCV]
 
@@ -5269,184 +5445,6 @@ Anche in questo caso $\mathbb{E}_{i_k}[g_k] = \nabla J(w_k)$ e la varianza è
 ridotta rispetto al gradiente stocastico puro.}
 \label{fig:saga}
 \end{minipage}
-\end{figure}
-
-% ═══════════════════════════════════════════════════════════════════════════
-\section{Schema dell'algoritmo BB-CCV}\label{app:bbccv}
-% ═══════════════════════════════════════════════════════════════════════════
-
-Questa appendice illustra il passo di Barzilai--Borwein su cui si basa il
-metodo BB-CCV e riporta lo schema a blocchi del metodo aggiuntivo usato per i
-test comparativi della Sezione~\ref{sec:risultati}: BB-CCV (gradiente a
-campione dinamico con passo di Barzilai--Borwein).
-
-\subsection{Il metodo di Barzilai--Borwein}\label{app:bb}
-
-Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
-adattivo di Barzilai--Borwein, che stima la curvatura di $J$ lungo la
-direzione percorsa usando soltanto le quantità già disponibili, senza
-richiedere la Hessiana.
-
-Consideriamo due iterazioni consecutive, $w_k$ e $w_{k+1} = w_k + \Delta w_k$.
-Lo sviluppo al primo ordine del gradiente $g(w) = \nabla J(w)$ attorno a $w_k$
-è
-\[
-g(w_{k+1}) \approx g(w_k) + \nabla^2 J(w_k)\, \Delta w_k. \tag{E.1}
-\]
-Definiamo lo spostamento e la variazione del gradiente:
-\[
-s_k \triangleq \Delta w_k = w_{k+1} - w_k, \qquad
-y_k \triangleq g(w_{k+1}) - g(w_k). \tag{E.2}
-\]
-Dalla (E.1) si ottiene la relazione fondamentale
-\[
-y_k \approx \nabla^2 J(w_k)\, s_k. \tag{E.3}
-\]
-
-I metodi quasi Newton approssimano la Hessiana con $B_{k+1}$ imponendo
-l'equazione della secante $B_{k+1} s_k = y_k$. Barzilai--Borwein estremizza
-l'approssimazione: pone $B_{k+1} = \alpha_{k+1}^{-1} I$, riducendo la
-secante a
-\[
-\alpha^{-1} s \approx y,
-\]
-un sistema di $n$ equazioni scalari nell'incognita $\alpha$: in generale
-nessun singolo scalare può soddisfarle esattamente, quindi il problema si
-risolve ai minimi quadrati. Dalla relazione $\alpha^{-1} s \approx y$ si
-ottengono due formule classiche. La prima, minimizzando
-$\|\alpha y - s\|_2^2$, dà
-\[
-\alpha_k^{(1)} = \frac{s_k^\top y_k}{y_k^\top y_k}; \tag{E.4}
-\]
-la seconda, minimizzando $\|\alpha^{-1} s - y\|_2^2$, dà
-\[
-\alpha_k^{(2)} = \frac{s_k^\top s_k}{s_k^\top y_k}. \tag{E.5}
-\]
-
-La seconda formula è più aggressiva della prima: produce passi più grandi
-quando il gradiente cambia poco lungo la direzione percorsa (cioè quando la
-funzione è piatta in quella direzione), e passi più piccoli quando il
-gradiente cambia molto. Tuttavia, se lo spostamento $s$ e la variazione del
-gradiente $y$ sono quasi perpendicolari (cioè $s^\top y \approx 0$), il
-denominatore si annulla e il passo diventa enorme, facendo esplodere
-l'iterazione. Per questo BB-CCV introduce la salvaguardia
-$\mathrm{clip}(\cdot, \alpha/20, 5\alpha)$, che mantiene il passo in un
-intervallo ragionevole anche in presenza di curvature anomale.
-
-Sulle funzioni quadratiche, dove $y = A s$ è esatta e $A$ è definita positiva,
-il passo di Barzilai--Borwein è ottimale e il metodo converge in poche
-iterazioni. Sulle funzioni generali, invece, le proprietà precedenti vengono
-meno: la relazione secante è solo locale, l'Hessiana varia nel tempo, il
-denominatore $s^\top y$ può diventare negativo o nullo (curvatura negativa o
-Hessiana singolare), e la presenza di derivate terze rende il passo non più
-ottimale. BB-CCV gestisce queste difficoltà con la salvaguardia e la line
-search di Armijo.
-
-\begin{table}[H]
-\centering
-\footnotesize
-\renewcommand{\arraystretch}{1.35}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.7cm}
-                >{\raggedright\arraybackslash}p{5.6cm}
-                >{\raggedright\arraybackslash}p{5.6cm}@{}}
-\toprule
-Caratteristica & Funzione quadratica & Funzione generale \\
-\midrule
-Hessiana & costante, $\nabla^2 J = A$ & varia nel tempo, $\nabla^2 J(w)$ \\
-Relazione fondamentale & $y = A s$, esatta e globale & approssimata: media della Hessiana lungo il percorso \\
-Passo calcolato & inverso del quoziente di Rayleigh (ottimale) & media degli ultimi passi, obsoleta al passo successivo \\
-Denominatore $s^\top y$ & sempre positivo, stabile & può essere $\le 0$ o $\approx 0$: serve la salvaguardia \\
-Convergenza & superlineare (in due dimensioni bastano 2--3 passi) & lineare lenta, o divergente senza salvaguardia \\
-\bottomrule
-\end{tabular}
-\caption{Il passo di Barzilai--Borwein sulle funzioni quadratiche e generali.}
-\label{tab:bb_confronto}
-\end{table}
-
-Nella pratica, sui problemi della Sezione~\ref{sec:risultati} la salvaguardia
-di BB-CCV è sufficiente: il metodo risulta il più veloce tra quelli testati e
-raggiunge la precisione macchina sui problemi mal condizionati.
-
-\subsection{Schema dell'algoritmo BB-CCV}\label{app:bbccv-schema}
-
-% Schema E.1 - BB-CCV (Barzilai-Borwein con campionamento dinamico)
-\begin{figure}[H]
-\centering
-\resizebox{0.85\textwidth}{!}{%
-\begin{tikzpicture}[
-  node distance=1.0cm and 2.4cm,
-  every node/.style={font=\small},
-  box/.style={
-    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
-    text width=4.2cm, align=center, minimum height=1.2cm,
-    inner sep=6pt
-  },
-  io/.style={
-    draw=gray!60, fill=gray!8, rounded corners=3pt,
-    text width=4.0cm, align=center, minimum height=1.0cm,
-    inner sep=5pt
-  },
-  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
-  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
-]
-
-  % Nodi principali (colonna centrale)
-  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$};
-  \node[box, below=of init] (batch) {Estrazione batch\\[2pt] $\mathcal{S}_k \subseteq \{1,\dots,N\}$, $|\mathcal{S}_k| = n_k$};
-  \node[box, below=of batch] (grad) {Calcolo gradiente\\[2pt] $g_k = \nabla J_{\mathcal{S}_k}(w_k)$\\[1pt] e varianza campionaria $\widehat{\mathcal{V}}$};
-  \node[box, below=of grad] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \le \theta^2 \|g_k\|^2$};
-  \node[box, below=of ccv, text width=5.9cm, minimum height=1.9cm] (bb) {Passo di Barzilai-Borwein\\[2pt] $s = w_k - w_{k-1}$, \; $y = g_k - g_{k-1}$\\[2pt] $\alpha_k = \mathrm{clip}\!\Bigl(\dfrac{s^T s}{s^T y}, \dfrac{\alpha}{20}, 5\alpha\Bigr)$};
-  \node[box, below=of bb] (ls) {Line search di Armijo\\[2pt] backtracking $\alpha_k \leftarrow \alpha_k / 2$};
-  \node[box, below=of ls] (upd) {Aggiornamento\\[2pt] $w_{k+1} = w_k - \alpha_k g_k$};
-  \node[io, below=of upd] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
-  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
-
-  % Nodo laterale (aumento batch)
-  \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
-    CCV violata:\\[2pt]
-    aumento del batch\\[2pt]
-    $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
-  };
-
-  % Frecce verticali principali
-  \draw[arrow] (init) -- (batch);
-  \draw[arrow] (batch) -- (grad);
-  \draw[arrow] (grad) -- (ccv);
-  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
-  \draw[arrow] (bb) -- (ls);
-  \draw[arrow] (ls) -- (upd);
-  \draw[arrow] (upd) -- (conv);
-
-  % Freccia uscita
-  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
-
-  % Freccia CCV violata
-  \draw[arrow] (ccv) -- (grow) node[label, midway, above] {no};
-
-  % Loop ritorno da grow a batch (percorso esterno destro)
-  \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
-    node[label, pos=0.25, right] {nuovo $n_k$};
-
-  % Loop ritorno da conv a batch (percorso esterno sinistro)
-  \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
-    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
-
-\end{tikzpicture}}
-\caption{Schema dell'algoritmo \emph{BB-CCV} (gradiente a campione dinamico con
-passo di Barzilai--Borwein). Il flusso è quello del Dynamic GD
-(Figura~\ref{fig:block_diagram}): estrazione del batch $\mathcal{S}_k$, calcolo
-di gradiente e varianza campionaria $\widehat{\mathcal{V}}$, verifica della CCV
-con eventuale aumento di $n_k$. La differenza è nel passo: per $k > 0$ si stima
-la curvatura di $J$ usando solo i gradienti già calcolati, $s = w_k - w_{k-1}$
-e $y = g_k - g_{k-1}$, con la formula $\alpha_k^{BB} = \frac{s^T s}{s^T y}$ di
-Barzilai--Borwein (per $k = 0$, $\alpha_0 = \alpha$); il passo è salvaguardato in
-$[\alpha/20,\, 5\alpha]$ per la stabilità sui problemi non quadratici e rifinito
-da una line search di Armijo con backtracking. BB usa solo quantità già
-disponibili, quindi non richiede la Hessiana: nei tre esperimenti della
-Sezione~6 il metodo impiega in media $\approx 13$ iterazioni (12, 11 e 16 sui
-tre problemi) contro le 30 del GD, e sui problemi mal condizionati raggiunge
-precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
-\label{fig:bbccv}
 \end{figure}
 
 \begin{thebibliography}{99}
