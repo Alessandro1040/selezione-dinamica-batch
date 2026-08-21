@@ -142,7 +142,7 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Ultimo intervento (21/08/2026).** **BB-CCV esteso allo script di
   simulazione (`simulazione_batch.py`).** Lo script che genera le figure di
   `figure_sim/` (n_k vs k e convergenza) eseguiva solo Dynamic GD: ora esegue
-  anche **BB-CCV** (`bb_dynamic_gd`, copia del listato Appendice B.3 di
+  anche **BB-CCV** (`bb_dynamic_gd`, copia del listato **Appendice B.4** di
   `tesi.tex`: passo Barzilai-Borwein con safeguard `clip(alpha/20, 5*alpha)`,
   CCV sul batch e line search di Armijo) e produce i plot con il **confronto
   tra i due metodi** (curve blu = Dynamic GD, verdi = BB-CCV, con i fit a^k).

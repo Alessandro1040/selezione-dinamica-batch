@@ -10,7 +10,7 @@ esattamente con i coefficienti di J). Esegue due algoritmi:
 
   - Dynamic GD con CCV e line search di Wolfe (default dell'app);
   - BB-CCV: Barzilai-Borwein con passo adattivo (safeguard [alpha/20, 5*alpha]),
-    CCV sul batch e line search di Armijo (listato Appendice B.3 di tesi.tex).
+    CCV sul batch e line search di Armijo (listato Appendice B.4 di tesi.tex).
 
 I plot di figure_sim/ mostrano il confronto tra i due metodi.
 
@@ -142,7 +142,7 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0):
     return history, batch_sizes
 
 # ----------------------------------------------------------------------
-# ALGORITMO: BB-CCV (Barzilai-Borwein con CCV) - listato Appendice B.3
+# ALGORITMO: BB-CCV (Barzilai-Borwein con CCV) - listato Appendice B.4
 # passo adattivo BB con safeguard + line search di Armijo + CCV identica
 # ----------------------------------------------------------------------
 def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
