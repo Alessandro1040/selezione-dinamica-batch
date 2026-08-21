@@ -139,6 +139,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **BB-CCV esteso allo script di
+  simulazione (`simulazione_batch.py`).** Lo script che genera le figure di
+  `figure_sim/` (n_k vs k e convergenza) eseguiva solo Dynamic GD: ora esegue
+  anche **BB-CCV** (`bb_dynamic_gd`, copia del listato Appendice B.3 di
+  `tesi.tex`: passo Barzilai-Borwein con safeguard `clip(alpha/20, 5*alpha)`,
+  CCV sul batch e line search di Armijo) e produce i plot con il **confronto
+  tra i due metodi** (curve blu = Dynamic GD, verdi = BB-CCV, con i fit a^k).
+  Su `quad_well` (seed 42, default app): Dynamic GD 31 iterazioni, BB-CCV 11
+  iterazioni, batch finale 200 per entrambi. Rigenerati
+  `figure_sim/batch_size.{pdf,png}` e `figure_sim/convergenza.{pdf,png}`;
+  allineato anche `tesi/figure_sim/batch_size.pdf` nella copia Desktop (md5
+  verificati). `tesi.tex` non toccato (usa `batch_size_app.png` dell'app, non
+  gli output dello script) → nessun PDF da ricompilare. Commit e push della
+  repo.
 - **Ultimo intervento (21/08/2026).** **BB-CCV riaggiunto all'app web
   (`visualizzazione.html`).** Nel file `visualizzazione.html` (solo repo, la
   copia Desktop non contiene l'app) è stato ripristinato il metodo

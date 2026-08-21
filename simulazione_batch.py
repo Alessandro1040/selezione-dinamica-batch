@@ -6,8 +6,13 @@ Simulazione "Selezione Dinamica della Dimensione del Campione"
 Riproduce FEDELMENTE l'implementazione dell'applicazione web interattiva
 (visualizzazione.html): preset "Quadratica ben condizionata (kappa~1.1)",
 dataset sintetico "centrato" (la media campionaria dei coefficienti coincide
-esattamente con i coefficienti di J), algoritmo Dynamic GD con CCV e line
-search di Wolfe (default dell'app).
+esattamente con i coefficienti di J). Esegue due algoritmi:
+
+  - Dynamic GD con CCV e line search di Wolfe (default dell'app);
+  - BB-CCV: Barzilai-Borwein con passo adattivo (safeguard [alpha/20, 5*alpha]),
+    CCV sul batch e line search di Armijo (listato Appendice B.3 di tesi.tex).
+
+I plot di figure_sim/ mostrano il confronto tra i due metodi.
 
 Impostazioni (default dell'app):
   preset   = quad_well   J(w) = (w1-1)^2 + (w2+2)^2 + 0.1*w1*w2
@@ -136,16 +141,98 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0):
         batch_sizes.append(n)
     return history, batch_sizes
 
-# Esecuzione (identica all'app: chiamata finale con i default)
-history, batch_sizes = dynamic_gd(W0, THETA, MAX_ITER, ALPHA, BATCH0)
+# ----------------------------------------------------------------------
+# ALGORITMO: BB-CCV (Barzilai-Borwein con CCV) - listato Appendice B.3
+# passo adattivo BB con safeguard + line search di Armijo + CCV identica
+# ----------------------------------------------------------------------
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
 
-# Metriche (identiche all'app: evalCode)
-pts_J = [float(J(np.array(w))) for w in history]
-errs  = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
-J_star = float(J(W_STAR))
+    w_prev = w.copy()
+    g_prev = None
 
-print(f"iterazioni = {len(history)}  batch finale = {batch_sizes[-1]}"
-      f"  J(w_k)-J(w*) = {pts_J[-1]-J_star:.2e}  ||w-w*|| = {errs[-1]:.2e}")
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+
+        # --- passo di Barzilai-Borwein ---
+        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+
+        w_prev = w.copy()
+        g_prev = g.copy()
+
+        # --- line search di ARMIJO sul batch corrente ---
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        c1 = 1e-4
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+
+        w = w - step * g
+
+        # --- Condizione di Controllo della Varianza (CCV), identica al GD ---
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+
+        if np.linalg.norm(grad_full(w)) < TOL:
+            break
+
+    return history, batch_sizes
+
+# ----------------------------------------------------------------------
+# ESECUZIONE: entrambi gli algoritmi con i default dell'app
+# ----------------------------------------------------------------------
+hist_gd,  bs_gd  = dynamic_gd(W0, THETA, MAX_ITER, ALPHA, BATCH0)
+hist_bb,  bs_bb  = bb_dynamic_gd(W0, THETA, MAX_ITER, ALPHA, BATCH0)
+
+def metriche(history, batch_sizes):
+    pts_J = [float(J(np.array(w))) for w in history]
+    errs  = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
+    J_star = float(J(W_STAR))
+    return (len(history), batch_sizes[-1], pts_J[-1] - J_star, errs[-1])
+
+nit_gd, nf_gd, dJ_gd, err_gd = metriche(hist_gd, bs_gd)
+nit_bb, nf_bb, dJ_bb, err_bb = metriche(hist_bb, bs_bb)
+
+print("Dynamic GD:", f"iter={nit_gd}  batch_fin={nf_gd}"
+      f"  J(w_k)-J(w*)={dJ_gd:.2e}  ||w-w*||={err_gd:.2e}")
+print("BB-CCV    :", f"iter={nit_bb}  batch_fin={nf_bb}"
+      f"  J(w_k)-J(w*)={dJ_bb:.2e}  ||w-w*||={err_bb:.2e}")
 
 # ----------------------------------------------------------------------
 # FIGURA 1: n_k vs k (come il pannello "n_k vs a^k" dell'app)
@@ -165,14 +252,20 @@ def compute_best_fit_a(batch_sizes):
     den = sum(k * k for k in ks)
     return float(np.exp(num / den)) if den else 1.0
 
-a_fit = compute_best_fit_a(batch_sizes)
-ks = np.arange(len(batch_sizes))
+a_fit_gd = compute_best_fit_a(bs_gd)
+a_fit_bb = compute_best_fit_a(bs_bb)
+ks_gd = np.arange(len(bs_gd))
+ks_bb = np.arange(len(bs_bb))
 
 fig, ax = plt.subplots(figsize=(6.2, 4.0))
-ax.step(ks, batch_sizes, where="mid", color="#1f77b4", lw=1.8,
-        label="Dinamico (CCV)")
-ax.plot(ks, a_fit ** ks, color="#C8A96E", ls="--", lw=1.6,
-        label=rf"fit $a^k$ ($a={a_fit:.4f}$)")
+ax.step(ks_gd, bs_gd, where="mid", color="#1f77b4", lw=1.8,
+        label="Dynamic GD (CCV)")
+ax.plot(ks_gd, a_fit_gd ** ks_gd, color="#1f77b4", ls="--", lw=1.2,
+        label=rf"fit GD $a^k$ ($a={a_fit_gd:.4f}$)")
+ax.step(ks_bb, bs_bb, where="mid", color="#2ca02c", lw=1.8,
+        label="BB-CCV")
+ax.plot(ks_bb, a_fit_bb ** ks_bb, color="#2ca02c", ls="--", lw=1.2,
+        label=rf"fit BB $a^k$ ($a={a_fit_bb:.4f}$)")
 ax.axhline(BATCH0, color="#d62728", ls=":", lw=1.4,
            label=f"Batch fisso $n={BATCH0}$")
 ax.set_xlabel(r"Iterazione $k$")
@@ -185,21 +278,30 @@ fig.savefig("figure_sim/batch_size.pdf")
 fig.savefig("figure_sim/batch_size.png", dpi=150)
 plt.close(fig)
 print(f"Figura batch_size salvata in figure_sim/  "
-      f"({len(history)} iterazioni, batch finale = {batch_sizes[-1]}, "
-      f"a_fit = {a_fit:.4f})")
+      f"(GD: {len(bs_gd)} it, batch fin. {bs_gd[-1]}, a={a_fit_gd:.4f} | "
+      f"BB: {len(bs_bb)} it, batch fin. {bs_bb[-1]}, a={a_fit_bb:.4f})")
 
 # ----------------------------------------------------------------------
 # FIGURA 2: convergenza ||w_k - w*|| (scala log) - come la metrica "errs"
 # dell'app (l'app monitora la convergenza tramite la norma, dato che
 # W_STAR=[1,-2] è il minimo nominale e J(.)-J(W_STAR) può essere < 0)
 # ----------------------------------------------------------------------
-diff_err = np.maximum(np.asarray(errs), 1e-14)
+def err_serie(history):
+    return np.maximum(
+        np.asarray([np.linalg.norm(np.array(w) - W_STAR) for w in history]),
+        1e-14)
+
+err_gd = err_serie(hist_gd)
+err_bb = err_serie(hist_bb)
+
 fig, ax = plt.subplots(figsize=(6.2, 4.2))
-ax.semilogy(range(len(diff_err)), diff_err, color="#1f77b4", lw=1.6,
-            marker="o", ms=3.5, label="Dynamic GD")
+ax.semilogy(range(len(err_gd)), err_gd, color="#1f77b4", lw=1.6,
+            marker="o", ms=3.5, label="Dynamic GD (Wolfe + CCV)")
+ax.semilogy(range(len(err_bb)), err_bb, color="#2ca02c", lw=1.6,
+            marker="s", ms=3.5, label="BB-CCV (Armijo + CCV)")
 ax.set_xlabel(r"Iterazioni $k$")
 ax.set_ylabel(r"$\|w_k - w_*\|_2$")
-ax.set_title("Convergenza del gradiente a campione dinamico (Wolfe + CCV)")
+ax.set_title("Convergenza del gradiente a campione dinamico")
 ax.grid(True, which="both", alpha=0.3)
 ax.legend()
 fig.tight_layout()
@@ -207,6 +309,7 @@ fig.savefig("figure_sim/convergenza.pdf")
 fig.savefig("figure_sim/convergenza.png", dpi=150)
 plt.close(fig)
 print(f"Figura convergenza salvata in figure_sim/  "
-      f"(errore finale ||w-w*|| = {errs[-1]:.2e})")
+      f"(errore finale ||w-w*|| GD = {err_gd[-1]:.2e}, "
+      f"BB = {err_bb[-1]:.2e})")
 print("FATTO")
 
