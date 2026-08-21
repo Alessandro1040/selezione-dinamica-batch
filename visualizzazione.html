@@ -253,6 +253,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           <option value="gd">Gradiente a Campione Dinamico (GD)</option>
           <option value="newton_cg">Newton-CG con Campionamento Dinamico</option>
           <option value="newton_l1">Newton-CG con Regolarizzazione L1</option>
+          <option value="bb">Barzilai-Borwein con Campionamento Dinamico (BB-CCV)</option>
           <option value="custom">✏️ Algoritmo personalizzato</option>
         </select>
         <p class="field-hint" id="algoHint">GD con campione dinamico e controllo della varianza.</p>
@@ -1003,6 +1004,33 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           </p>
         </div>
 
+        <!-- ============ BB ============ -->
+        <div id="theory-bb" class="theory-content">
+          <h3>Barzilai–Borwein con Campionamento Dinamico — Formule</h3>
+          <p><strong>Passo BB:</strong></p>
+          \[
+            \alpha_{k}^{\text{BB}}=\frac{s_{k-1}^{\!T}s_{k-1}}{s_{k-1}^{\!T}y_{k-1}},\qquad
+            s_{k-1}=w_{k}-w_{k-1},\;\;y_{k-1}=g_{k}-g_{k-1}.
+          \]
+          <p><strong>Safeguard:</strong></p>
+          \[
+            \alpha_{k}=\operatorname{clip}\!\left(\alpha_{k}^{\text{BB}},\;\frac{\alpha}{20},\;5\alpha\right).
+          \]
+          <p><strong>Condizione di curvatura:</strong></p>
+          \[
+            s_{k-1}^{\!T}y_{k-1}>0\quad\Longrightarrow\quad\alpha_{k}^{\text{BB}}>0.
+          \]
+          <p><strong>Aggiornamento CCV (identico al GD):</strong></p>
+          \[
+            \frac{\|\widehat{\mathcal{V}}\|_{1}}{n_{k}}\le\theta^{2}\|g_{k}\|_{2}^{2},\qquad
+            n_{k+1}=\left\lceil\frac{\|\widehat{\mathcal{V}}\|_{1}}{\theta^{2}\|g_{k}\|_{2}^{2}}\right\rceil.
+          \]
+          <p><strong>Line search (Armijo):</strong></p>
+          \[
+            J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2}.
+          \]
+        </div>
+
         <!-- ============ custom ============ -->
         <div id="theory-custom" class="theory-content">
           <h3>Algoritmo Personalizzato</h3>
@@ -1628,6 +1656,7 @@ function generateAlgoCode(algo, opts) {
     case 'gd': return generateGD(opts);
     case 'newton_cg': return generateNewtonCG(opts);
     case 'newton_l1': return generateNewtonL1(opts);
+    case 'bb': return generateBB(opts);
     case 'custom': return ALGO_PRESETS_CUSTOM;
     default: return ALGO_PRESETS_CUSTOM;
   }
@@ -1975,6 +2004,94 @@ history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, 
 `;
 }
 
+function generateBB(opts) {
+  const dyn = opts.dynamicBatch;
+  const wolfe = opts.lineSearch === 'wolfe';
+  return `import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history = [w.copy().tolist()]
+    batch_sizes = [n]
+    w_prev = w.copy()
+    g_prev = None
+    for k in range(max_iter):
+        indices = np.random.choice(N, size=n, replace=False)
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+        w_prev = w.copy()
+        g_prev = g.copy()
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+` + (wolfe ? `
+        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices], axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+` : `
+        # Line search Armijo
+        c1 = 1e-4
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w - step * g
+`) +
+`        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+` + (dyn ? `
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+` : `        # Batch dinamico disattivato\n`) +
+`        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+    return history, batch_sizes
+
+history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
+`;
+}
+
 const ALGO_PRESETS_CUSTOM = `import numpy as np
 
 def my_algorithm(w0, alpha, max_iter):
@@ -2072,7 +2189,7 @@ function loadLossPreset(key) {
 
 function updateParamsVisibility() {
   const algo = algoSelect.value;
-  document.getElementById('gdParams').className     = (algo === 'gd') ? 'visible' : '';
+  document.getElementById('gdParams').className     = (algo === 'gd' || algo === 'bb') ? 'visible' : '';
   document.getElementById('newtonParams').className = algo === 'newton_cg' ? 'visible' : '';
   document.getElementById('l1Params').className     = algo === 'newton_l1' ? 'visible' : '';
 }
@@ -2098,6 +2215,7 @@ function loadAlgoPreset() {
     gd: 'GD con batch dinamico: il campione cresce quando la varianza supera θ.',
     newton_cg: 'Newton-CG Hessian-free: due campioni (|H| ≪ |S|), stop CG adattivo.',
     newton_l1: 'Newton-CG con L₁: subgradiente + active set + proiezione ortante.',
+    bb: 'Barzilai-Borwein con passo adattivo e controllo dinamico del batch.',
     custom: 'Personalizzato: scrivi liberamente il tuo algoritmo.'
   };
   algoHint.textContent = hints[algo] || '';

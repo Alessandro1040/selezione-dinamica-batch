@@ -101,7 +101,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (20/08/2026)
+## Note operative e stato corrente (21/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -139,6 +139,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **BB-CCV riaggiunto all'app web
+  (`visualizzazione.html`).** Nel file `visualizzazione.html` (solo repo, la
+  copia Desktop non contiene l'app) è stato ripristinato il metodo
+  **Barzilai-Borwein con Campionamento Dinamico (BB-CCV)** tra gli algoritmi
+  possibili. La versione con BB era presente nelle copie storiche pre-9/08 in
+  Downloads (`deepseek_html_20260802_1c3ec7.html` del 2/08,
+  `interactive_optimization_fixed.html` del 4/08, `prova.html` del 7/08,
+  tutte con `option value="bb"` e funzione `generateBB`); è stata rimossa nella
+  riscrittura successiva (9/08, "Visualizzazione (Tesi).html") e nel file
+  attuale restava solo l'etichetta "Line search — GD, Newton-CG, BB". Copiata
+  **esattamente** (diff byte-identico) da `interactive_optimization_fixed.html`:
+  (1) `<option value="bb">` nel selettore algoritmo; (2) sezione teoria
+  `theory-bb` (passo BB $\alpha_k^{\mathrm{BB}}$, safeguard
+  $\mathrm{clip}(\cdot,\alpha/20,5\alpha)$, condizione di curvatura,
+  aggiornamento CCV identico al GD, line search); (3) funzione
+  `generateBB(opts)` (passo BB + CCV dinamico, on/off come gli altri metodi,
+  line search Wolfe/Armijo); (4) `case 'bb'` nello switch `generateAlgoCode`;
+  (5) parametri GD visibili anche per BB (`updateParamsVisibility`); (6) hint
+  in `loadAlgoPreset`. Validato: il codice Python generato da `generateBB`
+  (CCV attivo + Wolfe) converge su `quad_well` in 13 iterazioni con batch che
+  cresce fino a N=200. Nessun sorgente LaTeX toccato (nessun PDF da
+  ricompilare). Commit e push della repo.
 - **Ultimo intervento (20/08/2026).** **"Retropropagazione" → "backpropagation";
   spiegato meglio il termine "vettorizzata".** In `tesi/tesi.tex` tutte le
   occorrenze di *retropropagazione* (5: testo del forward, un nodo della figura
