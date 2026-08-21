@@ -139,6 +139,34 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **App web: opzione "Iterazioni consecutive
+  sullo stesso mini-batch" per tutti i metodi.** In `visualizzazione.html` (solo
+  repo, la copia Desktop non contiene l'app) sono stati aggiunti due controlli
+  globali nel blocco "Codice Python dell'algoritmo": (1) lo switch **"Iterazioni
+  consecutive sullo stesso mini-batch"** (Attivo / Disattivato, default
+  **Disattivato**); (2) l'iperparametro **"Max iterazioni consecutive per
+  mini-batch (k)"** con opzione **"Illimitato"** (default) o un valore finito
+  (1–200). Quando la funzione è Attiva, il codice Python generato per **tutti e 4
+  i metodi** (GD, Newton-CG, Newton-CG-L1, BB-CCV) viene ristrutturato: lo stesso
+  mini-batch (S_k, e H_k per i metodi di Newton) viene riusato per più iterazioni
+  consecutive; a ogni iterazione interna la **CCV è valutata sul campione in uso
+  al punto corrente** (gratis: usa gli stessi gradienti per-esempio del passo);
+  se la CCV fallisce il batch è "esaurito" → n_k cresce con la regola della tesi
+  e si ricampiona; se k è finito si ricampiona comunque dopo k iterazioni (stessa
+  n_k). Con **k = 1** si ricampiona a ogni iterazione: per GD e BB il
+  comportamento è **identico** all'algoritmo attuale (verificato: traiettorie
+  byte-identiche a parità di seed); per Newton-CG e Newton-L1 la sola differenza
+  è che la CCV è valutata sul batch in uso invece che su un nuovo campione. In
+  più, quando l'opzione viene modificata si aggiorna **solo la teoria dinamica**
+  (pseudocodici e formule che descrivono l'algoritmo) di tutti i metodi: ogni
+  sezione teoria mostra la variante "mini-batch riusato" (blocco `.pseudo-reuse`
+  + nota). Validato: 4 metodi × 8 varianti di opzioni generate e compilate
+  (32/32 sintassi OK); gli output con opzione Disattivata sono **byte-identici**
+  a quelli precedenti (confronto con HEAD); test funzionale su problema
+  quadratico sintetico (N=200) senza errori, con riuso che riduce la crescita del
+  batch (es. GD n_max 22→13, Newton-L1 41→15 con k illimitato). Nessun sorgente
+  LaTeX toccato (nessun PDF da ricompilare). Commit e push della repo.
+
 - **Ultimo intervento (21/08/2026).** **BB-CCV: la trattazione teorica si
   sposta dall'Appendice E alla Sezione 5.4.** In `tesi/tesi.tex` l'intera
   appendice "Schema dell'algoritmo BB-CCV" (passo di Barzilai--Borwein +

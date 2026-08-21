@@ -324,6 +324,25 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         </select>
         <p class="field-hint" id="dynamicBatchHint">Default: la dimensione del batch cresce automaticamente quando la varianza supera la soglia.</p>
       </div>
+
+      <!-- Riuso del mini-batch (nuova opzione: piu' iterazioni consecutive sullo stesso campione) -->
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="reuseBatchMode">Iterazioni consecutive sullo stesso mini-batch — tutti gli algoritmi</label>
+        <select id="reuseBatchMode">
+          <option value="disabled">Disattivato (default)</option>
+          <option value="enabled">Attivo</option>
+        </select>
+        <p class="field-hint" id="reuseBatchHint">Default: a ogni iterazione si ricampiona il mini-batch. Attivo: lo stesso mini-batch viene riusato per pi&ugrave; iterazioni consecutive; quando la CCV non &egrave; pi&ugrave; soddisfatta il batch viene ingrandito e ricampionato.</p>
+      </div>
+      <div class="field-row" id="maxConsecRow" style="margin-top:10px;display:none">
+        <label class="field-label" for="maxConsecMode">Max iterazioni consecutive per mini-batch (k)</label>
+        <select id="maxConsecMode">
+          <option value="unlimited">Illimitato</option>
+          <option value="custom">Personalizzato</option>
+        </select>
+        <input type="number" id="maxConsec" value="10" step="1" min="1" max="200" style="width:90px;display:none">
+        <p class="field-hint" id="maxConsecHint">Illimitato: il batch si riusa finch&eacute; la CCV resta soddisfatta (limite naturale = max_iter). Con k = 1 si ricampiona a ogni iterazione (per GD e BB il comportamento &egrave; identico all'algoritmo attuale; per i metodi di Newton la CCV &egrave; valutata sul batch in uso invece che su un nuovo campione).</p>
+      </div>
       
       <!-- Controlli che influenzano solo ALCUNI algoritmi -->
       <div class="field-row" style="margin-top:10px">
@@ -453,6 +472,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
+          <div class="pseudo-default">
           <p>
             \[
             \begin{array}{l}
@@ -468,6 +488,32 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{array}
             \]
           </p>
+          </div>
+          <div class="pseudo-reuse" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \text{servono dati nuovi}:\; \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0 \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
+            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1 \\
+            \quad\quad \text{servono dati nuovi} = \text{vero} \\
+            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
+            \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
+            \quad \textbf{if}\; j \ge M:\; \text{servono dati nuovi} = \text{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="reuse-note highlight-box" style="display:none">
+            <strong>Mini-batch riusato.</strong> Lo stesso campione \(\mathcal{S}_k\) viene riusato per pi&ugrave; iterazioni consecutive
+            (\(j=1,\dots,M\)). A ogni iterazione interna la CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito,
+            \(n_k\) cresce e si ricampiona al passo successivo; se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
+            Con \(M=1\) il metodo coincide con la versione a ricampionamento.
+          </div>
 
           <h3>Formule</h3>
           <p>
@@ -706,6 +752,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
+          <div class="pseudo-default">
           <p>
             \[
             \begin{array}{l}
@@ -733,6 +780,46 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{array}
             \]
           </p>
+          </div>
+          <div class="pseudo-reuse" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \text{servono dati nuovi}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j=0 \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \qquad \text{CCV sul campione riusato, al punto corrente} \\
+            \quad \textbf{if}\;\|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
+                  \text{servono dati nuovi}=\text{vero} \\
+            \quad p_0 = -g_k \\
+            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
+            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
+            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
+            \quad\quad s_j = H_k\,p_j \\
+            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
+            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
+            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
+            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
+            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
+            \quad\quad j = j+1 \\
+            \quad d_k = d_j \\
+            \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
+            \quad w_{k+1} = w_k + \alpha_k d_k \\
+            \quad j = j+1 \\
+            \quad \textbf{if}\; j \ge M:\; \text{servono dati nuovi}=\text{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="reuse-note highlight-box" style="display:none">
+            <strong>Mini-batch riusato.</strong> I campioni \(\mathcal{S}_k\) e \(\mathcal{H}_k\) vengono riusati per pi&ugrave; iterazioni consecutive.
+            La CCV viene valutata sul campione riusato \(\mathcal{S}_k\) al punto corrente (gratis: usa gli stessi gradienti per-esempio del passo):
+            se violata il batch &egrave; esaurito, \(n_k\) cresce (e con lui \(|\mathcal{H}_k|=\lceil R n_k\rceil\)) e si ricampiona;
+            se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
+          </div>
 
           <h3>Formule</h3>
           <p>
@@ -878,6 +965,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
+          <div class="pseudo-default">
           <p>
             \[
             \begin{array}{l}
@@ -895,6 +983,37 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{array}
             \]
           </p>
+          </div>
+          <div class="pseudo-reuse" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\mathcal{H}_0,\;\mathcal{S}_0\;(|\mathcal{H}_0|<|\mathcal{S}_0|),\;\nu,\;\eta,\;\sigma,\;\text{maxcg},\;K,\;M \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \text{servono dati nuovi}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,|\mathcal{S}_k|),\qquad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\qquad j=0 \\
+            \quad \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k \\
+            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/|\mathcal{S}_k| > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito (se dinamico, CCV al punto corrente)} \\
+            \quad\quad |\mathcal{S}_{k+1}| = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
+                  \text{servono dati nuovi}=\text{vero} \\
+            \quad z_k=\operatorname{faccia\_ortante}(w_k,\nabla J_{\mathcal{S}_k}(w_k),\nu) \\
+            \quad \mathcal{A}_k=\{i\mid z_k^i=0\} \\
+            \quad d^Y=\operatorname{CG}\bigl(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k,\;-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\;\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\bigr) \\
+            \quad d_k=Y_k d^Y \\
+            \quad \alpha_k=\operatorname{Armijo}_{\text{proj}}(w_k,d_k,z_k,\sigma) \\
+            \quad w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k) \\
+            \quad j = j+1 \\
+            \quad \textbf{if}\; j \ge M:\; \text{servono dati nuovi}=\text{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="reuse-note highlight-box" style="display:none">
+            <strong>Mini-batch riusato.</strong> I campioni \(\mathcal{S}_k\) e \(\mathcal{H}_k\) vengono riusati per pi&ugrave; iterazioni consecutive.
+            Se il "Batch dinamico" &egrave; attivo, la CCV valutata sul campione riusato al punto corrente (gratis: usa gli stessi gradienti
+            per-esempio del passo) decide se il batch &egrave; esaurito (crescita di \(|\mathcal{S}_k|\) e ricampionamento);
+            se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
+          </div>
           <h3>Formule</h3>
           <p>
             Di seguito raccogliamo le formule chiave del metodo, con il contesto necessario per interpretarle.
@@ -1029,6 +1148,34 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           \[
             J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2}.
           \]
+          <div class="pseudo-reuse" style="display:none">
+          <h4>Pseudocodice (mini-batch riusato)</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \text{servono dati nuovi}:\; \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0 \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \textbf{if}\; k>0:\; s=w_k-w_{k-1},\; y=g_k-g_{k-1} \\
+            \quad\quad \alpha_k^{\text{BB}} = \frac{s^{\top}s}{s^{\top}y},\qquad
+                   \alpha_k = \operatorname{clip}(\alpha_k^{\text{BB}},\alpha/20,5\alpha) \\
+            \quad \textbf{else}:\; \alpha_k=\alpha \\
+            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha_k) \\
+            \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
+            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
+                   \text{servono dati nuovi}=\text{vero} \\
+            \quad \textbf{if}\; j \ge M:\; \text{servono dati nuovi}=\text{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="reuse-note highlight-box" style="display:none">
+            <strong>Mini-batch riusato.</strong> Lo stesso campione \(\mathcal{S}_k\) viene riusato per pi&ugrave; iterazioni consecutive.
+            La CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito, \(n_k\) cresce e si ricampiona;
+            se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni. Con \(M=1\) il metodo coincide con la versione a ricampionamento.
+          </div>
         </div>
 
         <!-- ============ custom ============ -->
@@ -1643,11 +1790,15 @@ YMIN, YMAX = -4.0,  0.0`
 };
 
 function getAlgoOptions() {
+  const maxMode = document.getElementById('maxConsecMode').value;
+  const maxVal  = parseInt(document.getElementById('maxConsec').value);
   return {
     hkSubset: document.getElementById('hkSubsetMode').value === 'subset',
     lineSearch: document.getElementById('lineSearchMode').value,
     dynamicBatch: document.getElementById('dynamicBatchMode').value === 'dynamic',
-    hessianFreeL1: document.getElementById('hessianFreeL1Mode').value === 'free'
+    hessianFreeL1: document.getElementById('hessianFreeL1Mode').value === 'free',
+    reuseBatch: document.getElementById('reuseBatchMode').value === 'enabled',
+    maxConsec: maxMode === 'unlimited' ? null : (Number.isFinite(maxVal) ? maxVal : 10)
   };
 }
 
@@ -1665,16 +1816,37 @@ function generateAlgoCode(algo, opts) {
 function generateGD(opts) {
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
+  const reuse = opts.reuseBatch;
+  const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
+  const sigTail = reuse ? ', max_consec' : '';
+  const preLoop = reuse ? `    indices = None
+    used = 0
+    need_resample = True
+` : '';
+  const sample  = reuse ? `        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            indices = np.random.choice(N, size=n, replace=False)
+            used = 0
+            need_resample = False
+` : `        indices = np.random.choice(N, size=n, replace=False)
+`;
+  const ccvTail = reuse ? `                need_resample = True
+` : '';
+  const usedInc = reuse ? `        used += 1
+` : '';
+  const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+` : `history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
+`;
   return `import numpy as np
 
-def dynamic_gd(w0, theta, max_iter, alpha, batch0):
+def dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history     = [w.copy().tolist()]
     batch_sizes = [n]
-    for k in range(max_iter):
-        indices = np.random.choice(N, size=n, replace=False)
-        grads = np.array([grad_i(w, i) for i in indices])
+${preLoop}    for k in range(max_iter):
+${sample}        grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
 ` + (dyn ? `
         if n > 1:
@@ -1687,7 +1859,7 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0):
             if V_norm1 / n > theta**2 * gg:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
-` : `        # Batch dinamico disattivato: n rimane costante a batch0\n`) +
+${ccvTail}` : `        # Batch dinamico disattivato: n rimane costante a batch0\n`) +
 `        def J_batch(w_curr):
             return np.mean([loss_i(w_curr, i) for i in indices])
 ` + (wolfe ? `
@@ -1725,7 +1897,7 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0):
                 step = 0.0
         w = w - step * g
 `) +
-`        if np.linalg.norm(grad_full(w)) < 1e-6:
+`${usedInc}        if np.linalg.norm(grad_full(w)) < 1e-6:
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
@@ -1733,14 +1905,37 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0):
         batch_sizes.append(n)
     return history, batch_sizes
 
-history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
-`;
+${modCall}`;
 }
 
 function generateNewtonCG(opts) {
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const subset = opts.hkSubset;
+  const reuse = opts.reuseBatch;
+  const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
+  const sigTail = reuse ? ', max_consec' : '';
+  const preLoop = reuse ? `    indices_S = None
+    indices_H = None
+    used = 0
+    need_resample = True
+` : '';
+  const topSample = reuse ? `        if need_resample or indices_S is None or (max_consec is not None and used >= max_consec):
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), N)
+` + (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
+`) + `            used = 0
+            need_resample = False
+` : `        indices_S = np.random.choice(N, size=n, replace=False)
+`;
+  const usedInc = reuse ? `        used += 1
+` : '';
+  const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec)
+` : `history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
+`;
   return `import numpy as np
 
 def cg(A, b, gamma, maxcg):
@@ -1765,17 +1960,30 @@ def cg(A, b, gamma, maxcg):
         rr = rr_new
     return x
 
-def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg):
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${sigTail}):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
-    for k in range(max_iter):
-        indices_S = np.random.choice(N, size=n, replace=False)
-        g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
-        n_h = min(max(1, int(round(R * n))), N)
-` + (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+${preLoop}    for k in range(max_iter):
+${topSample}` + (reuse ? `        grads_arr = np.array([grad_i(w, i) for i in indices_S])
+        g = np.mean(grads_arr, axis=0)
+` : `        g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
+`) + (reuse ? `` : `        n_h = min(max(1, int(round(R * n))), N)
+`) + (reuse ? `` : (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
 ` : `        indices_H = np.random.choice(N, size=n_h, replace=False)
-`) +
+`)) + (reuse && dyn ? `
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads_arr, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
+            need_resample = True
+            used = 0
+` : ``) +
 `        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
         p0 = -g
         p0_norm2 = np.dot(p0, p0)
@@ -1818,31 +2026,55 @@ def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg):
             step = 0.0
         w = w + step * d
 `) +
-`        history.append(w.copy().tolist())
+`${usedInc}        history.append(w.copy().tolist())
         batch_sizes.append(n)
-` + (dyn ? `
+` + (dyn ? (reuse ? `` : `
         indices_new = np.random.choice(N, size=n, replace=False)
         g_new = np.mean([grad_i(w, i) for i in indices_new], axis=0)
         var_vec = np.var([grad_i(w, i) for i in indices_new], axis=0, ddof=1) if n > 1 else np.zeros_like(g_new)
         V_norm1, gg_new = np.sum(var_vec), np.dot(g_new, g_new)
         if gg_new > 1e-16 and V_norm1 / n > theta**2 * gg_new:
             n = min(int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1, N)
-` : `        # Batch dinamico disattivato\n`) +
+`) : `        # Batch dinamico disattivato\n`) +
 `        if np.linalg.norm(grad_full(w)) < 1e-6:
             break
     return history, batch_sizes
 
-history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
-`;
+${modCall}`;
 }
 
 function generateNewtonL1(opts) {
   const dyn = opts.dynamicBatch;
   const subset = opts.hkSubset;
   const hf = opts.hessianFreeL1;
+  const reuse = opts.reuseBatch;
+  const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
+  const sigTail = reuse ? ', max_consec=None' : '';
+  const preLoop = reuse ? `    indices_S = None
+    indices_H = None
+    used = 0
+    need_resample = True
+` : '';
+  const topSample = reuse ? `        if need_resample or indices_S is None or (max_consec is not None and used >= max_consec):
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = max(1, int(round(R * n)))
+            n_h = min(n_h, N)
+` + (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
+`) + `            used = 0
+            need_resample = False
+` : `        indices_S = np.random.choice(N, size=n, replace=False)
+`;
+  const usedInc = reuse ? `        used += 1
+` : '';
+  const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec)
+` : `history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
+`;
   return `import numpy as np
 
-def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5${sigTail}):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history     = [w.copy().tolist()]
@@ -1873,11 +2105,25 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
             if z[i] != 0 and np.sign(res[i]) != z[i]:
                 res[i] = 0.0
         return res
-    for k in range(max_iter):
-        indices_S = np.random.choice(N, size=n, replace=False)
-        grads = np.array([grad_i(w, i) for i in indices_S])
+${preLoop}    for k in range(max_iter):
+${topSample}        grads = np.array([grad_i(w, i) for i in indices_S])
         g_batch = np.mean(grads, axis=0)
-        z = np.where(w > 0, 1,
+` + (reuse && dyn ? `
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_batch)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g_batch, g_batch)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                need_resample = True
+                used = 0
+` : ``) +
+`        z = np.where(w > 0, 1,
             np.where(w < 0, -1,
                 np.where(g_batch < -nu, 1,
                     np.where(g_batch > nu, -1, 0))))
@@ -1887,11 +2133,11 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
-        n_h = max(1, int(round(R * n)))
+` + (reuse ? `` : `        n_h = max(1, int(round(R * n)))
         n_h = min(n_h, N)
-` + (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+`) + (reuse ? `` : (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
 ` : `        indices_H = np.random.choice(N, size=n_h, replace=False)
-`) +
+`)) +
 `        free = (z != 0)
         d = np.zeros_like(w)
         if np.any(free):
@@ -1979,7 +2225,7 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
                 w_new = w.copy()
                 break
         w = w_new
-` + (dyn ? `
+` + (dyn ? (reuse ? `` : `
         indices_new = np.random.choice(N, size=n, replace=False)
         grads_new = np.array([grad_i(w, i) for i in indices_new])
         g_new = np.mean(grads_new, axis=0)
@@ -1993,32 +2239,53 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
             if V_norm1 / n > theta**2 * gg_new:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1
                 n = min(n_new, N)
-` : `        # Batch dinamico disattivato\n`) +
-`        history.append(w.copy().tolist())
+`) : `        # Batch dinamico disattivato\n`) +
+`${usedInc}        history.append(w.copy().tolist())
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
     return history, batch_sizes
 
-history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
-`;
+${modCall}`;
 }
 
 function generateBB(opts) {
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
+  const reuse = opts.reuseBatch;
+  const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
+  const sigTail = reuse ? ', max_consec' : '';
+  const preLoop = reuse ? `    indices = None
+    used = 0
+    need_resample = True
+` : '';
+  const sample  = reuse ? `        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            indices = np.random.choice(N, size=n, replace=False)
+            used = 0
+            need_resample = False
+` : `        indices = np.random.choice(N, size=n, replace=False)
+`;
+  const ccvTail = reuse ? `                need_resample = True
+                used = 0
+` : '';
+  const usedInc = reuse ? `        used += 1
+` : '';
+  const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+` : `history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
+`;
   return `import numpy as np
 
-def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
     w_prev = w.copy()
     g_prev = None
-    for k in range(max_iter):
-        indices = np.random.choice(N, size=n, replace=False)
-        grads = np.array([grad_i(w, i) for i in indices])
+${preLoop}    for k in range(max_iter):
+${sample}        grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
         if k > 0 and g_prev is not None:
             s = w - w_prev
@@ -2068,7 +2335,7 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
                 step = 0.0
         w = w - step * g
 `) +
-`        if np.linalg.norm(grad_full(w)) < 1e-6:
+`${usedInc}        if np.linalg.norm(grad_full(w)) < 1e-6:
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
@@ -2083,13 +2350,12 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
             if V_norm1 / n > theta**2 * gg:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
-` : `        # Batch dinamico disattivato\n`) +
+${ccvTail}` : `        # Batch dinamico disattivato\n`) +
 `        history.append(w.copy().tolist())
         batch_sizes.append(n)
     return history, batch_sizes
 
-history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
-`;
+${modCall}`;
 }
 
 const ALGO_PRESETS_CUSTOM = `import numpy as np
@@ -2139,6 +2405,23 @@ const maxcgEl      = document.getElementById('maxcg');
 const nuEl         = document.getElementById('nu');
 const sigmaEl      = document.getElementById('sigma');
 const etaEl        = document.getElementById('eta');
+const reuseBatchModeEl = document.getElementById('reuseBatchMode');
+const maxConsecRowEl   = document.getElementById('maxConsecRow');
+const maxConsecModeEl  = document.getElementById('maxConsecMode');
+const maxConsecEl      = document.getElementById('maxConsec');
+
+function updateReuseControls() {
+  const on = reuseBatchModeEl.value === 'enabled';
+  maxConsecRowEl.style.display = on ? '' : 'none';
+  maxConsecEl.style.display = (on && maxConsecModeEl.value === 'custom') ? '' : 'none';
+}
+
+function updatePseudoVariants() {
+  const reuse = getAlgoOptions().reuseBatch;
+  document.querySelectorAll('.pseudo-default').forEach(el => el.style.display = reuse ? 'none' : '');
+  document.querySelectorAll('.pseudo-reuse').forEach(el => el.style.display = reuse ? '' : 'none');
+  document.querySelectorAll('.reuse-note').forEach(el => el.style.display = reuse ? '' : 'none');
+}
 
 const iterSlider   = document.getElementById('iterSlider');
 const iterNum      = document.getElementById('iterNum');
@@ -2200,6 +2483,7 @@ function updateTheory() {
   contents.forEach(el => el.classList.remove('active'));
   const target = document.getElementById('theory-' + algo);
   if (target) target.classList.add('active');
+  updatePseudoVariants();
   // Typeset the newly visible theory content
   if (window.MathJax && MathJax.typesetPromise) {
     MathJax.typesetPromise([target]).catch(()=>{});
@@ -2683,6 +2967,12 @@ document.getElementById('lineSearchMode').addEventListener('change', loadAlgoPre
 document.getElementById('dynamicBatchMode').addEventListener('change', loadAlgoPreset);
 document.getElementById('hessianFreeL1Mode').addEventListener('change', loadAlgoPreset);
 
+// Riuso del mini-batch: la modifica rigenera il codice E aggiorna la teoria dinamica
+reuseBatchModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+maxConsecModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+maxConsecEl.addEventListener('change', () => loadAlgoPreset());
+updateReuseControls();
+
 // Quando N o Seed cambiano, aggiorna automaticamente il codice della loss
 document.getElementById('totalN').addEventListener('change', () => {
   const Nval = parseInt(document.getElementById('totalN').value) || 200;
@@ -2748,6 +3038,10 @@ defaultBtn.addEventListener('click', () => {
   document.getElementById('lineSearchMode').value='wolfe';
   document.getElementById('dynamicBatchMode').value='dynamic';
   document.getElementById('hessianFreeL1Mode').value='free';
+  reuseBatchModeEl.value='disabled';
+  maxConsecModeEl.value='unlimited';
+  maxConsecEl.value='10';
+  updateReuseControls();
   currentData=null; savedCamera=null;
   runAlgorithm();
 });
