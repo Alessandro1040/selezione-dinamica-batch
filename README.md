@@ -131,8 +131,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   `altro/contenuti/` sono già incorporati nel file. Non tentare di ricostruire
   il documento a partire da `altro/contenuti/`. **Unica eccezione (21/08/2026):**
   l'Appendice E (riuso del mini-batch) vive nel file `tesi/appendice_riuso.tex`
-  ed è inclusa con `\input{appendice_riuso}` prima della bibliografia; se si
-  modifica quel file va ricompilato tutto (`tesi.pdf` + `tesi_finale.pdf`).
+  (contenuto puro, incluso con `\input{appendice_riuso}` SOLO nel documento
+  autonomo `tesi/appendice_riuso_estratto.tex`); in `tesi.tex` c'è una sezione
+  segnaposto `(PLACEHOLDER)`. Se si modifica `appendice_riuso.tex` va
+  ricompilato solo `appendice_riuso_estratto.pdf` (non più
+  `tesi.pdf`/`tesi_finale.pdf`).
 - **Figura di copertina.** La compilazione della copia di lavoro richiede
   `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
   Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
@@ -143,6 +146,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **Tesi: Appendice E estratta in un
+  documento autonomo e ridotta a segnaposto.** In `tesi/tesi.tex` il comando
+  `\input{appendice_riuso}` è stato sostituito dalla sezione segnaposto
+  `\section{Riuso del mini-batch: iterazioni consecutive sullo stesso
+  campione}\label{app:riuso}` seguita da `(PLACEHOLDER)` (titolo e label
+  conservati, così l'Appendice E resta nell'indice). Il contenuto integrale
+  dell'appendice (incluso via `\input{appendice_riuso}`) vive ora nel nuovo
+  documento autonomo `tesi/appendice_riuso_estratto.tex` (preambolo minimale +
+  `\appendix` con `\setcounter{section}{4}` per restare numerata **E**, tabelle
+  E.1--E.18 invariate; riferimenti esterni risolti: `sec:algoritmi` → 5,
+  `sec:setup` → 6.1, `sec:risultati` → 6.3, `sec:visualizzazione` → 6.4),
+  compilato in `tesi/appendice_riuso_estratto.pdf` (**20 pp**). Ricompilati
+  `tesi.pdf` (**103 → 83 pp**) e `tesi_finale.pdf` (**83 pp**), 0 errori, 0
+  riferimenti undefined. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf/appendice_riuso_estratto.tex/
+  appendice_riuso_estratto.pdf (md5 verificati). `appendice_riuso.tex`
+  invariata; `bozza.tex` non toccata.
 - **Ultimo intervento (21/08/2026).** **Tesi: sottosezioni 6.5 e 6.6 estratte in
   un documento separato e ridotte a segnaposto.** In `tesi/tesi.tex` il testo
   delle sottosezioni 6.5 ("Validazione su un benchmark musicale: riconoscimento

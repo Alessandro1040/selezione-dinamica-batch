@@ -1,0 +1,55 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[italian]{babel}
+\usepackage{amsmath, amssymb}
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm, headheight=15pt}
+\usepackage{fancyhdr}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{mathtools}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{caption}
+\usepackage{float}
+\usepackage{hyperref}
+
+\definecolor{coverblue}{RGB}{30, 60, 120}
+\definecolor{coverlightblue}{RGB}{180, 210, 255}
+\definecolor{sapred}{rgb}{0.5098039,0.1411765,0.2}
+
+\hypersetup{colorlinks=true, linkcolor=black, citecolor=coverblue, urlcolor=coverblue}
+
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+\numberwithin{table}{section}
+
+\pagestyle{fancy}
+\fancyhf{}
+\rhead{\small Selezione Dinamica del Campione in ML}
+\lhead{\small Appendice E -- Riuso del mini-batch}
+\cfoot{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\begin{document}
+
+% Riferimenti a sezioni della tesi (tesi.tex) NON incluse in questo estratto:
+% sec:algoritmi = Sezione 5, sec:setup = Sottosezione 6.1,
+% sec:risultati = Sottosezione 6.3, sec:visualizzazione = Sottosezione 6.4.
+\makeatletter
+\def\@currentlabel{5}\label{sec:algoritmi}
+\def\@currentlabel{6.1}\label{sec:setup}
+\def\@currentlabel{6.3}\label{sec:risultati}
+\def\@currentlabel{6.4}\label{sec:visualizzazione}
+\makeatother
+
+% Numerata come Appendice E (come nella tesi): tabelle e riferimenti interni
+% restano allineati (E.1, E.2, ...).
+\appendix
+\setcounter{section}{4}
+
+\input{appendice_riuso}
+
+\end{document}
