@@ -146,6 +146,33 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (22/08/2026).** **Appendice E: aggiunta la colonna per il
+  riuso dell'Hessiana indipendente da $S_k$ ($M_H=\infty$) e CORRETTA
+  un'inconsistenza delle tabelle Newton.** (1) Scoperto che le tabelle
+  E.1--E.16 erano state generate con `Sottocampionamento Hessiana` = "Intero
+  dataset" (`hkSubset=False`, NON il default dell'app): le colonne base dei
+  metodi di Newton non coincidevano con le Tabelle 6.3--6.5 della tesi (che
+  usano `hkSubset=True` = Subset, validate da `riproduci_tabelle.py`).
+  Rigenerate le 8 tabelle Newton (E.2, E.3, E.6, E.7, E.10, E.11, E.14, E.15)
+  con `hkSubset=True` (default app): ora le colonne base coincidono
+  esattamente con le Tabelle 6.3--6.5 (worst|diff|=0.00). GD e BB non usano
+  l'Hessiana: invariati. (2) Aggiunta a queste 8 tabelle la colonna
+  "H ind. $M_H=\infty$" (modalità *Indipendente da $S_k$* dell'app, batch
+  $M=10$): a parità di riuso del batch l'Hessiana resta in uso finché la CCV è
+  soddisfatta. Risultato: migliora su ben condizionato (Newton-CG) e termine
+  incrociato (Newton-CG $L_1$), peggiora sui mal condizionati di Newton-CG.
+  (3) Aggiornate le righe Newton della sintesi E.17 e della robustezza E.18
+  (5 seed, ricalcolate con `hkSubset=True`). (4) Prosa aggiornata (E.1:
+  descrizione modalità *Legato a $S_k$*/*Indipendente da $S_k$* e parametro
+  $M_H$; E.2: valori corretti; E.3: setup con le colonne e i parametri
+  dell'app; E.4/E.5: risultati) e didascalie delle 8 tabelle. (5) Nuovo script
+  riproducibile `altro/script/gen_tabelle_riuso.py` (preset e algoritmi del
+  codice generato dall'app; `--diagnosi` verifica la riproduzione con
+  `subset=False`, `--data` produce i dati, `--tex` riscrive le tabelle).
+  Ricompilato `appendice_riuso_estratto.pdf`: 21 -> 22 pp, 0 errori, 0
+  overfull. I `tesi.pdf`/`tesi_finale.pdf` NON sono coinvolti (in `tesi.tex`
+  l'Appendice E è un PLACEHOLDER).
+
 - **Ultimo intervento (22/08/2026).** **App web: riuso dell'Hessiana
   indipendente da $S_k$ con iperparametro $M_H$.** Nuova opzione "Riuso
   Hessiana (H_k)" per Newton-CG e Newton-L1 (visibile solo con "Iterazioni
