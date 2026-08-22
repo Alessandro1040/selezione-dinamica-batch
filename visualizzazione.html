@@ -343,6 +343,28 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <input type="number" id="maxConsec" value="10" step="1" min="1" max="200" style="width:90px;display:none">
         <p class="field-hint" id="maxConsecHint">Illimitato: il batch si riusa finch&eacute; la CCV resta soddisfatta (limite naturale = max_iter). Con k = 1 si ricampiona a ogni iterazione (per GD e BB il comportamento &egrave; identico all'algoritmo attuale; per i metodi di Newton la CCV &egrave; valutata sul batch in uso invece che su un nuovo campione).</p>
       </div>
+
+      <!-- Parametri per il riuso dell'Hessiana (solo Newton-CG e Newton-L1) -->
+      <div class="field-row" id="hessianReuseParams" style="margin-top:10px;display:none">
+        <div class="param-grid">
+          <div class="param-item">
+            <span class="param-label">Riuso Hessiana (H_k)</span>
+            <select id="hessianReuseMode">
+              <option value="tied">Legato a S_k (default teoria)</option>
+              <option value="independent">Indipendente da S_k</option>
+            </select>
+          </div>
+          <div class="param-item" id="mhContainer" style="display:none">
+            <span class="param-label">M_H (max riusi H_k)</span>
+            <select id="mhMode">
+              <option value="unlimited">Illimitato</option>
+              <option value="custom">Personalizzato</option>
+            </select>
+            <input type="number" id="mhValue" value="10" step="1" min="1" max="200" style="width:100%;display:none;margin-top:4px">
+          </div>
+        </div>
+        <p class="field-hint" id="hessianReuseHint">Default (Legato a S_k): H_k viene riusato insieme a S_k finch&eacute; la CCV &egrave; soddisfatta. Indipendente: H_k viene riusato per M_H iterazioni (se M_H = &infin;, finch&eacute; la CCV su S_k resta soddisfatta, ma indipendentemente dal contatore di S_k).</p>
+      </div>
       
       <!-- Controlli che influenzano solo ALCUNI algoritmi -->
       <div class="field-row" style="margin-top:10px">
@@ -1792,13 +1814,17 @@ YMIN, YMAX = -4.0,  0.0`
 function getAlgoOptions() {
   const maxMode = document.getElementById('maxConsecMode').value;
   const maxVal  = parseInt(document.getElementById('maxConsec').value);
+  const mhMode  = document.getElementById('mhMode').value;
+  const mhVal   = parseInt(document.getElementById('mhValue').value);
   return {
     hkSubset: document.getElementById('hkSubsetMode').value === 'subset',
     lineSearch: document.getElementById('lineSearchMode').value,
     dynamicBatch: document.getElementById('dynamicBatchMode').value === 'dynamic',
     hessianFreeL1: document.getElementById('hessianFreeL1Mode').value === 'free',
     reuseBatch: document.getElementById('reuseBatchMode').value === 'enabled',
-    maxConsec: maxMode === 'unlimited' ? null : (Number.isFinite(maxVal) ? maxVal : 10)
+    maxConsec: maxMode === 'unlimited' ? null : (Number.isFinite(maxVal) ? maxVal : 10),
+    reuseHessian: document.getElementById('hessianReuseMode').value === 'tied', // true = H_k legato a S_k, false = indipendente
+    maxHessianReuse: mhMode === 'unlimited' ? null : (Number.isFinite(mhVal) ? mhVal : 10)
   };
 }
 
@@ -1913,27 +1939,52 @@ function generateNewtonCG(opts) {
   const wolfe = opts.lineSearch === 'wolfe';
   const subset = opts.hkSubset;
   const reuse = opts.reuseBatch;
+  const reuseH = opts.reuseHessian;      // true = H_k legato a S_k, false = indipendente
+  const mh = opts.maxHessianReuse;       // null = illimitato, altrimenti numero
   const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
-  const sigTail = reuse ? ', max_consec' : '';
+  const mhStr = (mh === null || mh === undefined) ? 'None' : String(mh);
+  const sigTail = reuse ? ', max_consec=None, reuse_hessian=True, max_hessian_reuse=None' : '';
   const preLoop = reuse ? `    indices_S = None
     indices_H = None
-    used = 0
-    need_resample = True
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
 ` : '';
-  const topSample = reuse ? `        if need_resample or indices_S is None or (max_consec is not None and used >= max_consec):
+  const topSample = reuse ? `        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
             indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), N)
+            used_S = 0
+            need_resample_S = False
+` + (reuseH ? (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
+`) + `            used_H = 0
+            need_resample_H = False
+` : '') : `        indices_S = np.random.choice(N, size=n, replace=False)
+`;
+  const hessianSample = (reuse && !reuseH) ? `
+        # H_k indipendente da S_k: si ricampiona secondo max_hessian_reuse
+        if need_resample_H or indices_H is None or (max_hessian_reuse is not None and used_H >= max_hessian_reuse):
             n_h = min(max(1, int(round(R * n))), N)
 ` + (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
 ` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
-`) + `            used = 0
-            need_resample = False
-` : `        indices_S = np.random.choice(N, size=n, replace=False)
-`;
-  const usedInc = reuse ? `        used += 1
+`) + `            used_H = 0
+            need_resample_H = False
 ` : '';
+  const ccvReset = (reuse && dyn) ? `            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
+            need_resample_S = True
+            used_S = 0
+            need_resample_H = True
+            used_H = 0
+` : '';
+  const usedInc = reuse ? `        used_S += 1
+` + (reuseH ? '' : `        used_H += 1
+`) : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec)
+history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
 ` : `history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
 `;
   return `import numpy as np
@@ -1971,7 +2022,7 @@ ${topSample}` + (reuse ? `        grads_arr = np.array([grad_i(w, i) for i in in
 `) + (reuse ? `` : `        n_h = min(max(1, int(round(R * n))), N)
 `) + (reuse ? `` : (subset ? `        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
 ` : `        indices_H = np.random.choice(N, size=n_h, replace=False)
-`)) + (reuse && dyn ? `
+`)) + (hessianSample ? hessianSample : '') + (reuse && dyn ? `
         # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads_arr, axis=0, ddof=1)
@@ -1980,10 +2031,7 @@ ${topSample}` + (reuse ? `        grads_arr = np.array([grad_i(w, i) for i in in
         V_norm1 = np.sum(var_vec)
         gg = np.dot(g, g)
         if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
-            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
-            need_resample = True
-            used = 0
-` : ``) +
+${ccvReset}` : '') +
 `        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
         p0 = -g
         p0_norm2 = np.dot(p0, p0)
@@ -2048,28 +2096,55 @@ function generateNewtonL1(opts) {
   const subset = opts.hkSubset;
   const hf = opts.hessianFreeL1;
   const reuse = opts.reuseBatch;
+  const reuseH = opts.reuseHessian;      // true = H_k legato a S_k, false = indipendente
+  const mh = opts.maxHessianReuse;       // null = illimitato, altrimenti numero
   const mcon  = (opts.maxConsec === null || opts.maxConsec === undefined) ? 'None' : String(opts.maxConsec);
-  const sigTail = reuse ? ', max_consec=None' : '';
+  const mhStr = (mh === null || mh === undefined) ? 'None' : String(mh);
+  const sigTail = reuse ? ', max_consec=None, reuse_hessian=True, max_hessian_reuse=None' : '';
   const preLoop = reuse ? `    indices_S = None
     indices_H = None
-    used = 0
-    need_resample = True
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
 ` : '';
-  const topSample = reuse ? `        if need_resample or indices_S is None or (max_consec is not None and used >= max_consec):
+  const topSample = reuse ? `        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
             indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = max(1, int(round(R * n)))
+            n_h = min(n_h, N)
+            used_S = 0
+            need_resample_S = False
+` + (reuseH ? (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
+`) + `            used_H = 0
+            need_resample_H = False
+` : '') : `        indices_S = np.random.choice(N, size=n, replace=False)
+`;
+  const hessianSample = (reuse && !reuseH) ? `
+        # H_k indipendente da S_k: si ricampiona secondo max_hessian_reuse
+        if need_resample_H or indices_H is None or (max_hessian_reuse is not None and used_H >= max_hessian_reuse):
             n_h = max(1, int(round(R * n)))
             n_h = min(n_h, N)
 ` + (subset ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
 ` : `            indices_H = np.random.choice(N, size=n_h, replace=False)
-`) + `            used = 0
-            need_resample = False
-` : `        indices_S = np.random.choice(N, size=n, replace=False)
-`;
-  const usedInc = reuse ? `        used += 1
+`) + `            used_H = 0
+            need_resample_H = False
 ` : '';
+  const ccvReset = (reuse && dyn) ? `                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                need_resample_S = True
+                used_S = 0
+                need_resample_H = True
+                used_H = 0
+` : '';
+  const usedInc = reuse ? `        used_S += 1
+` + (reuseH ? '' : `        used_H += 1
+`) : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec)
+history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
 ` : `history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
 `;
   return `import numpy as np
@@ -2108,7 +2183,7 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5${sig
 ${preLoop}    for k in range(max_iter):
 ${topSample}        grads = np.array([grad_i(w, i) for i in indices_S])
         g_batch = np.mean(grads, axis=0)
-` + (reuse && dyn ? `
+` + (hessianSample ? hessianSample : '') + (reuse && dyn ? `
         # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads, axis=0, ddof=1)
@@ -2118,11 +2193,7 @@ ${topSample}        grads = np.array([grad_i(w, i) for i in indices_S])
         gg = np.dot(g_batch, g_batch)
         if gg > 1e-16:
             if V_norm1 / n > theta**2 * gg:
-                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
-                n = min(n_new, N)
-                need_resample = True
-                used = 0
-` : ``) +
+${ccvReset}` : '') +
 `        z = np.where(w > 0, 1,
             np.where(w < 0, -1,
                 np.where(g_batch < -nu, 1,
@@ -2409,11 +2480,27 @@ const reuseBatchModeEl = document.getElementById('reuseBatchMode');
 const maxConsecRowEl   = document.getElementById('maxConsecRow');
 const maxConsecModeEl  = document.getElementById('maxConsecMode');
 const maxConsecEl      = document.getElementById('maxConsec');
+const hessianReuseParamsEl = document.getElementById('hessianReuseParams');
+const hessianReuseModeEl   = document.getElementById('hessianReuseMode');
+const mhContainerEl        = document.getElementById('mhContainer');
+const mhModeEl             = document.getElementById('mhMode');
+const mhValueEl            = document.getElementById('mhValue');
 
 function updateReuseControls() {
   const on = reuseBatchModeEl.value === 'enabled';
   maxConsecRowEl.style.display = on ? '' : 'none';
   maxConsecEl.style.display = (on && maxConsecModeEl.value === 'custom') ? '' : 'none';
+  updateHessianReuseVisibility(on);
+}
+
+function updateHessianReuseVisibility(reuseOn) {
+  const algo = algoSelect ? algoSelect.value : 'gd';
+  const showHessian = reuseOn && (algo === 'newton_cg' || algo === 'newton_l1');
+  hessianReuseParamsEl.style.display = showHessian ? '' : 'none';
+  const mode = hessianReuseModeEl.value;
+  const mhIndependent = showHessian && mode === 'independent';
+  mhContainerEl.style.display = mhIndependent ? '' : 'none';
+  mhValueEl.style.display = (mhIndependent && mhModeEl.value === 'custom') ? '' : 'none';
 }
 
 function updatePseudoVariants() {
@@ -2475,6 +2562,7 @@ function updateParamsVisibility() {
   document.getElementById('gdParams').className     = (algo === 'gd' || algo === 'bb') ? 'visible' : '';
   document.getElementById('newtonParams').className = algo === 'newton_cg' ? 'visible' : '';
   document.getElementById('l1Params').className     = algo === 'newton_l1' ? 'visible' : '';
+  updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled');
 }
 
 function updateTheory() {
@@ -2971,6 +3059,9 @@ document.getElementById('hessianFreeL1Mode').addEventListener('change', loadAlgo
 reuseBatchModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
 maxConsecModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
 maxConsecEl.addEventListener('change', () => loadAlgoPreset());
+hessianReuseModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+mhModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+mhValueEl.addEventListener('change', () => loadAlgoPreset());
 updateReuseControls();
 
 // Quando N o Seed cambiano, aggiorna automaticamente il codice della loss
@@ -3041,6 +3132,9 @@ defaultBtn.addEventListener('click', () => {
   reuseBatchModeEl.value='disabled';
   maxConsecModeEl.value='unlimited';
   maxConsecEl.value='10';
+  hessianReuseModeEl.value='tied';
+  mhModeEl.value='unlimited';
+  mhValueEl.value='10';
   updateReuseControls();
   currentData=null; savedCamera=null;
   runAlgorithm();

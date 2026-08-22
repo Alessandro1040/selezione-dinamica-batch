@@ -146,6 +146,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (22/08/2026).** **App web: riuso dell'Hessiana
+  indipendente da $S_k$ con iperparametro $M_H$.** Nuova opzione "Riuso
+  Hessiana (H_k)" per Newton-CG e Newton-L1 (visibile solo con "Iterazioni
+  consecutive sullo stesso mini-batch" attivo): modalità **Legato a S_k**
+  (default teoria: $H_k$ segue $S_k$ finché la CCV è soddisfatta) e
+  **Indipendente da S_k** ($H_k$ riusato per $M_H$ iterazioni consecutive; se
+  $M_H=\infty$, $H_k$ resta legato alla CCV su $S_k$ ma senza il contatore di
+  $S_k$). Aggiunti i controlli HTML `hessianReuseMode`/`mhMode`/`mhValue`, i
+  campi `reuseHessian`/`maxHessianReuse` in `getAlgoOptions()` e la logica in
+  `generateNewtonCG`/`generateNewtonL1` con contatori separati
+  `used_S`/`used_H` e `need_resample_S`/`need_resample_H` (la CCV violata
+  ricampiona sia $S_k$ sia $H_k$; `maxHessianReuse` ignorato in modalità
+  legata). Validato con jsc + py_compile: 16/16 codici generati con sintassi
+  OK; regressione: output dei casi base e GD/BB byte-identici a HEAD.
+
 - **Ultimo intervento (22/08/2026).** **Appendice E: prosa ristrutturata
   ("Meccanismo: vantaggi e limiti del riuso"), rimossi grassetti e corsivi,
   nuova figura con i punti blu delle violazioni CCV.** In
