@@ -146,6 +146,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (21/08/2026).** **Appendice E: riscritta la prima parte
+  (prosa) e aggiunta la sottosezione "Perché il riuso può peggiorare i
+  risultati".** In `tesi/appendice_riuso.tex` testo introduttivo e sottosezioni
+  riscritti e riordinati: Descrizione (E.1), Perché il riuso può migliorare
+  (E.2), **Perché il riuso può peggiorare (E.3, nuova)**, Setup sperimentale
+  (E.4), Risultati numerici (E.5, ora con paragrafi per metodo: primo ordine
+  ben/mal condizionato, Newton-CG, Newton-CG $L_1$), Sintesi (E.6, con i
+  paragrafi "Quando il riuso aiuta", "Quando il riuso non aiuta" e
+  "Osservazione sul costo computazionale"). Tabelle E.1--E.18 invariate.
+  `appendice_riuso_estratto.pdf` ricompilato (**20 pp**, 0 errori, 0
+  undefined, 0 overfull); sincronizzati nella repo `tesi/appendice_riuso.tex`
+  + `tesi/appendice_riuso_estratto.pdf` (md5 verificati). `tesi.tex` non
+  toccata (l'appendice non è più inclusa): nessuna ricompilazione di
+  tesi.pdf/tesi_finale.pdf.
 - **Ultimo intervento (21/08/2026).** **Tesi: Appendice E estratta in un
   documento autonomo e ridotta a segnaposto.** In `tesi/tesi.tex` il comando
   `\input{appendice_riuso}` è stato sostituito dalla sezione segnaposto
