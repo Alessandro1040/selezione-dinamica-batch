@@ -102,7 +102,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (21/08/2026)
+## Note operative e stato corrente (22/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -146,6 +146,26 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (22/08/2026).** **Appendice E: prima parte (prosa)
+  riscritta con l'esempio geometrico e la figura delle traiettorie.**
+  In `tesi/appendice_riuso.tex` la prosa iniziale (righe 1--264) è stata
+  sostituita con la versione nuova (da `~/Downloads/appendice_riuso.tex`):
+  aggiunta la sottosezione "Un esempio geometrico per capire il meccanismo"
+  (E.2) con la quadratica $J(w)=\kappa w_1^2+w_2^2$ ($\kappa=1$ ben
+  condizionato, $\kappa=20$ mal condizionato), i paragrafi "Il gradiente vero
+  vs. il gradiente del batch" e "Perché il condizionamento cambia tutto", e la
+  figura `download.png` (label `fig:riuso_traiettorie`, Fig. E.1: traiettorie
+  di Dynamic GD con ricampionamento vs riuso del batch sui due problemi).
+  Sottosezioni successive rinumerate: Perché il riuso può migliorare (E.3),
+  Perché il riuso può peggiorare (E.4), Setup sperimentale (E.5), Risultati
+  numerici (E.6), Sintesi (E.7). **Tabelle E.1--E.18 INVARIATE**.
+  `appendice_riuso_estratto.pdf` ricompilato (**24 pp** da 20, 0 errori, 0
+  undefined, 0 overfull, 1 underfull preesistente); nuova figura
+  `tesi/download.png`. `tesi.tex` non toccata (l'appendice non è più inclusa):
+  nessuna ricompilazione di tesi.pdf/tesi_finale.pdf. Sincronizzati nella repo
+  `tesi/appendice_riuso.tex` + `tesi/appendice_riuso_estratto.pdf` +
+  `tesi/download.png` (md5 verificati).
+
 - **Ultimo intervento (21/08/2026).** **Appendice E: riscritta la prima parte
   (prosa) e aggiunta la sottosezione "Perché il riuso può peggiorare i
   risultati".** In `tesi/appendice_riuso.tex` testo introduttivo e sottosezioni
