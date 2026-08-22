@@ -146,6 +146,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (22/08/2026).** **Appendice E: prosa ristrutturata
+  ("Meccanismo: vantaggi e limiti del riuso"), rimossi grassetti e corsivi,
+  nuova figura con i punti blu delle violazioni CCV.** In
+  `tesi/appendice_riuso.tex` la prosa è stata riscritta: le sottosezioni "Un
+  esempio geometrico per capire il meccanismo" e "Perché il riuso può
+  migliorare/peggiorare" sono confluite nella nuova "Meccanismo: vantaggi e
+  limiti del riuso" (label `app:riuso-meccanismo`, E.2; Descrizione E.1,
+  Setup E.3, Risultati numerici E.4, Sintesi E.5) con le formule esplicite di
+  $g_k=\nabla J_{\mathcal{S}_k}(w_k)$ e $w^*_{\mathcal{S}}$. Rimossi TUTTI i
+  `\textbf` e gli `\emph` dalla prosa. Figura `download.png` aggiornata (la
+  nuova versione da `~/Downloads/download (1).png`: **puntini blu sulle
+  iterazioni in cui la condizione CCV viene violata**); caption estesa di
+  conseguenza. **Tabelle E.1--E.18 INVARIATE**. `appendice_riuso_estratto.pdf`
+  ricompilato (**21 pp** da 24, 0 errori, 0 undefined, 0 overfull, 1 underfull
+  preesistente). `tesi.tex` non toccata (l'appendice non è più inclusa):
+  nessuna ricompilazione di tesi.pdf/tesi_finale.pdf. Sincronizzati nella repo
+  `tesi/appendice_riuso.tex` + `tesi/appendice_riuso_estratto.pdf` +
+  `tesi/download.png` (md5 verificati).
+
 - **Ultimo intervento (22/08/2026).** **Appendice E: prima parte (prosa)
   riscritta con l'esempio geometrico e la figura delle traiettorie.**
   In `tesi/appendice_riuso.tex` la prosa iniziale (righe 1--264) è stata

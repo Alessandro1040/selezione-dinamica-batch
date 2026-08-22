@@ -3,318 +3,178 @@
 L'applicazione interattiva descritta nella Sezione~\ref{sec:visualizzazione} offre
 un'opzione che modifica il comportamento di tutti gli algoritmi della
 Sezione~\ref{sec:risultati}: invece di estrarre un nuovo mini-batch a ogni
-iterazione, è possibile \emph{riusare lo stesso campione per più iterazioni
-consecutive}. Questa appendice descrive la variante, ne spiega il meccanismo
-con un esempio geometrico concreto, e ne discute i benefici e i limiti alla
-luce degli esperimenti controllati.
+iterazione, è possibile riusare lo stesso campione per più iterazioni
+consecutive. Questa appendice descrive la variante, ne spiega il meccanismo
+con un esempio geometrico, e ne discute benefici e limiti alla luce degli
+esperimenti controllati.
 
 \subsection{Descrizione della variante}\label{app:riuso-descrizione}
 
 Nella versione standard (Sezione~\ref{sec:risultati}), a ogni iterazione $k$
 si estrae un nuovo campione $\mathcal{S}_k$ di dimensione $n_k$ e lo si usa
-per stimare il gradiente -- e, per i metodi di Newton, anche la Hessiana.
-La variante analizzata qui mantiene \emph{gli stessi indici} del campione per
-$M \ge 1$ iterazioni consecutive. È importante chiarire cosa si intende: non
-si riusa il \emph{valore} del gradiente calcolato la prima volta, bensì
-soltanto la lista degli esempi selezionati. A ogni iterazione interna il
-gradiente viene ricalcolato nel punto corrente $w_k$, esattamente come nella
-versione standard. Ciò che rimane fisso è l'\emph{insieme di dati} su cui
-quel gradiente viene valutato.
-
-Il comportamento è governato da due regole:
+per stimare gradiente e (per i metodi di Newton) Hessiana. La variante
+mantiene gli stessi indici del campione per $M \ge 1$ iterazioni
+consecutive: non si riusa il valore del gradiente calcolato la prima volta,
+ma la lista degli esempi selezionati; a ogni iterazione interna il gradiente
+viene ricalcolato al punto corrente $w_k$. Il comportamento è governato da
+due regole:
 
 \begin{itemize}
-\item \textbf{La CCV come segnale di esaurimento.} A ogni iterazione interna
+\item La CCV come segnale di esaurimento. A ogni iterazione interna
   la condizione di controllo della varianza (CCV, Sezione~\ref{sec:algoritmi})
-  viene valutata \emph{gratuitamente} sul campione in uso, al punto corrente:
-  i gradienti individuali servono comunque per calcolare il passo, quindi il
-  test non richiede valutazioni aggiuntive. Se la CCV non è più soddisfatta,
-  il campione è considerato \emph{esaurito}: la dimensione $n_k$ cresce secondo
-  la regola descritta nella Sezione~\ref{sec:algoritmi} e all'iterazione
-  successiva si ricampiona con la nuova dimensione.
-\item \textbf{Numero massimo di riusi.} Se $M$ è finito, si ricampiona comunque
-  dopo $M$ iterazioni consecutive sullo stesso batch; se $M = \infty$ (opzione
-  ``illimitato''), il campione viene tenuto finché la CCV continua a essere
+  viene valutata gratuitamente sul campione in uso. Se non è più
+  soddisfatta, $n_k$ cresce secondo la regola della Sezione~\ref{sec:algoritmi}
+  e all'iterazione successiva si ricampiona con la nuova dimensione.
+\item Numero massimo di riusi. Se $M$ è finito, si ricampiona dopo
+  $M$ iterazioni; se $M = \infty$, il campione viene tenuto finché la CCV è
   soddisfatta.
 \end{itemize}
 
 Il caso $M = 1$ coincide con la versione standard a ricampionamento per
 Dynamic GD e BB-CCV. Per i metodi di Newton anche $M = 1$ differisce
-leggermente dalla base: nella versione standard la CCV viene valutata su un
-campione fresco a ogni iterazione, qui viene valutata sul batch già in uso.
+leggermente: la CCV viene valutata sul batch già in uso, non su uno fresco.
 
-\subsection{Un esempio geometrico per capire il meccanismo}\label{app:riuso-geometria}
+\subsection{Meccanismo: vantaggi e limiti del riuso}\label{app:riuso-meccanismo}
 
-Per capire intuitivamente quando il riuso aiuta e quando no, consideriamo una
-funzione obiettivo quadratica con due variabili:
+Per capire il comportamento, consideriamo la funzione quadratica
 \[
-J(w) = \kappa\, w_1^2 + w_2^2,
+J(w) = \kappa\, w_1^2 + w_2^2, \qquad w^* = (0,0),
 \]
-con minimo in $w^* = (0, 0)$. Il parametro $\kappa$ controlla il numero di
-condizionamento: per $\kappa = 1$ la funzione ha curve di livello circolari
-(problema \emph{ben condizionato}); per $\kappa = 20$ le curve di livello
-diventano ellissi molto allungate -- una ``valle stretta'' nella direzione
-$w_1$ (problema \emph{mal condizionato}).
+con loss individuale $\ell(w; i) = \kappa(w_1 + \varepsilon_1^{(i)})^2 +
+(w_2 + \varepsilon_2^{(i)})^2$, dove $\varepsilon^{(i)} \sim \mathcal{N}(0,
+0.36\,I)$. La media su tutti gli $N$ esempi coincide con $J(w)$, ma ogni loss
+è centrata in un punto diverso.
 
-Il dataset di $N = 200$ esempi è costruito in modo che la loss individuale
-sull'esempio $i$ sia
-\[
-\ell(w; i) = \kappa (w_1 + \varepsilon_1^{(i)})^2 + (w_2 + \varepsilon_2^{(i)})^2,
-\]
-dove $\varepsilon^{(i)} \sim \mathcal{N}(0, 0.36\,I)$ è un rumore gaussiano
-indipendente. La media su tutti gli $N$ esempi coincide con $J(w)$, ma ogni
-singola loss è centrata in un punto leggermente diverso dall'origine.
-
-\paragraph{Il gradiente vero vs. il gradiente del batch.}
-Il gradiente esatto è $\nabla J(w) = [2\kappa w_1,\; 2w_2]^\top$. Il gradiente
-sul batch $\mathcal{S}_k$ è
+Il gradiente sul batch $\mathcal{S}_k$ è
 \[
 g_k = \nabla J_{\mathcal{S}_k}(w_k)
 = \left[2\kappa\!\left(w_1 + \bar\varepsilon_1\right),\;
         2\!\left(w_2 + \bar\varepsilon_2\right)\right]^\top,
+\quad \bar\varepsilon_j = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\varepsilon_j^{(i)}.
 \]
-dove $\bar\varepsilon_j = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\varepsilon_j^{(i)}$
-è la media del rumore nel batch. Questo gradiente non punta verso $w^* = (0,0)$
-ma verso il \emph{minimo del sottoproblema campionato}:
+Questo gradiente punta verso il minimo del sottoproblema campionato
 \[
 w^*_{\mathcal{S}} = (-\bar\varepsilon_1,\; -\bar\varepsilon_2).
 \]
-Finché si ricampiona a ogni iterazione, le medie $\bar\varepsilon_j$ cambiano
-a ogni passo e l'errore sistematico cambia segno e direzione in modo casuale,
-tendendo ad annullarsi in media nel corso delle iterazioni. Se invece si riusa
-lo stesso batch per molti passi, $w^*_{\mathcal{S}}$ è fisso: il gradiente punta
-\emph{sempre} nella stessa direzione sbagliata e l'iterato deriva verso
-$w^*_{\mathcal{S}}$ invece di $w^*$.
 
-\paragraph{Perché il condizionamento cambia tutto.}
-Nel problema ben condizionato ($\kappa = 1$) entrambe le componenti del
-gradiente sono dello stesso ordine. Il rumore $\bar\varepsilon_j$ è piccolo
-rispetto al segnale in entrambe le direzioni, e $w^*_{\mathcal{S}}$ è vicino
-all'origine. Riusare il batch non crea problemi: dopo pochi passi l'iterato
-converge vicino a $w^*_{\mathcal{S}} \approx w^*$.
+Il vantaggio del riuso è la coerenza dei passi: tutte le
+direzioni derivano dallo stesso sottoproblema fisso $J_{\mathcal{S}}$,
+quindi il gradiente non cambia segno e direzione a caso. L'iterato avanza
+in modo più regolare e può scendere sotto il pavimento di rumore
+che affligge il ricampionamento a ogni passo, dove le medie $\bar\varepsilon_j$
+cambiano continuamente.
 
-Nel problema mal condizionato ($\kappa = 20$) la componente orizzontale del
-gradiente è dominata dal termine $2\kappa w_1$, che è 20 volte più grande di
-$2w_2$. Questo ha due effetti:
+Il rischio del riuso è il bias sistematico: $w^*_{\mathcal{S}}
+\neq w^*$. Ottimizzando su un batch fisso, l'iterato deriva verso
+$w^*_{\mathcal{S}}$ invece di $w^*$. L'entità del danno dipende dal
+condizionamento $\kappa$ e dall'algoritmo:
 
-\begin{enumerate}
-\item La line search di Armijo trova un passo $\alpha_k$ dell'ordine di
-  $\frac{1}{2\kappa}$: abbastanza piccolo da non ``saltare'' il fondo della
-  valle ripida, ma così piccolo che il progresso nella direzione piatta ($w_2$)
-  diventa lentissimo.
-\item Con questo passo, il fattore di contrazione nella direzione $w_1$ può
-  risultare negativo:
-  \[
-  \rho_1 = 1 - 2\alpha_k \kappa \approx -1,
-  \]
-  il che produce un'oscillazione (zig-zag): $w_1$ inverte il segno a ogni
-  iterazione, mentre $w_2$ scende monotonicamente. Quando si ricampiona a ogni
-  passo, le oscillazioni finiscono per smorzarsi e l'algoritmo converge,
-  anche se lentamente (riga in basso a sinistra della
-  Figura~\ref{fig:riuso_traiettorie}).
-\end{enumerate}
+\begin{itemize}
+\item Ben condizionato ($\kappa \approx 1$). La funzione ha curvatura
+  simile in tutte le direzioni; $w^*_{\mathcal{S}}$ è vicino a $w^*$ in tutte
+  le dimensioni. La deriva è trascurabile e il vantaggio in coerenza domina.
+  Dynamic GD e BB-CCV migliorano su 5 seed su 5 con $M=\infty$ e $M=10$ su
+  $\kappa \approx 1.1$.
+\item Mal condizionato ($\kappa \gg 1$). Esiste una direzione quasi
+  piatta (nel nostro esempio $w_2$) in cui il gradiente è debole e il passo
+  è lentissimo. Anche un modesto spostamento del minimo campionato
+  ($\bar\varepsilon_2 \approx 0.04$ per $n_k=5$) può far deviare la
+  traiettoria in modo permanente. La CCV non rileva il problema: misura la
+  varianza interna del batch, non il bias sistematico. Per $\kappa \approx 20$,
+  $M=\infty$ peggiora ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della
+  base); per $\kappa \approx 100$, sorprendentemente, il riuso torna ad
+  aiutare ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$), perché la base
+  converge già così lentamente che il guadagno in coerenza prevale sul rischio
+  di deriva.
+\item Metodi di Newton. La direzione di Newton dipende anche dalla
+  Hessiana stimata sul batch. Riusandolo, la curvatura rimane quella del punto
+  in cui il batch è stato estratto, mentre il punto corrente si è spostato,
+  rendendo la direzione obsoleta. Newton-CG è l'algoritmo che risente più
+  negativamente del riuso: su $\kappa \approx 20$ con $M=\infty$ o $M=10$,
+  l'errore rimane bloccato a $1.28\times10^0$ senza progressi. Fa eccezione
+  il problema con termine incrociato con $M=\infty$, dove Newton-CG raggiunge
+  $1.80\times10^{-1}$ contro $3.69\times10^{-1}$ della base.
+\item Newton-CG $L_1$. Comportamento intermedio: la penalizzazione
+  $L_1$ sulla Hessiana rende la direzione più robusta, ma non abbastanza da
+  garantire un vantaggio uniforme.
+\end{itemize}
 
-Con il riuso del batch, lo spostamento $w^*_{\mathcal{S}} - w^*$ nella
-direzione piatta $w_2$ può essere dell'ordine di $\bar\varepsilon_2 \approx 0.04$
-(per $n_k = 5$), che non sembra molto, ma la direzione $w_2$ è quella in cui
-il gradiente è debole e l'algoritmo avanza lentissimo. L'iterato, invece di
-zig-zagare attorno a $w^*$ e avvicinarsi, scivola \emph{dolcemente ma
-inesorabilmente} verso $w^*_{\mathcal{S}}$, fermandosi a una distanza non
-nulla dall'origine (riga in basso a destra della
-Figura~\ref{fig:riuso_traiettorie}). La CCV non rileva questo problema perché
-misura la \emph{varianza} dei gradienti individuali nel batch -- cioè quanto
-concordano tra loro -- ma non il \emph{bias sistematico}, cioè dove puntano
-in media.
+La Figura~\ref{fig:riuso_traiettorie} illustra l'algoritmo del primo ordine (dynamic\_gd) nel caso ben condizionato
+($\kappa=1$), dove entrambe le varianti convergono, e nel caso mal condizionato
+($\kappa=20$), dove il ricampionamento produce uno zig-zag che si smorza
+convergendo a $w^*$, mentre il riuso scende regolarmente ma devia verso
+$w^*_{\mathcal{S}}$ fermandosi lontano dall'origine.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{download.png}
-\caption{Traiettorie dell'algoritmo Dynamic GD con ricampionamento (colonna
-sinistra) e riuso del batch (colonna destra), su problema ben condizionato
-($\kappa=1$, riga superiore) e mal condizionato ($\kappa=20$, riga inferiore).
-Il punto iniziale è $w_0=(-0.27,-2.78)$; le curve di livello tratteggiate
-mostrano la funzione $J(w)=\kappa w_1^2 + w_2^2$. Sul problema ben condizionato
-entrambe le varianti convergono. Sul problema mal condizionato il ricampionamento
-produce uno zig-zag orizzontale che si smorza progressivamente convergendo a
-$w^*$; il riuso produce invece una discesa più regolare ma devia verso il minimo
-campionato $w^*_{\mathcal{S}} \neq w^*$, fermandosi lontano dall'origine.}
+\caption{Traiettorie di Dynamic GD con ricampionamento (colonna sinistra) e
+riuso del batch (colonna destra), su problema ben condizionato ($\kappa=1$,
+riga superiore) e mal condizionato ($\kappa=20$, riga inferiore). Punto
+iniziale $w_0=(-0.27,-2.78)$; le curve di livello tratteggiate mostrano
+$J(w)=\kappa w_1^2 + w_2^2$. I punti blu marcano le iterazioni in cui la
+condizione CCV risulta violata.}
 \label{fig:riuso_traiettorie}
 \end{figure}
 
-\subsection{Perché il riuso può migliorare i risultati}\label{app:riuso-perche}
-
-Quando si ricampiona a ogni iterazione, il gradiente stimato
-$g_k = \nabla J_{\mathcal{S}_k}(w_k)$ è una variabile aleatoria indipendente
-a ogni passo. Il rumore fa ``rimbalzare'' l'iterato attorno al minimo: quando
-il batch è piccolo, l'errore $\|w_k - w^*\|_2$ si assesta su un
-\emph{pavimento di rumore} che non si riesce a superare, qualunque sia il
-numero di iterazioni.
-
-Ripetendo alcune iterazioni sullo stesso campione si ottengono passi
-\emph{coerenti}: direzioni correlate tra loro, calcolate sullo stesso
-sottoproblema fisso $J_{\mathcal{S}}$. L'iterato avanza in modo più regolare
-verso il minimo di $J_{\mathcal{S}}$, scendendo al di sotto del pavimento di
-rumore del singolo batch. La CCV fa da salvaguardia: il campione viene riusato
-solo finché è statisticamente adeguato al punto corrente, e viene ingrandito
-non appena la sua varianza diventa troppo alta rispetto alla norma del
-gradiente.
-
-Il vantaggio emerge soprattutto nella seconda metà delle iterazioni, quando
-il gradiente è già piccolo e il rumore del singolo campione domina il
-comportamento: è lì che passi coerenti fanno la differenza, perché permettono
-di scendere sotto il pavimento di rumore che la versione con ricampionamento
-non riesce a superare.
-
-\subsection{Perché il riuso può peggiorare i risultati}\label{app:riuso-perche-peggiora}
-
-Il ragionamento precedente ha un punto debole: il campione su cui si itera
-è un sottoinsieme dei dati, non l'intero dataset. Il suo minimo
-$w^*_{\mathcal{S}}$ non coincide necessariamente con $w^*$. Ottimizzando per
-molti passi su un campione fisso, si rischia di \emph{andare alla deriva}
-verso $w^*_{\mathcal{S}}$ invece di avvicinarsi a $w^*$.
-
-Questo rischio dipende in modo cruciale dal condizionamento:
-
-\begin{itemize}
-\item Su problemi \emph{ben condizionati}, la funzione ha curvatura simile
-  in tutte le direzioni. Il minimo campionato $w^*_{\mathcal{S}}$ è già
-  vicino all'origine in tutte le dimensioni, quindi anche puntare verso
-  $w^*_{\mathcal{S}}$ invece di $w^*$ non causa danni significativi.
-\item Su problemi \emph{mal condizionati}, esiste una direzione in cui la
-  funzione è quasi piatta (nel nostro esempio, $w_2$). In quella direzione
-  il gradiente è piccolo e basta un piccolo spostamento del minimo campionato
-  per cambiare completamente la traiettoria. Il batch può sembrare
-  statisticamente valido -- la CCV è soddisfatta, i gradienti individuali
-  concordano tra loro -- ma guidare sistematicamente l'iterato nel posto
-  sbagliato. Questo è un \emph{bias sistematico}, non una varianza alta:
-  la CCV non è progettata per rilevarlo.
-\end{itemize}
-
-I metodi di Newton soffrono di un problema aggiuntivo: la direzione di Newton
-dipende anche dalla Hessiana stimata sul batch. Riusando il batch, la curvatura
-del sottoproblema su cui si calcola la direzione rimane quella del punto in cui
-è stato estratto il batch, mentre il punto corrente si è già spostato. Questo
-rende la direzione di discesa via via meno accurata, e il metodo perde
-esattamente il vantaggio per cui i metodi del secondo ordine vengono scelti.
-
 \subsection{Setup sperimentale}\label{app:riuso-setup}
 
-Gli esperimenti usano gli stessi problemi, gli stessi parametri e lo stesso
-seed della Sezione~\ref{sec:setup}: i quattro preset quadratici
-dell'applicazione ($\kappa \approx 1.1$, $\kappa \approx 20$,
-$\kappa \approx 100$ e termine incrociato), $N = 200$ esempi sintetici,
-$w_0 = (2, -3)$, $\alpha = 0.1$, $\theta = 0.5$, $n_0 = 5$, $30$
-iterazioni, line search di Wolfe (Armijo per BB-CCV) e seed 42. Per
+Gli esperimenti usano gli stessi problemi, parametri e seed della
+Sezione~\ref{sec:setup}: quattro preset quadratici ($\kappa \approx 1.1$,
+$\kappa \approx 20$, $\kappa \approx 100$ e termine incrociato), $N = 200$
+esempi sintetici, $w_0 = (2, -3)$, $\alpha = 0.1$, $\theta = 0.5$, $n_0 = 5$,
+30 iterazioni, line search di Wolfe (Armijo per BB-CCV), seed 42. Per
 ciascuno dei quattro algoritmi -- Dynamic GD, Newton-CG, Newton-CG~$L_1$ e
-BB-CCV -- si confrontano la versione a ricampionamento (indicata come
-\emph{base}) e il riuso del mini-batch con
-$M \in \{\infty, 10, 5, 3, 2, 1\}$ iterazioni consecutive.
+BB-CCV -- si confrontano la versione a ricampionamento (base) e il
+riuso con $M \in \{\infty, 10, 5, 3, 2, 1\}$.
 
 \subsection{Risultati numerici}\label{app:riuso-risultati}
 
 Le Tabelle~\ref{tab:riuso_bencond_gd}--\ref{tab:riuso_offdiag_bb} riportano
-l'errore $e_k = \|w_k - w^*\|_2$ a ogni iterazione $k = 0, \dots, 30$ per i
-quattro algoritmi e i quattro problemi, confrontando la versione a
-ricampionamento (colonna \emph{base}) con il riuso a $M = \infty$, $M = 10$,
-$M = 5$ e $M = 2$. La colonna \emph{base} coincide con i valori delle
-Tabelle~6.1--6.3, quindi i numeri sono direttamente confrontabili.
+l'errore $e_k = \|w_k - w^*\|_2$ iterazione per iterazione. Il quadro
+emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
 
-Il quadro che emerge è coerente con l'analisi geometrica della
-Sezione~\ref{app:riuso-geometria} e può essere sintetizzato come segue.
+\begin{itemize}
+\item Dynamic GD e BB-CCV si comportano in modo quasi identico.
+  Su $\kappa \approx 1.1$ il riuso migliora sistematicamente (5 seed su 5
+  con $M=\infty$ e $M=10$), con il vantaggio che emerge nella seconda metà
+  delle iterazioni. Su $\kappa \approx 20$ il riuso illimitato peggiora;
+  su $\kappa \approx 100$ il riuso torna ad aiutare.
+\item Newton-CG è penalizzato quasi universalmente, con l'eccezione
+  del problema con termine incrociato con $M=\infty$.
+\item Newton-CG $L_1$ ha comportamento intermedio, senza una
+  tendenza netta.
+\end{itemize}
 
-\paragraph{Metodi del primo ordine su problemi ben condizionati.}
-Dynamic GD e BB-CCV si comportano in modo quasi identico tra loro in tutti
-gli esperimenti e traggono un vantaggio chiaro dal riuso quando il problema
-è ben condizionato ($\kappa \approx 1.1$). A partire da $k \approx 8$
-l'errore con il riuso rimane sistematicamente inferiore a quello della
-versione base, e il vantaggio cresce nelle iterazioni successive. Con una
-funzione quasi circolare, il minimo campionato $w^*_{\mathcal{S}}$ è già
-molto vicino a $w^*$ in tutte le direzioni: iterare alcune volte sullo stesso
-campione non sposta l'iterato in modo significativo, ma abbatte il pavimento
-di rumore.
-
-\paragraph{Metodi del primo ordine su problemi mal condizionati.}
-La situazione si complica quando il problema è mal condizionato
-($\kappa \approx 20$ e $\kappa \approx 100$). Il riuso illimitato può
-peggiorare sensibilmente le cose. Sul problema $\kappa \approx 20$, ad esempio,
-l'errore con $M = \infty$ non scende mai sotto $1.01 \times 10^{-1}$ mentre
-la versione base arriva a $4.91 \times 10^{-2}$. Il meccanismo è quello
-discusso nella Sezione~\ref{app:riuso-geometria}: nella direzione piatta il
-minimo campionato può essere spostato abbastanza da far deviare la traiettoria
-verso il posto sbagliato, e la CCV non se ne accorge perché misura la varianza
-interna del batch, non il bias sistematico.
-
-Vale la pena notare che per $\kappa \approx 100$ la situazione si inverte
-sorprendentemente: il riuso torna ad aiutare Dynamic GD e BB-CCV, con $M=\infty$
-che raggiunge $3.71 \times 10^{-1}$ contro $4.67 \times 10^{-1}$ della base.
-In questo caso estremo la convergenza della versione base è già così lenta
-che il guadagno in coerenza dei passi riesce a compensare il rischio di deriva.
-
-\paragraph{Newton-CG.}
-Newton-CG è l'algoritmo che risente più negativamente del riuso. In quasi
-tutte le configurazioni l'errore con il riuso rimane ampiamente al di sopra
-della base per l'intera durata delle 30 iterazioni. Il caso più eclatante è
-$\kappa \approx 20$ con $M = \infty$ o $M = 10$: l'errore rimane bloccato a
-$1.28 \times 10^{0}$ senza alcun progresso -- un fallimento completo. La causa
-è duplice: la direzione di Newton calcolata su un batch fisso diventa
-rapidamente obsoleta man mano che il punto corrente si sposta, e la CCV
-valutata sullo stesso batch è un controllo di varianza più blando di quello
-su un campione fresco.
-
-Fa eccezione il problema con termine incrociato con $M = \infty$, dove
-Newton-CG con il riuso ottiene un errore finale di $1.80 \times 10^{-1}$
-contro $3.69 \times 10^{-1}$ della base -- un caso in cui la struttura del
-problema favorisce la direzione di Newton anche su un campione fisso.
-
-\paragraph{Newton-CG $L_1$.}
-Il comportamento di Newton-CG $L_1$ è intermedio e meno prevedibile. La
-penalizzazione $L_1$ sulla Hessiana rende la direzione di Newton più robusta
-alle perturbazioni introdotte dal riuso, e in alcuni casi il riuso aiuta in
-modo apprezzabile; in altri peggiora, senza una tendenza netta.
+Vale la pena notare che le curve di errore con il riuso non sono monotone
+rispetto alla base iterazione per iterazione: anche nei casi in cui l'errore
+finale è migliore, ci sono fasi intermedie in cui è temporaneamente più alto,
+perché la line search garantisce la discesa solo sulla loss del batch corrente,
+non sulla funzione intera.
 
 \subsection{Sintesi: quando il riuso aiuta e quando no}\label{app:riuso-sintesi}
 
 La Tabella~\ref{tab:riuso_sintesi} riassume l'errore finale $e_{30}$ per tutti
-i valori di $M$; i simboli indicano se, rispetto alla base, il riuso migliora
-($\blacktriangle$), peggiora ($\blacktriangledown$) o lascia invariato ($=$)
-il risultato. La Tabella~\ref{tab:riuso_robustezza} riporta, su cinque seed
-indipendenti, quante volte il riuso (a $M = \infty$ e $M = 10$) migliora o
-peggiora l'errore finale.
+i valori di $M$; la Tabella~\ref{tab:riuso_robustezza} riporta la robustezza
+su cinque seed indipendenti.
 
-\paragraph{Quando il riuso aiuta.}
-
-Il riuso è efficace soprattutto quando la funzione obiettivo è
-\emph{ben condizionata}: in questo caso il minimo campionato $w^*_{\mathcal{S}}$
-è già vicino al minimo vero $w^*$ in tutte le direzioni, i passi coerenti
-riducono il rimbalzo attorno al minimo e l'iterato scende sotto il pavimento
-di rumore. I dati lo confermano: Dynamic GD e BB-CCV migliorano su 5 seed su
-5 con $M = \infty$ e $M = 10$ sul problema $\kappa \approx 1.1$.
-
-\paragraph{Quando il riuso non aiuta.}
-
-Il riuso tende a peggiorare le cose quando il problema è mal condizionato
-oppure si usano metodi del secondo ordine. I due meccanismi di fallimento sono
-distinti. Sui problemi mal condizionati, il rischio principale è la deriva
-verso il minimo campionario: la direzione piatta della valle è quella in cui
-basta uno spostamento minimo del minimo campionato per alterare la traiettoria,
-e la CCV non rileva questo bias sistematico. I metodi di Newton sono penalizzati
-quasi universalmente perché il riuso della Hessiana rende la direzione di
-discesa obsoleta rapidamente.
-
-Vale anche la pena notare che le curve di errore con il riuso non sono monotone
-rispetto alla versione base iterazione per iterazione: anche nei casi in cui
-l'errore finale è migliore, ci sono fasi intermedie in cui l'errore con il
-riuso è temporaneamente più alto, perché la line search garantisce la discesa
-solo sulla loss del batch corrente, non sulla funzione intera.
+\begin{itemize}
+\item Il riuso aiuta quando il problema è ben condizionato: il minimo
+  campionato è vicino a $w^*$ in tutte le direzioni, i passi coerenti riducono
+  il rimbalzo attorno al minimo e l'iterato scende sotto il pavimento di
+  rumore.
+\item Il riuso non aiuta quando il problema è mal condizionato
+  (deriva verso il minimo campionario, non rilevata dalla CCV) o si usano
+  metodi del secondo ordine (Hessiana obsoleta).
+\end{itemize}
 
 \paragraph{Osservazione sul costo computazionale.}
-Il confronto tra versione base e riuso è fatto a parità di iterazioni. Dal
-punto di vista del costo, il riuso è già favorito: Dynamic GD e BB-CCV non
-richiedono calcoli aggiuntivi per tenere lo stesso batch, mentre Newton-CG
-nella versione base spende un campione fresco a ogni iterazione solo per
-valutare la CCV. Il fatto che, nonostante questo vantaggio computazionale,
+Il confronto è fatto a parità di iterazioni. Il riuso è già favorito dal
+punto di vista del costo: Dynamic GD e BB-CCV non richiedono calcoli
+aggiuntivi; Newton-CG nella versione base spende un campione fresco a ogni
+iterazione solo per valutare la CCV. Il fatto che nonostante questo vantaggio
 il riuso non sia sempre vincente rende i casi negativi ancora più significativi:
-il problema non è di costo, ma di qualità delle direzioni di discesa.
+il problema è di qualità delle direzioni di discesa, non di costo.
 
 % ====================================================================================================
 % Tabelle E.1-E.16: errore a ogni iterazione (riuso del mini-batch)
