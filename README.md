@@ -146,6 +146,30 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: la teoria dinamica ora segue
+  TUTTI gli iperparametri (batch dinamico, sottocampionamento Hessiana,
+  Hessian-free L1, riuso Hessiana legato/indipendente).** In
+  `visualizzazione.html` (file solo nella repo) gli pseudocodici erano blocchi
+  statici che reagivano solo a riuso (default/reuse) e line search
+  (Wolfe/Armijo): "Batch dinamico" disattivato, "H_k ⊆ S_k" vs "H_k
+  indipendente", "Hessian-free" vs "Hessiana esplicita" e "Riuso Hessiana"
+  legato/indipendente (M_H) cambiavano il codice Python generato ma non la
+  teoria. Ora lo pseudocodice è **generato dinamicamente** da
+  `pseudoGD/pseudoNewtonCG/pseudoNewtonL1/pseudoBB(o)` e iniettato nei contenitori
+  `#pseudoTarget-<algo>` da `renderPseudo()` (ri-typeset con MathJax) in base a
+  tutte le opzioni: batch fisso senza CCV, H_k ⊆ S_k o campionamento indipendente,
+  Hessiana esplicita/hessian-free in L1, ramo legato/indipendente con M_H (valore
+  numerico se personalizzato). Aggiunti anche i wrapper `.dyn-ccv/.dyn-fixed`
+  attorno alle formule CCV (GD, Newton-CG, BB), le note
+  `.subset-note/.indep-note` sul campionamento dell'Hessiana e le prose
+  `.hf-free/.hf-explicit`; le reuse-note ora commutano `.rn-ccv/.rn-fixed` e
+  `.rn-tied/.rn-independent`. Bonus: BB ora mostra uno pseudocodice anche a riuso
+  disattivato (prima solo formule). Validazione: sintassi JS (JavaScriptCore,
+  parse OK); harness sulle funzioni reali — 479/479 controlli su 80 combinazioni
+  (GD 8, Newton-CG 32, Newton-L1 32, BB 8) più renderPseudo con DOM fittizio; e
+  **tutti gli 80 blocchi LaTeX generati compilano con pdflatex (0 errori)**.
+  Nessun PDF coinvolto (solo file web in repo).
+
 - **Ultimo intervento (23/08/2026).** **App web: i controlli algoritmo-specifici
   (line search, sottocampionamento Hessiana, Hessian-free L1) compaiono solo per
   i metodi che li usano.** In `visualizzazione.html` (file solo nella repo) i tre

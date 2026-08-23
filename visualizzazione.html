@@ -475,6 +475,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{aligned}
             \]
           </p>
+          <div class="dyn-ccv">
           <h4>Condizione di Controllo della Varianza (CCV)</h4>
           <p>
             \[
@@ -487,6 +488,11 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             n_{k+1}\;=\;\min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}_k\|_1}{\theta^{2}\|g_k\|^{2}}\right\rceil+1\right\}
             \]
           </p>
+          </div>
+          <div class="dyn-fixed" style="display:none">
+          <h4>Batch fisso</h4>
+          <p>Con il batch dinamico disattivato la dimensione del campione resta costante: \(n_k=n_0\) a ogni iterazione.</p>
+          </div>
           <h4>Iterazione</h4>
           <p class="ls-armijo">
             \[
@@ -499,84 +505,15 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
-          <div class="pseudo-default pseudo-armijo">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1 \\
-            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
-            \quad w_{k+1} = w_k - \alpha_k g_k
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-default pseudo-wolfe" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1 \\
-            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha) \\
-            \quad w_{k+1} = w_k - \alpha_k g_k
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse pseudo-armijo" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
-            \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
-            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha) \\
-            \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
-            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
+
+          <div id="pseudoTarget-gd"></div>
           <div class="reuse-note highlight-box" style="display:none">
             <strong>Mini-batch riusato.</strong> Lo stesso campione \(\mathcal{S}_k\) viene riusato per pi&ugrave; iterazioni consecutive
-            (\(j=1,\dots,M\)). A ogni iterazione interna la CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito,
-            \(n_k\) cresce e si ricampiona al passo successivo; se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
+            (\(j=1,\dots,M\)).
+            <span class="rn-ccv">A ogni iterazione interna la CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito,
+            \(n_k\) cresce e si ricampiona al passo successivo;</span>
+            <span class="rn-fixed" style="display:none">Con il batch dinamico disattivato \(n_k\) resta costante a \(n_0\); il campione si ricampiona solo secondo \(M\);</span>
+            se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
             Con \(M=1\) il metodo coincide con la versione a ricampionamento.
           </div>
 
@@ -791,6 +728,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{aligned}
             \]
           </p>
+          <p class="subset-note" style="font-size:13px;color:var(--dim)">Campionamento dell'Hessiana: \(\mathcal{H}_k\) &egrave; estratto come sottoinsieme di \(\mathcal{S}_k\) (\(\mathcal{H}_k \subseteq \mathcal{S}_k\)), come da default.</p>
+          <p class="indep-note" style="display:none;font-size:13px;color:var(--dim)">Campionamento dell'Hessiana: \(\mathcal{H}_k\) &egrave; campionato uniformemente sull'intero dataset \(\{1,\dots,N\}\), indipendentemente da \(\mathcal{S}_k\).</p>
           <h4>Residuo del CG vs errore di Hessiana</h4>
           <p>
             \[
@@ -836,156 +775,29 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{aligned}
             \]
           </p>
+          <div class="dyn-ccv">
           <h4>Aggiornamento batch (CCV sul gradiente)</h4>
           <p>
             \[
             \frac{\|\widehat{\mathcal{V}}\|_{1}}{|\mathcal{S}_{k+1}|}\le\theta^{2}\|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_{2}^{2}.
             \]
           </p>
+          </div>
+          <div class="dyn-fixed" style="display:none">
+          <h4>Batch fisso</h4>
+          <p>Con il batch dinamico disattivato \(|\mathcal{S}_k|\) resta costante a \(n_0\) a ogni iterazione.</p>
+          </div>
           <h4>Pseudocodice</h4>
-          <div class="pseudo-default pseudo-wolfe">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil) \\
-            \quad p_0 = -g_k \\
-            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
-            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
-            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
-            \quad\quad s_j = H_k\,p_j \\
-            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
-            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
-            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
-            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
-            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
-            \quad\quad j = j+1 \\
-            \quad d_k = d_j \\
-            \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
-            \quad w_{k+1} = w_k + \alpha_k d_k \\
-            \quad n_{k+1} = \operatorname{CCV}(w_{k+1},n_k,\theta) \\
-            \textbf{end for}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-default pseudo-armijo" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil) \\
-            \quad p_0 = -g_k \\
-            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
-            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
-            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
-            \quad\quad s_j = H_k\,p_j \\
-            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
-            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
-            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
-            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
-            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
-            \quad\quad j = j+1 \\
-            \quad d_k = d_j \\
-            \quad \alpha_k = \operatorname{Armijo}(w_k,d_k,\alpha) \\
-            \quad w_{k+1} = w_k + \alpha_k d_k \\
-            \quad n_{k+1} = \operatorname{CCV}(w_{k+1},n_k,\theta) \\
-            \textbf{end for}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
-            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
-            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
-            \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\; j_{\mathcal{H}}=0 \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
-            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \qquad \text{CCV sul campione riusato, al punto corrente} \\
-            \quad \textbf{if}\;\|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
-            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \quad p_0 = -g_k \\
-            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
-            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
-            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
-            \quad\quad s_j = H_k\,p_j \\
-            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
-            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
-            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
-            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
-            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
-            \quad\quad j = j+1 \\
-            \quad d_k = d_j \\
-            \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
-            \quad w_{k+1} = w_k + \alpha_k d_k \\
-            \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
-            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse pseudo-armijo" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
-            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
-            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
-            \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\; j_{\mathcal{H}}=0 \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
-            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \qquad \text{CCV sul campione riusato, al punto corrente} \\
-            \quad \textbf{if}\;\|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
-            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \quad p_0 = -g_k \\
-            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
-            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
-            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
-            \quad\quad s_j = H_k\,p_j \\
-            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
-            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
-            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
-            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
-            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
-            \quad\quad j = j+1 \\
-            \quad d_k = d_j \\
-            \quad \alpha_k = \operatorname{Armijo}(w_k,d_k,\alpha) \\
-            \quad w_{k+1} = w_k + \alpha_k d_k \\
-            \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
-            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
+
+          <div id="pseudoTarget-newton_cg"></div>
           <div class="reuse-note highlight-box" style="display:none">
             <strong>Mini-batch riusato.</strong> I campioni \(\mathcal{S}_k\) e \(\mathcal{H}_k\) vengono riusati per pi&ugrave; iterazioni consecutive.
-            La CCV viene valutata sul campione riusato \(\mathcal{S}_k\) al punto corrente (gratis: usa gli stessi gradienti per-esempio del passo):
-            se violata il batch &egrave; esaurito, \(n_k\) cresce (e con lui \(|\mathcal{H}_k|=\lceil R n_k\rceil\)) e si ricampiona;
+            <span class="rn-ccv">La CCV viene valutata sul campione riusato \(\mathcal{S}_k\) al punto corrente (gratis: usa gli stessi gradienti per-esempio del passo):
+            se violata il batch &egrave; esaurito, \(n_k\) cresce (e con lui \(|\mathcal{H}_k|=\lceil R n_k\rceil\)) e si ricampiona;</span>
+            <span class="rn-fixed" style="display:none">Con il batch dinamico disattivato \(n_k\) resta costante a \(n_0\); il campione si ricampiona solo secondo \(M\);</span>
             se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
-            Per \(H_k\) il modo <em>Legato a \(S_k\)</em> (default) lo ricampiona insieme a \(S_k\), senza un limite proprio \(M_H\);
-            il modo <em>Indipendente</em> lo ricampiona dopo \(M_H\) riusi (se \(M_H=\infty\), solo quando la CCV su \(S_k\) &egrave; violata).
+            <span class="rn-tied">Per \(H_k\) il modo <em>Legato a \(S_k\)</em> (default) lo ricampiona insieme a \(S_k\), senza un limite proprio \(M_H\).</span>
+            <span class="rn-independent" style="display:none">Per \(H_k\) il modo <em>Indipendente</em> lo ricampiona dopo \(M_H\) riusi (se \(M_H=\infty\), solo quando la CCV su \(S_k\) &egrave; violata).</span>
           </div>
 
           <h3>Formule</h3>
@@ -1104,6 +916,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \end{aligned}
             \]
           </p>
+          <p class="subset-note" style="font-size:13px;color:var(--dim)">Campionamento dell'Hessiana: \(\mathcal{H}_k\) &egrave; estratto come sottoinsieme di \(\mathcal{S}_k\) (\(\mathcal{H}_k \subseteq \mathcal{S}_k\)), come da default.</p>
+          <p class="indep-note" style="display:none;font-size:13px;color:var(--dim)">Campionamento dell'Hessiana: \(\mathcal{H}_k\) &egrave; campionato uniformemente sull'intero dataset \(\{1,\dots,N\}\), indipendentemente da \(\mathcal{S}_k\).</p>
           <h4>Gradiente generalizzato (subgradiente)</h4>
           <p>
             \[
@@ -1147,62 +961,16 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
-          <div class="pseudo-default">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\mathcal{H}_0,\;\mathcal{S}_0\;(|\mathcal{H}_0|<|\mathcal{S}_0|),\;\nu,\;\eta,\;\sigma,\;\text{maxcg},\;K \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k \\
-            \quad z_k=\operatorname{faccia\_ortante}(w_k,\nabla J_{\mathcal{S}_k}(w_k),\nu) \\
-            \quad \mathcal{A}_k=\{i\mid z_k^i=0\} \\
-            \quad d^Y=\operatorname{CG}\bigl(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k,\;-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\;\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\bigr) \\
-            \quad d_k=Y_k d^Y \\
-            \quad \alpha_k=\operatorname{Armijo}_{\text{proj}}(w_k,d_k,z_k,\sigma) \\
-            \quad w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k) \\
-            \quad \text{re-campiona:}\; \mathcal{H}_{k+1},\mathcal{S}_{k+1}\;\text{con}\;|\mathcal{H}_{k+1}|=|\mathcal{H}_0|,\;|\mathcal{S}_{k+1}|=|\mathcal{S}_0| \\
-            \textbf{end for}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse" style="display:none">
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\mathcal{H}_0,\;\mathcal{S}_0\;(|\mathcal{H}_0|<|\mathcal{S}_0|),\;\nu,\;\eta,\;\sigma,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
-            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
-            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,|\mathcal{S}_k|),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
-            \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\; j_{\mathcal{H}}=0 \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
-            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
-            \quad \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k \\
-            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/|\mathcal{S}_k| > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito (se dinamico, CCV al punto corrente)} \\
-            \quad\quad |\mathcal{S}_{k+1}| = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
-            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
-            \quad z_k=\operatorname{faccia\_ortante}(w_k,\nabla J_{\mathcal{S}_k}(w_k),\nu) \\
-            \quad \mathcal{A}_k=\{i\mid z_k^i=0\} \\
-            \quad d^Y=\operatorname{CG}\bigl(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k,\;-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\;\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\bigr) \\
-            \quad d_k=Y_k d^Y \\
-            \quad \alpha_k=\operatorname{Armijo}_{\text{proj}}(w_k,d_k,z_k,\sigma) \\
-            \quad w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k) \\
-            \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
-            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
+
+          <div id="pseudoTarget-newton_l1"></div>
           <div class="reuse-note highlight-box" style="display:none">
             <strong>Mini-batch riusato.</strong> I campioni \(\mathcal{S}_k\) e \(\mathcal{H}_k\) vengono riusati per pi&ugrave; iterazioni consecutive.
-            Se il "Batch dinamico" &egrave; attivo, la CCV valutata sul campione riusato al punto corrente (gratis: usa gli stessi gradienti
-            per-esempio del passo) decide se il batch &egrave; esaurito (crescita di \(|\mathcal{S}_k|\) e ricampionamento);
+            <span class="rn-ccv">Se il "Batch dinamico" &egrave; attivo, la CCV valutata sul campione riusato al punto corrente (gratis: usa gli stessi gradienti
+            per-esempio del passo) decide se il batch &egrave; esaurito (crescita di \(|\mathcal{S}_k|\) e ricampionamento);</span>
+            <span class="rn-fixed" style="display:none">Con il batch dinamico disattivato \(|\mathcal{S}_k|\) resta costante a \(|\mathcal{S}_0|\); il campione si ricampiona solo secondo \(M\);</span>
             se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni.
-            Per \(H_k\) il modo <em>Legato a \(S_k\)</em> (default) lo ricampiona insieme a \(S_k\), senza un limite proprio \(M_H\);
-            il modo <em>Indipendente</em> lo ricampiona dopo \(M_H\) riusi (se \(M_H=\infty\), solo quando la CCV su \(S_k\) &egrave; violata).
+            <span class="rn-tied">Per \(H_k\) il modo <em>Legato a \(S_k\)</em> (default) lo ricampiona insieme a \(S_k\), senza un limite proprio \(M_H\).</span>
+            <span class="rn-independent" style="display:none">Per \(H_k\) il modo <em>Indipendente</em> lo ricampiona dopo \(M_H\) riusi (se \(M_H=\infty\), solo quando la CCV su \(S_k\) &egrave; violata).</span>
           </div>
           <h3>Formule</h3>
           <p>
@@ -1278,7 +1046,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           \]
           <p>
             dove \(d^Y\in\mathbb{R}^{n-|\mathcal{A}_k|}\) è il vettore delle componenti libere. La direzione di ricerca è \(d_k=Y_k d^Y\).
-            Il sistema viene risolto con il gradiente coniugato Hessian-free, terminando quando il residuo soddisfa
+            <span class="hf-free">Il sistema viene risolto con il gradiente coniugato Hessian-free, terminando quando il residuo soddisfa</span>
+            <span class="hf-explicit" style="display:none">Il sistema viene risolto costruendo esplicitamente la matrice \(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k\) sul campione \(\mathcal{H}_k\) e applicando il gradiente coniugato, terminando quando il residuo soddisfa</span>
             \(\|r_k\|\le\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\) oppure dopo \(\text{maxcg}\) iterazioni.
           </p>
 
@@ -1329,11 +1098,16 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           \[
             s_{k-1}^{\!T}y_{k-1}>0\quad\Longrightarrow\quad\alpha_{k}^{\text{BB}}>0.
           \]
+          <div class="dyn-ccv">
           <p><strong>Aggiornamento CCV (identico al GD):</strong></p>
           \[
             \frac{\|\widehat{\mathcal{V}}\|_{1}}{n_{k}}\le\theta^{2}\|g_{k}\|_{2}^{2},\qquad
             n_{k+1}=\left\lceil\frac{\|\widehat{\mathcal{V}}\|_{1}}{\theta^{2}\|g_{k}\|_{2}^{2}}\right\rceil.
           \]
+          </div>
+          <div class="dyn-fixed" style="display:none">
+          <p><strong>Batch fisso:</strong> con il batch dinamico disattivato \(n_k\) resta costante a \(n_0\).</p>
+          </div>
           <div class="ls-armijo">
             <p><strong>Line search (Armijo):</strong></p>
             \[
@@ -1347,61 +1121,13 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
               \nabla J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})^{\top}g_{k}\le c_{2}\|g_{k}\|_{2}^{2}.
             \]
           </div>
-          <div class="pseudo-reuse pseudo-armijo" style="display:none">
-          <h4>Pseudocodice (mini-batch riusato)</h4>
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\; k>0:\; s=w_k-w_{k-1},\; y=g_k-g_{k-1} \\
-            \quad\quad \alpha_k^{\text{BB}} = \frac{s^{\top}s}{s^{\top}y},\qquad
-                   \alpha_k = \operatorname{clip}(\alpha_k^{\text{BB}},\alpha/20,5\alpha) \\
-            \quad \textbf{else}:\; \alpha_k=\alpha \\
-            \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha_k) \\
-            \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
-            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
-                   \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
-          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
-          <h4>Pseudocodice (mini-batch riusato)</h4>
-          <p>
-            \[
-            \begin{array}{l}
-            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
-            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
-            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
-            \quad \textbf{if}\; k>0:\; s=w_k-w_{k-1},\; y=g_k-g_{k-1} \\
-            \quad\quad \alpha_k^{\text{BB}} = \frac{s^{\top}s}{s^{\top}y},\qquad
-                   \alpha_k = \operatorname{clip}(\alpha_k^{\text{BB}},\alpha/20,5\alpha) \\
-            \quad \textbf{else}:\; \alpha_k=\alpha \\
-            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha_k) \\
-            \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
-            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
-                   \mathtt{da\_ricampionare}=\texttt{vero} \\
-            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
-            \end{array}
-            \]
-          </p>
-          </div>
+
+          <h4>Pseudocodice</h4>
+          <div id="pseudoTarget-bb"></div>
           <div class="reuse-note highlight-box" style="display:none">
             <strong>Mini-batch riusato.</strong> Lo stesso campione \(\mathcal{S}_k\) viene riusato per pi&ugrave; iterazioni consecutive.
-            La CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito, \(n_k\) cresce e si ricampiona;
+            <span class="rn-ccv">La CCV &egrave; valutata sul campione corrente: se violata il batch &egrave; esaurito, \(n_k\) cresce e si ricampiona;</span>
+            <span class="rn-fixed" style="display:none">Con il batch dinamico disattivato \(n_k\) resta costante a \(n_0\); il campione si ricampiona solo secondo \(M\);</span>
             se \(M\) &egrave; finito si ricampiona comunque dopo \(M\) iterazioni. Con \(M=1\) il metodo coincide con la versione a ricampionamento.
           </div>
         </div>
@@ -2692,6 +2418,261 @@ const mhContainerEl        = document.getElementById('mhContainer');
 const mhModeEl             = document.getElementById('mhMode');
 const mhValueEl            = document.getElementById('mhValue');
 
+/* =====================================================================
+   Generazione dinamica dello pseudocodice della teoria.
+   I blocchi LaTeX sono costruiti in base alle opzioni correnti
+   (batch dinamico, riuso, line search, sottocampionamento Hessiana,
+   Hessian-free L1, riuso Hessiana legato/indipendente) e iniettati nei
+   contenitori #pseudoTarget-<algo>, poi ri-typeset con MathJax.
+   ===================================================================== */
+function pseudoGD(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha) \\\\';
+  const ccvDyn = [
+    '\\quad \\textbf{if}\\;\\frac{\\|\\widehat{\\mathcal{V}}_k\\|_1}{n_k} > \\theta^{2}\\|g_k\\|^{2}: \\\\',
+    '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil + 1 \\\\'
+  ];
+  if (!o.reuseBatch) {
+    return [
+      '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K \\\\',
+      '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+      '\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k) \\\\',
+      '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+      '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+      ...(dyn ? ccvDyn : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\']),
+      lsCall,
+      '\\quad w_{k+1} = w_k - \\alpha_k g_k'
+    ].join('\n');
+  }
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;M\\;\\;(M=\\infty\\Rightarrow\\text{illimitato}) \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+    ...(dyn ? [
+      '\\quad \\textbf{if}\\;\\frac{\\|\\widehat{\\mathcal{V}}_k\\|_1}{n_k} > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito} \\\\',
+      '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil + 1,\\qquad \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\'
+    ] : []),
+    lsCall,
+    '\\quad w_{k+1} = w_k - \\alpha_k g_k,\\qquad j = j+1 \\\\',
+    '\\quad \\textbf{if}\\; j \\ge M:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero}'
+  ].join('\n');
+}
+
+function pseudoNewtonCG(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,d_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,d_k,\\alpha) \\\\';
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,n_k\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(N,\\lceil R\\,n_k\\rceil)';
+  const CG = [
+    '\\quad p_0 = -g_k \\\\',
+    '\\quad \\gamma = \\frac{\\|\\operatorname{Var}_{i\\in\\mathcal{H}_k}[\\nabla^{2}\\ell_i(w_k)\\,p_0]\\|_1}{|\\mathcal{H}_k|\\,\\|p_0\\|^{2}} \\\\',
+    '\\quad d_0 = 0,\\quad r_0 = -g_k,\\quad p = p_0,\\quad j = 0 \\\\',
+    '\\quad \\textbf{while}\\;\\|r_j\\|^{2} > \\gamma\\|d_j\\|^{2}\\;\\textbf{and}\\; j < \\text{maxcg}: \\\\',
+    '\\quad\\quad s_j = H_k\\,p_j \\\\',
+    '\\quad\\quad \\alpha_j = \\frac{r_j^{\\top}r_j}{p_j^{\\top}s_j} \\\\',
+    '\\quad\\quad d_{j+1} = d_j + \\alpha_j p_j \\\\',
+    '\\quad\\quad r_{j+1} = r_j + \\alpha_j s_j \\\\',
+    '\\quad\\quad \\beta_{j+1} = \\frac{r_{j+1}^{\\top}r_{j+1}}{r_j^{\\top}r_j} \\\\',
+    '\\quad\\quad p_{j+1} = -r_{j+1} + \\beta_{j+1} p_j \\\\',
+    '\\quad\\quad j = j+1 \\\\',
+    '\\quad d_k = d_j \\\\'
+  ];
+  if (!o.reuseBatch) {
+    return [
+      '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;R,\\;\\text{maxcg},\\;K \\\\',
+      '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+      '\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k) \\\\',
+      '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+      '\\quad ' + Hline + ' \\\\',
+      ...CG,
+      lsCall,
+      '\\quad w_{k+1} = w_k + \\alpha_k d_k \\\\',
+      ...(dyn ? ['\\quad n_{k+1} = \\operatorname{CCV}(w_{k+1},n_k,\\theta) \\\\'] : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\']),
+      '\\textbf{end for}'
+    ].join('\n');
+  }
+  const indep = !o.reuseHessian;
+  const mhStr = o.maxHessianReuse === null ? '\\infty' : String(o.maxHessianReuse);
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;R,\\;\\text{maxcg},\\;K,\\;M' + (indep ? ',\\;M_H\\;\\;(M_H=' + mhStr + ')' : '') + ' \\\\',
+    ...(indep
+      ? ['\\text{Riuso Hessiana: } \\texttt{indipendente} \\Rightarrow \\text{limite } M_H=' + mhStr + ' \\\\']
+      : ['\\text{Riuso Hessiana: } \\texttt{legato} \\text{ a } \\mathcal{S}_k \\Rightarrow M_H \\text{ inattivo} \\\\']),
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso} \\\\',
+    ...(indep
+      ? [
+        '\\quad \\textbf{if}\\; \\texttt{indipendente}\\;\\textbf{and}\\; \\bigl(\\mathtt{da\\_ricampionare}_{\\mathcal{H}} \\;\\textbf{or}\\; j_{\\mathcal{H}}\\ge M_H\\bigr): \\\\',
+        '\\quad\\quad ' + Hline + ',\\qquad j_{\\mathcal{H}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{falso} \\\\'
+      ]
+      : [
+        '\\quad\\quad \\textbf{if}\\; \\texttt{legato}: \\;' + Hline + ',\\; j_{\\mathcal{H}}=0 \\\\'
+      ]),
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...(dyn ? [
+      '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\qquad \\text{CCV sul campione riusato, al punto corrente} \\\\',
+      '\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito} \\\\',
+      '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1 \\\\',
+      '\\quad\\quad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'
+    ] : []),
+    ...CG,
+    lsCall,
+    '\\quad w_{k+1} = w_k + \\alpha_k d_k \\\\',
+    '\\quad j_{\\mathcal{S}} = j_{\\mathcal{S}}+1' + (indep ? ',\\qquad \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}} = j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; j_{\\mathcal{S}} \\ge M:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero} \\\\',
+    ...(indep ? ['\\quad \\textbf{if}\\; \\texttt{indipendente}\\;\\textbf{and}\\; j_{\\mathcal{H}} \\ge M_H:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}'] : [])
+  ].join('\n');
+}
+
+function pseudoNewtonL1(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const hf = o.hessianFreeL1;
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,|\\mathcal{S}_k|\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(N,\\lceil R\\,|\\mathcal{S}_k|\\rceil)';
+  const cgNote = hf
+    ? '\\qquad \\text{Hessian-free (prodotto Hessiana-vettore)} \\\\'
+    : '\\qquad \\text{Hessiana esplicita sul campione } \\mathcal{H}_k \\\\';
+  if (!o.reuseBatch) {
+    return [
+      '\\textbf{Input:}\\; w_0,\\;\\mathcal{H}_0,\\;\\mathcal{S}_0\\;(|\\mathcal{H}_0|<|\\mathcal{S}_0|),\\;\\nu,\\;\\eta,\\;\\sigma,\\;\\text{maxcg},\\;K \\\\',
+      '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+      '\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,|\\mathcal{S}_k|) \\\\',
+      '\\quad ' + Hline + ' \\\\',
+      '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+\\nu z_k \\\\',
+      ...(dyn ? [
+        '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+        '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito} \\\\',
+        '\\quad\\quad |\\mathcal{S}_{k+1}| = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1 \\\\'
+      ] : []),
+      '\\quad z_k=\\operatorname{faccia\\_ortante}(w_k,\\nabla J_{\\mathcal{S}_k}(w_k),\\nu) \\\\',
+      '\\quad \\mathcal{A}_k=\\{i\\mid z_k^i=0\\} \\\\',
+      '\\quad d^Y=\\operatorname{CG}\\bigl(Y_k^{\\top}\\nabla^2 J_{\\mathcal{H}_k}(w_k)Y_k,\\;-Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k),\\;\\eta\\|Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)\\|\\bigr)' + cgNote,
+      '\\quad d_k=Y_k d^Y \\\\',
+      '\\quad \\alpha_k=\\operatorname{Armijo}_{\\text{proj}}(w_k,d_k,z_k,\\sigma) \\\\',
+      '\\quad w_{k+1}=P_{\\Omega_k}(w_k+\\alpha_k d_k) \\\\',
+      ...(dyn ? [] : ['\\quad \\text{re-campiona:}\\; \\mathcal{H}_{k+1},\\mathcal{S}_{k+1}\\;\\text{con}\\;|\\mathcal{H}_{k+1}|=|\\mathcal{H}_0|,\\;|\\mathcal{S}_{k+1}|=|\\mathcal{S}_0| \\\\']),
+      '\\textbf{end for}'
+    ].join('\n');
+  }
+  const indep = !o.reuseHessian;
+  const mhStr = o.maxHessianReuse === null ? '\\infty' : String(o.maxHessianReuse);
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\mathcal{H}_0,\\;\\mathcal{S}_0\\;(|\\mathcal{H}_0|<|\\mathcal{S}_0|),\\;\\nu,\\;\\eta,\\;\\sigma,\\;\\text{maxcg},\\;K,\\;M' + (indep ? ',\\;M_H\\;\\;(M_H=' + mhStr + ')' : '') + ' \\\\',
+    ...(indep
+      ? ['\\text{Riuso Hessiana: } \\texttt{indipendente} \\Rightarrow \\text{limite } M_H=' + mhStr + ' \\\\']
+      : ['\\text{Riuso Hessiana: } \\texttt{legato} \\text{ a } \\mathcal{S}_k \\Rightarrow M_H \\text{ inattivo} \\\\']),
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,|\\mathcal{S}_k|),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso} \\\\',
+    ...(indep
+      ? [
+        '\\quad \\textbf{if}\\; \\texttt{indipendente}\\;\\textbf{and}\\; \\bigl(\\mathtt{da\\_ricampionare}_{\\mathcal{H}} \\;\\textbf{or}\\; j_{\\mathcal{H}}\\ge M_H\\bigr): \\\\',
+        '\\quad\\quad ' + Hline + ',\\qquad j_{\\mathcal{H}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{falso} \\\\'
+      ]
+      : [
+        '\\quad\\quad \\textbf{if}\\; \\texttt{legato}: \\;' + Hline + ',\\; j_{\\mathcal{H}}=0 \\\\'
+      ]),
+    '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+\\nu z_k \\\\',
+    ...(dyn ? [
+      '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito (CCV al punto corrente)} \\\\',
+      '\\quad\\quad |\\mathcal{S}_{k+1}| = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1 \\\\',
+      '\\quad\\quad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'
+    ] : [
+      '\\quad \\text{(batch fisso: } |\\mathcal{S}_{k+1}|=|\\mathcal{S}_k|\\text{ costante)} \\\\'
+    ]),
+    '\\quad z_k=\\operatorname{faccia\\_ortante}(w_k,\\nabla J_{\\mathcal{S}_k}(w_k),\\nu) \\\\',
+    '\\quad \\mathcal{A}_k=\\{i\\mid z_k^i=0\\} \\\\',
+    '\\quad d^Y=\\operatorname{CG}\\bigl(Y_k^{\\top}\\nabla^2 J_{\\mathcal{H}_k}(w_k)Y_k,\\;-Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k),\\;\\eta\\|Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)\\|\\bigr)' + cgNote,
+    '\\quad d_k=Y_k d^Y \\\\',
+    '\\quad \\alpha_k=\\operatorname{Armijo}_{\\text{proj}}(w_k,d_k,z_k,\\sigma) \\\\',
+    '\\quad w_{k+1}=P_{\\Omega_k}(w_k+\\alpha_k d_k) \\\\',
+    '\\quad j_{\\mathcal{S}} = j_{\\mathcal{S}}+1' + (indep ? ',\\qquad \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}} = j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; j_{\\mathcal{S}} \\ge M:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero} \\\\',
+    ...(indep ? ['\\quad \\textbf{if}\\; \\texttt{indipendente}\\;\\textbf{and}\\; j_{\\mathcal{H}} \\ge M_H:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}'] : [])
+  ].join('\n');
+}
+
+function pseudoBB(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha_k) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha_k) \\\\';
+  const bbStep = [
+    '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+    '\\quad \\textbf{if}\\; k>0:\\; s=w_k-w_{k-1},\\; y=g_k-g_{k-1} \\\\',
+    '\\quad\\quad \\alpha_k^{\\text{BB}} = \\frac{s^{\\top}s}{s^{\\top}y},\\qquad \\alpha_k = \\operatorname{clip}(\\alpha_k^{\\text{BB}},\\alpha/20,5\\alpha) \\\\',
+    '\\quad \\textbf{else}:\\; \\alpha_k=\\alpha \\\\',
+    lsCall
+  ];
+  if (!o.reuseBatch) {
+    return [
+      '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K \\\\',
+      '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+      '\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k) \\\\',
+      '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+      ...bbStep,
+      '\\quad w_{k+1}=w_k-\\alpha_k g_k \\\\',
+      ...(dyn ? [
+        '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}: \\\\',
+        '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1'
+      ] : [
+        '\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)}'
+      ])
+    ].join('\n');
+  }
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;M\\;\\;(M=\\infty\\Rightarrow\\text{illimitato}) \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...bbStep,
+    '\\quad w_{k+1}=w_k-\\alpha_k g_k,\\qquad j=j+1 \\\\',
+    ...(dyn ? [
+      '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito} \\\\',
+      '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\qquad \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\'
+    ] : []),
+    '\\quad \\textbf{if}\\; j \\ge M:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero}'
+  ].join('\n');
+}
+
+function renderPseudo() {
+  const algo = algoSelect.value;
+  const o = getAlgoOptions();
+  let latex = '';
+  switch (algo) {
+    case 'gd':        latex = pseudoGD(o);        break;
+    case 'newton_cg': latex = pseudoNewtonCG(o);  break;
+    case 'newton_l1': latex = pseudoNewtonL1(o);  break;
+    case 'bb':        latex = pseudoBB(o);        break;
+    default: latex = '';
+  }
+  const target = document.getElementById('pseudoTarget-' + algo);
+  if (!target) return;
+  target.innerHTML = latex
+    ? '\\[\n\\begin{array}{l}\n' + latex + '\n\\end{array}\n\\]'
+    : '';
+  if (window.MathJax && MathJax.typesetPromise) {
+    MathJax.typesetPromise([target]).catch(() => {});
+  }
+}
+
 function updateReuseControls() {
   const on = reuseBatchModeEl.value === 'enabled';
   maxConsecRowEl.style.display = on ? '' : 'none';
@@ -2710,23 +2691,33 @@ function updateHessianReuseVisibility(reuseOn) {
 }
 
 function updatePseudoVariants() {
-  const opts = getAlgoOptions();
-  const reuse = opts.reuseBatch;
-  const wolfe = opts.lineSearch === 'wolfe';
-  // Unica passata: combina esplicitamente le due dimensioni (riuso: default/reuse,
-  // line search: wolfe/armijo). I blocchi senza classe line search (es. L1) non
-  // dipendono dalla line search e seguono solo la dimensione del riuso.
-  document.querySelectorAll('.pseudo-default, .pseudo-reuse, .pseudo-wolfe, .pseudo-armijo').forEach(el => {
-    const reuseOK = el.classList.contains('pseudo-default') ? !reuse
-                  : el.classList.contains('pseudo-reuse')   ?  reuse
-                  : false;
-    const hasLS = el.classList.contains('pseudo-wolfe') || el.classList.contains('pseudo-armijo');
-    const lsOK = !hasLS || (el.classList.contains('pseudo-wolfe') ? wolfe : !wolfe);
-    el.style.display = (reuseOK && lsOK) ? '' : 'none';
-  });
+  const o = getAlgoOptions();
+  const reuse = o.reuseBatch;
+  const wolfe = o.lineSearch === 'wolfe';
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const hf = o.hessianFreeL1;
+  const legatoH = o.reuseHessian;        // true = H_k legato a S_k, false = indipendente
+  // Line search (formule) — GD, Newton-CG, BB
   document.querySelectorAll('.ls-wolfe').forEach(el => el.style.display = wolfe ? '' : 'none');
   document.querySelectorAll('.ls-armijo').forEach(el => el.style.display = wolfe ? 'none' : '');
+  // Batch dinamico (CCV) vs batch fisso
+  document.querySelectorAll('.dyn-ccv').forEach(el => el.style.display = dyn ? '' : 'none');
+  document.querySelectorAll('.dyn-fixed').forEach(el => el.style.display = dyn ? 'none' : '');
+  // Sottocampionamento Hessiana (H_k ⊆ S_k vs indipendente da S_k)
+  document.querySelectorAll('.subset-note').forEach(el => el.style.display = subset ? '' : 'none');
+  document.querySelectorAll('.indep-note').forEach(el => el.style.display = subset ? 'none' : '');
+  // Hessian-free vs Hessiana esplicita (Newton-L1)
+  document.querySelectorAll('.hf-free').forEach(el => el.style.display = hf ? '' : 'none');
+  document.querySelectorAll('.hf-explicit').forEach(el => el.style.display = hf ? 'none' : '');
+  // Note di riuso: CCV vs batch fisso, e H_k legato vs indipendente
+  document.querySelectorAll('.rn-ccv').forEach(el => el.style.display = (reuse && dyn) ? '' : 'none');
+  document.querySelectorAll('.rn-fixed').forEach(el => el.style.display = (reuse && !dyn) ? '' : 'none');
+  document.querySelectorAll('.rn-tied').forEach(el => el.style.display = (reuse && legatoH) ? '' : 'none');
+  document.querySelectorAll('.rn-independent').forEach(el => el.style.display = (reuse && !legatoH) ? '' : 'none');
   document.querySelectorAll('.reuse-note').forEach(el => el.style.display = reuse ? '' : 'none');
+  // Pseudocodice rigenerato in base a tutte le opzioni correnti
+  renderPseudo();
 }
 
 const iterSlider   = document.getElementById('iterSlider');
