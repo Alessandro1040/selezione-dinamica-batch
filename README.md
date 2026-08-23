@@ -146,6 +146,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: traiettoria 2D con pan
+  (trascina), slider di zoom e "Salva immagine" che conserva la vista
+  corrente.** In `visualizzazione.html` (file solo nella repo) il plot della
+  traiettoria 2D ora: (1) **trascinando sull'immagine si sposta la vista**
+  (`dragmode: 'pan'`); (2) ha uno **slider Zoom 1×–10×** con etichetta e
+  pulsante **"⟲ Vista completa"** che ripristina la vista al 100%; (3) ha la
+  **modebar Plotly disattivata** (`displayModeBar: false`) quindi NON ci sono
+  più i tool lasso/select/pan/zoom-to-image; (4) **"Salva immagine per
+  confronto" salva ESATTAMENTE la vista mostrata**: se l'utente ha zoommato e
+  trascinato (es. solo la parte in alto a destra), l'immagine salvata nella
+  galleria (e la sua caption) riflette quella vista — lo snapshot si aggiorna
+  via `plotly_relayout` (range x/y correnti) e la vista si conserva tra i
+  render, azzerandosi solo con una nuova run (nuovo riferimento
+  `currentData`). Validazione: harness con DOM fittizio **42/42 controlli**
+  (aggiunti: dragmode pan, modebar nascosta, zoom 2× dimezza l'ampiezza, pan
+  aggiorna vista+snapshot, pin salva i range [5,6]/[-4,-3], pin non
+  ri-renderizza il plot principale, reset vista completa, nuova run azzera la
+  vista). Nessun PDF coinvolto (solo file web in repo).
 - **Ultimo intervento (23/08/2026).** **App web: pulsante "Traiettoria 2D (come
   nel Colab)" sotto il plot principale + galleria di confronto.** In
   `visualizzazione.html` (file solo nella repo) ora, sotto "Superficie J(w) e

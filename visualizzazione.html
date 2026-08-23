@@ -184,6 +184,10 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
 .gallery-caption{padding:8px 12px;font-size:10.5px;color:var(--text-2);line-height:1.55;border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
 .gallery-caption .gallery-num{color:var(--gold);font-family:var(--font-mono);font-weight:700;margin-right:4px}
 .gallery-card .btn-icon-sm{margin:8px 12px 10px;align-self:flex-start}
+.colab-zoom-row{display:flex;align-items:center;gap:10px;padding:8px 18px;border-top:1px solid var(--border-soft);background:rgba(0,0,0,.18)}
+.colab-zoom-row .zoom-label{font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
+.colab-zoom-row input[type="range"]{flex:1;margin:0}
+.colab-zoom-row .zoom-value{font-family:var(--font-mono);font-size:10.5px;color:var(--gold);min-width:36px;text-align:right}
 </style>
 <base target="_blank">
 </head>
@@ -489,10 +493,16 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         </div>
       </div>
       <div id="colabPlot"></div>
+      <div class="colab-zoom-row">
+        <span class="zoom-label">Zoom</span>
+        <input type="range" id="colabZoom" min="1" max="10" step="0.1" value="1">
+        <span class="zoom-value" id="colabZoomValue">1.0×</span>
+        <button class="btn-icon-sm" id="colabZoomReset">⟲ Vista completa</button>
+      </div>
       <div class="colab-caption" id="colabCaption"></div>
       <div class="colab-actions">
         <button class="btn btn-secondary" id="pinColabBtn">📌 Salva immagine per confronto</button>
-        <span class="field-hint" style="margin:0">Salva questo grafico con la sua didascalia, cambia gli iperparametri e genera un nuovo plot per confrontarli.</span>
+        <span class="field-hint" style="margin:0">Trascina sull'immagine per spostare la vista · usa lo slider per lo zoom · <strong>Salva immagine</strong> conserva la vista corrente (zoom e spostamento inclusi).</span>
       </div>
     </div>
 
@@ -3497,6 +3507,13 @@ _preview = _j.dumps({"sx": _xi.tolist(), "sy": _yi.tolist(),
    ===================================================================== */
 let galleryItems = [];
 let lastColabSnapshot = null;
+let colabBaseView = null;        // range completi (vista al 100%)
+let colabView = null;            // range correnti (pan/zoom dell'utente)
+let colabLastDataRef = null;     // riferimento a currentData dell'ultimo render
+let colabRelayoutAttached = false;
+const COLAB_CFG = { responsive: true, displaylogo: false, displayModeBar: false };
+const colabZoom      = document.getElementById('colabZoom');
+const colabZoomValue = document.getElementById('colabZoomValue');
 
 function getAlgoLabel(algo) {
   return { gd: 'GD (Gradiente a Campione Dinamico)', newton_cg: 'Newton-CG',
@@ -3552,6 +3569,7 @@ function renderColabPlot() {
       'Premi <strong>⟳ Ricalcola</strong> per generare la traiettoria, poi torna qui.';
     Plotly.purge(document.getElementById('colabPlot'));
     lastColabSnapshot = null;
+    colabBaseView = null; colabView = null; colabLastDataRef = null;
     return;
   }
   const { history, pts_J, w_star, J_star, dim, surf, resize_pts, levels } = currentData;
@@ -3615,22 +3633,60 @@ function renderColabPlot() {
       yaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090' } };
   }
 
-  Plotly.react(document.getElementById('colabPlot'), traces, layout,
-    { responsive: true, displaylogo: false, displayModeBar: 'hover',
-      modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'] });
+  // Vista (pan/zoom): si ricorda tra i render e si azzera solo con una nuova run
+  if (colabLastDataRef !== currentData) {
+    colabLastDataRef = currentData;
+    const hasSx = surf.x && surf.x.length > 1;
+    const hasSy = dim === 2 && surf.y && surf.y.length > 1;
+    const fx = hasSx ? [surf.x[0], surf.x[surf.x.length - 1]] : null;
+    const fy = hasSy ? [surf.y[0], surf.y[surf.y.length - 1]] : null;
+    colabBaseView = { xr: fx, yr: fy };
+    colabView     = { xr: fx ? [fx[0], fx[1]] : null, yr: fy ? [fy[0], fy[1]] : null };
+    colabZoom.value = '1';
+    colabZoomValue.textContent = '1.0×';
+  }
+  if (colabView && colabView.xr && layout.xaxis) {
+    layout.xaxis.range = [colabView.xr[0], colabView.xr[1]];
+  }
+  if (colabView && colabView.yr && layout.yaxis) {
+    layout.yaxis.range = [colabView.yr[0], colabView.yr[1]];
+  }
+  layout.dragmode = 'pan';
+
+  Plotly.react(document.getElementById('colabPlot'), traces, layout, COLAB_CFG);
   document.getElementById('colabCaption').innerHTML = buildColabCaption();
   lastColabSnapshot = { traces: JSON.parse(JSON.stringify(traces)),
-                        layout: JSON.parse(JSON.stringify(layout)) };
+                        layout: JSON.parse(JSON.stringify(layout)),
+                        caption: buildColabCaption() };
+
+  // Handler di pan/zoom: aggiorna la vista corrente e lo snapshot salvato.
+  if (!colabRelayoutAttached) {
+    colabRelayoutAttached = true;
+    document.getElementById('colabPlot').on('plotly_relayout', (d) => {
+      if (!d || !d['xaxis.range']) return;
+      const xr = d['xaxis.range'];
+      const yr = d['yaxis.range'];
+      colabView = colabView || {};
+      colabView.xr = [xr[0], xr[1]];
+      if (yr) colabView.yr = [yr[0], yr[1]];
+      if (lastColabSnapshot && lastColabSnapshot.layout) {
+        if (lastColabSnapshot.layout.xaxis) lastColabSnapshot.layout.xaxis.range = colabView.xr;
+        if (lastColabSnapshot.layout.yaxis && colabView.yr) lastColabSnapshot.layout.yaxis.range = colabView.yr;
+      }
+    });
+  }
 }
 
 function pinColabPlot() {
-  // Ri-renderizza sempre: l'immagine salvata deve riflettere la configurazione
-  // corrente (algoritmo/loss/w0/iperparametri) e la caption corrispondente.
-  renderColabPlot();
-  if (!lastColabSnapshot) return;
+  if (!lastColabSnapshot) {
+    renderColabPlot();
+    if (!lastColabSnapshot) return;
+  }
+  // Salva ESATTAMENTE la vista corrente: pan/zoom inclusi, con la caption
+  // generata al momento del render (immagine e didascalia sempre coerenti).
   galleryItems.push({ traces: JSON.parse(JSON.stringify(lastColabSnapshot.traces)),
                       layout: JSON.parse(JSON.stringify(lastColabSnapshot.layout)),
-                      caption: buildColabCaption() });
+                      caption: lastColabSnapshot.caption });
   renderGallery();
 }
 
@@ -3675,6 +3731,45 @@ document.getElementById('galleryContainer').addEventListener('click', (e) => {
   if (!btn) return;
   galleryItems.splice(parseInt(btn.dataset.idx, 10), 1);
   renderGallery();
+});
+
+function applyColabZoom() {
+  const z = parseFloat(colabZoom.value) || 1;
+  colabZoomValue.textContent = z.toFixed(1) + '×';
+  if (!colabBaseView || !colabBaseView.xr) return;
+  if (!colabView || !colabView.xr) {
+    colabView = { xr: [colabBaseView.xr[0], colabBaseView.xr[1]],
+                  yr: colabBaseView.yr ? [colabBaseView.yr[0], colabBaseView.yr[1]] : null };
+  }
+  const cx = (colabView.xr[0] + colabView.xr[1]) / 2;
+  const hw = (colabBaseView.xr[1] - colabBaseView.xr[0]) / (2 * z);
+  colabView.xr = [cx - hw, cx + hw];
+  if (colabBaseView.yr && colabView.yr) {
+    const cy = (colabView.yr[0] + colabView.yr[1]) / 2;
+    const hh = (colabBaseView.yr[1] - colabBaseView.yr[0]) / (2 * z);
+    colabView.yr = [cy - hh, cy + hh];
+  }
+  updateColabView();
+}
+
+function updateColabView() {
+  if (!lastColabSnapshot || !colabView) return;
+  const lay = JSON.parse(JSON.stringify(lastColabSnapshot.layout));
+  if (lay.xaxis && colabView.xr) lay.xaxis.range = [colabView.xr[0], colabView.xr[1]];
+  if (lay.yaxis && colabView.yr) lay.yaxis.range = [colabView.yr[0], colabView.yr[1]];
+  lastColabSnapshot.layout = lay;
+  Plotly.react(document.getElementById('colabPlot'),
+    JSON.parse(JSON.stringify(lastColabSnapshot.traces)), lay, COLAB_CFG);
+}
+
+document.getElementById('colabZoom').addEventListener('input', applyColabZoom);
+document.getElementById('colabZoomReset').addEventListener('click', () => {
+  if (!colabBaseView || !colabBaseView.xr) return;
+  colabZoom.value = '1';
+  colabZoomValue.textContent = '1.0×';
+  colabView = { xr: [colabBaseView.xr[0], colabBaseView.xr[1]],
+                yr: colabBaseView.yr ? [colabBaseView.yr[0], colabBaseView.yr[1]] : null };
+  updateColabView();
 });
 
 window.addEventListener('load', async () => {
