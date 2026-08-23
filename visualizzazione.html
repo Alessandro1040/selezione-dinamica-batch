@@ -3150,7 +3150,7 @@ function pseudoGDValidation(o) {
     '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
     '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p=0 \\\\',
     '\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0'
-  ].join('\\n');
+  ].join('\n');
 }
 
 
@@ -3238,7 +3238,7 @@ function pseudoNewtonCGValidation(o) {
     '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
     '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
     '\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0'
-  ].join('\\n');
+  ].join('\n');
 }
 
 
@@ -3349,7 +3349,7 @@ function pseudoNewtonL1Validation(o) {
     '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
     '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
     '\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0'
-  ].join('\\n');
+  ].join('\n');
 }
 
 
@@ -3459,7 +3459,7 @@ function pseudoBBValidation(o) {
     '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
     '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p=0 \\\\',
     '\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0'
-  ].join('\\n');
+  ].join('\n');
 }
 
 
