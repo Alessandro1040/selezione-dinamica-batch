@@ -146,6 +146,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: la teoria dinamica ora segue
+  la line search scelta (Wolfe/Armijo).** In `visualizzazione.html` gli
+  pseudocodici e le formule di line search di GD, Newton-CG e BB erano fissi
+  (GD/BB mostravano sempre Armijo, Newton-CG sempre Wolfe) e non reagivano al
+  selettore "Line search". Ora ogni blocco esiste in due varianti (Wolfe e
+  Armijo), mostrate/nascoste da `updatePseudoVariants()` in base a
+  `lineSearchMode`, combinate con la dimensione riuso (default/reuse) in
+  un'unica passata; i blocchi senza variante line search (es. Newton-L1)
+  seguono solo il riuso. Rese dinamiche anche le formule "Iterazione" (GD),
+  "Line search e aggiornamento" (Newton-CG), "Line search (Armijo)" (BB) e le
+  sottosezioni Formule "9. Line search" (GD) e "6. Line search" (Newton-CG).
+  Validazione: 65/65 blocchi math compilano con pdflatex (il 66° è la stringa
+  JS della config MathJax `\[','\]`, non un blocco math), `\[`/`\]` bilanciati
+  66/66, e simulazione Python della visibilità: per ogni combinazione
+  reuse×wolfe esattamente 1 pseudocodice visibile per GD/Newton-CG/L1 (BB: 1
+  solo a riuso attivo, com'era prima) con il metodo giusto. Nessun PDF
+  coinvolto.
+
 - **Ultimo intervento (23/08/2026).** **App web: teoria dinamica aggiornata —
   `M_H` negli pseudocodici di Newton-CG e Newton-CG $L_1$, e definita la
   variabile "servono dati nuovi".** In `visualizzazione.html` (file solo nella

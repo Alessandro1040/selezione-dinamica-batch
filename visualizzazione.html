@@ -488,13 +488,18 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Iterazione</h4>
-          <p>
+          <p class="ls-armijo">
             \[
             w_{k+1}=w_k-\alpha_k g_k,\qquad \alpha_k\;\text{da Armijo:}\;J(w_k-\alpha_k g_k)\le J(w_k)-c_1\alpha_k\|g_k\|^{2}
             \]
           </p>
+          <p class="ls-wolfe" style="display:none">
+            \[
+            w_{k+1}=w_k-\alpha_k g_k,\qquad \alpha_k\;\text{da Wolfe:}\;J(w_k-\alpha_k g_k)\le J(w_k)-c_1\alpha_k\|g_k\|^{2},\quad \nabla J(w_k-\alpha_k g_k)^{\top}g_k\le c_2\|g_k\|^{2}
+            \]
+          </p>
           <h4>Pseudocodice</h4>
-          <div class="pseudo-default">
+          <div class="pseudo-default pseudo-armijo">
           <p>
             \[
             \begin{array}{l}
@@ -511,7 +516,24 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           </div>
-          <div class="pseudo-reuse" style="display:none">
+          <div class="pseudo-default pseudo-wolfe" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
+            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1 \\
+            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha) \\
+            \quad w_{k+1} = w_k - \alpha_k g_k
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="pseudo-reuse pseudo-armijo" style="display:none">
           <p>
             \[
             \begin{array}{l}
@@ -525,6 +547,26 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
             \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \mathtt{da\_ricampionare}=\texttt{vero} \\
             \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
+            \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
+            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
+            \mathtt{da\_ricampionare}=\texttt{vero} \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
+            \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \mathtt{da\_ricampionare}=\texttt{vero} \\
+            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha) \\
             \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
             \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
             \end{array}
@@ -703,17 +745,35 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             servono batch più grandi e il costo cresce.
           </p>
 
-          <h4>9. Line search (Armijo)</h4>
-          <p>
-            Il passo \(\alpha_k\) è scelto con backtracking di Armijo sulla loss del batch:
-          </p>
-          \[
-            J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2},\qquad c_{1}=10^{-4}.
-          \]
-          <p>
-            La costante \(c_1\in(0,1)\) è tipicamente \(10^{-4}\): la condizione richiede che la riduzione della loss
-            sia almeno proporzionale al passo e al quadrato della norma del gradiente.
-          </p>
+          <div class="ls-armijo">
+            <h4>9. Line search (Armijo)</h4>
+            <p>
+              Il passo \(\alpha_k\) è scelto con backtracking di Armijo sulla loss del batch:
+            </p>
+            \[
+              J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2},\qquad c_{1}=10^{-4}.
+            \]
+            <p>
+              La costante \(c_1\in(0,1)\) è tipicamente \(10^{-4}\): la condizione richiede che la riduzione della loss
+              sia almeno proporzionale al passo e al quadrato della norma del gradiente.
+            </p>
+          </div>
+          <div class="ls-wolfe" style="display:none">
+            <h4>9. Line search (Wolfe)</h4>
+            <p>
+              Il passo \(\alpha_k\) è scelto con le condizioni di Wolfe (sufficienza di discesa + curvatura) sulla loss del batch:
+            </p>
+            \[
+            \begin{aligned}
+              J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})&\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2},\\
+              \nabla J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})^{\top}g_{k}&\le c_{2}\|g_{k}\|_{2}^{2}.
+            \end{aligned}
+            \]
+            <p>
+              La prima condizione (Armijo) garantisce una riduzione sufficiente della loss; la seconda (curvatura)
+              garantisce che il passo non sia troppo piccolo. Tipicamente \(c_1=10^{-4}\) e \(c_2=0.9\).
+            </p>
+          </div>
 
         </div>
 
@@ -759,11 +819,19 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Line search e aggiornamento</h4>
-          <p>
+          <p class="ls-wolfe">
             \[
             \begin{aligned}
             J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
             \nabla J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})^{\!T}d_{k}&\ge c_{2}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
+            w_{k+1}&=w_k+\alpha_k d_k.
+            \end{aligned}
+            \]
+          </p>
+          <p class="ls-armijo" style="display:none">
+            \[
+            \begin{aligned}
+            J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
             w_{k+1}&=w_k+\alpha_k d_k.
             \end{aligned}
             \]
@@ -775,7 +843,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           <h4>Pseudocodice</h4>
-          <div class="pseudo-default">
+          <div class="pseudo-default pseudo-wolfe">
           <p>
             \[
             \begin{array}{l}
@@ -804,7 +872,36 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \]
           </p>
           </div>
-          <div class="pseudo-reuse" style="display:none">
+          <div class="pseudo-default pseudo-armijo" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \mathcal{S}_k \sim \mathcal{U}(N,n_k) \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil) \\
+            \quad p_0 = -g_k \\
+            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
+            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
+            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
+            \quad\quad s_j = H_k\,p_j \\
+            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
+            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
+            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
+            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
+            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
+            \quad\quad j = j+1 \\
+            \quad d_k = d_j \\
+            \quad \alpha_k = \operatorname{Armijo}(w_k,d_k,\alpha) \\
+            \quad w_{k+1} = w_k + \alpha_k d_k \\
+            \quad n_{k+1} = \operatorname{CCV}(w_{k+1},n_k,\theta) \\
+            \textbf{end for}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
           <p>
             \[
             \begin{array}{l}
@@ -835,6 +932,45 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \quad\quad j = j+1 \\
             \quad d_k = d_j \\
             \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
+            \quad w_{k+1} = w_k + \alpha_k d_k \\
+            \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
+            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="pseudo-reuse pseudo-armijo" style="display:none">
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
+            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
+            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
+            \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\; j_{\mathcal{H}}=0 \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
+            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \qquad \text{CCV sul campione riusato, al punto corrente} \\
+            \quad \textbf{if}\;\|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
+            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \quad p_0 = -g_k \\
+            \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
+            \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
+            \quad \textbf{while}\;\|r_j\|^{2} > \gamma\|d_j\|^{2}\;\textbf{and}\; j < \text{maxcg}: \\
+            \quad\quad s_j = H_k\,p_j \\
+            \quad\quad \alpha_j = \frac{r_j^{\top}r_j}{p_j^{\top}s_j} \\
+            \quad\quad d_{j+1} = d_j + \alpha_j p_j \\
+            \quad\quad r_{j+1} = r_j + \alpha_j s_j \\
+            \quad\quad \beta_{j+1} = \frac{r_{j+1}^{\top}r_{j+1}}{r_j^{\top}r_j} \\
+            \quad\quad p_{j+1} = -r_{j+1} + \beta_{j+1} p_j \\
+            \quad\quad j = j+1 \\
+            \quad d_k = d_j \\
+            \quad \alpha_k = \operatorname{Armijo}(w_k,d_k,\alpha) \\
             \quad w_{k+1} = w_k + \alpha_k d_k \\
             \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
             \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
@@ -916,19 +1052,34 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             Se la condizione è verificata, il CG termina e la soluzione corrente \(d_{j+1}\) viene accettata come direzione di Newton approssimata. In caso contrario, si prosegue con la successiva iterazione.
           </p>
 
-          <h4>6. Line search (Wolfe)</h4>
-          <p>
-            Il passo \(\alpha_k\) è scelto con le condizioni di Wolfe, che combinano sufficienza di discesa e curvatura:
-          </p>
-          \[
-            \begin{aligned}
-            J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
-            \nabla J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})^{\!T}d_{k}&\ge c_{2}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k}.
-            \end{aligned}
-          \]
-          <p>
-            La prima condizione (Armijo) garantisce una riduzione sufficiente della loss; la seconda (curvatura) garantisce che il passo non sia troppo piccolo. Tipicamente \(c_1=10^{-4}\) e \(c_2=0.9\).
-          </p>
+          <div class="ls-wolfe">
+            <h4>6. Line search (Wolfe)</h4>
+            <p>
+              Il passo \(\alpha_k\) è scelto con le condizioni di Wolfe, che combinano sufficienza di discesa e curvatura:
+            </p>
+            \[
+              \begin{aligned}
+              J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})&\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\\
+              \nabla J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})^{\!T}d_{k}&\ge c_{2}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k}.
+              \end{aligned}
+            \]
+            <p>
+              La prima condizione (Armijo) garantisce una riduzione sufficiente della loss; la seconda (curvatura) garantisce che il passo non sia troppo piccolo. Tipicamente \(c_1=10^{-4}\) e \(c_2=0.9\).
+            </p>
+          </div>
+          <div class="ls-armijo" style="display:none">
+            <h4>6. Line search (Armijo)</h4>
+            <p>
+              Il passo \(\alpha_k\) è scelto con backtracking di Armijo sulla loss del batch:
+            </p>
+            \[
+              J_{\mathcal{S}_{k}}(w_{k}+\alpha_{k}d_{k})\le J_{\mathcal{S}_{k}}(w_{k})+c_{1}\alpha_{k}\nabla J_{\mathcal{S}_{k}}(w_{k})^{\!T}d_{k},\qquad c_{1}=10^{-4}.
+            \]
+            <p>
+              La costante \(c_1\in(0,1)\) è tipicamente \(10^{-4}\): la condizione richiede che la riduzione della loss
+              sia almeno proporzionale al passo e al prodotto scalare \(\nabla J_{\mathcal{S}_{k}}(w_k)^{\top}d_k\).
+            </p>
+          </div>
 
           <h4>7. Aggiornamento batch (CCV sul gradiente)</h4>
           <p>
@@ -1183,11 +1334,20 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \frac{\|\widehat{\mathcal{V}}\|_{1}}{n_{k}}\le\theta^{2}\|g_{k}\|_{2}^{2},\qquad
             n_{k+1}=\left\lceil\frac{\|\widehat{\mathcal{V}}\|_{1}}{\theta^{2}\|g_{k}\|_{2}^{2}}\right\rceil.
           \]
-          <p><strong>Line search (Armijo):</strong></p>
-          \[
-            J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2}.
-          \]
-          <div class="pseudo-reuse" style="display:none">
+          <div class="ls-armijo">
+            <p><strong>Line search (Armijo):</strong></p>
+            \[
+              J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2}.
+            \]
+          </div>
+          <div class="ls-wolfe" style="display:none">
+            <p><strong>Line search (Wolfe):</strong></p>
+            \[
+              J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})\le J_{\mathcal{S}_{k}}(w_{k})-c_{1}\alpha_{k}\|g_{k}\|_{2}^{2},\qquad
+              \nabla J_{\mathcal{S}_{k}}(w_{k}-\alpha_{k}g_{k})^{\top}g_{k}\le c_{2}\|g_{k}\|_{2}^{2}.
+            \]
+          </div>
+          <div class="pseudo-reuse pseudo-armijo" style="display:none">
           <h4>Pseudocodice (mini-batch riusato)</h4>
           <p>
             \[
@@ -1204,6 +1364,32 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
                    \alpha_k = \operatorname{clip}(\alpha_k^{\text{BB}},\alpha/20,5\alpha) \\
             \quad \textbf{else}:\; \alpha_k=\alpha \\
             \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha_k) \\
+            \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
+            \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
+                   \mathtt{da\_ricampionare}=\texttt{vero} \\
+            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
+            \end{array}
+            \]
+          </p>
+          </div>
+          <div class="pseudo-reuse pseudo-wolfe" style="display:none">
+          <h4>Pseudocodice (mini-batch riusato)</h4>
+          <p>
+            \[
+            \begin{array}{l}
+            \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
+            \mathtt{da\_ricampionare}=\texttt{vero} \\
+            \textbf{for}\; k=0,\dots,K-1: \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
+            \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
+            \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
+            \quad \textbf{if}\; k>0:\; s=w_k-w_{k-1},\; y=g_k-g_{k-1} \\
+            \quad\quad \alpha_k^{\text{BB}} = \frac{s^{\top}s}{s^{\top}y},\qquad
+                   \alpha_k = \operatorname{clip}(\alpha_k^{\text{BB}},\alpha/20,5\alpha) \\
+            \quad \textbf{else}:\; \alpha_k=\alpha \\
+            \quad \alpha_k = \operatorname{Wolfe}(w_k,-g_k,\alpha_k) \\
             \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
             \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
             \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
@@ -2524,9 +2710,22 @@ function updateHessianReuseVisibility(reuseOn) {
 }
 
 function updatePseudoVariants() {
-  const reuse = getAlgoOptions().reuseBatch;
-  document.querySelectorAll('.pseudo-default').forEach(el => el.style.display = reuse ? 'none' : '');
-  document.querySelectorAll('.pseudo-reuse').forEach(el => el.style.display = reuse ? '' : 'none');
+  const opts = getAlgoOptions();
+  const reuse = opts.reuseBatch;
+  const wolfe = opts.lineSearch === 'wolfe';
+  // Unica passata: combina esplicitamente le due dimensioni (riuso: default/reuse,
+  // line search: wolfe/armijo). I blocchi senza classe line search (es. L1) non
+  // dipendono dalla line search e seguono solo la dimensione del riuso.
+  document.querySelectorAll('.pseudo-default, .pseudo-reuse, .pseudo-wolfe, .pseudo-armijo').forEach(el => {
+    const reuseOK = el.classList.contains('pseudo-default') ? !reuse
+                  : el.classList.contains('pseudo-reuse')   ?  reuse
+                  : false;
+    const hasLS = el.classList.contains('pseudo-wolfe') || el.classList.contains('pseudo-armijo');
+    const lsOK = !hasLS || (el.classList.contains('pseudo-wolfe') ? wolfe : !wolfe);
+    el.style.display = (reuseOK && lsOK) ? '' : 'none';
+  });
+  document.querySelectorAll('.ls-wolfe').forEach(el => el.style.display = wolfe ? '' : 'none');
+  document.querySelectorAll('.ls-armijo').forEach(el => el.style.display = wolfe ? 'none' : '');
   document.querySelectorAll('.reuse-note').forEach(el => el.style.display = reuse ? '' : 'none');
 }
 
