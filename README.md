@@ -146,6 +146,34 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: le curve di livello della
+  Traiettoria 2D ora compaiono SEMPRE, anche zoommando su un punto, e lo zoom
+  può uscire fino a 0.1× per vedere tutte le ellissi.** Prima la griglia delle
+  isolinee era calcolata UNA volta (55×55) sul range della traiettoria: con lo
+  zoom le linee si spezzavano/coarseggiavano, e per i problemi molto mal
+  condizionati (κ≈100, ellissi con rapporto assi √κ=10) nemmeno la vista 1×
+  mostrava le curve complete (si estendono molto oltre i bounds del preset).
+  Ora in `visualizzazione.html`: (1) la griglia viene **rigenerata a ogni
+  zoom/pan** sul dominio VISIBILE (con margine 15%) via una funzione Python
+  `_grid2d()` riusabile, con **risoluzione adattiva** (n=90–160 punti per lato
+  in base allo zoom, griglia iniziale 55→100) → isolinee lisce e sempre
+  presenti; (2) i **livelli sono ricalcolati sulla vista** (8 livelli a
+  spaziatura radiale in √J, così le ellissi di una quadratica risultano
+  equispaziate; tetto a 2× il massimo di J della traiettoria quando la vista
+  si spinge oltre, per non far dominare gli angoli lontani) → zoommando vicino
+  al minimo o su un punto in salita compaiono comunque curve di livello;
+  (3) lo **slider Zoom va da 0.1× a 10×** (prima 1×–10×): a 0.1× si vedono
+  TUTTE le curve di livello del problema κ≈100 in un colpo solo; (4) pan
+  (trascina) rigenera, "⟲ Vista completa" ripristina la griglia 1× iniziale, e
+  i re-render interni (stessi range) NON innescano cicli di regrid (confronto
+  dei range con tolleranza nel handler `plotly_relayout`). La traiettoria, i
+  marker e l'avviso "passi reali" restano invariati; l'1D è invariato. Nessun
+  PDF coinvolto (l'app non è in `tesi.tex`). Validazione: parse JS (deno
+  `new Function`) OK; harness con DOM fittizio **27/27 controlli** (zoom-out
+  0.1× amplia la vista 10×, regrid con margine e n corretto, zoom-in, pan
+  senza loop, reset, 1D no-op); simulazione Python di `_grid2d` su 5 viste
+  (iniziale, zoom-out κ≈100, zoom-in al minimo, vista in salita, vista
+  remota) + pipeline completo 2D/1D di `runAlgorithm` estratto dall'HTML.
 - **Ultimo intervento (23/08/2026).** **App web: la Traiettoria 2D ora rileva e
   segnala le traiettorie "quasi ferme".** In `visualizzazione.html` la funzione
   `colabTrajectoryStats()` deduplica i punti IDENTICI consecutivi della history

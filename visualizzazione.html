@@ -497,7 +497,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
       <div id="colabPlot"></div>
       <div class="colab-zoom-row">
         <span class="zoom-label">Zoom</span>
-        <input type="range" id="colabZoom" min="1" max="10" step="0.1" value="1">
+        <input type="range" id="colabZoom" min="0.1" max="10" step="0.05" value="1">
         <span class="zoom-value" id="colabZoomValue">1.0×</span>
         <button class="btn-icon-sm" id="colabZoomReset">⟲ Vista completa</button>
       </div>
@@ -2940,12 +2940,33 @@ _w1_min = min(XMIN, np.min(_w_hist[:, 0]) - 0.5)
 _w1_max = max(XMAX, np.max(_w_hist[:, 0]) + 0.5)
 _w2_min = min(YMIN, np.min(_w_hist[:, 1]) - 0.5)
 _w2_max = max(YMAX, np.max(_w_hist[:, 1]) + 0.5)
-_N = 55
-_xi = np.linspace(_w1_min, _w1_max, _N)
-_yi = np.linspace(_w2_min, _w2_max, _N)
-surf_x  = _xi.tolist()
-surf_y  = _yi.tolist()
-surf_z  = [[float(J(np.array([x, y]))) for x in _xi] for y in _yi]
+_N = 100
+# Griglia 2D riusabile: rigenerata a ogni zoom/pan sul dominio visibile, con
+# livelli ricalcolati sulla vista (spaziatura radiale in sqrt(J), tetto al
+# doppio del massimo di J lungo la traiettoria se la vista si spinge oltre).
+def _grid2d(w1_min, w1_max, w2_min, w2_max, n=120, k=8):
+    _gx = np.linspace(w1_min, w1_max, n)
+    _gy = np.linspace(w2_min, w2_max, n)
+    _gz = np.array([[float(J(np.array([x, y]))) for x in _gx] for y in _gy])
+    _lo, _hi = float(_gz.min()), float(_gz.max())
+    _jref = None
+    if 'history' in globals():
+        try:
+            _jref = float(max([J(np.array(w)) for w in history]))
+        except Exception:
+            _jref = None
+    if _jref is not None and _lo < 2.0 * _jref and _hi > 2.0 * _jref:
+        _hi = 2.0 * _jref
+    if not (_hi > _lo):
+        _pad = max(1e-6, 1e-4 * max(1.0, abs(_lo)))
+        _hi = _lo + _pad
+    _rlo, _rhi = np.sqrt(max(_lo, 0.0)), np.sqrt(_hi)
+    _lev = [float(r * r) for r in np.linspace(_rlo, _rhi, k + 2)[1:-1]]
+    return _gx.tolist(), _gy.tolist(), _gz.tolist(), _lev
+_gx, _gy, _gz, _levels = _grid2d(_w1_min, _w1_max, _w2_min, _w2_max, _N)
+surf_x = _gx
+surf_y = _gy
+surf_z = _gz
 `;
 
   const evalCode = `
@@ -2957,13 +2978,16 @@ _J_star = float(J(W_STAR))
 _errs   = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
 # Punti in cui la CCV e' violata e il batch viene aumentato: n_k+1 > n_k
 _resize_pts = [list(map(float, w)) for w in resize_points] if 'resize_points' in globals() else []
-# Livelli delle curve di livello per il plot 2D (stile Colab)
-_Jmin = min(_pts_J)
-_Jmax = max(_pts_J)
-if _Jmax - _Jmin < 1e-12:
-    _levels = [float(_Jmax) + 1e-6]
-else:
-    _levels = [float(_l) for _l in np.linspace(_Jmin, _Jmax, 7)[1:]]
+# Livelli delle curve di livello: per il 2D arrivano da _grid2d (range della
+# griglia, spaziatura radiale); per l'1D (senza griglia 2D) restano quelli
+# della traiettoria, come prima.
+if '_levels' not in globals():
+    _Jmin = min(_pts_J)
+    _Jmax = max(_pts_J)
+    if _Jmax - _Jmin < 1e-12:
+        _levels = [float(_Jmax) + 1e-6]
+    else:
+        _levels = [float(_l) for _l in np.linspace(_Jmin, _Jmax, 7)[1:]]
 _out = _json.dumps({
   "history":     [list(map(float, w)) for w in history],
   "batch_sizes": [int(b) for b in batch_sizes],
@@ -3598,6 +3622,63 @@ function colabLayoutCommon() {
     margin: { l: 55, r: 20, t: 12, b: 45 } };
 }
 
+// Griglia corrente delle curve di livello (solo 2D). Viene rigenerata a ogni
+// zoom/pan sul dominio VISIBILE (con un margine), così le isolinee compaiono
+// sempre e restano lisce anche zoommando su un punto specifico; la risoluzione
+// cresce quando ci si avvicina e i livelli sono ricalcolati sulla vista.
+let colabGrid = null;
+let colabInitialGrid = null;   // griglia della vista 1× (nuova run)
+let colabRegridTimer = null;
+let colabRegridSeq = 0;
+
+function currentColabContourTrace() {
+  if (!colabGrid || !colabGrid.z || !colabGrid.z.length) return null;
+  const levs = (colabGrid.levels && colabGrid.levels.length >= 2) ? colabGrid.levels : null;
+  if (!levs) return null;
+  return {
+    type: 'contour', x: colabGrid.x, y: colabGrid.y, z: colabGrid.z,
+    colorscale: [[0, '#5C7396'], [1, '#5C7396']],
+    contours: { coloring: 'lines', showlines: true, showlabels: true,
+                start: levs[0], end: levs[levs.length - 1], size: levs[1] - levs[0],
+                labelfont: { color: '#5C7396', size: 9 } },
+    line: { color: '#5C7396', width: 1 }, showscale: false,
+    hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>J=%{z:.4f}<extra></extra>',
+    name: 'Curve di livello J(w)'
+  };
+}
+
+function scheduleColabRegrid() {
+  if (!currentData || currentData.dim !== 2) return;
+  clearTimeout(colabRegridTimer);
+  colabRegridTimer = setTimeout(doColabRegrid, 150);
+}
+
+async function doColabRegrid() {
+  if (!pyodideReady || !currentData || currentData.dim !== 2) return;
+  if (!colabView || !colabView.xr || !colabView.yr) return;
+  const seq = ++colabRegridSeq;
+  const wx = colabView.xr[1] - colabView.xr[0];
+  const wy = colabView.yr[1] - colabView.yr[0];
+  const padX = 0.15 * wx, padY = 0.15 * wy;
+  const x1 = colabView.xr[0] - padX, x2 = colabView.xr[1] + padX;
+  const y1 = colabView.yr[0] - padY, y2 = colabView.yr[1] + padY;
+  const z = Math.max(0.1, parseFloat(colabZoom.value) || 1);
+  const n = Math.min(160, Math.max(90, Math.round(120 / z)));
+  const f = (v) => (Number.isFinite(v) ? String(v) : '0');
+  const code = 'import json as _json\n' +
+    `_x = _grid2d(${f(x1)}, ${f(x2)}, ${f(y1)}, ${f(y2)}, ${n})\n` +
+    '_out = _json.dumps({"x": _x[0], "y": _x[1], "z": _x[2], "levels": _x[3]})\n';
+  try {
+    pyodide.runPython(code);
+    const g = JSON.parse(pyodide.runPython('_out'));
+    if (seq !== colabRegridSeq) return;      // superato da una vista più recente
+    colabGrid = { x: g.x, y: g.y, z: g.z, levels: g.levels };
+    updateColabView();
+  } catch (err) {
+    debugInfo.textContent = 'Errore curve di livello: ' + err.message;
+  }
+}
+
 function renderColabPlot() {
   const card = document.getElementById('colabPlotCard');
   card.style.display = '';
@@ -3611,8 +3692,25 @@ function renderColabPlot() {
     return;
   }
   const { history, pts_J, w_star, J_star, dim, surf, resize_pts, levels } = currentData;
+
+  // Nuova run: azzera vista e griglia, cancella eventuali regrid in volo.
+  if (colabLastDataRef !== currentData) {
+    colabLastDataRef = currentData;
+    clearTimeout(colabRegridTimer);
+    colabRegridSeq++;
+    colabInitialGrid = (dim === 2 && surf.z && surf.z.length)
+      ? { x: surf.x, y: surf.y, z: surf.z, levels: levels || [] } : null;
+    colabGrid = colabInitialGrid;
+    const hasSx = surf.x && surf.x.length > 1;
+    const hasSy = dim === 2 && surf.y && surf.y.length > 1;
+    const fx = hasSx ? [surf.x[0], surf.x[surf.x.length - 1]] : null;
+    const fy = hasSy ? [surf.y[0], surf.y[surf.y.length - 1]] : null;
+    colabBaseView = { xr: fx, yr: fy };
+    colabView     = { xr: fx ? [fx[0], fx[1]] : null, yr: fy ? [fy[0], fy[1]] : null };
+    colabZoom.value = '1';
+    colabZoomValue.textContent = '1.0×';
+  }
   const resizePts = resize_pts || [];
-  const levs = (levels && levels.length >= 2) ? levels : null;
   const mk = (name, x, y, color, size, symbol) => ({
     x, y, type: 'scatter', mode: 'markers', name,
     marker: { color, size, symbol: symbol || 'circle', line: { color: '#0B1222', width: 1 } }
@@ -3623,16 +3721,7 @@ function renderColabPlot() {
   let traces, layout;
 
   if (dim === 2 && surf.z && surf.z.length) {
-    const contour = levs ? [{
-      type: 'contour', x: surf.x, y: surf.y, z: surf.z,
-      colorscale: [[0, '#5C7396'], [1, '#5C7396']],
-      contours: { coloring: 'lines', showlines: true, showlabels: true,
-                  start: levs[0], end: levs[levs.length - 1], size: levs[1] - levs[0],
-                  labelfont: { color: '#5C7396', size: 9 } },
-      line: { color: '#5C7396', width: 1 }, showscale: false,
-      hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>J=%{z:.4f}<extra></extra>',
-      name: 'Curve di livello J(w)'
-    }] : [];
+    const contour = currentColabContourTrace() ? [currentColabContourTrace()] : [];
     traces = [...contour,
       { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>history[i][1]),
         type: 'scatter', mode: 'lines+markers', name: 'Traiettoria',
@@ -3673,18 +3762,8 @@ function renderColabPlot() {
       yaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090' } };
   }
 
-  // Vista (pan/zoom): si ricorda tra i render e si azzera solo con una nuova run
-  if (colabLastDataRef !== currentData) {
-    colabLastDataRef = currentData;
-    const hasSx = surf.x && surf.x.length > 1;
-    const hasSy = dim === 2 && surf.y && surf.y.length > 1;
-    const fx = hasSx ? [surf.x[0], surf.x[surf.x.length - 1]] : null;
-    const fy = hasSy ? [surf.y[0], surf.y[surf.y.length - 1]] : null;
-    colabBaseView = { xr: fx, yr: fy };
-    colabView     = { xr: fx ? [fx[0], fx[1]] : null, yr: fy ? [fy[0], fy[1]] : null };
-    colabZoom.value = '1';
-    colabZoomValue.textContent = '1.0×';
-  }
+  // Vista (pan/zoom): i range correnti vengono applicati alla griglia appena
+  // costruita; si ricordano tra i render e si azzerano solo con una nuova run.
   if (colabView && colabView.xr && layout.xaxis) {
     layout.xaxis.range = [colabView.xr[0], colabView.xr[1]];
   }
@@ -3707,6 +3786,13 @@ function renderColabPlot() {
       if (!d || !d['xaxis.range']) return;
       const xr = d['xaxis.range'];
       const yr = d['yaxis.range'];
+      const eq = (a, b, tol) => (a && b)
+        ? (Math.abs(a[0] - b[0]) <= tol && Math.abs(a[1] - b[1]) <= tol)
+        : (a === b);
+      const tolX = 1e-9 * Math.max(1, Math.abs(xr[1] - xr[0]));
+      const tolY = yr ? 1e-9 * Math.max(1, Math.abs(yr[1] - yr[0])) : 0;
+      const changed = !colabView || !colabView.xr || !eq(colabView.xr, xr, tolX) ||
+        (!!yr && !eq(colabView.yr, yr, tolY));
       colabView = colabView || {};
       colabView.xr = [xr[0], xr[1]];
       if (yr) colabView.yr = [yr[0], yr[1]];
@@ -3714,6 +3800,10 @@ function renderColabPlot() {
         if (lastColabSnapshot.layout.xaxis) lastColabSnapshot.layout.xaxis.range = colabView.xr;
         if (lastColabSnapshot.layout.yaxis && colabView.yr) lastColabSnapshot.layout.yaxis.range = colabView.yr;
       }
+      // Solo una vista cambiata DAVVERO (pan/zoom dell'utente) rigenera le
+      // curve di livello: i re-render interni usano gli stessi range e non
+      // devono innescare un ciclo di regrid.
+      if (changed) scheduleColabRegrid();
     });
   }
 }
@@ -3791,6 +3881,7 @@ function applyColabZoom() {
     colabView.yr = [cy - hh, cy + hh];
   }
   updateColabView();
+  scheduleColabRegrid();   // zoom-out (<1×) o zoom-in: rigenera le curve di livello
 }
 
 function updateColabView() {
@@ -3799,8 +3890,16 @@ function updateColabView() {
   if (lay.xaxis && colabView.xr) lay.xaxis.range = [colabView.xr[0], colabView.xr[1]];
   if (lay.yaxis && colabView.yr) lay.yaxis.range = [colabView.yr[0], colabView.yr[1]];
   lastColabSnapshot.layout = lay;
-  Plotly.react(document.getElementById('colabPlot'),
-    JSON.parse(JSON.stringify(lastColabSnapshot.traces)), lay, COLAB_CFG);
+  let traces = JSON.parse(JSON.stringify(lastColabSnapshot.traces));
+  if (currentData && currentData.dim === 2 && colabGrid) {
+    // Sostituisce la vecchia curva di livello con quella della griglia corrente
+    // (regrid su zoom/pan), lasciando traiettoria e marker invariati.
+    const c = currentColabContourTrace();
+    traces = traces.filter(t => t.name !== 'Curve di livello J(w)');
+    if (c) traces.unshift(c);
+  }
+  lastColabSnapshot.traces = traces;
+  Plotly.react(document.getElementById('colabPlot'), traces, lay, COLAB_CFG);
 }
 
 document.getElementById('colabZoom').addEventListener('input', applyColabZoom);
@@ -3810,6 +3909,9 @@ document.getElementById('colabZoomReset').addEventListener('click', () => {
   colabZoomValue.textContent = '1.0×';
   colabView = { xr: [colabBaseView.xr[0], colabBaseView.xr[1]],
                 yr: colabBaseView.yr ? [colabBaseView.yr[0], colabBaseView.yr[1]] : null };
+  colabGrid = colabInitialGrid;   // torna alla griglia completa della vista 1×
+  clearTimeout(colabRegridTimer);
+  colabRegridSeq++;
   updateColabView();
 });
 
