@@ -182,6 +182,17 @@ Da tenere presente nelle sessioni di lavoro successive:
   (segmenti medi 1.02 / 3.00 / 7.50 per patience 1/3/8 con CCV spenta),
   CCV che continua a far crescere `n`. Nessun sorgente LaTeX toccato: nessun
   PDF da ricompilare. Commit e push della repo.
+- **Ultimo intervento (23/08/2026, follow-up).** **Fix: nella teoria dinamica
+  (pseudocodice LaTeX generato) ogni riga compariva con `\n` davanti.** Le 4
+  funzioni `pseudo*Validation` aggiunte sopra univano le righe con `'\n'`
+  letterale (doppio backslash nel sorgente, `.join('\\n')`) invece che con il
+  newline reale (`.join('\n')` come le funzioni originali): il separatore
+  finiva nel testo HTML e MathJax lo mostrava come `\n` all'inizio di ogni
+  riga. Corretti i 4 `.join`. Validazione: `deno check` OK; harness che
+  ispeziona l'output di `pseudo*Validation`: righe ora separate da newline
+  reali (prima non si spezzavano con `split('\n')`); i codici Python generati
+  (11/11) sono invariati (i generatori non usano queste join). Nessun PDF
+  coinvolto (solo `visualizzazione.html`). Commit `23c00e7`.
 - **Ultimo intervento (23/08/2026, follow-up).** **App web: curve di livello
   stabili e MAI tagliate a metà dentro la vista.** Segnalati glitch residui:
   con lo zoom/pan le curve comparivano tagliate a metà e in alcuni momenti
