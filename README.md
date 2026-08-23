@@ -146,6 +146,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: i controlli algoritmo-specifici
+  (line search, sottocampionamento Hessiana, Hessian-free L1) compaiono solo per
+  i metodi che li usano.** In `visualizzazione.html` (file solo nella repo) i tre
+  selettori del blocco "Codice Python" erano sempre visibili per qualunque
+  algoritmo: "Line search — GD, Newton-CG, BB" compariva anche con Newton-L1
+  (che usa il suo σ-Armijo) e con Custom, "Sottocampionamento Hessiana —
+  Newton-CG, Newton-L1" anche con GD/BB/Custom (metodi senza Hessiana), e
+  "Hessian-free in Newton L1 — Newton-L1" anche con GD/BB/Newton-CG. Ora ogni
+  riga è racchiusa in un proprio contenitore (`lineSearchRow`, `hkSubsetRow`,
+  `hessianFreeL1Row`) e `updateParamsVisibility()` la mostra solo per i metodi
+  pertinenti: line search per GD/Newton-CG/BB, sottocampionamento Hessiana per i
+  due Newton, Hessian-free solo per Newton-L1. I pannelli numerici
+  (θ/batch₀, R/maxCG, ν/σ/η) erano già condizionati all'algoritmo selezionato.
+  Validazione: sintassi JS con JavaScriptCore (parse OK) e harness con DOM
+  fittizio sulle funzioni reali: 70/70 controlli di visibilità superati
+  (5 algoritmi × 2 stati di riuso). Nessun PDF coinvolto (solo file web in repo).
+
 - **Ultimo intervento (23/08/2026).** **App web: la teoria dinamica ora segue
   la line search scelta (Wolfe/Armijo).** In `visualizzazione.html` gli
   pseudocodici e le formule di line search di GD, Newton-CG e BB erano fissi

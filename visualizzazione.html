@@ -367,7 +367,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
       </div>
       
       <!-- Controlli che influenzano solo ALCUNI algoritmi -->
-      <div class="field-row" style="margin-top:10px">
+      <div class="field-row" id="lineSearchRow" style="margin-top:10px">
         <label class="field-label" for="lineSearchMode">Line search — GD, Newton-CG, BB</label>
         <select id="lineSearchMode">
           <option value="wolfe">Condizioni di Wolfe (default)</option>
@@ -375,7 +375,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         </select>
         <p class="field-hint" id="lineSearchHint">Default: Wolfe (sufficienza discesa + curvatura), come da pseudocodice LaTeX.</p>
       </div>
-      <div class="field-row" style="margin-top:10px">
+      <div class="field-row" id="hkSubsetRow" style="margin-top:10px">
         <label class="field-label" for="hkSubsetMode">Sottocampionamento Hessiana — Newton-CG, Newton-L1</label>
         <select id="hkSubsetMode">
           <option value="subset">H_k ⊆ S_k (default teoria)</option>
@@ -383,7 +383,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         </select>
         <p class="field-hint" id="hkSubsetHint">Default: H_k è estratto come sottoinsieme di S_k, coerente con il paper.</p>
       </div>
-      <div class="field-row" style="margin-top:10px">
+      <div class="field-row" id="hessianFreeL1Row" style="margin-top:10px">
         <label class="field-label" for="hessianFreeL1Mode">Hessian-free in Newton L1 — Newton-L1</label>
         <select id="hessianFreeL1Mode">
           <option value="free">Attivo (default teoria)</option>
@@ -2781,6 +2781,16 @@ function updateParamsVisibility() {
   document.getElementById('gdParams').className     = (algo === 'gd' || algo === 'bb') ? 'visible' : '';
   document.getElementById('newtonParams').className = algo === 'newton_cg' ? 'visible' : '';
   document.getElementById('l1Params').className     = algo === 'newton_l1' ? 'visible' : '';
+  // Controlli del blocco "Codice Python" mostrati solo per i metodi che li usano:
+  // - line search (Wolfe/Armijo): GD, Newton-CG, BB (non L1, che usa il suo sigma-Armijo);
+  // - sottocampionamento Hessiana: solo i due Newton;
+  // - Hessian-free in L1: solo Newton-L1.
+  document.getElementById('lineSearchRow').style.display =
+    (algo === 'gd' || algo === 'newton_cg' || algo === 'bb') ? '' : 'none';
+  document.getElementById('hkSubsetRow').style.display =
+    (algo === 'newton_cg' || algo === 'newton_l1') ? '' : 'none';
+  document.getElementById('hessianFreeL1Row').style.display =
+    algo === 'newton_l1' ? '' : 'none';
   updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled');
 }
 
