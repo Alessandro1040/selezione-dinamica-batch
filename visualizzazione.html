@@ -188,6 +188,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
 .colab-zoom-row .zoom-label{font-family:var(--font-mono);font-size:10px;color:var(--text-3);text-transform:uppercase;letter-spacing:.06em;white-space:nowrap}
 .colab-zoom-row input[type="range"]{flex:1;margin:0}
 .colab-zoom-row .zoom-value{font-family:var(--font-mono);font-size:10.5px;color:var(--gold);min-width:36px;text-align:right}
+.colab-warning{margin:0 18px;padding:8px 12px;border:1px solid rgba(245,166,35,.35);border-radius:var(--radius-sm);background:rgba(245,166,35,.08);color:var(--amber);font-size:11px;line-height:1.55}
+
 </style>
 <base target="_blank">
 </head>
@@ -499,6 +501,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <span class="zoom-value" id="colabZoomValue">1.0×</span>
         <button class="btn-icon-sm" id="colabZoomReset">⟲ Vista completa</button>
       </div>
+      <div class="colab-warning hidden" id="colabWarning"></div>
       <div class="colab-caption" id="colabCaption"></div>
       <div class="colab-actions">
         <button class="btn btn-secondary" id="pinColabBtn">📌 Salva immagine per confronto</button>
@@ -3520,6 +3523,38 @@ function getAlgoLabel(algo) {
            newton_l1: 'Newton-CG L1', bb: 'BB-CCV', custom: 'Algoritmo custom' }[algo] || algo;
 }
 
+function colabTrajectoryStats(history) {
+  // Punti DISTINTI consecutivi: deduplica le iterazioni in cui l'algoritmo
+  // non si muove (es. line search fallita -> step=0.0 -> w identico).
+  const idx = [0];
+  for (let i = 1; i < history.length; i++) {
+    const dx = history[i][0] - history[i - 1][0];
+    const dy = history[i][1] - history[i - 1][1];
+    if (dx * dx + dy * dy > 1e-18) idx.push(i);
+  }
+  const nIter = history.length - 1;   // iterazioni eseguite
+  const nMoves = idx.length - 1;      // passi con movimento reale
+  const stuck = nIter >= 3 && (nMoves <= 1 || nMoves < 0.3 * nIter);
+  return { idx, nIter, nMoves, stuck };
+}
+
+function updateColabWarning(traj) {
+  const warnEl = document.getElementById('colabWarning');
+  if (!warnEl) return;
+  if (!traj || !traj.stuck) { warnEl.classList.add('hidden'); return; }
+  const reuseOn = reuseBatchModeEl.value === 'enabled';
+  const sugg = ['line search <strong>Armijo</strong>', 'batch₀ più grande'];
+  if (reuseOn) sugg.push('riuso con <strong>k finito</strong>');
+  let msg = '⚠️ <strong>Traiettoria quasi ferma:</strong> solo ' + traj.nMoves +
+    (traj.nMoves === 1 ? ' passo reale' : ' passi reali') + ' su ' + traj.nIter + ' iterazioni';
+  msg += reuseOn
+    ? ' — la line search (Wolfe) non trova passi accettabili sul mini-batch riusato e la CCV non lo aumenta perché il gradiente resta grande.'
+    : ' — la line search (Wolfe) non trova passi accettabili.';
+  msg += ' Prova: ' + sugg.join(' · ') + '.';
+  warnEl.innerHTML = msg;
+  warnEl.classList.remove('hidden');
+}
+
 function buildColabCaption() {
   const algo = algoSelect.value;
   const lossName = lossPreset.selectedIndex >= 0
@@ -3549,6 +3584,8 @@ function buildColabCaption() {
   if (currentData) {
     const n = currentData.batch_sizes[currentData.batch_sizes.length - 1] ?? '—';
     parts.push('<span class="cap-dim">' + currentData.history.length + ' iter · batch finale n=' + n + '</span>');
+    const t = colabTrajectoryStats(currentData.history);
+    if (t.stuck) parts.push('<span class="cap-dim" style="color:var(--amber)">⚠️ ' + t.nMoves + '/' + t.nIter + ' passi reali</span>');
   }
   return parts.join(' · ');
 }
@@ -3570,6 +3607,7 @@ function renderColabPlot() {
     Plotly.purge(document.getElementById('colabPlot'));
     lastColabSnapshot = null;
     colabBaseView = null; colabView = null; colabLastDataRef = null;
+    updateColabWarning(null);
     return;
   }
   const { history, pts_J, w_star, J_star, dim, surf, resize_pts, levels } = currentData;
@@ -3580,6 +3618,8 @@ function renderColabPlot() {
     marker: { color, size, symbol: symbol || 'circle', line: { color: '#0B1222', width: 1 } }
   });
   const last = history[history.length - 1];
+  const traj = colabTrajectoryStats(history);
+  const pIdx = traj.idx;
   let traces, layout;
 
   if (dim === 2 && surf.z && surf.z.length) {
@@ -3594,7 +3634,7 @@ function renderColabPlot() {
       name: 'Curve di livello J(w)'
     }] : [];
     traces = [...contour,
-      { x: history.map(p=>p[0]), y: history.map(p=>p[1]),
+      { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>history[i][1]),
         type: 'scatter', mode: 'lines+markers', name: 'Traiettoria',
         line: { color: '#4A9EFF', width: 2 }, marker: { color: '#4A9EFF', size: 4 }, opacity: 0.9 },
       ...(resizePts.length ? [{
@@ -3616,7 +3656,7 @@ function renderColabPlot() {
     traces = [
       { x: surf.x, y: surf.y, type: 'scatter', mode: 'lines', name: 'J(w)',
         line: { color: '#7C93B8', width: 2 } },
-      { x: history.map(p=>p[0]), y: pts_J, type: 'scatter', mode: 'lines+markers',
+      { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>pts_J[i]), type: 'scatter', mode: 'lines+markers',
         name: 'Traiettoria', line: { color: '#4A9EFF', width: 2, dash: 'dot' },
         marker: { color: '#4A9EFF', size: 4 } },
       ...(resizePts.length ? [{
@@ -3653,6 +3693,7 @@ function renderColabPlot() {
   }
   layout.dragmode = 'pan';
 
+  updateColabWarning(traj);
   Plotly.react(document.getElementById('colabPlot'), traces, layout, COLAB_CFG);
   document.getElementById('colabCaption').innerHTML = buildColabCaption();
   lastColabSnapshot = { traces: JSON.parse(JSON.stringify(traces)),

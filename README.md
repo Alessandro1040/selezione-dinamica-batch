@@ -146,6 +146,29 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: la Traiettoria 2D ora rileva e
+  segnala le traiettorie "quasi ferme".** In `visualizzazione.html` la funzione
+  `colabTrajectoryStats()` deduplica i punti IDENTICI consecutivi della history
+  (line search fallita → `step=0.0` → `w` invariato) e considera "quasi ferma"
+  una traiettoria con ≤1 passo reale oppure <30% di iterazioni con movimento
+  (su run ≥3 iterazioni). In quel caso: (1) la traiettoria viene disegnata sui
+  soli punti DISTINTI (niente più cumulo di 30 marker sovrapposti nello stesso
+  punto); (2) appare un avviso ambrato con la spiegazione e i suggerimenti
+  (line search **Armijo**, **batch₀ più grande**, **k finito** con riuso);
+  (3) la caption della immagine salvata in galleria riporta `⚠️ nM/n passi
+  reali`. Motivo della segnalazione (diagnosi, NON regressione): con riuso
+  batch illimitato + line search Wolfe + batch₀ piccolo, la Wolfe non trova
+  passi accettabili (per una quadratica la condizione di curvatura
+  `g_new·d ≥ c2·gd` è soddisfatta solo per t≈α, caso borderline perché
+  `d'Hd=-gd`), l'algoritmo si blocca, il gradiente resta grande e la CCV sul
+  batch riusato non scatta mai (`V/n≈560 ≪ θ²‖g‖²≈6700-8300`) → batch fisso
+  per sempre. Riproduzione numerica della config segnalata (Newton-CG, κ≈100,
+  riuso illimitato, Wolfe, batch₀=5): 2 punti distinti su 31 (0 movimenti con
+  batch₀=20/50); con Armijo 31 punti distinti e ‖w-w*‖=0.079. Il riuso batch è
+  stato introdotto il 21/08 (commit `ba21146`): prima di allora la modalità
+  senza riuso generava lo stesso identico codice (diff verificato), quindi il
+  comportamento vecchio è invariato. Validazione: `deno check` OK + harness
+  jsc **14/14 controlli**. Nessun PDF coinvolto (l'app non è in `tesi.tex`).
 - **Ultimo intervento (23/08/2026).** **App web: traiettoria 2D con pan
   (trascina), slider di zoom e "Salva immagine" che conserva la vista
   corrente.** In `visualizzazione.html` (file solo nella repo) il plot della
