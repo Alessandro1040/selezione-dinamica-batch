@@ -102,7 +102,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (22/08/2026)
+## Note operative e stato corrente (23/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -146,6 +146,30 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: teoria dinamica aggiornata —
+  `M_H` negli pseudocodici di Newton-CG e Newton-CG $L_1$, e definita la
+  variabile "servono dati nuovi".** In `visualizzazione.html` (file solo nella
+  repo, non presente nella copia Desktop: modificato direttamente qui):
+  (1) gli pseudocodici di riuso di Newton-CG e Newton-L1 ora includono `M_H`
+  (limite dei riusi consecutivi di $H_k$) e il modo Hessiana *Legato a $S_k$*
+  (default, $M_H$ inattivo: $H_k$ ricampionato insieme a $S_k$) /
+  *Indipendente* ($H_k$ ricampionato dopo $M_H$ riusi; $M_H=\infty$: solo
+  quando la CCV su $S_k$ è violata), con flag e contatori separati
+  `da_ricampionare_S`/`da_ricampionare_H` e $j_{\mathcal S}$/$j_{\mathcal H}$
+  (la rinomina risolve anche il conflitto del contatore di riuso $j$ col
+  contatore interno del CG); estese le note "Mini-batch riusato" dei due
+  Newton. (2) In TUTTI gli pseudocodici di riuso (GD, BB-CCV, Newton-CG,
+  Newton-L1) la frase-variabile "servono dati nuovi" (mai definita) è
+  sostituita dal booleano `da_ricampionare`, definito e inizializzato a `vero`
+  prima del loop, azzerato a `falso` subito dopo il ricampionamento (prima
+  mancava il reset: lo pseudocodice ricampionava a ogni iterazione) e
+  riattivato a `vero` su CCV violata o a limite $M$/$M_H$ raggiunto — coerente
+  con `need_resample`/`used` del codice generato. In BB aggiunta anche la
+  definizione di $\widehat{\mathcal V}_k$ (usata ma mai definita). Validazione:
+  i 4 blocchi pseudocodice modificati compilano con pdflatex (0 errori),
+  `\[`/`\]` bilanciati (56/56). Nessun PDF coinvolto (l'app non è inclusa in
+  `tesi.tex`).
+
 - **Ultimo intervento (22/08/2026).** **Appendice E: aggiunta la colonna per il
   riuso dell'Hessiana indipendente da $S_k$ ($M_H=\infty$) e CORRETTA
   un'inconsistenza delle tabelle Newton.** (1) Scoperto che le tabelle
