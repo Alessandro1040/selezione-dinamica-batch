@@ -171,6 +171,19 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
 .app-footer{max-width:1400px;margin:24px auto 0;padding-top:16px;border-top:1px solid var(--border-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-family:var(--font-mono);font-size:9.5px;color:var(--text-3)}
 .footer-ref em{color:var(--gold);font-style:normal}
 .hidden{display:none!important}
+/* ── Traiettoria 2D (stile Colab) e galleria di confronto ── */
+.colab-launcher{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.colab-launcher .field-hint{margin:0;font-size:10px}
+#colabPlot{width:100%;height:470px;background:transparent}
+.colab-caption{padding:8px 18px;border-top:1px solid var(--border-soft);font-size:11px;color:var(--text-2);line-height:1.6}
+.colab-caption .cap-dim{color:var(--gold);font-family:var(--font-mono);font-size:10px}
+.colab-actions{padding:10px 18px;border-top:1px solid var(--border-soft);display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#galleryContainer{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:14px;padding:16px 18px}
+.gallery-card{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);overflow:hidden;display:flex;flex-direction:column}
+.gallery-plot{width:100%;height:330px;background:transparent}
+.gallery-caption{padding:8px 12px;font-size:10.5px;color:var(--text-2);line-height:1.55;border-top:1px solid var(--border-soft);border-bottom:1px solid var(--border-soft)}
+.gallery-caption .gallery-num{color:var(--gold);font-family:var(--font-mono);font-weight:700;margin-right:4px}
+.gallery-card .btn-icon-sm{margin:8px 12px 10px;align-self:flex-start}
 </style>
 <base target="_blank">
 </head>
@@ -457,6 +470,41 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
       </div>
       <div id="plot"></div>
       <div class="debug-strip" id="debugInfo">Premi <strong>Ricalcola</strong> per eseguire l'algoritmo.</div>
+    </div>
+
+    <!-- Pulsante per il plot 2D in stile Colab (traiettoria + curve di livello) -->
+    <div class="colab-launcher">
+      <div style="flex:1">
+        <button class="btn btn-secondary" id="colabPlotBtn">🖼️ Traiettoria 2D (come nel Colab)</button>
+        <p class="field-hint">Percorso nel piano (w₁, w₂) con le curve di livello di J(w) e i punti in cui la CCV aumenta il batch. Mostra <em>una sola</em> immagine, quella dell'ultima esecuzione con i parametri correnti (w₀ è quello scelto qui accanto, mai casuale).</p>
+      </div>
+    </div>
+
+    <!-- Plot 2D in stile Colab -->
+    <div class="plot-card" id="colabPlotCard" style="display:none">
+      <div class="plot-card-header">
+        <div class="plot-card-title"><div class="dot"></div><span>Traiettoria 2D — J(w) e percorso J(w<sub>k</sub>)</span></div>
+        <div class="iter-status">
+          <button class="btn-icon-sm" id="closeColabPlotBtn">✕ Chiudi</button>
+        </div>
+      </div>
+      <div id="colabPlot"></div>
+      <div class="colab-caption" id="colabCaption"></div>
+      <div class="colab-actions">
+        <button class="btn btn-secondary" id="pinColabBtn">📌 Salva immagine per confronto</button>
+        <span class="field-hint" style="margin:0">Salva questo grafico con la sua didascalia, cambia gli iperparametri e genera un nuovo plot per confrontarli.</span>
+      </div>
+    </div>
+
+    <!-- Galleria di confronto -->
+    <div class="plot-card" id="galleryCard" style="display:none">
+      <div class="plot-card-header">
+        <div class="plot-card-title"><div class="dot"></div><span>Confronto immagini salvate</span></div>
+        <div class="iter-status">
+          <button class="btn-icon-sm" id="clearGalleryBtn">🗑️ Rimuovi tutte</button>
+        </div>
+      </div>
+      <div id="galleryContainer"></div>
     </div>
 
     <div class="theory-card">
@@ -1793,8 +1841,8 @@ function generateGD(opts) {
 ` : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
 
-history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
-` : `history, batch_sizes = dynamic_gd(w0, theta, max_iter, alpha, batch0)
+history, batch_sizes, resize_points = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+` : `history, batch_sizes, resize_points = dynamic_gd(w0, theta, max_iter, alpha, batch0)
 `;
   return `import numpy as np
 
@@ -1803,6 +1851,7 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     n = max(batch0, 2)
     history     = [w.copy().tolist()]
     batch_sizes = [n]
+    resize_points = []
 ${preLoop}    for k in range(max_iter):
 ${sample}        grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
@@ -1817,6 +1866,7 @@ ${sample}        grads = np.array([grad_i(w, i) for i in indices])
             if V_norm1 / n > theta**2 * gg:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
 ${ccvTail}` : `        # Batch dinamico disattivato: n rimane costante a batch0\n`) +
 `        def J_batch(w_curr):
             return np.mean([loss_i(w_curr, i) for i in indices])
@@ -1861,7 +1911,7 @@ ${ccvTail}` : `        # Batch dinamico disattivato: n rimane costante a batch0\
             break
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
 ${modCall}`;
 }
@@ -1903,7 +1953,8 @@ function generateNewtonCG(opts) {
 `) + `            used_H = 0
             need_resample_H = False
 ` : '';
-  const ccvReset = (reuse && dyn) ? `            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
+  const ccvReset = (reuse && dyn) ? `            resize_points.append(w.copy().tolist())
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
             need_resample_S = True
             used_S = 0
             need_resample_H = True
@@ -1916,8 +1967,8 @@ function generateNewtonCG(opts) {
 reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
 max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
-` : `history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
+history, batch_sizes, resize_points = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
+` : `history, batch_sizes, resize_points = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
 `;
   return `import numpy as np
 
@@ -1947,6 +1998,7 @@ def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${sigTail}):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
+    resize_points = []
 ${preLoop}    for k in range(max_iter):
 ${topSample}` + (reuse ? `        grads_arr = np.array([grad_i(w, i) for i in indices_S])
         g = np.mean(grads_arr, axis=0)
@@ -2014,11 +2066,12 @@ ${ccvReset}` : '') +
         var_vec = np.var([grad_i(w, i) for i in indices_new], axis=0, ddof=1) if n > 1 else np.zeros_like(g_new)
         V_norm1, gg_new = np.sum(var_vec), np.dot(g_new, g_new)
         if gg_new > 1e-16 and V_norm1 / n > theta**2 * gg_new:
+            resize_points.append(w.copy().tolist())
             n = min(int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1, N)
 `) : `        # Batch dinamico disattivato\n`) +
 `        if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
 ${modCall}`;
 }
@@ -2062,7 +2115,8 @@ function generateNewtonL1(opts) {
 `) + `            used_H = 0
             need_resample_H = False
 ` : '';
-  const ccvReset = (reuse && dyn) ? `                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+  const ccvReset = (reuse && dyn) ? `                resize_points.append(w.copy().tolist())
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
                 need_resample_S = True
                 used_S = 0
@@ -2076,8 +2130,8 @@ function generateNewtonL1(opts) {
 reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
 max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
-` : `history, batch_sizes = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
+history, batch_sizes, resize_points = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
+` : `history, batch_sizes, resize_points = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
 `;
   return `import numpy as np
 
@@ -2086,6 +2140,7 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5${sig
     n = max(batch0, 2)
     history     = [w.copy().tolist()]
     batch_sizes = [n]
+    resize_points = []
     def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
@@ -2242,12 +2297,13 @@ ${ccvReset}` : '') +
             if V_norm1 / n > theta**2 * gg_new:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1
                 n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
 `) : `        # Batch dinamico disattivato\n`) +
 `${usedInc}        history.append(w.copy().tolist())
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
 ${modCall}`;
 }
@@ -2275,8 +2331,8 @@ function generateBB(opts) {
 ` : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
 
-history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
-` : `history, batch_sizes = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
+history, batch_sizes, resize_points = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+` : `history, batch_sizes, resize_points = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
 `;
   return `import numpy as np
 
@@ -2285,6 +2341,7 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
+    resize_points = []
     w_prev = w.copy()
     g_prev = None
 ${preLoop}    for k in range(max_iter):
@@ -2353,10 +2410,11 @@ ${sample}        grads = np.array([grad_i(w, i) for i in indices])
             if V_norm1 / n > theta**2 * gg:
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
 ${ccvTail}` : `        # Batch dinamico disattivato\n`) +
 `        history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
 ${modCall}`;
 }
@@ -2884,6 +2942,15 @@ _pts_gN = [float(np.linalg.norm(gradJ(np.array(w)))) for w in history]
 _w_star = W_STAR.tolist()
 _J_star = float(J(W_STAR))
 _errs   = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
+# Punti in cui la CCV e' violata e il batch viene aumentato: n_k+1 > n_k
+_resize_pts = [list(map(float, w)) for w in resize_points] if 'resize_points' in globals() else []
+# Livelli delle curve di livello per il plot 2D (stile Colab)
+_Jmin = min(_pts_J)
+_Jmax = max(_pts_J)
+if _Jmax - _Jmin < 1e-12:
+    _levels = [float(_Jmax) + 1e-6]
+else:
+    _levels = [float(_l) for _l in np.linspace(_Jmin, _Jmax, 7)[1:]]
 _out = _json.dumps({
   "history":     [list(map(float, w)) for w in history],
   "batch_sizes": [int(b) for b in batch_sizes],
@@ -2892,6 +2959,8 @@ _out = _json.dumps({
   "w_star":      _w_star,
   "J_star":      _J_star,
   "errs":        _errs,
+  "resize_pts":  _resize_pts,
+  "levels":      _levels,
   "surf_x":      surf_x,
   "surf_y":      surf_y,
   "surf_z":      surf_z,
@@ -2981,7 +3050,8 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const J_star      = out.J_star;
     const surf        = { x: out.surf_x, y: out.surf_y, z: out.surf_z };
 
-    currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf };
+    currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf,
+                    resize_pts: out.resize_pts || [], levels: out.levels || [], w0 };
 
     const maxIdx = history.length - 1;
     iterSlider.max = maxIdx; iterNum.max = maxIdx;
@@ -3414,6 +3484,198 @@ _preview = _j.dumps({"sx": _xi.tolist(), "sy": _yi.tolist(),
     debugInfo.textContent = 'Errore preview loss: ' + e.message;
   }
 }
+
+/* =====================================================================
+   Traiettoria 2D in stile Colab + galleria di confronto.
+   Mostra UN solo grafico per la configurazione corrente (algoritmo, loss,
+   w0 scelto dall'utente, riuso batch) con le curve di livello di J(w),
+   il percorso, i punti in cui la CCV ha aumentato il batch e i marker
+   w0/w_finale/w*. Il pulsante 'Salva immagine' fissa il grafico in una
+   galleria sotto, con una caption degli iperparametri, per confrontare
+   piu' configurazioni; ogni immagine si puo' rimuovere singolarmente o
+   tutte insieme.
+   ===================================================================== */
+let galleryItems = [];
+let lastColabSnapshot = null;
+
+function getAlgoLabel(algo) {
+  return { gd: 'GD (Gradiente a Campione Dinamico)', newton_cg: 'Newton-CG',
+           newton_l1: 'Newton-CG L1', bb: 'BB-CCV', custom: 'Algoritmo custom' }[algo] || algo;
+}
+
+function buildColabCaption() {
+  const algo = algoSelect.value;
+  const lossName = lossPreset.selectedIndex >= 0
+    ? lossPreset.options[lossPreset.selectedIndex].text.replace(/✏️ /, '') : lossPreset.value;
+  const db = document.getElementById('dynamicBatchMode').value === 'dynamic';
+  const rb = reuseBatchModeEl.value === 'enabled';
+  const mcm = maxConsecModeEl.value;
+  const hr = hessianReuseModeEl.value === 'tied' ? 'legato a S_k' : 'indipendente da S_k';
+  const mh = mhModeEl.value === 'custom' ? ('M_H=' + mhValueEl.value) : 'M_H=∞';
+  const parts = [];
+  parts.push('<strong>' + getAlgoLabel(algo) + '</strong>');
+  parts.push('loss: <em>' + lossName + '</em>');
+  parts.push('w₀=(' + w0x.value + ', ' + w0y.value + ')');
+  parts.push('α=' + alphaEl.value, 'θ=' + thetaEl.value, 'batch₀=' + batch0El.value);
+  parts.push('max_iter=' + maxIterEl.value, 'N=' + document.getElementById('totalN').value,
+             'seed=' + document.getElementById('seedVal').value);
+  parts.push('batch ' + (db ? 'dinamico (CCV)' : 'fisso'));
+  parts.push('riuso batch: ' + (rb ? ('attivo' + (mcm === 'custom' ? ' (k=' + maxConsecEl.value + ')' : ' (k illimitato)')) : 'no'));
+  if (algo === 'gd' || algo === 'newton_cg' || algo === 'bb') {
+    parts.push('line search: ' + document.getElementById('lineSearchMode').value);
+  }
+  if (algo === 'newton_cg' || algo === 'newton_l1') {
+    parts.push('R=' + REl.value, 'maxcg=' + maxcgEl.value);
+    if (algo === 'newton_l1') parts.push('ν=' + nuEl.value, 'σ=' + sigmaEl.value, 'η=' + etaEl.value);
+    if (rb) parts.push('riuso Hessiana: ' + hr + ' (' + mh + ')');
+  }
+  if (currentData) {
+    const n = currentData.batch_sizes[currentData.batch_sizes.length - 1] ?? '—';
+    parts.push('<span class="cap-dim">' + currentData.history.length + ' iter · batch finale n=' + n + '</span>');
+  }
+  return parts.join(' · ');
+}
+
+function colabLayoutCommon() {
+  return { ...BASE,
+    hovermode: 'closest',
+    legend: { bgcolor: 'rgba(10,15,26,.88)', bordercolor: '#243354', borderwidth: 1,
+              font: { size: 10 }, orientation: 'h', x: 0, y: 1.06 },
+    margin: { l: 55, r: 20, t: 12, b: 45 } };
+}
+
+function renderColabPlot() {
+  const card = document.getElementById('colabPlotCard');
+  card.style.display = '';
+  if (!currentData) {
+    document.getElementById('colabCaption').innerHTML =
+      'Premi <strong>⟳ Ricalcola</strong> per generare la traiettoria, poi torna qui.';
+    Plotly.purge(document.getElementById('colabPlot'));
+    lastColabSnapshot = null;
+    return;
+  }
+  const { history, pts_J, w_star, J_star, dim, surf, resize_pts, levels } = currentData;
+  const resizePts = resize_pts || [];
+  const levs = (levels && levels.length >= 2) ? levels : null;
+  const mk = (name, x, y, color, size, symbol) => ({
+    x, y, type: 'scatter', mode: 'markers', name,
+    marker: { color, size, symbol: symbol || 'circle', line: { color: '#0B1222', width: 1 } }
+  });
+  const last = history[history.length - 1];
+  let traces, layout;
+
+  if (dim === 2 && surf.z && surf.z.length) {
+    const contour = levs ? [{
+      type: 'contour', x: surf.x, y: surf.y, z: surf.z,
+      colorscale: [[0, '#5C7396'], [1, '#5C7396']],
+      contours: { coloring: 'lines', showlines: true, showlabels: true,
+                  start: levs[0], end: levs[levs.length - 1], size: levs[1] - levs[0],
+                  labelfont: { color: '#5C7396', size: 9 } },
+      line: { color: '#5C7396', width: 1 }, showscale: false,
+      hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>J=%{z:.4f}<extra></extra>',
+      name: 'Curve di livello J(w)'
+    }] : [];
+    traces = [...contour,
+      { x: history.map(p=>p[0]), y: history.map(p=>p[1]),
+        type: 'scatter', mode: 'lines+markers', name: 'Traiettoria',
+        line: { color: '#4A9EFF', width: 2 }, marker: { color: '#4A9EFF', size: 4 }, opacity: 0.9 },
+      ...(resizePts.length ? [{
+        x: resizePts.map(p=>p[0]), y: resizePts.map(p=>p[1]),
+        type: 'scatter', mode: 'markers', name: 'CCV violata (batch aumentato)',
+        marker: { color: '#22D3EE', size: 9, line: { color: '#4A9EFF', width: 1.5 } }
+      }] : []),
+      mk('w₀', [history[0][0]], [history[0][1]], '#3EC97A', 11),
+      mk('w_finale', [last[0]], [last[1]], '#F87171', 11),
+      mk('w*', [w_star[0]], [w_star[1]], '#F5A623', 14, 'star')
+    ];
+    layout = { ...colabLayoutCommon(), height: 470,
+      xaxis: { title: 'w₁', gridcolor: '#1C2A42', color: '#607090',
+               range: [surf.x[0], surf.x[surf.x.length - 1]] },
+      yaxis: { title: 'w₂', gridcolor: '#1C2A42', color: '#607090',
+               range: [surf.y[0], surf.y[surf.y.length - 1]],
+               scaleanchor: 'x', scaleratio: 1 } };
+  } else {
+    traces = [
+      { x: surf.x, y: surf.y, type: 'scatter', mode: 'lines', name: 'J(w)',
+        line: { color: '#7C93B8', width: 2 } },
+      { x: history.map(p=>p[0]), y: pts_J, type: 'scatter', mode: 'lines+markers',
+        name: 'Traiettoria', line: { color: '#4A9EFF', width: 2, dash: 'dot' },
+        marker: { color: '#4A9EFF', size: 4 } },
+      ...(resizePts.length ? [{
+        x: resizePts.map(p=>p[0]), y: resizePts.map(p=>p[1]),
+        type: 'scatter', mode: 'markers', name: 'CCV violata (batch aumentato)',
+        marker: { color: '#22D3EE', size: 8, line: { color: '#4A9EFF', width: 1.5 } }
+      }] : []),
+      mk('w₀', [history[0][0]], [pts_J[0]], '#3EC97A', 11),
+      mk('w_finale', [last[0]], [pts_J[pts_J.length - 1]], '#F87171', 11),
+      mk('w*', [w_star[0]], [J_star], '#F5A623', 13, 'star')
+    ];
+    layout = { ...colabLayoutCommon(), height: 470,
+      xaxis: { title: 'w', gridcolor: '#1C2A42', color: '#607090' },
+      yaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090' } };
+  }
+
+  Plotly.react(document.getElementById('colabPlot'), traces, layout,
+    { responsive: true, displaylogo: false, displayModeBar: 'hover',
+      modeBarButtonsToRemove: ['toImage', 'sendDataToCloud'] });
+  document.getElementById('colabCaption').innerHTML = buildColabCaption();
+  lastColabSnapshot = { traces: JSON.parse(JSON.stringify(traces)),
+                        layout: JSON.parse(JSON.stringify(layout)) };
+}
+
+function pinColabPlot() {
+  // Ri-renderizza sempre: l'immagine salvata deve riflettere la configurazione
+  // corrente (algoritmo/loss/w0/iperparametri) e la caption corrispondente.
+  renderColabPlot();
+  if (!lastColabSnapshot) return;
+  galleryItems.push({ traces: JSON.parse(JSON.stringify(lastColabSnapshot.traces)),
+                      layout: JSON.parse(JSON.stringify(lastColabSnapshot.layout)),
+                      caption: buildColabCaption() });
+  renderGallery();
+}
+
+function renderGallery() {
+  const container = document.getElementById('galleryContainer');
+  const card = document.getElementById('galleryCard');
+  container.innerHTML = '';
+  if (!galleryItems.length) { card.style.display = 'none'; return; }
+  card.style.display = '';
+  galleryItems.forEach((item, i) => {
+    const el = document.createElement('div');
+    el.className = 'gallery-card';
+    const plotDiv = document.createElement('div');
+    plotDiv.className = 'gallery-plot';
+    const cap = document.createElement('div');
+    cap.className = 'gallery-caption';
+    cap.innerHTML = '<span class="gallery-num">#' + (i + 1) + '</span>' + item.caption;
+    const rm = document.createElement('button');
+    rm.className = 'btn-icon-sm gallery-remove';
+    rm.textContent = '✕ Rimuovi';
+    rm.dataset.idx = String(i);
+    el.appendChild(plotDiv); el.appendChild(cap); el.appendChild(rm);
+    container.appendChild(el);
+    const lay = JSON.parse(JSON.stringify(item.layout));
+    lay.height = 330;
+    lay.margin = { l: 45, r: 12, t: 8, b: 35 };
+    Plotly.react(plotDiv, JSON.parse(JSON.stringify(item.traces)), lay,
+      { responsive: true, displaylogo: false, displayModeBar: false });
+  });
+}
+
+document.getElementById('colabPlotBtn').addEventListener('click', renderColabPlot);
+document.getElementById('closeColabPlotBtn').addEventListener('click', () => {
+  document.getElementById('colabPlotCard').style.display = 'none';
+});
+document.getElementById('pinColabBtn').addEventListener('click', pinColabPlot);
+document.getElementById('clearGalleryBtn').addEventListener('click', () => {
+  galleryItems = []; renderGallery();
+});
+document.getElementById('galleryContainer').addEventListener('click', (e) => {
+  const btn = e.target.closest('.gallery-remove');
+  if (!btn) return;
+  galleryItems.splice(parseInt(btn.dataset.idx, 10), 1);
+  renderGallery();
+});
 
 window.addEventListener('load', async () => {
   lossPreset.value='quad_well';

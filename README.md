@@ -146,6 +146,32 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: pulsante "Traiettoria 2D (come
+  nel Colab)" sotto il plot principale + galleria di confronto.** In
+  `visualizzazione.html` (file solo nella repo) ora, sotto "Superficie J(w) e
+  percorso J(w_k)", un pulsante mostra UN solo grafico 2D per la configurazione
+  corrente — algoritmo, loss, **w₀ = quello scelto dall'utente** (mai
+  casuale), riuso batch on/off, iperparametri — con le **curve di livello di
+  J(w)** (ellissi), il percorso, i **puntini ciano dove la CCV è violata e il
+  batch aumenta** e i marker w₀/w_finale/w* (stile Colab). Un pulsante "Salva
+  immagine per confronto" fissa il grafico in una galleria sotto con una
+  **caption degli iperparametri** (algoritmo, loss, w₀, α, θ, batch₀, max_iter,
+  N, seed, batch dinamico/fisso, riuso batch, line search, R/maxcg/ν/σ/η,
+  riuso Hessiana), così si può cambiare configurazione e generare altri plot da
+  confrontare (quante volte si vuole); ogni immagine si può rimuovere
+  singolarmente o tutte insieme. Implementazione: gli algoritmi generati
+  (`generateGD/generateNewtonCG/generateNewtonL1/generateBB`) ora **restituiscono
+  anche `resize_points`** (terzo output) registrato dentro il ramo CCV, così i
+  puntini compaiono a OGNI violazione della CCV (come nel Colab, anche quando
+  il batch è saturo a N); livelli delle curve calcolati dinamicamente dal range
+  di J della traiettoria (`_levels` in evalCode); rendering Plotly coerente col
+  tema (2D con `scaleanchor` = aspect uguale, curva 1D per le loss 1D).
+  Validazione: sintassi JS con JavaScriptCore + harness con DOM fittizio
+  **22/22 controlli** (render 2D/1D, caption, pin/rimozione singola/tutte,
+  senza-dati) e **10 codici Python generati eseguiti** con numpy sulla loss
+  quad_ill (ricampionamento/riuso/fisso per i 4 algoritmi: resize_points
+  coerenti, livelli crescenti, JSON ok). Nessun PDF coinvolto (solo file web in
+  repo).
 - **Ultimo intervento (23/08/2026).** **App web: la teoria dinamica ora segue
   TUTTI gli iperparametri (batch dinamico, sottocampionamento Hessiana,
   Hessian-free L1, riuso Hessiana legato/indipendente).** In
