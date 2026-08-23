@@ -363,6 +363,48 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <p class="field-hint" id="maxConsecHint">Illimitato: il batch si riusa finch&eacute; la CCV resta soddisfatta (limite naturale = max_iter). Con k = 1 si ricampiona a ogni iterazione (per GD e BB il comportamento &egrave; identico all'algoritmo attuale; per i metodi di Newton la CCV &egrave; valutata sul batch in uso invece che su un nuovo campione).</p>
       </div>
 
+      <!-- Stop adattivo con validation set: M e M_H decisi automaticamente dalla loss di validazione -->
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="valUseChk">Stop adattivo con validation set — tutti gli algoritmi</label>
+        <div class="checkbox-row"><input type="checkbox" id="valUseChk"><label for="valUseChk">Usa validation set per stop adattivo</label></div>
+        <p class="field-hint" id="valUseHint">Quando attivo, <strong>M</strong> (e <strong>M_H</strong> per i metodi di Newton) non si impostano pi&ugrave; a mano: il mini-batch si ricampiona quando la loss sul validation set non migliora per <em>pazienza</em> valutazioni consecutive. La CCV continua a ingrandire il batch quando la varianza &egrave; troppo alta. Contatore <strong>M_actual</strong>: iterazioni consecutive sullo stesso batch.</p>
+      </div>
+      <div class="field-row" id="valParams" style="margin-top:10px;display:none">
+        <div class="param-grid">
+          <div class="param-item">
+            <span class="param-label">Percentuale validation (del dataset)</span>
+            <input type="range" id="valPct" min="5" max="50" step="5" value="20" style="width:100%">
+            <span class="param-label" id="valPctValue" style="color:var(--text-2)">20%</span>
+          </div>
+          <div class="param-item">
+            <span class="param-label">Pazienza (valutazioni senza progresso)</span>
+            <input type="range" id="valPatience" min="1" max="10" step="1" value="3" style="width:100%">
+            <span class="param-label" id="valPatienceValue" style="color:var(--text-2)">3</span>
+          </div>
+          <div class="param-item">
+            <span class="param-label">Frequenza valutazione (ogni k iter.)</span>
+            <input type="range" id="valFreq" min="1" max="10" step="1" value="1" style="width:100%">
+            <span class="param-label" id="valFreqValue" style="color:var(--text-2)">1</span>
+          </div>
+          <div class="param-item">
+            <span class="param-label">Strategia validation</span>
+            <select id="valStrategy">
+              <option value="fixed">Fixed (val set fisso)</option>
+              <option value="dynamic">Dynamic (ricampionato a ogni cambio batch)</option>
+            </select>
+          </div>
+          <div class="param-item">
+            <span class="param-label">Tolleranza relativa</span>
+            <input type="number" id="valTol" value="0.0001" step="0.0001" min="0">
+          </div>
+          <div class="param-item">
+            <span class="param-label">Soglia minima assoluta</span>
+            <input type="number" id="valMinAbs" value="0.0" step="0.001" min="0">
+          </div>
+        </div>
+        <p class="field-hint" id="valParamsHint">Progresso se <em>J_val(w<sub>k+1</sub>) &le; J_val<sup>best</sup> &middot; (1 &minus; tol) &minus; min_abs</em>. Il validation set &egrave; separato dal training una volta all'inizio (fixed) o a ogni cambio di batch (dynamic); i mini-batch si campionano dal solo training set.</p>
+      </div>
+
       <!-- Parametri per il riuso dell'Hessiana (solo Newton-CG e Newton-L1) -->
       <div class="field-row" id="hessianReuseParams" style="margin-top:10px;display:none">
         <div class="param-grid">
@@ -456,6 +498,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <div class="metric-card"><div class="metric-label">‖∇J‖</div><div class="metric-value amber" id="gradDisplay">—</div></div>
         <div class="metric-card"><div class="metric-label">‖w − w*‖</div><div class="metric-value" id="errDisplay">—</div></div>
         <div class="metric-card" style="grid-column:1/-1"><div class="metric-label">Batch size nₖ</div><div class="metric-value green" id="batchDisplay">—</div></div>
+        <div class="metric-card" id="mActualCard" style="display:none"><div class="metric-label">M_actual (riusi correnti batch)</div><div class="metric-value" id="mActualDisplay">—</div></div>
+        <div class="metric-card" id="valJCard" style="display:none"><div class="metric-label">J_val (ultima valutazione)</div><div class="metric-value green" id="valJDisplay">—</div></div>
       </div>
       <div id="convergenceResult" class="convergence-result"></div>
     </div>
@@ -1250,6 +1294,21 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
       <div class="debug-strip" id="batchDebugInfo">Premi <strong>Ricalcola</strong> per generare il confronto.</div>
     </div>
 
+    <!-- Plot della loss di validation (stop adattivo con validation set) -->
+    <div class="plot-card" id="valPlotCard" style="display:none">
+      <div class="plot-card-header">
+        <div class="plot-card-title">
+          <div class="dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+          <span>Loss di validation J<sub>val</sub>(w<sub>k</sub>) — stop adattivo</span>
+        </div>
+        <div class="iter-status">
+          <span class="iter-counter">iter = <span id="valIterDisplay">0</span></span>
+        </div>
+      </div>
+      <div id="valPlot" style="width:100%;height:300px;background:transparent"></div>
+      <div class="debug-strip" id="valDebugInfo">Ogni punto &egrave; una valutazione di J_val: quando non migliora per <em>pazienza</em> valutazioni consecutive il batch viene ricampionato (e l'Hessiana, se legata).</div>
+    </div>
+
     <!-- ============ TEORIA: analisi stocastica (in fondo) ============ -->
     <div class="theory-card">
       <div class="theory-card-header"><div class="theory-card-title">📘 Analisi stocastica: n<sub>k</sub> vs a<sup>k</sup></div></div>
@@ -1817,7 +1876,15 @@ function getAlgoOptions() {
     reuseBatch: document.getElementById('reuseBatchMode').value === 'enabled',
     maxConsec: maxMode === 'unlimited' ? null : (Number.isFinite(maxVal) ? maxVal : 10),
     reuseHessian: document.getElementById('hessianReuseMode').value === 'tied', // true = H_k legato a S_k, false = indipendente
-    maxHessianReuse: mhMode === 'unlimited' ? null : (Number.isFinite(mhVal) ? mhVal : 10)
+    maxHessianReuse: mhMode === 'unlimited' ? null : (Number.isFinite(mhVal) ? mhVal : 10),
+    // Stop adattivo con validation set (M/M_H automatici)
+    validation: document.getElementById('valUseChk').checked,
+    valPct: (parseInt(document.getElementById('valPct').value, 10) || 20) / 100,
+    valTol: (function(){ const t = parseFloat(document.getElementById('valTol').value); return isNaN(t) ? 1e-4 : t; })(),
+    valPatience: parseInt(document.getElementById('valPatience').value, 10) || 3,
+    valFreq: parseInt(document.getElementById('valFreq').value, 10) || 1,
+    valMinAbs: (function(){ const m = parseFloat(document.getElementById('valMinAbs').value); return isNaN(m) ? 0.0 : m; })(),
+    valStrategy: document.getElementById('valStrategy').value
   };
 }
 
@@ -1832,7 +1899,544 @@ function generateAlgoCode(algo, opts) {
   }
 }
 
+/* =====================================================================
+   Stop adattivo con validation set (M/M_H automatici).
+   Quando la checkbox "Usa validation set per stop adattivo" e' attiva, i
+   limiti numerici manuali M e M_H sono ignorati: il mini-batch (e, per i
+   metodi di Newton, l'Hessiana) viene ricampionato quando la loss sul
+   validation set non migliora per `val_patience` valutazioni consecutive.
+   - split train/validation una volta all'inizio (fixed) o a ogni cambio
+     di batch (dynamic); i mini-batch si campionano dal SOLO training set;
+   - la valutazione di J_val avviene DOPO w_{k+1} (anche con alpha=0);
+   - la CCV resta invariata: ingrandisce il batch quando la varianza e'
+     troppo alta, con tetto len(train_idx) invece di N;
+   - il contatore M_actual (iterazioni consecutive sullo stesso batch)
+     e lo storico val_hist sono restituiti insieme a history/batch_sizes.
+   ===================================================================== */
+function validationSnippets(opts) {
+  const valPct      = parseFloat(opts.valPct) || 0.2;
+  const valTol      = (opts.valTol === undefined || opts.valTol === null || isNaN(opts.valTol)) ? 1e-4 : opts.valTol;
+  const valPatience = parseInt(opts.valPatience, 10) || 3;
+  const valFreq     = parseInt(opts.valFreq, 10) || 1;
+  const valMinAbs   = (opts.valMinAbs === undefined || opts.valMinAbs === null || isNaN(opts.valMinAbs)) ? 0.0 : opts.valMinAbs;
+  const valStrategy = (opts.valStrategy === 'dynamic') ? 'dynamic' : 'fixed';
+  const Hsample     = opts.hkSubset
+    ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)\n`
+    : `            indices_H = np.random.choice(train_idx, size=n_h, replace=False)\n`;
+  return {
+    valPct, valTol, valPatience, valFreq, valMinAbs, valStrategy,
+    modCallVars: `val_pct = ${valPct}\nval_tol = ${valTol}\nval_patience = ${valPatience}\nval_freq = ${valFreq}\nval_min_abs = ${valMinAbs}\nval_strategy = '${valStrategy}'\n`,
+    sig: `, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy`,
+    // pre-ciclo GD/BB: split train/validation + contatori
+    preLoop: `    indices = None
+    used = 0
+    need_resample = True
+    n_val = max(1, min(int(round(val_pct * N)), N - 1))
+    _perm = np.random.permutation(N)
+    val_idx = _perm[:n_val]
+    train_idx = _perm[n_val:]
+    best_val = np.inf
+    patience = 0
+    val_hist = []
+    m_actual = [0]
+`,
+    // pre-ciclo Newton: split train/validation + contatori (S e H)
+    preLoopNewton: `    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    n_val = max(1, min(int(round(val_pct * N)), N - 1))
+    _perm = np.random.permutation(N)
+    val_idx = _perm[:n_val]
+    train_idx = _perm[n_val:]
+    best_val = np.inf
+    patience_S = 0
+    patience_H = 0
+    val_hist = []
+    m_actual = [0]
+`,
+    // campionamento del mini-batch GD/BB dal training set.
+    // M_actual = iterazioni consecutive sullo stesso batch: si incrementa
+    // subito dopo il campionamento (quindi anche quando la CCV/validation
+    // richiede un nuovo batch l'iterazione corrente ha gia' registrato il suo).
+    // In modalita' dynamic il validation set e' ricampionato a OGNI cambio
+    // di batch (sia per CCV sia per validation), come da specifica.
+    sample: `        if need_resample or indices is None:
+            if val_strategy == 'dynamic':
+                _perm = np.random.permutation(N)
+                val_idx = _perm[:n_val]
+                train_idx = _perm[n_val:]
+            n = min(n, len(train_idx))
+            indices = np.random.choice(train_idx, size=n, replace=False)
+            used = 0
+            need_resample = False
+        used += 1
+        m_actual.append(used)
+`,
+    // campionamento di S (e di H se legata) per i metodi di Newton
+    sampleNewton: `        if need_resample_S or indices_S is None:
+            if val_strategy == 'dynamic':
+                _perm = np.random.permutation(N)
+                val_idx = _perm[:n_val]
+                train_idx = _perm[n_val:]
+            n = min(n, len(train_idx))
+            indices_S = np.random.choice(train_idx, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), len(train_idx))
+            used_S = 0
+            need_resample_S = False
+` + (opts.reuseHessian ? Hsample + `            used_H = 0
+            need_resample_H = False
+` : '') + `        used_S += 1
+        m_actual.append(used_S)
+`,
+    // H_k indipendente da S_k: ricampionata con lo STESSO criterio di validation
+    hessianIndepSample: `        # H_k indipendente da S_k: anche M_H segue il criterio di validation (stesso J_val)
+        if need_resample_H or indices_H is None:
+            n_h = min(max(1, int(round(R * n))), len(train_idx))
+` + Hsample + `            used_H = 0
+            need_resample_H = False
+`,
+    // CCV GD/BB: batch esaurito -> batch piu' grande e ricampiona
+    ccvGD: `        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, len(train_idx))
+                resize_points.append(w.copy().tolist())
+                need_resample = True
+`,
+    // CCV Newton-CG: batch esaurito -> batch piu' grande, ricampiona S e H
+    ccvNewtonCG: `        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads_arr, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
+            n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+            n = min(n_new, len(train_idx))
+            resize_points.append(w.copy().tolist())
+            need_resample_S = True
+            need_resample_H = True
+`,
+    // CCV Newton-L1: come sopra, con i nomi di variabile del L1
+    ccvNewtonL1: `        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_batch)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g_batch, g_batch)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, len(train_idx))
+                resize_points.append(w.copy().tolist())
+                need_resample_S = True
+                need_resample_H = True
+`,
+    // valutazione di J_val dopo w_{k+1} + decisione di ricampionare (GD/BB).
+    // Il contatore M_actual e' gia' stato incrementato nel blocco di campionamento.
+    evalGD: `        if k % val_freq == 0:
+            Jv = float(np.mean([loss_i(w, i) for i in val_idx]))
+            val_hist.append(Jv)
+            improved = (Jv <= best_val * (1.0 - val_tol) - val_min_abs)
+            if improved:
+                best_val = Jv
+                patience = 0
+            else:
+                patience += 1
+                if patience >= val_patience:
+                    need_resample = True
+                    patience = 0
+`,
+    // valutazione di J_val dopo w_{k+1} (Newton: S e H decise separatamente, stesso criterio)
+    evalNewton: `        if k % val_freq == 0:
+            Jv = float(np.mean([loss_i(w, i) for i in val_idx]))
+            val_hist.append(Jv)
+            improved = (Jv <= best_val * (1.0 - val_tol) - val_min_abs)
+            if improved:
+                best_val = Jv
+                patience_S = 0
+                patience_H = 0
+            else:
+                patience_S += 1
+                patience_H += 1
+                if patience_S >= val_patience or patience_H >= val_patience:
+                    need_resample_S = True
+                    patience_S = 0
+                    need_resample_H = True
+                    patience_H = 0
+`,
+    retTail: `    return history, batch_sizes, resize_points, m_actual, val_hist
+`,
+    // line search Wolfe (GD/BB)
+    lsWolfeGD: `        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices], axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+`,
+    // line search Armijo (GD/BB)
+    lsArmijoGD: `        # Line search Armijo
+        c1 = 1e-4
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w - step * g
+`,
+  };
+}
+
+/* Generatore GD con validation set (M automatico). */
+function generateGDValidation(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = validationSnippets(opts);
+  const dynBlock = dyn ? vs.ccvGD : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls  = opts.lineSearch === 'wolfe' ? vs.lsWolfeGD : vs.lsArmijoGD;
+  return `import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+${vs.preLoop}    for k in range(max_iter):
+${vs.sample}        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+${dynBlock}        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+${ls}${vs.evalGD}        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore BB-CCV con validation set (M automatico). */
+function generateBBValidation(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = validationSnippets(opts);
+  const dynBlock = dyn ? vs.ccvGD : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls  = opts.lineSearch === 'wolfe' ? vs.lsWolfeGD : vs.lsArmijoGD;
+  const bbStep = `        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+        w_prev = w.copy()
+        g_prev = g.copy()
+`;
+  return `import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    w_prev = w.copy()
+    g_prev = None
+${vs.preLoop}    for k in range(max_iter):
+${vs.sample}        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+${bbStep}        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+${ls}${vs.evalGD}        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+${dynBlock}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore Newton-CG con validation set (M e M_H automatici). */
+function generateNewtonCGValidation(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = validationSnippets(opts);
+  const tied = opts.reuseHessian;   // true = H_k legato a S_k, false = indipendente
+  const hessianSample = tied ? '' : vs.hessianIndepSample;
+  const dynBlock = dyn ? vs.ccvNewtonCG : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls = (opts.lineSearch === 'wolfe')
+    ? `        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                g_new = np.mean([grad_i(w_new, i) for i in indices_S], axis=0)
+                if np.dot(g_new, d) >= c2 * gd:
+                    break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+`
+    : `        # Line search Armijo
+        c1 = 1e-4
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+`;
+  return `import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history, batch_sizes = [w.copy().tolist()], [n]
+    resize_points = []
+${vs.preLoopNewton}    for k in range(max_iter):
+${vs.sampleNewton}${hessianSample}        grads_arr = np.array([grad_i(w, i) for i in indices_S])
+        g = np.mean(grads_arr, axis=0)
+${dynBlock}        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
+        p0 = -g
+        p0_norm2 = np.dot(p0, p0)
+        gamma = 0.0
+        if p0_norm2 > 1e-16 and n_h > 1:
+            Hp0 = np.array([hessvec_i(w, i, p0) for i in indices_H])
+            gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
+        d = cg(Hv, -g, gamma, maxcg)
+        J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+${ls}${vs.evalNewton}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore Newton-L1 con validation set (M e M_H automatici). */
+function generateNewtonL1Validation(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = validationSnippets(opts);
+  const tied = opts.reuseHessian;   // true = H_k legato a S_k, false = indipendente
+  const hf  = opts.hessianFreeL1;   // true = Hessian-free, false = Hessiana esplicita
+  const hessianSample = tied ? '' : vs.hessianIndepSample;
+  const dynBlock = dyn ? vs.ccvNewtonL1 : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const cgBlock = hf
+    ? `            # Hessian-free: prodotto H·v senza costruire H esplicita
+            def Hv(v_full):
+                return np.mean([hessvec_i(w, i, v_full) for i in indices_H], axis=0)
+            def Hv_free(v_free):
+                v_full = np.zeros_like(w)
+                v_full[free] = v_free
+                Hv_full = Hv(v_full)
+                return Hv_full[free]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = Hv_free(p)
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+`
+    : `            # Hessiana esplicita
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+`;
+  return `import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    def F_batch(v, indices):
+        Jb = np.mean([loss_i(v, i) for i in indices])
+        return Jb + nu * np.sum(np.abs(v))
+    def subgrad_batch(v, indices):
+        grads = np.array([grad_i(v, i) for i in indices])
+        gJ = np.mean(grads, axis=0)
+        g = np.zeros_like(v)
+        for i in range(len(v)):
+            if v[i] > 0:
+                g[i] = gJ[i] + nu
+            elif v[i] < 0:
+                g[i] = gJ[i] - nu
+            else:
+                if gJ[i] < -nu:
+                    g[i] = gJ[i] + nu
+                elif gJ[i] > nu:
+                    g[i] = gJ[i] - nu
+                else:
+                    g[i] = 0.0
+        return g
+    def project_orthant(v, z):
+        res = v.copy()
+        for i in range(len(v)):
+            if z[i] != 0 and np.sign(res[i]) != z[i]:
+                res[i] = 0.0
+        return res
+${vs.preLoopNewton}    for k in range(max_iter):
+${vs.sampleNewton}${hessianSample}        grads = np.array([grad_i(w, i) for i in indices_S])
+        g_batch = np.mean(grads, axis=0)
+${dynBlock}        z = np.where(w > 0, 1,
+            np.where(w < 0, -1,
+                np.where(g_batch < -nu, 1,
+                    np.where(g_batch > nu, -1, 0))))
+        sg = subgrad_batch(w, indices_S)
+        sgn = np.linalg.norm(sg)
+        if sgn < 1e-10:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        free = (z != 0)
+        d = np.zeros_like(w)
+        if np.any(free):
+            g_free = sg[free]
+${cgBlock}        step = alpha
+        F_w = F_batch(w, indices_S)
+        sg_d = np.dot(sg, d)
+        if sg_d >= 0:
+            d = -sg
+            sg_d = -np.dot(sg, sg)
+        w_new = w.copy()
+        for _ in range(20):
+            w_trial = project_orthant(w + step * d, z)
+            if F_batch(w_trial, indices_S) <= F_w + sigma * step * sg_d:
+                w_new = w_trial
+                break
+            step *= 0.5
+            if step < 1e-12:
+                w_new = w.copy()
+                break
+        w = w_new
+${vs.evalNewton}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
 function generateGD(opts) {
+  if (opts.validation) return generateGDValidation(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const reuse = opts.reuseBatch;
@@ -1930,6 +2534,7 @@ ${modCall}`;
 }
 
 function generateNewtonCG(opts) {
+  if (opts.validation) return generateNewtonCGValidation(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const subset = opts.hkSubset;
@@ -2090,6 +2695,7 @@ ${modCall}`;
 }
 
 function generateNewtonL1(opts) {
+  if (opts.validation) return generateNewtonL1Validation(opts);
   const dyn = opts.dynamicBatch;
   const subset = opts.hkSubset;
   const hf = opts.hessianFreeL1;
@@ -2322,6 +2928,7 @@ ${modCall}`;
 }
 
 function generateBB(opts) {
+  if (opts.validation) return generateBBValidation(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const reuse = opts.reuseBatch;
@@ -2488,6 +3095,27 @@ const hessianReuseModeEl   = document.getElementById('hessianReuseMode');
 const mhContainerEl        = document.getElementById('mhContainer');
 const mhModeEl             = document.getElementById('mhMode');
 const mhValueEl            = document.getElementById('mhValue');
+// Controlli dello stop adattivo con validation set
+const valUseChk            = document.getElementById('valUseChk');
+const valParamsEl          = document.getElementById('valParams');
+const valPctEl             = document.getElementById('valPct');
+const valPctValueEl        = document.getElementById('valPctValue');
+const valPatienceEl        = document.getElementById('valPatience');
+const valPatienceValueEl   = document.getElementById('valPatienceValue');
+const valFreqEl            = document.getElementById('valFreq');
+const valFreqValueEl       = document.getElementById('valFreqValue');
+const valTolEl             = document.getElementById('valTol');
+const valMinAbsEl          = document.getElementById('valMinAbs');
+const valStrategyEl        = document.getElementById('valStrategy');
+const reuseBatchHintEl     = document.getElementById('reuseBatchHint');
+const mActualDisplay       = document.getElementById('mActualDisplay');
+const valJDisplay          = document.getElementById('valJDisplay');
+const mActualCardEl        = document.getElementById('mActualCard');
+const valJCardEl           = document.getElementById('valJCard');
+const valPlotCardEl        = document.getElementById('valPlotCard');
+const valPlotDiv           = document.getElementById('valPlot');
+const valIterDisplay       = document.getElementById('valIterDisplay');
+const valDebugInfoEl       = document.getElementById('valDebugInfo');
 
 /* =====================================================================
    Generazione dinamica dello pseudocodice della teoria.
@@ -2496,6 +3124,36 @@ const mhValueEl            = document.getElementById('mhValue');
    Hessian-free L1, riuso Hessiana legato/indipendente) e iniettati nei
    contenitori #pseudoTarget-<algo>, poi ri-typeset con MathJax.
    ===================================================================== */
+/* Pseudocodice GD con stop adattivo (M automatico via validation set). */
+function pseudoGDValidation(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha) \\\\';
+  const dynLine = dyn
+    ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\']
+    : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\'];
+  const stratNote = (o.valStrategy === 'dynamic')
+    ? '\\text{dynamic: } \\mathcal{V},\\mathcal{T} \\text{ ricampionati a ogni cambio batch}'
+    : '\\text{fixed: } \\mathcal{V},\\mathcal{T} \\text{ fissi per tutta la run}';
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;\\text{val}\\_p,\\;\\text{tol},\\;p_{\\text{pat}},\\;\\text{freq},\\;' + stratNote + ' \\\\',
+    '\\mathcal{V}\\sim\\mathcal{U}(N,\\lceil \\text{val}\\_p\\cdot N\\rceil),\\qquad \\mathcal{T}=\\{1,\\dots,N\\}\\setminus\\mathcal{V} \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(\\mathcal{T},n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...dynLine,
+    lsCall,
+    '\\quad w_{k+1} = w_k - \\alpha_k g_k,\\qquad j=j+1 \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p=0 \\\\',
+    '\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0'
+  ].join('\\n');
+}
+
+
 function pseudoGD(o) {
   const dyn = o.dynamicBatch;
   const lsCall = o.lineSearch === 'wolfe'
@@ -2505,6 +3163,8 @@ function pseudoGD(o) {
     '\\quad \\textbf{if}\\;\\frac{\\|\\widehat{\\mathcal{V}}_k\\|_1}{n_k} > \\theta^{2}\\|g_k\\|^{2}: \\\\',
     '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil + 1 \\\\'
   ];
+  if (o.validation) return pseudoGDValidation(o);
+
   if (!o.reuseBatch) {
     return [
       '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K \\\\',
@@ -2535,6 +3195,53 @@ function pseudoGD(o) {
   ].join('\n');
 }
 
+/* Pseudocodice Newton-CG con stop adattivo (M e M_H automatici via validation set). */
+function pseudoNewtonCGValidation(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const indep = !o.reuseHessian;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,d_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,d_k,\\alpha) \\\\';
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,n_k\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{T},\\lceil R\\,n_k\\rceil)';
+  const CG = [
+    '\\quad p_0 = -g_k \\\\',
+    '\\quad \\gamma = \\frac{\\|\\operatorname{Var}_{i\\in\\mathcal{H}_k}[\\nabla^{2}\\ell_i(w_k)\\,p_0]\\|_1}{|\\mathcal{H}_k|\\,\\|p_0\\|^{2}} \\\\',
+    '\\quad d_0 = 0,\\quad r_0 = -g_k,\\quad p = p_0,\\quad j = 0 \\\\',
+    '\\quad \\textbf{while}\\;\\|r_j\\|^{2} > \\gamma\\|d_j\\|^{2}\\;\\textbf{and}\\; j < \\text{maxcg}: \\\\',
+    '\\quad\\quad s_j = H_k\\,p_j \\\\',
+    '\\quad\\quad \\alpha_j = \\frac{r_j^{\\top}r_j}{p_j^{\\top}s_j} \\\\',
+    '\\quad\\quad d_{j+1} = d_j + \\alpha_j p_j \\\\',
+    '\\quad\\quad r_{j+1} = r_j + \\alpha_j s_j \\\\',
+    '\\quad\\quad \\beta_{j+1} = \\frac{r_{j+1}^{\\top}r_{j+1}}{r_j^{\\top}r_j} \\\\',
+    '\\quad\\quad p_{j+1} = -r_{j+1} + \\beta_{j+1} p_j \\\\',
+    '\\quad\\quad j = j+1 \\\\',
+    '\\quad d_k = d_j \\\\'
+  ];
+  const stratNote = (o.valStrategy === 'dynamic')
+    ? '\\text{dynamic: } \\mathcal{V},\\mathcal{T} \\text{ ricampionati a ogni cambio batch}'
+    : '\\text{fixed: } \\mathcal{V},\\mathcal{T} \\text{ fissi per tutta la run}';
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;R,\\;\\text{maxcg},\\;K,\\;\\text{val}\\_p,\\;\\text{tol},\\;p_{\\text{pat}},\\;\\text{freq},\\;' + stratNote + ' \\\\',
+    '\\mathcal{V}\\sim\\mathcal{U}(N,\\lceil \\text{val}\\_p\\cdot N\\rceil),\\qquad \\mathcal{T}=\\{1,\\dots,N\\}\\setminus\\mathcal{V} \\\\',
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(\\mathcal{T},n_k),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso} \\\\',
+    '\\quad\\quad ' + Hline + (indep ? ',\\;\\; \\textbf{se}\\; \\texttt{indipendente}:\\; \\text{ricampiona } \\mathcal{H}_k,\\; j_{\\mathcal{H}}=0' : ',\\; j_{\\mathcal{H}}=0') + ' \\\\',
+    ...(dyn ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'] : []),
+    ...CG,
+    lsCall,
+    '\\quad w_{k+1} = w_k + \\alpha_k d_k,\\qquad j_{\\mathcal{S}}=j_{\\mathcal{S}}+1' + (indep ? ',\\;\\; \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}}=j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0'
+  ].join('\\n');
+}
+
+
 function pseudoNewtonCG(o) {
   const dyn = o.dynamicBatch;
   const subset = o.hkSubset;
@@ -2558,6 +3265,8 @@ function pseudoNewtonCG(o) {
     '\\quad\\quad j = j+1 \\\\',
     '\\quad d_k = d_j \\\\'
   ];
+  if (o.validation) return pseudoNewtonCGValidation(o);
+
   if (!o.reuseBatch) {
     return [
       '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;R,\\;\\text{maxcg},\\;K \\\\',
@@ -2607,6 +3316,43 @@ function pseudoNewtonCG(o) {
   ].join('\n');
 }
 
+/* Pseudocodice Newton-L1 con stop adattivo (M e M_H automatici via validation set). */
+function pseudoNewtonL1Validation(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const indep = !o.reuseHessian;
+  const hf = o.hessianFreeL1;
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,|\\mathcal{S}_k|\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{T},\\lceil R\\,|\\mathcal{S}_k|\\rceil)';
+  const cgNote = hf
+    ? '\\qquad \\text{Hessian-free (prodotto Hessiana-vettore)} \\\\'
+    : '\\qquad \\text{Hessiana esplicita sul campione } \\mathcal{H}_k \\\\';
+  const stratNote = (o.valStrategy === 'dynamic')
+    ? '\\text{dynamic: } \\mathcal{V},\\mathcal{T} \\text{ ricampionati a ogni cambio batch}'
+    : '\\text{fixed: } \\mathcal{V},\\mathcal{T} \\text{ fissi per tutta la run}';
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;\\nu,\\;\\eta,\\;\\sigma,\\;\\text{maxcg},\\;K,\\;\\text{val}\\_p,\\;\\text{tol},\\;p_{\\text{pat}},\\;\\text{freq},\\;' + stratNote + ' \\\\',
+    '\\mathcal{V}\\sim\\mathcal{U}(N,\\lceil \\text{val}\\_p\\cdot N\\rceil),\\qquad \\mathcal{T}=\\{1,\\dots,N\\}\\setminus\\mathcal{V} \\\\',
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(\\mathcal{T},|\\mathcal{S}_k|),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso} \\\\',
+    '\\quad\\quad ' + Hline + (indep ? ',\\;\\; \\textbf{se}\\; \\texttt{indipendente}:\\; \\text{ricampiona } \\mathcal{H}_k,\\; j_{\\mathcal{H}}=0' : ',\\; j_{\\mathcal{H}}=0') + ' \\\\',
+    ...(dyn ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; |\\mathcal{S}_{k+1}| = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'] : []),
+    '\\quad z_k=\\operatorname{faccia\\_ortante}(w_k,\\nabla J_{\\mathcal{S}_k}(w_k),\\nu) \\\\',
+    '\\quad \\mathcal{A}_k=\\{i\\mid z_k^i=0\\} \\\\',
+    '\\quad d^Y=\\operatorname{CG}\\bigl(Y_k^{\\top}\\nabla^2 J_{\\mathcal{H}_k}(w_k)Y_k,\\;-Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k),\\;\\eta\\|Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)\\|\\bigr)' + cgNote,
+    '\\quad d_k=Y_k d^Y \\\\',
+    '\\quad \\alpha_k=\\operatorname{Armijo}_{\\text{proj}}(w_k,d_k,z_k,\\sigma) \\\\',
+    '\\quad w_{k+1}=P_{\\Omega_k}(w_k+\\alpha_k d_k),\\qquad j_{\\mathcal{S}}=j_{\\mathcal{S}}+1' + (indep ? ',\\;\\; \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}}=j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0'
+  ].join('\\n');
+}
+
+
 function pseudoNewtonL1(o) {
   const dyn = o.dynamicBatch;
   const subset = o.hkSubset;
@@ -2617,6 +3363,8 @@ function pseudoNewtonL1(o) {
   const cgNote = hf
     ? '\\qquad \\text{Hessian-free (prodotto Hessiana-vettore)} \\\\'
     : '\\qquad \\text{Hessiana esplicita sul campione } \\mathcal{H}_k \\\\';
+  if (o.validation) return pseudoNewtonL1Validation(o);
+
   if (!o.reuseBatch) {
     return [
       '\\textbf{Input:}\\; w_0,\\;\\mathcal{H}_0,\\;\\mathcal{S}_0\\;(|\\mathcal{H}_0|<|\\mathcal{S}_0|),\\;\\nu,\\;\\eta,\\;\\sigma,\\;\\text{maxcg},\\;K \\\\',
@@ -2678,6 +3426,43 @@ function pseudoNewtonL1(o) {
   ].join('\n');
 }
 
+/* Pseudocodice BB-CCV con stop adattivo (M automatico via validation set). */
+function pseudoBBValidation(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha_k) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha_k) \\\\';
+  const bbStep = [
+    '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+    '\\quad \\textbf{if}\\; k>0:\\; s=w_k-w_{k-1},\\; y=g_k-g_{k-1} \\\\',
+    '\\quad\\quad \\alpha_k^{\\text{BB}} = \\frac{s^{\\top}s}{s^{\\top}y},\\qquad \\alpha_k = \\operatorname{clip}(\\alpha_k^{\\text{BB}},\\alpha/20,5\\alpha) \\\\',
+    '\\quad \\textbf{else}:\\; \\alpha_k=\\alpha \\\\',
+    lsCall
+  ];
+  const dynLine = dyn
+    ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\']
+    : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\'];
+  const stratNote = (o.valStrategy === 'dynamic')
+    ? '\\text{dynamic: } \\mathcal{V},\\mathcal{T} \\text{ ricampionati a ogni cambio batch}'
+    : '\\text{fixed: } \\mathcal{V},\\mathcal{T} \\text{ fissi per tutta la run}';
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;\\text{val}\\_p,\\;\\text{tol},\\;p_{\\text{pat}},\\;\\text{freq},\\;' + stratNote + ' \\\\',
+    '\\mathcal{V}\\sim\\mathcal{U}(N,\\lceil \\text{val}\\_p\\cdot N\\rceil),\\qquad \\mathcal{T}=\\{1,\\dots,N\\}\\setminus\\mathcal{V} \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(\\mathcal{T},n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...bbStep,
+    ...dynLine,
+    '\\quad w_{k+1}=w_k-\\alpha_k g_k,\\qquad j=j+1 \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\; J_{\\text{val}}=J_{\\mathcal{V}}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\text{val}}\\le J_{\\text{val}}^{\\text{best}}(1-\\text{tol})-\\text{min}\\_\\text{abs}:\\; J_{\\text{val}}^{\\text{best}}=J_{\\text{val}},\\; p=0 \\\\',
+    '\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0'
+  ].join('\\n');
+}
+
+
 function pseudoBB(o) {
   const dyn = o.dynamicBatch;
   const lsCall = o.lineSearch === 'wolfe'
@@ -2690,6 +3475,8 @@ function pseudoBB(o) {
     '\\quad \\textbf{else}:\\; \\alpha_k=\\alpha \\\\',
     lsCall
   ];
+  if (o.validation) return pseudoBBValidation(o);
+
   if (!o.reuseBatch) {
     return [
       '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K \\\\',
@@ -2745,10 +3532,32 @@ function renderPseudo() {
 }
 
 function updateReuseControls() {
-  const on = reuseBatchModeEl.value === 'enabled';
-  maxConsecRowEl.style.display = on ? '' : 'none';
-  maxConsecEl.style.display = (on && maxConsecModeEl.value === 'custom') ? '' : 'none';
-  updateHessianReuseVisibility(on);
+  updateValidationControls();
+}
+
+function updateValidationControls() {
+  const on = valUseChk.checked;
+  valParamsEl.style.display = on ? '' : 'none';
+  const reuseOn = reuseBatchModeEl.value === 'enabled';
+  if (on) {
+    // Con il validation set attivo M e M_H sono decisi automaticamente:
+    // il riuso del batch e' forzato e i controlli manuali di M e M_H
+    // vengono nascosti (il codice generato usa la modalita' validation).
+    reuseBatchModeEl.value = 'enabled';
+    reuseBatchModeEl.disabled = true;
+    maxConsecRowEl.style.display = 'none';
+    maxConsecEl.style.display = 'none';
+    mhContainerEl.style.display = 'none';
+    mhValueEl.style.display = 'none';
+    reuseBatchHintEl.textContent = 'Con il validation set attivo M e M_H sono decisi automaticamente dalla loss di validazione: il riuso del batch e\' forzato.';
+  } else {
+    reuseBatchModeEl.disabled = false;
+    reuseBatchHintEl.textContent = 'Default: a ogni iterazione si ricampiona il mini-batch. Attivo: lo stesso mini-batch viene riusato per pi\u00f9 iterazioni consecutive; quando la CCV non \u00e8 pi\u00f9 soddisfatta il batch viene ingrandito e ricampionato.';
+    maxConsecRowEl.style.display = reuseOn ? '' : 'none';
+    maxConsecEl.style.display = (reuseOn && maxConsecModeEl.value === 'custom') ? '' : 'none';
+  }
+  updateHessianReuseVisibility(reuseOn || on);
+  if (on) mhContainerEl.style.display = 'none';
 }
 
 function updateHessianReuseVisibility(reuseOn) {
@@ -2756,7 +3565,7 @@ function updateHessianReuseVisibility(reuseOn) {
   const showHessian = reuseOn && (algo === 'newton_cg' || algo === 'newton_l1');
   hessianReuseParamsEl.style.display = showHessian ? '' : 'none';
   const mode = hessianReuseModeEl.value;
-  const mhIndependent = showHessian && mode === 'independent';
+  const mhIndependent = showHessian && mode === 'independent' && !valUseChk.checked;
   mhContainerEl.style.display = mhIndependent ? '' : 'none';
   mhValueEl.style.display = (mhIndependent && mhModeEl.value === 'custom') ? '' : 'none';
 }
@@ -2854,6 +3663,7 @@ function updateParamsVisibility() {
   document.getElementById('hessianFreeL1Row').style.display =
     algo === 'newton_l1' ? '' : 'none';
   updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled');
+  updateValidationControls();
 }
 
 function updateTheory() {
@@ -3002,6 +3812,8 @@ _out = _json.dumps({
   "errs":        _errs,
   "resize_pts":  _resize_pts,
   "levels":      _levels,
+  "m_actual":    [int(m) for m in m_actual] if 'm_actual' in globals() else [],
+  "val_hist":    [float(v) for v in val_hist] if 'val_hist' in globals() else [],
   "surf_x":      surf_x,
   "surf_y":      surf_y,
   "surf_z":      surf_z,
@@ -3092,17 +3904,23 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const w_star      = out.w_star;
     const J_star      = out.J_star;
     const surf        = { x: out.surf_x, y: out.surf_y, z: out.surf_z };
+    const m_actual    = out.m_actual || [];
+    const val_hist    = out.val_hist || [];
 
     currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf,
                     colabZ: out.surf_colab_z || [], colabJ: out.surf_colab_J || [],
-                    resize_pts: out.resize_pts || [], levels: out.levels || [], w0 };
+                    resize_pts: out.resize_pts || [], levels: out.levels || [], w0,
+                    m_actual, val_hist, valFreq: parseInt(valFreqEl.value, 10) || 1 };
 
     const maxIdx = history.length - 1;
     iterSlider.max = maxIdx; iterNum.max = maxIdx;
     currentIter = 0; iterSlider.value = 0; iterNum.value = 0;
 
     setStatus('✓ ok', 'chip-ready');
-    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}`;
+    const valInfo = (val_hist.length > 0)
+      ? ` · M_actual finale: ${m_actual[m_actual.length-1] ?? '—'} · eval J_val: ${val_hist.length}`
+      : '';
+    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}${valInfo}`;
 
     renderPlot(0);
     updateInfo(0);
@@ -3211,12 +4029,13 @@ function renderPlot(iter) {
   iterDisplay.textContent = idx;
   updateInfo(idx);
   renderBatchPlot(idx);
+  renderValPlot(idx);
 }
 
 function updateInfo(idx) {
 
   if (!currentData) return;
-  const { history, batch_sizes, pts_J, pts_gN, errs, w_star, dim } = currentData;
+  const { history, batch_sizes, pts_J, pts_gN, errs, w_star, dim, m_actual, val_hist, valFreq } = currentData;
   const w = history[idx];
   wDisplay.textContent    = dim===1 ? w[0].toFixed(6) : `(${w[0].toFixed(4)}, ${w[1].toFixed(4)})`;
   jDisplay.textContent    = pts_J[idx].toExponential(4);
@@ -3225,6 +4044,17 @@ function updateInfo(idx) {
   batchDisplay.textContent= batch_sizes[idx] ?? '—';
   iterBadge.textContent   = `iter ${idx} / ${history.length-1}`;
   iterBadge.className     = 'status-chip chip-ready';
+
+  // Stop adattivo: contatore M_actual e ultima J_val valutata
+  const hasVal = !!(val_hist && val_hist.length > 0);
+  mActualCardEl.style.display = hasVal ? '' : 'none';
+  valJCardEl.style.display    = hasVal ? '' : 'none';
+  if (hasVal) {
+    mActualDisplay.textContent = (m_actual && m_actual[idx] !== undefined) ? String(m_actual[idx]) : '—';
+    const f  = valFreq || 1;
+    const ev = Math.min(Math.floor(idx / f), val_hist.length - 1);
+    valJDisplay.textContent = val_hist[ev].toExponential(4);
+  }
 }
 
 // ── PLOT 2D: n_k vs a^k ──────────────────────────────────────────────
@@ -3326,6 +4156,45 @@ function renderBatchPlot(iter) {
     `a ottimale = ${a.toFixed(6)} · n\u2096 = ${batch_sizes[idx] ?? '—'} · errore rel. medio = ${(meanRelErr*100).toFixed(2)}%`;
 }
 
+// ── PLOT 3: loss di validation (stop adattivo) ──────────────────────────
+function renderValPlot(iter) {
+  if (!currentData) return;
+  const { val_hist, valFreq, m_actual } = currentData;
+  const hasVal = !!(val_hist && val_hist.length > 0);
+  valPlotCardEl.style.display = hasVal ? '' : 'none';
+  if (!hasVal) return;
+  const f  = valFreq || 1;
+  const idx = Math.min(iter, (val_hist.length - 1) * f);
+  const evIdx = Math.max(0, Math.min(Math.floor(idx / f), val_hist.length - 1));
+
+  const xPts = [], yPts = [];
+  for (let j = 0; j <= evIdx; j++) { xPts.push(j * f); yPts.push(val_hist[j]); }
+  const traces = [
+    { x: xPts, y: yPts, type: 'scatter', mode: 'lines+markers',
+      name: 'J_val', line: { color: '#3EC97A', width: 2 },
+      marker: { color: '#3EC97A', size: 5 } },
+    { x: [evIdx * f], y: [val_hist[evIdx]], type: 'scatter', mode: 'markers',
+      name: 'val corrente', marker: { color: '#FFFFFF', size: 11, symbol: 'star',
+      line: { color: '#0B1222', width: 2 } } }
+  ];
+  const layout = {
+    ...BASE,
+    title: { text: 'J_val(w_k) · valutazione ogni ' + f + ' iter.',
+             font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
+    xaxis: { title: 'iterazione k', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
+    yaxis: { title: 'J_val', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090',
+             type: 'linear', autorange: true },
+    legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
+    margin: { l: 60, r: 20, t: 50, b: 50 },
+    showlegend: true
+  };
+  Plotly.react(valPlotDiv, traces, layout, CFG);
+  valIterDisplay.textContent = evIdx * f;
+  const kCur = evIdx * f;
+  valDebugInfoEl.textContent =
+    `M_actual = ${(m_actual && m_actual[kCur] !== undefined) ? m_actual[kCur] : '—'} · J_val = ${val_hist[evIdx].toExponential(4)} · valutazioni: ${evIdx+1}/${val_hist.length}`;
+}
+
 
 function runConvergenceTest() {
   if (!currentData) {
@@ -3396,6 +4265,15 @@ maxConsecEl.addEventListener('change', () => loadAlgoPreset());
 hessianReuseModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
 mhModeEl.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
 mhValueEl.addEventListener('change', () => loadAlgoPreset());
+
+// Stop adattivo con validation set: la checkbox mostra/nasconde i controlli
+// di M/M_H e rigenera il codice; gli slider aggiornano i valori mostrati.
+valUseChk.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+valPctEl.addEventListener('input', () => { valPctValueEl.textContent = valPctEl.value + '%'; });
+valPatienceEl.addEventListener('input', () => { valPatienceValueEl.textContent = valPatienceEl.value; });
+valFreqEl.addEventListener('input', () => { valFreqValueEl.textContent = valFreqEl.value; });
+[valPctEl, valPatienceEl, valFreqEl, valTolEl, valMinAbsEl, valStrategyEl].forEach(el =>
+  el.addEventListener('change', () => { if (valUseChk.checked) loadAlgoPreset(); }));
 updateReuseControls();
 
 // Quando N o Seed cambiano, aggiorna automaticamente il codice della loss
@@ -3469,6 +4347,13 @@ defaultBtn.addEventListener('click', () => {
   hessianReuseModeEl.value='tied';
   mhModeEl.value='unlimited';
   mhValueEl.value='10';
+  valUseChk.checked = false;
+  valPctEl.value='20';        valPctValueEl.textContent='20%';
+  valPatienceEl.value='3';    valPatienceValueEl.textContent='3';
+  valFreqEl.value='1';        valFreqValueEl.textContent='1';
+  valTolEl.value='0.0001';
+  valMinAbsEl.value='0.0';
+  valStrategyEl.value='fixed';
   updateReuseControls();
   currentData=null; savedCamera=null;
   runAlgorithm();

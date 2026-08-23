@@ -146,6 +146,42 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **App web: stop adattivo con validation
+  set — M e M_H decisi automaticamente dalla loss di validazione.** In
+  `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) nuova
+  sezione "Stop adattivo con validation set — tutti gli algoritmi" con la
+  checkbox **"Usa validation set per stop adattivo"**. Quando attiva:
+  (1) i controlli manuali di **M** (`maxConsecRow`) e **M_H** (`mhContainer`)
+  vengono nascosti e il riuso del batch è forzato; compaiono gli iperparametri
+  **Percentuale validation** (slider 5–50%, default 20%), **Tolleranza relativa**
+  (default 1e-4), **Pazienza** (slider 1–10, default 3), **Frequenza
+  valutazione** (1–10, default 1), **Soglia minima assoluta** (default 0.0) e
+  **Strategia validation** (fixed/dynamic, default fixed). (2) I generatori
+  `generateGD/BB/NewtonCG/NewtonL1` instradano alle nuove varianti
+  `*Validation`: il dataset è separato in training/validation **una volta
+  all'inizio (fixed)** o **a ogni cambio di batch (dynamic)**, i mini-batch si
+  campionano dal SOLO training set (con tetto della CCV a `len(train_idx)`),
+  e dopo ogni `w_{k+1}` (anche con step=0) si valuta `J_val`: se
+  `J_val ≤ J_val^best·(1−tol) − min_abs` si resetta la pazienza, altrimenti
+  dopo `patience` valutazioni senza progresso si ricampiona il batch (e
+  l'Hessiana). La **CCV resta invariata** e continua a ingrandire il batch.
+  Per i metodi di Newton: Hessiana legata → M_H deciso insieme a M; Hessiana
+  indipendente → M_H deciso separatamente con lo **stesso criterio** (doppio
+  contatore `patience_S`/`patience_H`, che col singolo slider coincidono).
+  (3) Nuove metriche **M_actual** (iterazioni consecutive sullo stesso batch)
+  e **J_val** e nuovo grafico "Loss di validation J_val(w_k)" (card dedicata,
+  visibile solo con validation attiva). (4) Pseudocodice LaTeX della teoria
+  aggiornato con le righe validation. Quando la checkbox è spenta tutto torna
+  al comportamento precedente (M/M_H manuali). Validazione: `deno check` OK;
+  harness con DOM fittizio (deno) per estrarre i codici Python generati;
+  **11/11 combinazioni eseguite con numpy** (GD/BB/Newton-CG/Newton-L1 ×
+  validation on/off, fixed/dynamic, H legata/indipendente, Hessian-free L1):
+  split train/val disgiunto (fixed: 1 sola permutazione; dynamic: 1 +
+  campionamenti), batch mai pescato dal validation set, `m_actual`/`val_hist`
+  allineati alla history, **pazienza verifica la frequenza dei cambi batch**
+  (segmenti medi 1.02 / 3.00 / 7.50 per patience 1/3/8 con CCV spenta),
+  CCV che continua a far crescere `n`. Nessun sorgente LaTeX toccato: nessun
+  PDF da ricompilare. Commit e push della repo.
 - **Ultimo intervento (23/08/2026, follow-up).** **App web: curve di livello
   stabili e MAI tagliate a metà dentro la vista.** Segnalati glitch residui:
   con lo zoom/pan le curve comparivano tagliate a metà e in alcuni momenti
