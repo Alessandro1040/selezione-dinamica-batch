@@ -165,7 +165,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   mancava il reset: lo pseudocodice ricampionava a ogni iterazione) e
   riattivato a `vero` su CCV violata o a limite $M$/$M_H$ raggiunto — coerente
   con `need_resample`/`used` del codice generato. In BB aggiunta anche la
-  definizione di $\widehat{\mathcal V}_k$ (usata ma mai definita). Validazione:
+  definizione di $\widehat{\mathcal V}_k$ (usata ma mai definita). Refinement
+  (stessa giornata): etichetta del parametro rinominata "Riuso Hessiana" (era
+  "modo Hessiana") e variabili scritte con `\mathtt{da\_ricampionare}` (in
+  `\texttt` MathJax mostrava `\_` letterale; in `\mathtt`, alfabeto matematico,
+  il trattino basso è renderizzato correttamente). Validazione:
   i 4 blocchi pseudocodice modificati compilano con pdflatex (0 errori),
   `\[`/`\]` bilanciati (56/56). Nessun PDF coinvolto (l'app non è inclusa in
   `tesi.tex`).

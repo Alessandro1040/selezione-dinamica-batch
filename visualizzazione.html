@@ -516,17 +516,17 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \[
             \begin{array}{l}
             \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \texttt{da\_ricampionare}=\texttt{vero} \\
+            \mathtt{da\_ricampionare}=\texttt{vero} \\
             \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \texttt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \texttt{da\_ricampionare}=\texttt{falso} \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
             \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
             \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
             \quad \textbf{if}\;\frac{\|\widehat{\mathcal{V}}_k\|_1}{n_k} > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
-            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \texttt{da\_ricampionare}=\texttt{vero} \\
+            \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil + 1,\qquad \mathtt{da\_ricampionare}=\texttt{vero} \\
             \quad \alpha_k = \operatorname{Armijo}(w_k,-g_k,\alpha) \\
             \quad w_{k+1} = w_k - \alpha_k g_k,\qquad j = j+1 \\
-            \quad \textbf{if}\; j \ge M:\; \texttt{da\_ricampionare}=\texttt{vero}
+            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
             \end{array}
             \]
           </p>
@@ -809,19 +809,19 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \[
             \begin{array}{l}
             \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;R,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
-            \text{modo Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
-            \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
+            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
             \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \texttt{da\_ricampionare}_{\mathcal{S}}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad j_{\mathcal{S}}=0,\qquad \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
             \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\; j_{\mathcal{H}}=0 \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\texttt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
-            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j_{\mathcal{H}}=0,\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
+            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,n_k\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
             \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
             \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \qquad \text{CCV sul campione riusato, al punto corrente} \\
             \quad \textbf{if}\;\|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
             \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
-            \quad\quad \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
             \quad p_0 = -g_k \\
             \quad \gamma = \frac{\|\operatorname{Var}_{i\in\mathcal{H}_k}[\nabla^{2}\ell_i(w_k)\,p_0]\|_1}{|\mathcal{H}_k|\,\|p_0\|^{2}} \\
             \quad d_0 = 0,\quad r_0 = -g_k,\quad p = p_0,\quad j = 0 \\
@@ -837,8 +837,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \quad \alpha_k = \operatorname{Wolfe}(w_k,d_k,\alpha) \\
             \quad w_{k+1} = w_k + \alpha_k d_k \\
             \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
-            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
+            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
             \end{array}
             \]
           </p>
@@ -1020,18 +1020,18 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \[
             \begin{array}{l}
             \textbf{Input:}\; w_0,\;\mathcal{H}_0,\;\mathcal{S}_0\;(|\mathcal{H}_0|<|\mathcal{S}_0|),\;\nu,\;\eta,\;\sigma,\;\text{maxcg},\;K,\;M,\;M_H\;\;(M_H=\infty\Rightarrow\text{illimitato}) \\
-            \text{modo Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
-            \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \text{Riuso Hessiana: } \texttt{legato} \text{ a } \mathcal{S}_k \text{ (default)} \Rightarrow M_H \text{ inattivo};\quad \texttt{indipendente} \Rightarrow \text{limite } M_H \\
+            \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
             \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \texttt{da\_ricampionare}_{\mathcal{S}}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,|\mathcal{S}_k|),\qquad j_{\mathcal{S}}=0,\qquad \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}_{\mathcal{S}}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,|\mathcal{S}_k|),\qquad j_{\mathcal{S}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{falso} \\
             \quad\quad \textbf{if}\; \texttt{legato}: \;\mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\; j_{\mathcal{H}}=0 \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\texttt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
-            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\qquad j_{\mathcal{H}}=0,\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; \bigl(\mathtt{da\_ricampionare}_{\mathcal{H}} \;\textbf{or}\; j_{\mathcal{H}}\ge M_H\bigr): \\
+            \quad\quad \mathcal{H}_k \sim \mathcal{U}(N,\lceil R\,|\mathcal{S}_k|\rceil),\qquad j_{\mathcal{H}}=0,\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{falso} \\
             \quad \widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k \\
             \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/|\mathcal{S}_k| > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito (se dinamico, CCV al punto corrente)} \\
             \quad\quad |\mathcal{S}_{k+1}| = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1 \\
-            \quad\quad \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
+            \quad\quad \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero},\qquad \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero} \\
             \quad z_k=\operatorname{faccia\_ortante}(w_k,\nabla J_{\mathcal{S}_k}(w_k),\nu) \\
             \quad \mathcal{A}_k=\{i\mid z_k^i=0\} \\
             \quad d^Y=\operatorname{CG}\bigl(Y_k^{\top}\nabla^2 J_{\mathcal{H}_k}(w_k)Y_k,\;-Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k),\;\eta\|Y_k^{\top}\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|\bigr) \\
@@ -1039,8 +1039,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \quad \alpha_k=\operatorname{Armijo}_{\text{proj}}(w_k,d_k,z_k,\sigma) \\
             \quad w_{k+1}=P_{\Omega_k}(w_k+\alpha_k d_k) \\
             \quad j_{\mathcal{S}} = j_{\mathcal{S}}+1,\qquad \text{(se } \texttt{indipendente}\text{)}\; j_{\mathcal{H}} = j_{\mathcal{H}}+1 \\
-            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \texttt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
-            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \texttt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
+            \quad \textbf{if}\; j_{\mathcal{S}} \ge M:\; \mathtt{da\_ricampionare}_{\mathcal{S}}=\texttt{vero} \\
+            \quad \textbf{if}\; \texttt{indipendente}\;\textbf{and}\; j_{\mathcal{H}} \ge M_H:\; \mathtt{da\_ricampionare}_{\mathcal{H}}=\texttt{vero}
             \end{array}
             \]
           </p>
@@ -1193,10 +1193,10 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \[
             \begin{array}{l}
             \textbf{Input:}\; w_0,\;\theta,\;\alpha,\;n_0,\;K,\;M\;\;(M=\infty\Rightarrow\text{illimitato}) \\
-            \texttt{da\_ricampionare}=\texttt{vero} \\
+            \mathtt{da\_ricampionare}=\texttt{vero} \\
             \textbf{for}\; k=0,\dots,K-1: \\
-            \quad \textbf{if}\; \texttt{da\_ricampionare}: \\
-            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \texttt{da\_ricampionare}=\texttt{falso} \\
+            \quad \textbf{if}\; \mathtt{da\_ricampionare}: \\
+            \quad\quad \mathcal{S}_k \sim \mathcal{U}(N,n_k),\; j=0,\; \mathtt{da\_ricampionare}=\texttt{falso} \\
             \quad g_k = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell_i(w_k) \\
             \quad \widehat{\mathcal{V}}_k = \operatorname{Var}_{i\in\mathcal{S}_k}[\nabla\ell_i(w_k)] \\
             \quad \textbf{if}\; k>0:\; s=w_k-w_{k-1},\; y=g_k-g_{k-1} \\
@@ -1207,8 +1207,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             \quad w_{k+1}=w_k-\alpha_k g_k,\qquad j=j+1 \\
             \quad \textbf{if}\; \|\widehat{\mathcal{V}}_k\|_1/n_k > \theta^{2}\|g_k\|^{2}: \qquad \text{batch esaurito} \\
             \quad\quad n_{k+1} = \bigl\lceil\|\widehat{\mathcal{V}}_k\|_1/(\theta^{2}\|g_k\|^{2})\bigr\rceil+1,\qquad
-                   \texttt{da\_ricampionare}=\texttt{vero} \\
-            \quad \textbf{if}\; j \ge M:\; \texttt{da\_ricampionare}=\texttt{vero}
+                   \mathtt{da\_ricampionare}=\texttt{vero} \\
+            \quad \textbf{if}\; j \ge M:\; \mathtt{da\_ricampionare}=\texttt{vero}
             \end{array}
             \]
           </p>
