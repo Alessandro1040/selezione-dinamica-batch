@@ -146,6 +146,38 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026).** **Appendice E: nuova sottosezione E.6
+  "Stop adattivo con validation set" con sweep degli iperparametri.** In
+  `tesi/appendice_riuso.tex` aggiunta la sottosezione E.6
+  (`app:riuso-validation`) con tre tabelle generate
+  (E.19–E.21). Il meccanismo è lo stop adattivo dell'app (commit
+  `e13a126`): il mini-batch viene ricampionato quando la loss sul validation
+  set non migliora per `P` valutazioni consecutive. Esperimento: 4 problemi ×
+  4 algoritmi (codice Python ESATTO generato dall'app — varianti
+  `*Validation` estratte con harness Deno e salvate in
+  `altro/script/validation_codice_generato/`), sweep su $P\in\{1,3,8\}$,
+  $\tau\in\{10^{-5},10^{-4},10^{-3}\}$, $p\in\{0.1,0.2,0.3\}$,
+  $f\in\{1,3\}$, strategia fisso/dinamico (108 config). Risultati: la
+  pazienza bassa vince ($P{=}1$: media e30 $2.63\times10^{-1}$ vs $3.45$
+  di $P{=}8$), la tolleranza è ininfluente, $p{=}10\%$ meglio di $20/30\%$,
+  $f{=}1$ meglio di $3$, split dinamico meglio di fisso. La configurazione
+  $P{=}1,p{=}10\%$,dinamico batte la \emph{base} (ricampionamento a ogni
+  iterazione, stesso training set) in **11/16 caselle su 5 seed** (media e30
+  $2.24\times10^{-1}$ vs $2.47$), ed evita il collasso di $M{=}\infty$ per
+  Newton-CG (es. termine incrociato: $1.41 \to 7.88\times10^{-2}$, migliore
+  persino della base). Nuovi riferimenti `base_train`/`minf_train`
+  (ricampionamento a ogni iterazione / riuso illimitato sul solo training
+  set) per un confronto equo con lo stop adattivo (che tiene fuori $p$ dei
+  dati). Nuovo script riproducibile
+  `altro/script/gen_tabelle_riuso_validation.py` (`--data`, `--analisi`,
+  `--robustezza`, `--tex`) con i dati `validation_sweep.json` e
+  `validation_robustezza.json`; `tesi/appendice_riuso_estratto.tex` ora
+  definisce anche la label fittizia `app:codici` (riferimento all'Appendice
+  B). Ricompilato `appendice_riuso_estratto.pdf`: 22 -> **25 pp**, 0 errori,
+  0 undefined, 0 overfull, 1 underfull preesistente. `tesi.tex` non toccata
+  (l'Appendice E resta un PLACEHOLDER): `tesi.pdf`/`tesi_finale.pdf` non
+  coinvolti (latexmk "nothing to do").
+
 - **Ultimo intervento (23/08/2026).** **App web: stop adattivo con validation
   set — M e M_H decisi automaticamente dalla loss di validazione.** In
   `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) nuova

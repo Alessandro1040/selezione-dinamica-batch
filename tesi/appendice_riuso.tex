@@ -1144,3 +1144,214 @@ incrociato & Dynamic GD & 4 / 1 / 0 & 3 / 2 / 0\\
 \end{table}
 
 
+
+
+% ====================================================================================================
+% E.6 - Stop adattivo con validation set
+% ====================================================================================================
+
+\subsection{Stop adattivo con validation set}\label{app:riuso-validation}
+
+Le Tabelle~\ref{tab:riuso_sintesi} e~\ref{tab:riuso_robustezza} mostrano che
+il numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch va
+scelto con cura: il valore migliore cambia con il problema e con
+l'algoritmo, e per i metodi di Newton un valore troppo alto (in particolare
+$M=\infty$) può far collassare la convergenza (errore finale $e_{30}$ fino a
+$1.4$ sui problemi mal condizionati). L'applicazione offre una variante che
+automatizza questa scelta, lo \emph{stop adattivo con validation set}: il
+momento in cui ricampionare il batch (e, per i metodi di Newton, l'Hessiana)
+è deciso dalla loss media su un validation set, senza dover fissare $M$ a
+priori.
+
+Il meccanismo è quello descritto nella Sezione~\ref{sec:visualizzazione}: il
+dataset di $N$ esempi è diviso in training e validation ($p$ è la
+percentuale in validation), il mini-batch è campionato dal solo training set
+e la CCV continua ad aumentarne la dimensione, con tetto
+$\lvert\mathcal{T}\rvert$ (la dimensione del training set) invece di $N$.
+Dopo ogni aggiornamento $w_{k+1}$ (anche a passo nullo) la loss media
+$J_{\mathrm{val}}(w_{k+1})$ è valutata sul validation set con frequenza $f$
+(una valutazione ogni $f$ iterazioni); se per $P$ valutazioni consecutive
+non risulta $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)
+- \epsilon_{\mathrm{abs}}$, il batch viene ricampionato all'iterazione
+successiva. La strategia di split è \emph{fissa} (train e validation estratti
+una sola volta all'inizio) o \emph{dinamica} (risplit a ogni cambio di
+batch). Per i metodi di Newton, l'Hessiana segue il batch in modalità legata
+(Sezione~\ref{app:riuso-descrizione}).
+
+Gli esperimenti di questa sottosezione usano lo stesso setup della
+Sezione~\ref{app:riuso-setup} (quattro preset quadratici, $N=200$, $w_0=(2,-3)$,
+$\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni, seed 42) e gli algoritmi
+esatti generati dall'applicazione, cioè le varianti con validation set dei
+codici Python dell'Appendice~\ref{app:codici} (per BB-CCV, la
+sottosezione~B.4). Per isolare l'effetto
+del criterio di stop, i riferimenti \emph{base} (ricampionamento a ogni
+iterazione) e $M=\infty$ (riuso illimitato) sono ricalcolati sul solo
+training set, con lo stesso split della variante adattiva: non vanno quindi
+confrontati direttamente con le colonne della Tabella~\ref{tab:riuso_sintesi},
+che usano tutti gli $N=200$ esempi.
+
+\paragraph{Quali iperparametri vale la pena testare.}
+L'applicazione espone cinque iperparametri: la pazienza $P$ (numero di
+valutazioni senza miglioramento prima di ricampionare, default 3), la
+tolleranza relativa $\tau$ (default $10^{-4}$), la percentuale di validation
+$p$ (default 20\%), la frequenza di valutazione $f$ (default 1) e la
+strategia di split (default fisso). Pazienza e tolleranza controllano
+direttamente la frequenza di ricampionamento: valori piccoli di $P$
+ricampionano presto, avvicinandosi alla \emph{base}; valori grandi tengono
+il batch più a lungo, avvicinandosi a $M=\infty$. La percentuale $p$
+la qualità della stima di $J_{\mathrm{val}}$ con la quantità di
+dati di training; la frequenza $f$ controlla la prontezza del criterio; la
+strategia dinamica cambia il validation set a ogni ricampionamento.
+
+
+La Tabella~\ref{tab:riuso_valid_iper} riporta l'effetto marginale di
+ciascun iperparametro, mediato sulle 16 combinazioni problema per algoritmo
+(4 problemi $\times$ 4 algoritmi, seed 42). Il quadro è netto. La pazienza è
+l'iperparametro più influente: $P=1$ riduce l'errore medio di circa il 24\%
+rispetto a $P=8$ ($2.63\times10^{-1}$ contro $3.45\times10^{-1}$), a fronte
+di un numero di ricampionamenti solo leggermente superiore (12.8 contro 9.3
+su 30 iterazioni): ricampionare appena la loss di validazione smette di
+migliorare è la scelta migliore, perché mantiene la freschezza del campione
+senza pagare il costo pieno della \emph{base} (29 ricampionamenti). La
+tolleranza $\tau$ è ininfluente nell'intervallo testato: le loss di
+validazione di questi problemi variano di ordini di grandezza, quindi
+$\tau \in \{10^{-5},10^{-4},10^{-3}\}$ produce lo stesso numero di
+valutazioni considerate miglioramenti e, di fatto, le stesse traiettorie. La
+percentuale di validation migliore è la più piccola testata, $p=10\%$
+($2.70\times10^{-1}$ contro $3.30\times10^{-1}$ di $p=30\%$): tenere più dati
+nel training set aiuta, e il segnale di validazione resta affidabile.
+Valutare a ogni iterazione ($f=1$) è meglio che valutare ogni tre
+($2.76\times10^{-1}$ contro $3.28\times10^{-1}$), perché il criterio scatta
+prima. La strategia dinamica è sistematicamente migliore di quella fissa
+($2.83\times10^{-1}$ contro $3.21\times10^{-1}$): risplittare a ogni cambio
+di batch ruota i dati di training ed evita che il validation set fisso
+diventi poco informativo.
+
+\paragraph{Confronto con i riferimenti.}
+La Tabella~\ref{tab:riuso_valid_confronto} confronta al seed 42 lo stop
+adattivo con la \emph{base} e con $M=\infty$ sul training set. Con i valori
+di default lo stop adattivo è in media paragonabile alla \emph{base}
+($2.87\times10^{-1}$ contro $2.37\times10^{-1}$) ma con un numero di
+ricampionamenti molto più basso (10.7 contro 29), e per i metodi di Newton
+evita il collasso di $M=\infty$: su Newton-CG con termine incrociato
+l'errore finale passa da $1.41$ (riuso illimitato) a $7.88\times10^{-2}$,
+migliore persino della \emph{base} ($2.87\times10^{-1}$).
+
+La calibrazione degli iperparametri migliora ulteriormente il quadro. La
+configurazione $P=1$, $p=10\%$, strategia dinamica porta l'errore medio su 5
+seed (Tabella~\ref{tab:riuso_valid_robustezza}) a
+$2.24\times10^{-1}$, inferiore a quello della \emph{base}
+($2.47\times10^{-1}$) e molto inferiore a quello di $M=\infty$
+($4.29\times10^{-1}$), vincendo contro la \emph{base} in 11 delle 16
+combinazioni problema per algoritmo. Al seed 42 i due approcci sono invece
+comparabili (la \emph{base} registra $2.37\times10^{-1}$ contro
+$2.53\times10^{-1}$ della configurazione calibrata): il vantaggio dello stop
+adattivo calibrato sta nella robustezza, non nella singola realizzazione.
+
+In sintesi, lo stop adattivo con validation set rende il riuso del
+mini-batch una scelta sicura di default, soprattutto per i metodi del
+secondo ordine, dove $M=\infty$ è pericoloso. Gli iperparametri che contano
+sono la pazienza (bassa), la percentuale di validation (bassa) e la
+strategia dinamica; la tolleranza relativa è ininfluente in questo regime.
+Il costo aggiuntivo è una valutazione di $J_{\mathrm{val}}$ ogni $f$
+iterazioni su circa $pN$ esempi, trascurabile rispetto al costo di
+un'iterazione.
+
+% Tabelle E.19-E.21 generate da gen_tabelle_riuso_validation.py (altro/script)
+
+% =====================================================================
+% Tabelle E.19-E.21 - stop adattivo con validation set
+% Generate da gen_tabelle_riuso_validation.py --tex - NON modificare a mano.
+% =====================================================================
+
+% Tabella E.19 - confronto stop adattivo vs riferimenti (seed 42)
+\begin{table}[H]
+\centering
+\tiny
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{1.5pt}
+\caption{Stop adattivo con validation set: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default dello stop adattivo ($p=0.2$, $\tau=10^{-4}$, $P=3$, $f=1$, split fisso); $P{=}1,p{=}0.1$,dyn = pazienza 1, validation $10\%$ e split dinamico; $P{=}3,p{=}0.1$,dyn = pazienza 3, validation $10\%$ e split dinamico. Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dal solo training set ($p$ percentuale in validation): \emph{base} e $M{=}\infty$ si riferiscono al training set (senza criterio di validazione). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato.}
+\label{tab:riuso_valid_confronto}
+\begin{tabular}{@{}lrrrrr@{}}
+\toprule
+Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,p{=}0.1$,dyn & $P{=}3,p{=}0.1$,dyn\\
+\midrule
+$\kappa\approx1.1$ - Dynamic GD & $1.24\times10^{-1}$ (29) & $1.23\times10^{-1}$$\blacktriangle$ (19) & $1.23\times10^{-1}$$\blacktriangle$ (19) & $1.17\times10^{-1}$$\blacktriangle$ (19) & $1.14\times10^{-1}$$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - BB-CCV & $1.24\times10^{-1}$ (29) & $1.23\times10^{-1}$$\blacktriangle$ (19) & $1.23\times10^{-1}$$\blacktriangle$ (19) & $1.17\times10^{-1}$$\blacktriangle$ (19) & $1.14\times10^{-1}$$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - Newton-CG & $3.73\times10^{-1}$ (29) & $1.41\times10^{0}$$\blacktriangledown$ (0) & $2.98\times10^{-1}$$\blacktriangle$ (3) & $1.78\times10^{-1}$$\blacktriangle$ (5) & $1.69\times10^{-1}$$\blacktriangle$ (6)\\
+$\kappa\approx1.1$ - Newton-CG $L_1$ & $1.11\times10^{-1}$ (29) & $7.78\times10^{-2}$$\blacktriangle$ (6) & $7.78\times10^{-2}$$\blacktriangle$ (6) & $8.71\times10^{-2}$$\blacktriangle$ (13) & $8.71\times10^{-2}$$\blacktriangle$ (13)\\
+\midrule
+$\kappa\approx20$ - Dynamic GD & $5.64\times10^{-2}$ (29) & $6.18\times10^{-2}$$\blacktriangledown$ (1) & $6.18\times10^{-2}$$\blacktriangledown$ (1) & $1.57\times10^{-1}$$\blacktriangledown$ (27) & $1.21\times10^{-2}$$\blacktriangle$ (8)\\
+$\kappa\approx20$ - BB-CCV & $5.64\times10^{-2}$ (29) & $6.18\times10^{-2}$$\blacktriangledown$ (1) & $6.18\times10^{-2}$$\blacktriangledown$ (1) & $1.57\times10^{-1}$$\blacktriangledown$ (27) & $1.21\times10^{-2}$$\blacktriangle$ (8)\\
+$\kappa\approx20$ - Newton-CG & $1.72\times10^{-1}$ (29) & $6.46\times10^{-1}$$\blacktriangledown$ (0) & $3.70\times10^{-1}$$\blacktriangledown$ (6) & $1.87\times10^{-1}$$\blacktriangledown$ (11) & $4.07\times10^{-1}$$\blacktriangledown$ (5)\\
+$\kappa\approx20$ - Newton-CG $L_1$ & $4.87\times10^{-1}$ (29) & $5.98\times10^{-1}$$\blacktriangledown$ (4) & $5.98\times10^{-1}$$\blacktriangledown$ (4) & $6.65\times10^{-1}$$\blacktriangledown$ (7) & $6.72\times10^{-1}$$\blacktriangledown$ (5)\\
+\midrule
+$\kappa\approx100$ - Dynamic GD & $4.54\times10^{-1}$ (29) & $4.71\times10^{-1}$$\blacktriangledown$ (26) & $4.71\times10^{-1}$$\blacktriangledown$ (26) & $5.41\times10^{-1}$$\blacktriangledown$ (27) & $4.01\times10^{-1}$$\blacktriangle$ (26)\\
+$\kappa\approx100$ - BB-CCV & $4.54\times10^{-1}$ (29) & $4.71\times10^{-1}$$\blacktriangledown$ (26) & $4.71\times10^{-1}$$\blacktriangledown$ (26) & $5.41\times10^{-1}$$\blacktriangledown$ (27) & $4.01\times10^{-1}$$\blacktriangle$ (26)\\
+$\kappa\approx100$ - Newton-CG & $1.83\times10^{-1}$ (29) & $1.41\times10^{0}$$\blacktriangledown$ (0) & $8.26\times10^{-1}$$\blacktriangledown$ (8) & $1.97\times10^{-1}$$\blacktriangledown$ (12) & $3.95\times10^{-1}$$\blacktriangledown$ (5)\\
+$\kappa\approx100$ - Newton-CG $L_1$ & $8.67\times10^{-1}$ (29) & $9.70\times10^{-1}$$\blacktriangledown$ (3) & $9.69\times10^{-1}$$\blacktriangledown$ (4) & $9.69\times10^{-1}$$\blacktriangledown$ (9) & $9.69\times10^{-1}$$\blacktriangledown$ (4)\\
+\midrule
+incrociato - Dynamic GD & $1.87\times10^{-2}$ (29) & $1.73\times10^{-2}$$\blacktriangle$ (16) & $1.73\times10^{-2}$$\blacktriangle$ (16) & $6.15\times10^{-3}$$\blacktriangle$ (16) & $6.24\times10^{-3}$$\blacktriangle$ (15)\\
+incrociato - BB-CCV & $1.87\times10^{-2}$ (29) & $1.73\times10^{-2}$$\blacktriangle$ (16) & $1.73\times10^{-2}$$\blacktriangle$ (16) & $6.15\times10^{-3}$$\blacktriangle$ (16) & $6.24\times10^{-3}$$\blacktriangle$ (15)\\
+incrociato - Newton-CG & $2.87\times10^{-1}$ (29) & $1.41\times10^{0}$$\blacktriangledown$ (0) & $7.88\times10^{-2}$$\blacktriangle$ (5) & $9.28\times10^{-2}$$\blacktriangle$ (11) & $1.78\times10^{-1}$$\blacktriangle$ (8)\\
+incrociato - Newton-CG $L_1$ & $1.06\times10^{-2}$ (29) & $2.23\times10^{-2}$$\blacktriangledown$ (11) & $2.23\times10^{-2}$$\blacktriangledown$ (11) & $2.76\times10^{-2}$$\blacktriangledown$ (17) & $2.78\times10^{-2}$$\blacktriangledown$ (14)\\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.20 - sensibilità agli iperparametri (media su 16 caselle, seed 42)
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\caption{Sensibilità dell'errore finale $e_{30}$ agli iperparametri dello stop adattivo: media di $e_{30}$ e del numero di ricampionamenti sulle 16 combinazioni problema$\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri. $P$ = pazienza, $\tau$ = tolleranza relativa, $p$ = percentuale di validation, $f$ = frequenza di valutazione.}
+\label{tab:riuso_valid_iper}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Iperparametro & Valore & $\overline{e}_{30}$ & ricampionamenti medi\\
+\midrule
+Pazienza $P$ & 1 & $2.63\times10^{-1}$ & 12.8\\
+ & 3 & $2.98\times10^{-1}$ & 9.9\\
+ & 8 & $3.45\times10^{-1}$ & 9.3\\
+\midrule
+ & $10^{-5}$ & $3.02\times10^{-1}$ & 10.7\\
+ & $10^{-4}$ & $3.02\times10^{-1}$ & 10.7\\
+ & $10^{-3}$ & $3.02\times10^{-1}$ & 10.7\\
+\midrule
+ & 10\% & $2.70\times10^{-1}$ & 11.2\\
+ & 20\% & $3.06\times10^{-1}$ & 10.1\\
+ & 30\% & $3.30\times10^{-1}$ & 10.7\\
+\midrule
+ & 1 & $2.76\times10^{-1}$ & 11.5\\
+ & 3 & $3.28\times10^{-1}$ & 9.8\\
+\midrule
+ & \emph{fisso} & $3.21\times10^{-1}$ & 10.9\\
+ & \emph{dinamico} & $2.83\times10^{-1}$ & 10.5\\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella E.21 - robustezza su 5 seed
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3.5pt}
+\caption{Robustezza su 5 seed indipendenti ($\{42,7,123,2024,999\}$). Per ogni configurazione: $\overline{e}_{30}$ = media di $e_{30}$ su 16 caselle $\times$ 5 seed; \emph{vitt.} = numero di caselle (su 16) in cui la media su 5 seed è minore di quella di \emph{base}; le ultime quattro colonne riportano la media su 5 seed per problema (mediata sui 4 algoritmi). Configurazioni come nella Tabella~\ref{tab:riuso_valid_confronto}.}
+\label{tab:riuso_valid_robustezza}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr.\\
+\midrule
+\emph{base} & $2.47\times10^{-1}$ & 0/16 & $1.89\times10^{-1}$ & $2.06\times10^{-1}$ & $5.06\times10^{-1}$ & $8.63\times10^{-2}$\\
+$M{=}\infty$ & $4.29\times10^{-1}$ & 5/16 & $2.50\times10^{-1}$ & $4.73\times10^{-1}$ & $8.23\times10^{-1}$ & $1.71\times10^{-1}$\\
+\midrule
+def. & $2.98\times10^{-1}$ & 7/16 & $1.35\times10^{-1}$ & $3.36\times10^{-1}$ & $6.81\times10^{-1}$ & $3.93\times10^{-2}$\\
+$P{=}1,p{=}0.1$,dyn & $2.24\times10^{-1}$ & 11/16 & $1.41\times10^{-1}$ & $2.28\times10^{-1}$ & $4.84\times10^{-1}$ & $4.15\times10^{-2}$\\
+$P{=}3,p{=}0.1$,dyn & $2.43\times10^{-1}$ & 11/16 & $1.40\times10^{-1}$ & $2.53\times10^{-1}$ & $5.33\times10^{-1}$ & $4.54\times10^{-2}$\\
+\bottomrule
+\end{tabular}
+\end{table}
