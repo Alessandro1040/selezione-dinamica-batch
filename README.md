@@ -146,6 +146,32 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (23/08/2026, follow-up).** **App web: curve di livello
+  stabili e MAI tagliate a metà dentro la vista.** Segnalati glitch residui:
+  con lo zoom/pan le curve comparivano tagliate a metà e in alcuni momenti
+  alcune parti non venivano mostrate. Cause e correzioni in
+  `visualizzazione.html`: (1) i livelli erano ricalcolati a ogni regrid sulla
+  vista → le curve "saltavano" o sparivano; ora sono **FISSI per run** (10
+  livelli geometrici in J, uniformi in log10 J, tra un minimo e 2× il massimo
+  di J di riferimento) e la superficie del contour è **z = log10(J)** — la
+  trasformazione è monotona, quindi le isolinee sono le stesse di J ma i
+  livelli geometrici diventano uniformi e Plotly li disegna ESATTAMENTE con
+  start/end/size (hover = J originale via `customdata`); (2) durante lo
+  zoom-out la griglia dati restava più piccola della vista → curve tagliate al
+  bordo dati dentro lo schermo; ora una **griglia "wide"** (n=180, dominio =
+  vista a 0.1× + 5%) è calcolata una volta per run (al primo render o zoom-out)
+  e usata per ogni zoom ≤ 1× → lo zoom-out è istantaneo e le curve non vengono
+  mai tagliate dentro la vista (solo al bordo degli assi, come deve essere);
+  (3) il regrid resta solo per lo zoom-in (serve risoluzione), con **margine
+  del 40%** e debounce 60 ms → anche i pan oltre il dominio rigenerano senza
+  lasciare zone vuote; (4) `pickColabGrid()` sceglie al render la griglia a
+  risoluzione più alta tra wide / 1× / ultimo regrid che COPRE la vista.
+  Etichette dei livelli disattivate (`showlabels:false`): i valori esatti sono
+  nell'hover. Nessun PDF coinvolto (l'app non è in `tesi.tex`). Validazione:
+  harness con DOM fittizio **37/37 controlli** (griglia wide e suo dominio,
+  zoom-out che usa la wide SENZA regrid, zoom-in con regrid al 40%, pan senza
+  loop, reset, 1D no-op) + pipeline completo 2D/1D di `runAlgorithm` estratto
+  dall'HTML (livelli log₁₀ uniformi, griglia log10(J)+J originale).
 - **Ultimo intervento (23/08/2026).** **App web: le curve di livello della
   Traiettoria 2D ora compaiono SEMPRE, anche zoommando su un punto, e lo zoom
   può uscire fino a 0.1× per vedere tutte le ellissi.** Prima la griglia delle
