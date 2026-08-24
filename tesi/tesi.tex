@@ -6,7 +6,7 @@
 \usepackage{geometry}
 \geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=3cm, headheight=15pt}
 \usepackage{fancyhdr}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{tikz}
@@ -4058,7 +4058,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 
 \setlength{\tabcolsep}{1.5pt}
 
-\caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi alla colonna \emph{base}: $\blacktriangle$ = il riuso migliora, $\blacktriangledown$ = il riuso peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative.}
+\caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi alla colonna \emph{base}: $\blacktriangle$ = il riuso migliora, $\blacktriangledown$ = il riuso peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative.} Lo sfondo delle celle codifica l'errore su scala logaritmica tra il minimo ($5.53\times10^{-3}$, verde chiaro) e il massimo ($1.28\times10^{0}$, rosso scuro).
 
 \label{tab:riuso_sintesi}
 
@@ -4070,43 +4070,43 @@ Metodo & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}3$ & $M{=}2$ & $
 
 \midrule
 
-$\kappa\approx1.1$ - Dynamic GD & $1.19\times10^{-1}$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.18\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$=$\\
+$\kappa\approx1.1$ - Dynamic GD &\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{162,112,83}$1.18\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$=$\\
 
-$\kappa\approx1.1$ - Newton-CG & $4.03\times10^{-1}$ & $2.22\times10^{-1}$$\blacktriangle$ & $3.74\times10^{-1}$$\blacktriangle$ & $4.16\times10^{-1}$$\blacktriangledown$ & $3.29\times10^{-1}$$\blacktriangle$ & $2.61\times10^{-1}$$\blacktriangle$ & $3.06\times10^{-1}$$\blacktriangle$\\
+$\kappa\approx1.1$ - Newton-CG &\cellcolor[RGB]{151,54,40}$4.03\times10^{-1}$&\cellcolor[RGB]{156,82,61}$2.22\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.74\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{150,53,39}$4.16\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{152,64,47}$3.29\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{155,74,55}$2.61\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{153,67,50}$3.06\times10^{-1}$$\blacktriangle$\\
 
-$\kappa\approx1.1$ - Newton-CG $L_1$ & $1.02\times10^{-1}$ & $8.17\times10^{-2}$$\blacktriangle$ & $9.24\times10^{-2}$$\blacktriangle$ & $1.00\times10^{-1}$$\blacktriangle$ & $1.06\times10^{-1}$$\blacktriangledown$ & $9.41\times10^{-2}$$\blacktriangle$ & $1.00\times10^{-1}$$\blacktriangle$\\
+$\kappa\approx1.1$ - Newton-CG $L_1$ &\cellcolor[RGB]{163,118,88}$1.02\times10^{-1}$&\cellcolor[RGB]{165,129,96}$8.17\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{164,123,92}$9.24\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{163,119,89}$1.00\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{163,117,87}$1.06\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{164,122,91}$9.41\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{163,119,89}$1.00\times10^{-1}$$\blacktriangle$\\
 
-$\kappa\approx1.1$ - BB-CCV & $1.19\times10^{-1}$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.19\times10^{-1}$$\blacktriangledown$ & $1.18\times10^{-1}$$\blacktriangle$ & $1.19\times10^{-1}$$=$\\
-
-\midrule
-
-$\kappa\approx20$ - Dynamic GD & $4.91\times10^{-2}$ & $1.01\times10^{-1}$$\blacktriangledown$ & $7.60\times10^{-2}$$\blacktriangledown$ & $4.72\times10^{-2}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangledown$ & $4.29\times10^{-2}$$\blacktriangle$ & $4.91\times10^{-2}$$=$\\
-
-$\kappa\approx20$ - Newton-CG & $2.35\times10^{-1}$ & $1.28\times10^{0}$$\blacktriangledown$ & $9.49\times10^{-1}$$\blacktriangledown$ & $4.11\times10^{-1}$$\blacktriangledown$ & $3.34\times10^{-1}$$\blacktriangledown$ & $4.06\times10^{-1}$$\blacktriangledown$ & $1.67\times10^{-1}$$\blacktriangle$\\
-
-$\kappa\approx20$ - Newton-CG $L_1$ & $4.88\times10^{-1}$ & $7.62\times10^{-1}$$\blacktriangledown$ & $5.57\times10^{-1}$$\blacktriangledown$ & $6.22\times10^{-1}$$\blacktriangledown$ & $4.55\times10^{-1}$$\blacktriangle$ & $4.34\times10^{-1}$$\blacktriangle$ & $5.46\times10^{-1}$$\blacktriangledown$\\
-
-$\kappa\approx20$ - BB-CCV & $4.91\times10^{-2}$ & $1.01\times10^{-1}$$\blacktriangledown$ & $7.60\times10^{-2}$$\blacktriangledown$ & $4.72\times10^{-2}$$\blacktriangle$ & $1.17\times10^{-1}$$\blacktriangledown$ & $4.29\times10^{-2}$$\blacktriangle$ & $4.91\times10^{-2}$$=$\\
+$\kappa\approx1.1$ - BB-CCV &\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{162,112,83}$1.18\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{162,111,83}$1.19\times10^{-1}$$=$\\
 
 \midrule
 
-$\kappa\approx100$ - Dynamic GD & $4.67\times10^{-1}$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $4.67\times10^{-1}$$=$\\
+$\kappa\approx20$ - Dynamic GD &\cellcolor[RGB]{170,153,114}$4.91\times10^{-2}$&\cellcolor[RGB]{163,119,89}$1.01\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{166,132,99}$7.60\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{170,155,115}$4.72\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{171,159,119}$4.29\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{170,153,114}$4.91\times10^{-2}$$=$\\
 
-$\kappa\approx100$ - Newton-CG & $2.10\times10^{-1}$ & $1.28\times10^{0}$$\blacktriangledown$ & $6.44\times10^{-1}$$\blacktriangledown$ & $3.35\times10^{-1}$$\blacktriangledown$ & $3.73\times10^{-1}$$\blacktriangledown$ & $4.43\times10^{-1}$$\blacktriangledown$ & $2.30\times10^{-1}$$\blacktriangledown$\\
+$\kappa\approx20$ - Newton-CG &\cellcolor[RGB]{156,79,59}$2.35\times10^{-1}$&\cellcolor[RGB]{140,0,0}$1.28\times10^{0}$$\blacktriangledown$&\cellcolor[RGB]{143,14,10}$9.49\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{150,53,40}$4.11\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{152,63,47}$3.34\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{151,54,40}$4.06\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{159,95,71}$1.67\times10^{-1}$$\blacktriangle$\\
 
-$\kappa\approx100$ - Newton-CG $L_1$ & $9.70\times10^{-1}$ & $9.71\times10^{-1}$$\blacktriangledown$ & $8.64\times10^{-1}$$\blacktriangle$ & $9.70\times10^{-1}$$\blacktriangledown$ & $8.77\times10^{-1}$$\blacktriangle$ & $9.69\times10^{-1}$$\blacktriangle$ & $8.66\times10^{-1}$$\blacktriangle$\\
+$\kappa\approx20$ - Newton-CG $L_1$ &\cellcolor[RGB]{149,45,34}$4.88\times10^{-1}$&\cellcolor[RGB]{145,24,18}$7.62\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{148,39,29}$5.57\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{147,34,25}$6.22\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{149,48,36}$4.55\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{150,51,38}$4.34\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{148,40,30}$5.46\times10^{-1}$$\blacktriangledown$\\
 
-$\kappa\approx100$ - BB-CCV & $4.67\times10^{-1}$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $3.71\times10^{-1}$$\blacktriangle$ & $4.67\times10^{-1}$$=$\\
+$\kappa\approx20$ - BB-CCV &\cellcolor[RGB]{170,153,114}$4.91\times10^{-2}$&\cellcolor[RGB]{163,119,89}$1.01\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{166,132,99}$7.60\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{170,155,115}$4.72\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{162,112,83}$1.17\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{171,159,119}$4.29\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{170,153,114}$4.91\times10^{-2}$$=$\\
 
 \midrule
 
-incrociato - Dynamic GD & $9.42\times10^{-3}$ & $5.53\times10^{-3}$$\blacktriangle$ & $9.96\times10^{-3}$$\blacktriangledown$ & $5.95\times10^{-3}$$\blacktriangle$ & $7.58\times10^{-3}$$\blacktriangle$ & $8.72\times10^{-3}$$\blacktriangle$ & $9.42\times10^{-3}$$=$\\
+$\kappa\approx100$ - Dynamic GD &\cellcolor[RGB]{149,47,35}$4.67\times10^{-1}$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{149,47,35}$4.67\times10^{-1}$$=$\\
 
-incrociato - Newton-CG & $3.52\times10^{-1}$ & $4.10\times10^{-2}$$\blacktriangle$ & $1.05\times10^{-1}$$\blacktriangle$ & $3.35\times10^{-1}$$\blacktriangle$ & $2.34\times10^{-1}$$\blacktriangle$ & $2.18\times10^{-1}$$\blacktriangle$ & $2.64\times10^{-1}$$\blacktriangle$\\
+$\kappa\approx100$ - Newton-CG &\cellcolor[RGB]{157,85,63}$2.10\times10^{-1}$&\cellcolor[RGB]{140,0,0}$1.28\times10^{0}$$\blacktriangledown$&\cellcolor[RGB]{146,32,24}$6.44\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{152,63,47}$3.35\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{151,58,43}$3.73\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{150,50,37}$4.43\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{156,80,60}$2.30\times10^{-1}$$\blacktriangledown$\\
 
-incrociato - Newton-CG $L_1$ & $2.09\times10^{-2}$ & $3.89\times10^{-2}$$\blacktriangledown$ & $3.94\times10^{-2}$$\blacktriangledown$ & $2.93\times10^{-2}$$\blacktriangledown$ & $2.36\times10^{-2}$$\blacktriangledown$ & $3.85\times10^{-2}$$\blacktriangledown$ & $2.52\times10^{-2}$$\blacktriangledown$\\
+$\kappa\approx100$ - Newton-CG $L_1$ &\cellcolor[RGB]{143,13,10}$9.70\times10^{-1}$&\cellcolor[RGB]{143,13,10}$9.71\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{144,18,14}$8.64\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{143,13,10}$9.70\times10^{-1}$$\blacktriangledown$&\cellcolor[RGB]{143,18,13}$8.77\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{143,13,10}$9.69\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{144,18,14}$8.66\times10^{-1}$$\blacktriangle$\\
 
-incrociato - BB-CCV & $9.42\times10^{-3}$ & $5.53\times10^{-3}$$\blacktriangle$ & $9.96\times10^{-3}$$\blacktriangledown$ & $5.95\times10^{-3}$$\blacktriangle$ & $7.58\times10^{-3}$$\blacktriangle$ & $8.72\times10^{-3}$$\blacktriangle$ & $9.42\times10^{-3}$$=$\\
+$\kappa\approx100$ - BB-CCV &\cellcolor[RGB]{149,47,35}$4.67\times10^{-1}$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{151,58,43}$3.71\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{149,47,35}$4.67\times10^{-1}$$=$\\
+
+\midrule
+
+incrociato - Dynamic GD &\cellcolor[RGB]{185,230,171}$9.42\times10^{-3}$&\cellcolor[RGB]{190,255,190}$5.53\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{185,227,169}$9.96\times10^{-3}$$\blacktriangledown$&\cellcolor[RGB]{189,252,187}$5.95\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{187,240,179}$7.58\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{186,234,174}$8.72\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{185,230,171}$9.42\times10^{-3}$$=$\\
+
+incrociato - Newton-CG &\cellcolor[RGB]{152,60,45}$3.52\times10^{-1}$&\cellcolor[RGB]{172,161,120}$4.10\times10^{-2}$$\blacktriangle$&\cellcolor[RGB]{163,117,87}$1.05\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{152,63,47}$3.35\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{156,80,59}$2.34\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{156,83,62}$2.18\times10^{-1}$$\blacktriangle$&\cellcolor[RGB]{154,74,55}$2.64\times10^{-1}$$\blacktriangle$\\
+
+incrociato - Newton-CG $L_1$ &\cellcolor[RGB]{178,193,144}$2.09\times10^{-2}$&\cellcolor[RGB]{172,164,122}$3.89\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{172,163,121}$3.94\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{175,177,132}$2.93\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{177,187,139}$2.36\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{172,164,122}$3.85\times10^{-2}$$\blacktriangledown$&\cellcolor[RGB]{176,184,137}$2.52\times10^{-2}$$\blacktriangledown$\\
+
+incrociato - BB-CCV &\cellcolor[RGB]{185,230,171}$9.42\times10^{-3}$&\cellcolor[RGB]{190,255,190}$5.53\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{185,227,169}$9.96\times10^{-3}$$\blacktriangledown$&\cellcolor[RGB]{189,252,187}$5.95\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{187,240,179}$7.58\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{186,234,174}$8.72\times10^{-3}$$\blacktriangle$&\cellcolor[RGB]{185,230,171}$9.42\times10^{-3}$$=$\\
 
 \bottomrule
 

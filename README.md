@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Tabella 6.20 (`tab:riuso_sintesi`):
+  sfondo colorato per cella con scala verde → rosso (logaritmica).** In
+  `tesi/tesi.tex` le 112 celle numeriche della tabella di sintesi del riuso
+  (16 righe × 7 colonne: `base`, $M{=}\infty$, $M{=}10$, $M{=}5$, $M{=}3$,
+  $M{=}2$, $M{=}1$) hanno ora uno sfondo `\cellcolor[RGB]{...}` che codifica
+  l'errore finale $e_{30}$: scala **logaritmica** normalizzata tra il minimo
+  ($5.53\times10^{-3}$, verde chiaro) e il massimo ($1.28\times10^{0}$, rosso
+  scuro), gradazione continua in mezzo. Per abilitare `\cellcolor` il
+  preambolo carica ora `\usepackage[table]{xcolor}`. Didascalia aggiornata con
+  la spiegazione della scala. Dati, simboli $\blacktriangle$/$\blacktriangledown$/$=$
+  e testo delle righe INVARIATI (verificato: 112 valori e simboli identici).
+  Ricompilati `tesi.pdf` (**121 pp**) e `tesi_finale.pdf` (**121 pp**), 0
+  errori, 0 undefined, overfull solo preesistenti. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf/README.md (md5 verificati). `bozza.tex`
+  non toccata.
+
 - **Ultimo intervento (24/08/2026).** **Tabelle del riuso dei metodi di Newton:
   ripristinato il formato con intestazione descrittiva e didascalie complete
   (revert delle righe in testa $M$/$M_H$/$H_k$).** In `tesi/tesi.tex` le 8
