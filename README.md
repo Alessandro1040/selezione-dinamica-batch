@@ -14,8 +14,7 @@ Roma (A.A. 2025–2026).
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 ├── tesi/                          SOLO ciò che serve a compilare tesi_finale.pdf
-│   ├── tesi.tex                   documento di lavoro (article, con copertina)
-│   ├── appendice_riuso.tex        Appendice E: riuso del mini-batch (inclusa da tesi.tex)
+│   ├── tesi.tex                   documento di lavoro (article, con copertina; contiene anche la Sez. 6.7 sul riuso del mini-batch)
 │   ├── tesi.pdf                   PDF compilato del documento di lavoro
 │   ├── tesi_finale.pdf            PDF DEFINITIVO: frontespizio + documento
 │   ├── frontespizio.tex           frontespizio istituzionale (sapthesis, 1 p)
@@ -39,6 +38,8 @@ Roma (A.A. 2025–2026).
 └── altro/                         materiale storico/non usato (non serve a compilare)
     ├── tesi_sapthesis.tex/.pdf    documento unico sapthesis (riferimento storico)
     ├── bozza.tex/.pdf             versione bozza/draft (riferimento storico)
+    ├── appendice_riuso.tex + appendice_riuso_estratto.tex/.pdf
+    │                              ex Appendice E (riuso mini-batch), ora Sez. 6.7 di tesi.tex (riferimento storico)
     ├── metodinumerici.tex         vecchia bozza completa (riferimento storico)
     ├── contenuti/                 frammenti LaTeX dei capitoli (già incorporati in tesi.tex)
     ├── figure/                    vecchie figure non più usate in tesi.tex
@@ -102,7 +103,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (23/08/2026)
+## Note operative e stato corrente (24/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -129,13 +130,20 @@ Da tenere presente nelle sessioni di lavoro successive:
   figure_test/, script di supporto, notebook non citati, ecc.).
 - **Documento autocontenuto.** `tesi.tex` NON usa `\input` per i capitoli: i frammenti in
   `altro/contenuti/` sono già incorporati nel file. Non tentare di ricostruire
-  il documento a partire da `altro/contenuti/`. **Unica eccezione (21/08/2026):**
-  l'Appendice E (riuso del mini-batch) vive nel file `tesi/appendice_riuso.tex`
-  (contenuto puro, incluso con `\input{appendice_riuso}` SOLO nel documento
-  autonomo `tesi/appendice_riuso_estratto.tex`); in `tesi.tex` c'è una sezione
-  segnaposto `(PLACEHOLDER)`. Se si modifica `appendice_riuso.tex` va
-  ricompilato solo `appendice_riuso_estratto.pdf` (non più
-  `tesi.pdf`/`tesi_finale.pdf`).
+  il documento a partire da `altro/contenuti/`. L'ex Appendice E (riuso del
+  mini-batch) è stata eliminata come appendice (24/08/2026): il contenuto è ora
+  integrato in `tesi.tex` come sottosezione **6.7** "Riuso del mini-batch:
+  iterazioni consecutive sullo stesso campione" (sottosezioni 6.7.1–6.7.7, 34
+  tabelle). I vecchi sorgenti autonomi (`appendice_riuso.tex` e
+  `appendice_riuso_estratto.tex/.pdf`) sono in `altro/` come riferimento
+  storico e NON vanno ricompilati per `tesi_finale.pdf`.
+- **Tabelle del riuso (metodi di Newton).** Nelle tabelle dei metodi del
+  secondo ordine (8 principali `tab:riuso_*_ncg/_l1` e 8 consigliati
+  `tab:riuso_cons_*_ncg/_nl1`) l'intestazione è semplificata e le righe in
+  testa alla tabella riportano il riuso del batch `$M$`, il riuso dell'Hessiana
+  `$M_H$` e la modalità (`$H_k$` legata o indipendente da `$S_k$`); le didascalie
+  non ripetono più questi dettagli. Il generatore `altro/script/gen_tabelle_riuso.py`
+  (`--tex`) scrive le 8 tabelle Newton in questo formato.
 - **Figura di copertina.** La compilazione della copia di lavoro richiede
   `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
   Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
@@ -146,6 +154,35 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Appendice E eliminata: contenuto
+  spostato nella Sezione 6 della tesi + righe $M$/$M_H$/modalità nelle tabelle
+  dei metodi di Newton.** (1) In `tesi/tesi.tex` il segnaposto dell'Appendice E
+  è stato rimosso e il contenuto integrale di `appendice_riuso.tex` è ora la
+  sottosezione **6.7** "Riuso del mini-batch: iterazioni consecutive sullo
+  stesso campione" (`\subsection`, label `app:riuso`), con le 7 ex-sottosezioni
+  E.1–E.7 come `\subsubsection` 6.7.1–6.7.7 (label `app:riuso-*` invariate) e
+  34 tabelle numerate nella Sezione 6. Testo: "Questa appendice" →
+  "Questa sottosezione". "Struttura della tesi": "Appendici A--E" →
+  "Appendici A--D". Tutti i `\ref` interni risolti (0 undefined).
+  (2) **Tabelle dei metodi del secondo ordine**: nelle 8 tabelle Newton
+  principali (`tab:riuso_*_ncg/_l1`) e nelle 8 dei consigliati
+  (`tab:riuso_cons_*_ncg/_nl1`) l'intestazione è semplificata (`base`,
+  `∞`, `10`, `5`, `2`, `H ind.`) e 3 righe in testa riportano il riuso del
+  batch `$M$` (base 1), il riuso dell'Hessiana `$M_H$` (in modalità legata
+  segue il batch: = $M$; colonna "H ind.": $M_H=\infty$) e la modalità
+  (`$H_k$` legata/indipendente da $S_k$). Didascalie alleggerite (via la lunga
+  spiegazione della colonna H ind.; per i consigliati il rimando è alla tabella
+  di sintesi `tab:riuso_cons_sintesi`) e legenda delle righe aggiunta in E.3
+  (Setup). Fix
+  grammaticale nelle didascalie consigliati ("ben condizionata" → "ben
+  condizionato"). (3) Ritirati i sorgenti autonomi: `tesi/appendice_riuso.tex`
+  e `tesi/appendice_riuso_estratto.tex/.pdf` spostati in `altro/` (riferimento
+  storico). (4) `altro/script/gen_tabelle_riuso.py` aggiornato (`--tex` scrive
+  le 8 tabelle Newton col nuovo formato; default `altro/appendice_riuso.tex`).
+  Ricompilati `tesi.pdf` (**83 → 122 pp**) e `tesi_finale.pdf` (**122 pp**), 0
+  errori, 0 riferimenti undefined (overfull solo preesistenti). Sincronizzati
+  nella repo tesi.tex/tesi.pdf/tesi_finale.pdf/README.md + spostamenti in
+  altro/ (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (23/08/2026).** **Appendice E: nuova sottosezione E.6
   "Stop adattivo con validation set" con sweep degli iperparametri.** In
   `tesi/appendice_riuso.tex` aggiunta la sottosezione E.6

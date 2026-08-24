@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Rigenerazione delle tabelle E.1-E.16 dell'Appendice E (riuso del mini-batch),
-inclusa la colonna per il riuso dell'Hessiana INDIPENDENTE da S_k (iperparametro
-M_H) introdotta nell'app web con il commit e682db0 (22/08/2026).
+Rigenerazione delle 8 tabelle Newton del riuso del mini-batch (ex Appendice E,
+ora Sezione 6.7 di tesi/tesi.tex; il sorgente standalone e' conservato in
+altro/appendice_riuso.tex), inclusa la colonna per il riuso dell'Hessiana
+INDIPENDENTE da S_k (iperparametro M_H) introdotta nell'app web con il commit
+e682db0 (22/08/2026). Le tabelle hanno le righe in testa $M$, $M_H$ e $H_k$
+(modalita' legata/indipendente da S_k) al posto dell'intestazione
+$M{=}\\infty$, $M{=}10$, ... e della spiegazione in didascalia.
 
 La logica degli algoritmi e' quella del codice Python generato da
 visualizzazione.html (generateNewtonCG / generateNewtonL1):
@@ -21,8 +25,10 @@ Uso:
       APPENDICE_TEX. Stampa i valori della nuova colonna (M=10, H indipendente
       M_H=inf) e del caso complementare (M=inf, M_H=10).
   python3 gen_tabelle_riuso.py --tex [APPENDICE_TEX] [OUT]
-      Riscrive le 8 tabelle Newton in APPENDICE_TEX aggiungendo la colonna
-      "M=10, H ind. M_H=inf" e scrive il risultato in OUT (default stdout).
+      Riscrive le 8 tabelle Newton in APPENDICE_TEX con l'intestazione
+      semplificata (base, inf, 10, 5, 2, H ind.) e le righe $M$, $M_H$, $H_k$,
+      e scrive il risultato in OUT (default stdout).
+      Default APPENDICE_TEX: altro/appendice_riuso.tex (riferimento storico).
 """
 import re
 import sys
@@ -685,7 +691,7 @@ def main():
         print(__doc__)
         return 0
     mode = args[0]
-    tex_path = args[1] if len(args) > 1 else "tesi/appendice_riuso.tex"
+    tex_path = args[1] if len(args) > 1 else "altro/appendice_riuso.tex"
 
     if mode == "--diagnosi":
         # Conferma che le tabelle attuali sono state generate con subset=False.
@@ -784,19 +790,24 @@ def main():
         for label, tabnum, pname, algo in NEWTON_TABLES:
             start, end = find_table_block(lines, label)
             ts, te, header, rows = parse_tabular(lines, start, end)
-            hcells = ["$k$", "\\emph{base}", "$M{=}\\infty$", "$M{=}10$",
-                      "$M{=}5$", "$M{=}2$", NEW_HEADER]
+            hcells = ["$k$", "\\emph{base}", "$\\infty$", "$10$", "$5$", "$2$",
+                      "H ind."]
             header_line = " & ".join(hcells) + "\\\\"
+            info_rows = [
+                "$M$ & $1$ & $\\infty$ & $10$ & $5$ & $2$ & $10$\\\\",
+                "$M_H$ & $1$ & $\\infty$ & $10$ & $5$ & $2$ & $\\infty$\\\\",
+                "$H_k$ & legata & legata & legata & legata & legata"
+                " & indipendente\\\\",
+            ]
             data_rows = []
             for k in range(31):
                 cells = [str(k)] + [fmt(data[(pname, algo, c)][k]) for c in NEWTON_COLS]
                 data_rows.append(" & ".join(cells) + "\\\\")
             spec_old = lines[ts]
-            if "{@{}rrrrrr@{}}" not in spec_old:
+            if "{@{}rrrrrrr@{}}" not in spec_old:
                 raise SystemExit(f"{label}: colonna spec inattesa: {spec_old!r}")
-            spec_new = spec_old.replace("{@{}rrrrrr@{}}", "{@{}rrrrrrr@{}}")
-            middle = ([spec_new, "\\toprule", header_line, "\\midrule"]
-                      + data_rows + ["\\bottomrule"])
+            middle = ([spec_old, "\\toprule", header_line] + info_rows
+                      + ["\\midrule"] + data_rows + ["\\bottomrule"])
             lines[start:end] = lines[start:ts] + middle + lines[te:end]
         out_text = "\n".join(lines) + "\n"
         if out_path:

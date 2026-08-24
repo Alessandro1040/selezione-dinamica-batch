@@ -4,7 +4,7 @@ L'applicazione interattiva descritta nella Sezione~\ref{sec:visualizzazione} off
 un'opzione che modifica il comportamento di tutti gli algoritmi della
 Sezione~\ref{sec:risultati}: invece di estrarre un nuovo mini-batch a ogni
 iterazione, è possibile riusare lo stesso campione per più iterazioni
-consecutive. Questa appendice descrive la variante, ne spiega il meccanismo
+consecutive. Questa sottosezione descrive la variante, ne spiega il meccanismo
 con un esempio geometrico, e ne discute benefici e limiti alla luce degli
 esperimenti controllati.
 
@@ -164,6 +164,11 @@ il contatore del batch. Con $M = \infty$ le due modalità coincidono
 (Sezione~\ref{app:riuso-descrizione}); la modalità indipendente è quindi
 testata solo con batch finito.
 
+Le righe in testa alle tabelle dei metodi di Newton
+($M$, $M_H$, $H_k$) riportano, per ciascuna colonna, il riuso del
+mini-batch, il riuso dell'Hessiana e la modalità (legata o indipendente
+da $S_k$).
+
 \subsection{Risultati numerici}\label{app:riuso-risultati}
 
 Le Tabelle~\ref{tab:riuso_bencond_gd}--\ref{tab:riuso_offdiag_bb} riportano
@@ -288,11 +293,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_bencond_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2758\times10^{0}$ & $1.2758\times10^{0}$ & $1.2758\times10^{0}$ & $1.2758\times10^{0}$ & $1.2758\times10^{0}$ & $1.2758\times10^{0}$\\
@@ -335,11 +343,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_bencond_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2683\times10^{0}$ & $1.2683\times10^{0}$ & $1.2683\times10^{0}$ & $1.2683\times10^{0}$ & $1.2683\times10^{0}$ & $1.2683\times10^{0}$\\
@@ -477,11 +488,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_malcond_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
@@ -524,11 +538,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_malcond_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$ & $1.3473\times10^{0}$\\
@@ -666,11 +683,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_veryill_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$ & $1.2807\times10^{0}$\\
@@ -713,11 +733,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_veryill_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$ & $1.3506\times10^{0}$\\
@@ -855,11 +878,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_offdiag_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2661\times10^{0}$ & $1.2661\times10^{0}$ & $1.2661\times10^{0}$ & $1.2661\times10^{0}$ & $1.2661\times10^{0}$ & $1.2661\times10^{0}$\\
@@ -902,11 +928,14 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{2pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M=\infty$: illimitato). Valori al seed 42, setup della Sezione~\ref{sec:setup}. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) e' la modalita' \emph{Indipendente da $S_k$} dell'app: a parita' di riuso del batch ($M=10$) l'Hessiana viene ricampionata solo quando la CCV e' violata ($M_H=\infty$), non alla scadenza del contatore del batch.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema quadratico con termine incrociato, per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive. Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_offdiag_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
-$k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
+$k$ & \emph{base} & $\infty$ & $10$ & $5$ & $2$ & H ind.\\
+$M$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $10$\\
+$M_H$ & $1$ & $\infty$ & $10$ & $5$ & $2$ & $\infty$\\
+$H_k$ & legata & legata & legata & legata & legata & indipendente\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2573\times10^{0}$ & $1.2573\times10^{0}$ & $1.2573\times10^{0}$ & $1.2573\times10^{0}$ & $1.2573\times10^{0}$ & $1.2573\times10^{0}$\\
@@ -1454,7 +1483,7 @@ garantisce la discesa solo sulla loss del batch corrente.
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionata ($\kappa\approx 1.1$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionato ($\kappa\approx 1.1$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_bencond_gd}
 \begin{tabular}{@{}rrr@{}}
 \toprule
@@ -1500,11 +1529,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionata ($\kappa\approx 1.1$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_bencond_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & adattivo\\
+$M_H$ & $1$ & adattivo\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2758\times10^{0}$ & $1.2813\times10^{0}$\\
@@ -1546,11 +1578,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionata ($\kappa\approx 1.1$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}3$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema ben condizionato ($\kappa\approx 1.1$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_bencond_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & $3$\\
+$M_H$ & $1$ & $3$\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2683\times10^{0}$ & $1.2683\times10^{0}$\\
@@ -1592,7 +1627,7 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionata ($\kappa\approx 20$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionato ($\kappa\approx 20$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_malcond_gd}
 \begin{tabular}{@{}rrr@{}}
 \toprule
@@ -1638,11 +1673,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionata ($\kappa\approx 20$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_malcond_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & adattivo\\
+$M_H$ & $1$ & adattivo\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2807\times10^{0}$ & $1.2805\times10^{0}$\\
@@ -1684,11 +1722,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionata ($\kappa\approx 20$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}3$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema mal condizionato ($\kappa\approx 20$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_malcond_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & $3$\\
+$M_H$ & $1$ & $3$\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.3473\times10^{0}$ & $1.3473\times10^{0}$\\
@@ -1730,7 +1771,7 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionata ($\kappa\approx 100$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionato ($\kappa\approx 100$), per \emph{Dynamic GD}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}5$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_veryill_gd}
 \begin{tabular}{@{}rrr@{}}
 \toprule
@@ -1776,11 +1817,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionata ($\kappa\approx 100$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_veryill_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & adattivo\\
+$M_H$ & $1$ & adattivo\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2807\times10^{0}$ & $1.2805\times10^{0}$\\
@@ -1822,11 +1866,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionata ($\kappa\approx 100$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}3$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema molto mal condizionato ($\kappa\approx 100$), per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_veryill_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & $3$\\
+$M_H$ & $1$ & $3$\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.3506\times10^{0}$ & $1.3506\times10^{0}$\\
@@ -1914,11 +1961,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema con termine incrociato, per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema con termine incrociato, per \emph{Newton-CG}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_offdiag_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & adattivo\\
+$M_H$ & $1$ & adattivo\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2661\times10^{0}$ & $1.2685\times10^{0}$\\
@@ -1960,11 +2010,14 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema con termine incrociato, per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (riuso $M{=}3$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema con termine incrociato, per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} (ricampionamento a ogni iterazione) e quella consigliata (Tabella~\ref{tab:riuso_cons_sintesi}). Le righe in testa riportano, per ciascuna colonna, il riuso del batch $M$, il riuso dell'Hessiana $M_H$ e la modalità ($H_k$ legata o indipendente da $S_k$). Valori al seed 42, setup della Sezione~\ref{sec:setup}.}
 \label{tab:riuso_cons_offdiag_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
+$M$ & $1$ & $3$\\
+$M_H$ & $1$ & $3$\\
+$H_k$ & legata & legata\\
 \midrule
 0 & $1.4142\times10^{0}$ & $1.4142\times10^{0}$\\
 1 & $1.2573\times10^{0}$ & $1.2573\times10^{0}$\\
@@ -2000,3 +2053,4 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+
