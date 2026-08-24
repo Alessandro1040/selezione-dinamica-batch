@@ -4263,11 +4263,11 @@ momento in cui ricampionare il batch (e, per i metodi di Newton, l'Hessiana)
 è deciso dalla loss media su un validation set, senza dover fissare $M$ a
 priori.
 
-Il meccanismo è quello descritto nella Sezione~\ref{sec:visualizzazione}: il
-dataset di $N$ esempi è diviso in training e validation ($p$ è la
-percentuale in validation), il mini-batch è campionato dal solo training set
-e la CCV continua ad aumentarne la dimensione, con tetto
-$\lvert\mathcal{T}\rvert$ (la dimensione del training set) invece di $N$.
+Il meccanismo è il seguente: il dataset di $N$ esempi è diviso in training e
+validation ($p$ è la percentuale in validation), il mini-batch è campionato
+dal solo training set e la CCV continua ad aumentarne la dimensione, con
+tetto $\lvert\mathcal{T}\rvert$ (la dimensione del training set) invece di
+$N$.
 Dopo ogni aggiornamento $w_{k+1}$ (anche a passo nullo) la loss media
 $J_{\mathrm{val}}(w_{k+1})$ è valutata sul validation set con frequenza $f$
 (una valutazione ogni $f$ iterazioni); se per $P$ valutazioni consecutive

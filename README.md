@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Sez. 6.7.6: corretto il riferimento
+  sbagliato alla Sezione 6.4 nel paragrafo dello stop adattivo.** In
+  `tesi/tesi.tex` la frase "Il meccanismo è quello descritto nella
+  Sezione~\ref{sec:visualizzazione}" (che risolveva alla Sez. 6.4
+  *Visualizzazione Interattiva*, la quale NON descrive lo split
+  train/validation) è diventata "Il meccanismo è il seguente": il paragrafo
+  è autosufficiente e il riferimento era sia sbagliato sia ridondante
+  (il meccanismo è descritto per intero nella stessa frase). La parte CCV
+  con tetto $\lvert\mathcal{T}\rvert$ invece di $N$ resta verificata sul
+  codice dell'app (righe 2019/2033/2049 di `visualizzazione.html`).
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**), 0 errori, 0
+  undefined, overfull solo preesistenti. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
+
 - **Ultimo intervento (24/08/2026).** **App web: nella caption della
   Traiettoria 2D ora compare anche l'errore finale
   $\|w_K-w^*\|_2$ dopo `max_iter` iterazioni.** In `visualizzazione.html`
