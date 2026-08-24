@@ -4489,6 +4489,18 @@ function buildColabCaption() {
              'seed=' + document.getElementById('seedVal').value);
   parts.push('batch ' + (db ? 'dinamico (CCV)' : 'fisso'));
   parts.push('riuso batch: ' + (rb ? ('attivo' + (mcm === 'custom' ? ' (k=' + maxConsecEl.value + ')' : ' (k illimitato)')) : 'no'));
+  // Stop adattivo con validation set: se attivo, M (e M_H per i metodi di
+  // Newton) sono automatici; gli iperparametri del validation set vanno
+  // nella caption per poter confrontare i salvataggi.
+  if (valUseChk.checked) {
+    parts.push('stop adattivo (validation)',
+               'val_pct=' + valPctEl.value + '%',
+               'pazienza=' + valPatienceEl.value,
+               'freq=' + valFreqEl.value,
+               'tol=' + valTolEl.value,
+               'min_abs=' + valMinAbsEl.value,
+               'val ' + (valStrategyEl.value === 'dynamic' ? 'dynamic' : 'fixed'));
+  }
   if (algo === 'gd' || algo === 'newton_cg' || algo === 'bb') {
     parts.push('line search: ' + document.getElementById('lineSearchMode').value);
   }

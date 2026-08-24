@@ -178,6 +178,29 @@ Da tenere presente nelle sessioni di lavoro successive:
   (l'Appendice E resta un PLACEHOLDER): `tesi.pdf`/`tesi_finale.pdf` non
   coinvolti (latexmk "nothing to do").
 
+- **Ultimo intervento (23/08/2026).** **App web: la caption dei salvataggi
+  (box sotto la traiettoria e galleria) ora riporta gli iperparametri del
+  validation set quando lo stop adattivo è attivo.** In
+  `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) la
+  funzione `buildColabCaption()` — che genera la caption degli iperparametri
+  mostrata sotto la Traiettoria 2D e salvata nelle immagini della galleria
+  di confronto — include, quando la checkbox \"Usa validation set per stop
+  adattivo\" è attiva, tutti gli iperparametri del validation set:
+  `val_pct=..%`, `pazienza=..`, `freq=..`, `tol=..`, `min_abs=..` e la
+  **strategia** (`val fixed`/`val dynamic`). Con la checkbox spenta la
+  caption è invariata (nessun parametro validation). I valori si leggono
+  dagli stessi controlli della UI, quindi la caption riflette sempre la
+  configurazione corrente (stessa logica degli altri iperparametri). La
+  strategia fixed↔dynamic compariva già nel codice Python generato
+  (`val_strategy = 'fixed'/'dynamic'`) e nel pseudocodice della teoria
+  (nota `\mathcal{V},\mathcal{T}` fissi/ricampionati): verifica confermata
+  che il cambio altera codice generato e comportamento (resampling del
+  validation set a ogni cambio batch). Validazione: sintassi dello script
+  principale verificata (compile `new Function`, deno); harness con DOM
+  fittizio **3/3 scenari** (validation OFF → nessun parametro validation in
+  caption; ON+fixed e ON+dynamic → caption con `val_pct/pazienza/freq/tol/
+  min_abs` e strategia corretta). Nessun sorgente LaTeX toccato: nessun PDF
+  da ricompilare. Commit e push della repo.
 - **Ultimo intervento (23/08/2026).** **App web: stop adattivo con validation
   set — M e M_H decisi automaticamente dalla loss di validazione.** In
   `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) nuova
