@@ -184,6 +184,25 @@ Da tenere presente nelle sessioni di lavoro successive:
   pulsante `colabPlotBtn` ora si chiama semplicemente \"🖼️ Traiettoria 2D\"
   (senza il suffisso \"(come nel Colab)\"). Solo testo dell'etichetta:
   nessun cambiamento di comportamento, id, JS o CSS.
+- **Ultimo intervento (23/08/2026).** **App web: nella Traiettoria 2D una
+  croce ✕ (ambra) segna i punti in cui il mini-batch è stato ricampionato
+  per cause NON-CCV.** In `visualizzazione.html` (file solo nella repo,
+  nessun PDF coinvolto) i generatori Python (GD, BB, Newton-CG, Newton-L1,
+  sia con riuso sia con validation) ora producono anche una lista
+  `resample_pts` che registra i punti in cui si ricampiona per **stop
+  adattivo** (validation) o per **`max_consec`/k finito** nel riuso; la CCV
+  continua a scrivere solo in `resize_points` (pallini ciano, batch
+  aumentato). Nel plot 2D questi punti compaiono come **croci ✕ ambra**
+  (legenda \"Ricampionamento (non-CCV)\") sopra la traiettoria, in aggiunta
+  ai pallini ciano esistenti. Il codice base SENZA riuso resta
+  byte-identico (`resample_pts` compare solo nei rami reuse/validation).
+  Validazione: sintassi dello script (deno `new Function`) OK; harness deno
+  che estrae i codici generati + esecuzione numpy su 12 configurazioni
+  (base / riuso k=3 / riuso illimitato / validation per i 4 metodi):
+  traiettorie **identiche** a HEAD (`history`, `batch_sizes`,
+  `resize_points`) in tutte le configurazioni; `resample_pts` non vuoto con
+  k=3 e con validation patience=1, vuoto con riuso illimitato, assente
+  senza riuso. Nessun sorgente LaTeX toccato: nessun PDF da ricompilare.
 - **Ultimo intervento (23/08/2026).** **App web: la caption dei salvataggi
   (box sotto la traiettoria e galleria) ora riporta gli iperparametri del
   validation set quando lo stop adattivo è attivo.** In

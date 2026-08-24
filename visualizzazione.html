@@ -1939,6 +1939,7 @@ function validationSnippets(opts) {
     patience = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
 `,
     // pre-ciclo Newton: split train/validation + contatori (S e H)
     preLoopNewton: `    indices_S = None
@@ -1956,6 +1957,7 @@ function validationSnippets(opts) {
     patience_H = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
 `,
     // campionamento del mini-batch GD/BB dal training set.
     // M_actual = iterazioni consecutive sullo stesso batch: si incrementa
@@ -1964,6 +1966,9 @@ function validationSnippets(opts) {
     // In modalita' dynamic il validation set e' ricampionato a OGNI cambio
     // di batch (sia per CCV sia per validation), come da specifica.
     sample: `        if need_resample or indices is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
@@ -1977,6 +1982,9 @@ function validationSnippets(opts) {
 `,
     // campionamento di S (e di H se legata) per i metodi di Newton
     sampleNewton: `        if need_resample_S or indices_S is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
@@ -2055,6 +2063,8 @@ function validationSnippets(opts) {
             else:
                 patience += 1
                 if patience >= val_patience:
+                    if not need_resample:
+                        val_resample = True
                     need_resample = True
                     patience = 0
 `,
@@ -2071,12 +2081,14 @@ function validationSnippets(opts) {
                 patience_S += 1
                 patience_H += 1
                 if patience_S >= val_patience or patience_H >= val_patience:
+                    if not need_resample_S:
+                        val_resample = True
                     need_resample_S = True
                     patience_S = 0
                     need_resample_H = True
                     patience_H = 0
 `,
-    retTail: `    return history, batch_sizes, resize_points, m_actual, val_hist
+    retTail: `    return history, batch_sizes, resize_points, resample_pts, m_actual, val_hist
 `,
     // line search Wolfe (GD/BB)
     lsWolfeGD: `        # Line search Wolfe
@@ -2131,6 +2143,7 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
     history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
+    resample_pts = []
 ${vs.preLoop}    for k in range(max_iter):
 ${vs.sample}        grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
@@ -2143,7 +2156,7 @@ ${ls}${vs.evalGD}        if np.linalg.norm(grad_full(w)) < 1e-6:
         history.append(w.copy().tolist())
         batch_sizes.append(n)
 ${vs.retTail}
-${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
 `;
 }
 
@@ -2175,6 +2188,7 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
+    resample_pts = []
     w_prev = w.copy()
     g_prev = None
 ${vs.preLoop}    for k in range(max_iter):
@@ -2189,7 +2203,7 @@ ${ls}${vs.evalGD}        if np.linalg.norm(grad_full(w)) < 1e-6:
 ${dynBlock}        history.append(w.copy().tolist())
         batch_sizes.append(n)
 ${vs.retTail}
-${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
 `;
 }
 
@@ -2264,6 +2278,7 @@ def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${vs.sig}):
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
     resize_points = []
+    resample_pts = []
 ${vs.preLoopNewton}    for k in range(max_iter):
 ${vs.sampleNewton}${hessianSample}        grads_arr = np.array([grad_i(w, i) for i in indices_S])
         g = np.mean(grads_arr, axis=0)
@@ -2281,7 +2296,7 @@ ${ls}${vs.evalNewton}        history.append(w.copy().tolist())
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
 ${vs.retTail}
-${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
 `;
 }
 
@@ -2366,6 +2381,7 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta${vs.sig}
     history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
+    resample_pts = []
     def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
@@ -2431,7 +2447,7 @@ ${vs.evalNewton}        history.append(w.copy().tolist())
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
 ${vs.retTail}
-${vs.modCallVars}history, batch_sizes, resize_points, m_actual, val_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
 `;
 }
 
@@ -2447,6 +2463,8 @@ function generateGD(opts) {
     need_resample = True
 ` : '';
   const sample  = reuse ? `        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            if not need_resample and indices is not None:
+                resample_pts.append(w.copy().tolist())
             indices = np.random.choice(N, size=n, replace=False)
             used = 0
             need_resample = False
@@ -2458,7 +2476,7 @@ function generateGD(opts) {
 ` : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
 
-history, batch_sizes, resize_points = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''} = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
 ` : `history, batch_sizes, resize_points = dynamic_gd(w0, theta, max_iter, alpha, batch0)
 `;
   return `import numpy as np
@@ -2469,7 +2487,8 @@ def dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-${preLoop}    for k in range(max_iter):
+${reuse ? `    resample_pts = []
+` : ''}${preLoop}    for k in range(max_iter):
 ${sample}        grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
 ` + (dyn ? `
@@ -2528,7 +2547,7 @@ ${ccvTail}` : `        # Batch dinamico disattivato: n rimane costante a batch0\
             break
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points
+    return history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''}
 
 ${modCall}`;
 }
@@ -2552,6 +2571,8 @@ function generateNewtonCG(opts) {
     need_resample_H = True
 ` : '';
   const topSample = reuse ? `        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
             indices_S = np.random.choice(N, size=n, replace=False)
             n_h = min(max(1, int(round(R * n))), N)
             used_S = 0
@@ -2585,7 +2606,7 @@ function generateNewtonCG(opts) {
 reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
 max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes, resize_points = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
+history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''} = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
 ` : `history, batch_sizes, resize_points = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
 `;
   return `import numpy as np
@@ -2617,7 +2638,8 @@ def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${sigTail}):
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
     resize_points = []
-${preLoop}    for k in range(max_iter):
+${reuse ? `    resample_pts = []
+` : ''}${preLoop}    for k in range(max_iter):
 ${topSample}` + (reuse ? `        grads_arr = np.array([grad_i(w, i) for i in indices_S])
         g = np.mean(grads_arr, axis=0)
 ` : `        g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
@@ -2689,7 +2711,7 @@ ${ccvReset}` : '') +
 `) : `        # Batch dinamico disattivato\n`) +
 `        if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes, resize_points
+    return history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''}
 
 ${modCall}`;
 }
@@ -2713,6 +2735,8 @@ function generateNewtonL1(opts) {
     need_resample_H = True
 ` : '';
   const topSample = reuse ? `        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
             indices_S = np.random.choice(N, size=n, replace=False)
             n_h = max(1, int(round(R * n)))
             n_h = min(n_h, N)
@@ -2749,7 +2773,7 @@ function generateNewtonL1(opts) {
 reuse_hessian = ${reuseH ? 'True' : 'False'}  # True: H_k legato a S_k; False: H_k indipendente da S_k
 max_hessian_reuse = ${mhStr}  # max riusi consecutivi di H_k (None = illimitato)
 
-history, batch_sizes, resize_points = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
+history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''} = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
 ` : `history, batch_sizes, resize_points = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
 `;
   return `import numpy as np
@@ -2760,7 +2784,8 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5${sig
     history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    def F_batch(v, indices):
+${reuse ? `    resample_pts = []
+` : ''}    def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
     def subgrad_batch(v, indices):
@@ -2922,7 +2947,7 @@ ${ccvReset}` : '') +
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes, resize_points
+    return history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''}
 
 ${modCall}`;
 }
@@ -2939,6 +2964,8 @@ function generateBB(opts) {
     need_resample = True
 ` : '';
   const sample  = reuse ? `        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            if not need_resample and indices is not None:
+                resample_pts.append(w.copy().tolist())
             indices = np.random.choice(N, size=n, replace=False)
             used = 0
             need_resample = False
@@ -2951,7 +2978,7 @@ function generateBB(opts) {
 ` : '';
   const modCall = reuse ? `max_consec = ${mcon}  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
 
-history, batch_sizes, resize_points = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''} = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
 ` : `history, batch_sizes, resize_points = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
 `;
   return `import numpy as np
@@ -2962,7 +2989,8 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${sigTail}):
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    w_prev = w.copy()
+${reuse ? `    resample_pts = []
+` : ''}    w_prev = w.copy()
     g_prev = None
 ${preLoop}    for k in range(max_iter):
 ${sample}        grads = np.array([grad_i(w, i) for i in indices])
@@ -3034,7 +3062,7 @@ ${sample}        grads = np.array([grad_i(w, i) for i in indices])
 ${ccvTail}` : `        # Batch dinamico disattivato\n`) +
 `        history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points
+    return history, batch_sizes, resize_points${reuse ? ', resample_pts' : ''}
 
 ${modCall}`;
 }
@@ -3811,6 +3839,7 @@ _out = _json.dumps({
   "J_star":      _J_star,
   "errs":        _errs,
   "resize_pts":  _resize_pts,
+  "resample_pts": [list(map(float, w)) for w in resample_pts] if 'resample_pts' in globals() else [],
   "levels":      _levels,
   "m_actual":    [int(m) for m in m_actual] if 'm_actual' in globals() else [],
   "val_hist":    [float(v) for v in val_hist] if 'val_hist' in globals() else [],
@@ -3909,7 +3938,8 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
 
     currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf,
                     colabZ: out.surf_colab_z || [], colabJ: out.surf_colab_J || [],
-                    resize_pts: out.resize_pts || [], levels: out.levels || [], w0,
+                    resize_pts: out.resize_pts || [], resample_pts: out.resample_pts || [],
+                    levels: out.levels || [], w0,
                     m_actual, val_hist, valFreq: parseInt(valFreqEl.value, 10) || 1 };
 
     const maxIdx = history.length - 1;
@@ -4683,7 +4713,7 @@ function renderColabPlot() {
     updateColabWarning(null);
     return;
   }
-  const { history, pts_J, w_star, J_star, dim, surf, resize_pts, levels } = currentData;
+  const { history, pts_J, w_star, J_star, dim, surf, resize_pts, resample_pts, levels } = currentData;
 
   // Nuova run: azzera vista e griglie, cancella eventuali regrid in volo.
   if (colabLastDataRef !== currentData) {
@@ -4705,6 +4735,7 @@ function renderColabPlot() {
     colabZoomValue.textContent = '1.0×';
   }
   const resizePts = resize_pts || [];
+  const resamplePts = resample_pts || [];
   const mk = (name, x, y, color, size, symbol) => ({
     x, y, type: 'scatter', mode: 'markers', name,
     marker: { color, size, symbol: symbol || 'circle', line: { color: '#0B1222', width: 1 } }
@@ -4724,6 +4755,11 @@ function renderColabPlot() {
         x: resizePts.map(p=>p[0]), y: resizePts.map(p=>p[1]),
         type: 'scatter', mode: 'markers', name: 'CCV violata (batch aumentato)',
         marker: { color: '#22D3EE', size: 9, line: { color: '#4A9EFF', width: 1.5 } }
+      }] : []),
+      ...(resamplePts.length ? [{
+        x: resamplePts.map(p=>p[0]), y: resamplePts.map(p=>p[1]),
+        type: 'scatter', mode: 'markers', name: 'Ricampionamento (non-CCV)',
+        marker: { color: '#F5A623', size: 10, symbol: 'x', line: { color: '#0B1222', width: 1 } }
       }] : []),
       mk('w₀', [history[0][0]], [history[0][1]], '#3EC97A', 11),
       mk('w_finale', [last[0]], [last[1]], '#F87171', 11),
