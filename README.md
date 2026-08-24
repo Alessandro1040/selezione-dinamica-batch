@@ -178,6 +178,12 @@ Da tenere presente nelle sessioni di lavoro successive:
   (l'Appendice E resta un PLACEHOLDER): `tesi.pdf`/`tesi_finale.pdf` non
   coinvolti (latexmk "nothing to do").
 
+- **Ultimo intervento (23/08/2026).** **App web: rimosso \"(come nel Colab)\"
+  dall'etichetta del pulsante \"Traiettoria 2D\".** In
+  `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) il
+  pulsante `colabPlotBtn` ora si chiama semplicemente \"🖼️ Traiettoria 2D\"
+  (senza il suffisso \"(come nel Colab)\"). Solo testo dell'etichetta:
+  nessun cambiamento di comportamento, id, JS o CSS.
 - **Ultimo intervento (23/08/2026).** **App web: la caption dei salvataggi
   (box sotto la traiettoria e galleria) ora riporta gli iperparametri del
   validation set quando lo stop adattivo è attivo.** In
