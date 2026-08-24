@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Nuova Figura 6.2: stessa Traiettoria 2D
+  della Figura 6.1 ma sul problema quadratico molto mal condizionato
+  ($\kappa\approx100$).** In `tesi/tesi.tex` aggiunta la nuova figura
+  `fig:riuso_traiettorie_malcond` subito sotto la Figura~6.1
+  (`fig:riuso_traiettorie`): screenshot del pannello *Traiettoria 2D*
+  dell'applicazione con due esecuzioni di Dynamic GD sul preset **Quadratica
+  molto mal condizionata (κ≈100)** — in alto ricampionamento a ogni
+  iterazione (riuso disattivato), in basso riuso illimitato dello stesso
+  mini-batch ($M=\infty$), $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$,
+  30 iterazioni, seed 42. Caption speculare a quella della 6.1. Aggiornato
+  anche il paragrafo introduttivo, che ora rimanda a entrambe le figure
+  (ben condizionata vs molto mal condizionata). Nuovo file
+  `tesi/fig_riuso_traiettorie_malcond.png` (da `Screenshot 2026-08-24 alle
+  18.30.23.png`, identico). Ricompilati `tesi.pdf` (**123 pp** da 122) e
+  `tesi_finale.pdf` (**123 pp**), 0 errori, 0 undefined, overfull solo
+  preesistenti. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf/fig_riuso_traiettorie_malcond.png/README.md
+  (md5 verificati). `bozza.tex` non toccata.
+
 - **Ultimo intervento (24/08/2026).** **Tabella 6.20 (`tab:riuso_sintesi`):
   sfondo colorato per cella con scala verde → rosso (logaritmica).** In
   `tesi/tesi.tex` le 112 celle numeriche della tabella di sintesi del riuso

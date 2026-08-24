@@ -3203,8 +3203,11 @@ La Figura~\ref{fig:riuso_traiettorie} mostra due esecuzioni di Dynamic GD sul
 problema quadratico ben condizionato ($\kappa\approx1.1$), estratte dal
 pannello \emph{Traiettoria 2D} dell'applicazione: in alto la versione a
 ricampionamento (riuso disattivato), in basso la variante con riuso illimitato
-dello stesso mini-batch ($M=\infty$). I punti marcati segnalano le iterazioni
-in cui la condizione CCV risulta violata e il batch viene aumentato.
+dello stesso mini-batch ($M=\infty$). La
+Figura~\ref{fig:riuso_traiettorie_malcond} ripete lo stesso confronto sul
+problema quadratico molto mal condizionato ($\kappa\approx100$). I punti
+marcati segnalano le iterazioni in cui la condizione CCV risulta violata e il
+batch viene aumentato.
 
 \begin{figure}[H]
 \centering
@@ -3217,6 +3220,19 @@ $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni, seed 42; i punti marcati
 indicano le iterazioni in cui la condizione CCV risulta violata (batch
 aumentato).}
 \label{fig:riuso_traiettorie}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\textwidth]{fig_riuso_traiettorie_malcond.png}
+\caption{Traiettorie di Dynamic GD sul problema quadratico molto mal
+condizionato ($\kappa\approx100$) dal pannello \emph{Traiettoria 2D}
+dell'applicazione: (in alto) ricampionamento a ogni iterazione; (in basso)
+riuso illimitato dello stesso mini-batch ($M=\infty$). Punto iniziale
+$w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni, seed 42; i
+punti marcati indicano le iterazioni in cui la condizione CCV risulta violata
+(batch aumentato).}
+\label{fig:riuso_traiettorie_malcond}
 \end{figure}
 
 \subsubsection{Setup sperimentale}\label{app:riuso-setup}
