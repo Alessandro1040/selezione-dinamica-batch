@@ -200,10 +200,21 @@ Da tenere presente nelle sessioni di lavoro successive:
   undefined, overfull solo preesistenti. Sincronizzati nella repo
   tesi.tex/tesi.pdf/tesi_finale.pdf/fig_riuso_traiettorie.png (nuovo)/
   README.md; `tesi/download.png` rimosso (non più referenziato; md5
-  verificati). `bozza.tex` non toccata. Nota: essendo la scala globale
-  ancorata al minimo $1.0991\times10^{-14}$, la gran parte delle celle risulta
-  nelle tonalità rosso-arancio; solo i valori prossimi alla precisione macchina
-  appaiono verdi.
+  verificati). `bozza.tex` non toccata.
+
+- **Ultimo intervento (24/08/2026).** **Scala colori della Sezione 6 resa
+  robusta agli outlier.** Come richiesto, gli ancoraggi della scala
+  logaritmica in `tesi/tesi.tex` non usano più il minimo assoluto
+  ($1.0991\times10^{-14}$, outlier di precisione macchina di BB-CCV) ma il
+  **1° percentile degli errori ($\approx 7.4\times10^{-3}$)** come verde
+  chiaro, mantenendo il massimo $1.4142$ come rosso scuro: i valori sotto il
+  1° percentile si saturano in verde e la gradazione si distribuisce su tutta
+  la gamma dei valori (363 tonalità distinte nel PDF, 41 celle verde chiaro,
+  127 rosso scuro). Aggiornate la nota in "Risultati Numerici" e la didascalia
+  della Tabella 6.20. Ricompilati `tesi.pdf` (**122 pp**) e `tesi_finale.pdf`
+  (**122 pp**), 0 errori, 0 undefined, overfull solo preesistenti.
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf/README.md (md5
+  verificati).
 
 - **Ultimo intervento (24/08/2026).** **Tabelle del riuso dei metodi di Newton:
   ripristinato il formato con intestazione descrittiva e didascalie complete

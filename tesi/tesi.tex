@@ -28,10 +28,12 @@
 \definecolor{coverlightblue}{RGB}{180, 210, 255}
 \definecolor{sapred}{rgb}{0.5098039,0.1411765,0.2}   % bordeaux del frontespizio sapthesis
 
-% --- Scala logaritmica globale per i colori delle tabelle della Sezione 6 ---
-% min = 1.0991e-14 (Tabella 6.2, BB-CCV k=11), max = 1.4142 (punto iniziale)
-\def\minLog{-13.959}   % log10(1.0991e-14)
-\def\maxLog{0.1505}    % log10(1.4142)
+% --- Scala logaritmica robusta per i colori delle tabelle della Sezione 6 ---
+% Ancoraggi robusti agli outlier: min = 1° percentile degli errori (7.4e-3),
+% max = 1.4142 (punto iniziale, massimo). I valori sotto il 1° percentile
+% (fino a 1.0991e-14, precisione macchina di BB-CCV) si saturano in verde.
+\def\minLog{-2.130}   % log10(7.4e-3) = 1° percentile degli errori (Sez. 6)
+\def\maxLog{0.1505}   % log10(1.4142) = errore iniziale (massimo)
 \definecolor{lowcolor}{RGB}{190,255,190}   % verde chiaro: errore minimo
 \definecolor{highcolor}{RGB}{140,0,0}      % rosso scuro: errore massimo
 % \colorcell{mantissa}{esponente}: sfondo cella = errore m*10^e, scala log globale
@@ -2535,12 +2537,14 @@ affiancati in ordine: (a)~Dynamic GD, (b)~Newton-CG, (c)~Newton-CG~$L_1$,
 dell'applicazione.
 
 A partire da qui, in tutte le tabelle della Sezione~6 lo sfondo delle celle
-codifica l'errore su una scala logaritmica globale: il verde chiaro
-corrisponde all'errore più piccolo tra tutte le tabelle
-($1.0991\times10^{-14}$, raggiunto da BB-CCV sul problema molto mal
-condizionato, Tabella~\ref{tab:test_malcond}), il rosso scuro all'errore più
-grande ($1.4142$, l'errore iniziale $\|w_0-w_*\|_2$), con gradazione continua
-in mezzo.
+codifica l'errore su una scala logaritmica robusta agli outlier: il verde
+chiaro corrisponde al primo percentile degli errori di tutte le tabelle
+($\approx 7.4\times10^{-3}$) e il rosso scuro al massimo ($1.4142$, l'errore
+iniziale $\|w_0-w_*\|_2$), con gradazione continua in mezzo. I pochi valori
+al di sotto del primo percentile (fino alla precisione macchina
+$1.0991\times10^{-14}$, raggiunta da BB-CCV sul problema molto mal
+condizionato, Tabella~\ref{tab:test_malcond}) sono tutti colorati di verde
+chiaro.
 
 % Tabella 6.1 - quadratico ben condizionato ($\kappa \approx 1.1$)
 \begin{table}[H]
@@ -4089,7 +4093,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 
 \setlength{\tabcolsep}{1.5pt}
 
-\caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi alla colonna \emph{base}: $\blacktriangle$ = il riuso migliora, $\blacktriangledown$ = il riuso peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative. Lo sfondo delle celle codifica l'errore su scala logaritmica globale della Sezione 6: verde chiaro = errore minimo assoluto ($1.0991\times10^{-14}$), rosso scuro = massimo ($1.4142$).}
+\caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi alla colonna \emph{base}: $\blacktriangle$ = il riuso migliora, $\blacktriangledown$ = il riuso peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative. Lo sfondo delle celle codifica l'errore su scala logaritmica robusta della Sezione 6: 1° percentile $\approx 7.4\times10^{-3}$ = verde chiaro, massimo $1.4142$ = rosso scuro.}
 
 \label{tab:riuso_sintesi}
 
