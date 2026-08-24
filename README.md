@@ -184,6 +184,30 @@ Da tenere presente nelle sessioni di lavoro successive:
   pulsante `colabPlotBtn` ora si chiama semplicemente \"🖼️ Traiettoria 2D\"
   (senza il suffisso \"(come nel Colab)\"). Solo testo dell'etichetta:
   nessun cambiamento di comportamento, id, JS o CSS.
+- **Ultimo intervento (24/08/2026).** **Appendice E: nuova sottosezione E.7
+  "Iperparametri consigliati per ciascun metodo" con ricerca a griglia.** In
+  `tesi/appendice_riuso.tex` aggiunta la sottosezione E.7
+  (`app:riuso-consigliati`) con: (1) breve introduzione al validation set
+  (split train/validation, criterio su $J_{\mathrm{val}}$, $P$, $f$, $p$,
+  $\tau$, strategia fissa/dinamica); (2) la **configurazione consigliata per
+  ciascun metodo**, scelta con ricerca a griglia sul codice esatto dell'app
+  (4 preset quadratici × 5 seed, metrica mediana di $e_{30}$): **Dynamic GD →
+  riuso $M=5$** (14/20 vittorie), **Newton-CG → stop adattivo $P=1$, $f=1$,
+  $p=10\%$, strategia fissa** (13/20), **Newton-CG $L_1$ → riuso $M=3$**
+  (14/20), **BB-CCV → base** (nessuna config testata migliora tutti i
+  problemi); nessun metodo peggiora la mediana di $e_{30}$ su nessun preset;
+  (3) tabella di sintesi E.22 (mediane 5 seed base vs consigliato + vittorie)
+  e 12 tabelle per-iterazione E.23–E.34 (seed 42, base vs consigliato, stile
+  E.1–E.16). Nota metodologica: BB-CCV è testato con line search **Armijo**
+  (come nella tesi Sez. 6.1; verificato che la Tab. 6.1–6.3 BB coincide col
+  codice attuale dell'app con Armijo, mentre la vecchia tabella E.10
+  riportava valori incoerenti con la tesi). Generazione dati: script in `/tmp`
+  (estrazione generatori dall'app via deno + numpy, 4 preset × 5 seed).
+  Ricompilato `appendice_riuso_estratto.pdf`: **25 → 39 pp**, 0 errori, 0
+  undefined, 0 overfull, 1 underfull preesistente. Sincronizzati nella repo
+  tesi/appendice_riuso.tex e tesi/appendice_riuso_estratto.pdf (md5
+  verificati). `tesi.tex` non toccata (l'Appendice E resta un PLACEHOLDER):
+  `tesi.pdf`/`tesi_finale.pdf` non coinvolti.
 - **Ultimo intervento (23/08/2026).** **App web: nella Traiettoria 2D una
   croce ✕ (ambra) segna i punti in cui il mini-batch è stato ricampionato
   per cause NON-CCV.** In `visualizzazione.html` (file solo nella repo,
