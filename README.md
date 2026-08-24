@@ -139,11 +139,14 @@ Da tenere presente nelle sessioni di lavoro successive:
   storico e NON vanno ricompilati per `tesi_finale.pdf`.
 - **Tabelle del riuso (metodi di Newton).** Nelle tabelle dei metodi del
   secondo ordine (8 principali `tab:riuso_*_ncg/_l1` e 8 consigliati
-  `tab:riuso_cons_*_ncg/_nl1`) l'intestazione è semplificata e le righe in
-  testa alla tabella riportano il riuso del batch `$M$`, il riuso dell'Hessiana
-  `$M_H$` e la modalità (`$H_k$` legata o indipendente da `$S_k$`); le didascalie
-  non ripetono più questi dettagli. Il generatore `altro/script/gen_tabelle_riuso.py`
-  (`--tex`) scrive le 8 tabelle Newton in questo formato.
+  `tab:riuso_cons_*_ncg/_nl1`) l'intestazione è a riga unica con nomi
+  descrittivi (`base`, `$M{=}\infty$`, `$M{=}10$`, `$M{=}5$`, `$M{=}2$`,
+  `H ind. $M_H{=}\infty$`); le didascalie spiegano l'ultima colonna
+  (modalità *Indipendente da $S_k$*) e, per i consigliati, la configurazione
+  consigliata (stop adattivo `$P{=}1$, $f{=}1$, $p{=}10\%$, split fissa` per
+  Newton-CG; riuso `$M{=}3$` per Newton-CG $L_1$). Il generatore
+  `altro/script/gen_tabelle_riuso.py` (`--tex`) scrive le 8 tabelle Newton in
+  questo formato.
 - **Figura di copertina.** La compilazione della copia di lavoro richiede
   `conodiscesa2.jpeg` nella stessa cartella di `tesi.tex` (nella copia sul
   Desktop e in `tesi/` della repo). Se manca, copiarlo dalla repo.
@@ -154,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Tabelle del riuso dei metodi di Newton:
+  ripristinato il formato con intestazione descrittiva e didascalie complete
+  (revert delle righe in testa $M$/$M_H$/$H_k$).** In `tesi/tesi.tex` le 8
+  tabelle principali (`tab:riuso_*_ncg/_l1`) e le 8 dei consigliati
+  (`tab:riuso_cons_*_ncg/_nl1`) tornano al formato precedente il commit
+  `f5e1ee0`: intestazione a riga unica (`base`, `$M{=}\infty$`, `$M{=}10$`,
+  `$M{=}5$`, `$M{=}2$`, `H ind. $M_H{=}\infty$`; per i consigliati `k`, `base`,
+  `consigliato`), rimosse le 3 righe in testa (`$M$`, `$M_H$`, `$H_k$`) e
+  ripristinate le didascalie complete (spiegazione dell'ultima colonna in
+  modalità *Indipendente da $S_k$*; per i consigliati la configurazione
+  consigliata: stop adattivo `$P{=}1$, $f{=}1$, $p{=}10\%$, split fissa` per
+  Newton-CG, riuso `$M{=}3$` per Newton-CG $L_1$). Rimossa la legenda sulle
+  "righe in testa" dal Setup della Sezione 6.7. Dati delle tabelle invariati
+  (verificato: 0 righe dati modificate). `altro/script/gen_tabelle_riuso.py`
+  riallineato (il `--tex` scrive di nuovo il formato descrittivo). Ricompilati
+  `tesi.pdf` (**122 → 121 pp**) e `tesi_finale.pdf` (**121 pp**), 0 errori, 0
+  undefined, overfull solo preesistenti. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+
 - **Ultimo intervento (24/08/2026).** **Appendice E eliminata: contenuto
   spostato nella Sezione 6 della tesi + righe $M$/$M_H$/modalità nelle tabelle
   dei metodi di Newton.** (1) In `tesi/tesi.tex` il segnaposto dell'Appendice E

@@ -5,9 +5,9 @@ Rigenerazione delle 8 tabelle Newton del riuso del mini-batch (ex Appendice E,
 ora Sezione 6.7 di tesi/tesi.tex; il sorgente standalone e' conservato in
 altro/appendice_riuso.tex), inclusa la colonna per il riuso dell'Hessiana
 INDIPENDENTE da S_k (iperparametro M_H) introdotta nell'app web con il commit
-e682db0 (22/08/2026). Le tabelle hanno le righe in testa $M$, $M_H$ e $H_k$
-(modalita' legata/indipendente da S_k) al posto dell'intestazione
-$M{=}\\infty$, $M{=}10$, ... e della spiegazione in didascalia.
+e682db0 (22/08/2026). L'intestazione usa i nomi descrittivi
+$M{=}\\infty$, $M{=}10$, $M{=}5$, $M{=}2$, "H ind. $M_H{=}\\infty$" e le
+didascalie spiegano l'ultima colonna (modalita' legata/indipendente da S_k).
 
 La logica degli algoritmi e' quella del codice Python generato da
 visualizzazione.html (generateNewtonCG / generateNewtonL1):
@@ -26,8 +26,8 @@ Uso:
       M_H=inf) e del caso complementare (M=inf, M_H=10).
   python3 gen_tabelle_riuso.py --tex [APPENDICE_TEX] [OUT]
       Riscrive le 8 tabelle Newton in APPENDICE_TEX con l'intestazione
-      semplificata (base, inf, 10, 5, 2, H ind.) e le righe $M$, $M_H$, $H_k$,
-      e scrive il risultato in OUT (default stdout).
+      descrittiva (base, M=inf, M=10, M=5, M=2, H ind. M_H=inf) e scrive il
+      risultato in OUT (default stdout).
       Default APPENDICE_TEX: altro/appendice_riuso.tex (riferimento storico).
 """
 import re
@@ -48,7 +48,7 @@ NU       = 0.1
 SIGMA    = 0.1
 ETA      = 0.5
 
-NEW_HEADER = r"$M{=}10$, H ind. $M_H{=}\infty$"
+NEW_HEADER = r"H ind. $M_H{=}\infty$"
 
 # Tabelle Newton: (label, numero tabella, preset, algoritmo)
 NEWTON_TABLES = [
@@ -790,15 +790,9 @@ def main():
         for label, tabnum, pname, algo in NEWTON_TABLES:
             start, end = find_table_block(lines, label)
             ts, te, header, rows = parse_tabular(lines, start, end)
-            hcells = ["$k$", "\\emph{base}", "$\\infty$", "$10$", "$5$", "$2$",
-                      "H ind."]
+            hcells = ["$k$", "\\emph{base}", "$M{=}\\infty$", "$M{=}10$",
+                      "$M{=}5$", "$M{=}2$", NEW_HEADER]
             header_line = " & ".join(hcells) + "\\\\"
-            info_rows = [
-                "$M$ & $1$ & $\\infty$ & $10$ & $5$ & $2$ & $10$\\\\",
-                "$M_H$ & $1$ & $\\infty$ & $10$ & $5$ & $2$ & $\\infty$\\\\",
-                "$H_k$ & legata & legata & legata & legata & legata"
-                " & indipendente\\\\",
-            ]
             data_rows = []
             for k in range(31):
                 cells = [str(k)] + [fmt(data[(pname, algo, c)][k]) for c in NEWTON_COLS]
@@ -806,8 +800,8 @@ def main():
             spec_old = lines[ts]
             if "{@{}rrrrrrr@{}}" not in spec_old:
                 raise SystemExit(f"{label}: colonna spec inattesa: {spec_old!r}")
-            middle = ([spec_old, "\\toprule", header_line] + info_rows
-                      + ["\\midrule"] + data_rows + ["\\bottomrule"])
+            middle = ([spec_old, "\\toprule", header_line, "\\midrule"]
+                      + data_rows + ["\\bottomrule"])
             lines[start:end] = lines[start:ts] + middle + lines[te:end]
         out_text = "\n".join(lines) + "\n"
         if out_path:
