@@ -157,6 +157,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **App web: nella caption della
+  Traiettoria 2D ora compare anche l'errore finale
+  $\|w_K-w^*\|_2$ dopo `max_iter` iterazioni.** In `visualizzazione.html`
+  (file solo nella repo, nessun PDF coinvolto) `buildColabCaption()` aggiunge,
+  subito dopo `... iter · batch finale n=...`, il blocco
+  `err finale ‖w−w*‖=<valore>` (es. `err finale ‖w−w*‖=1.010e-1`), dove il
+  valore è `currentData.errs[currentData.errs.length-1]` — la metrica
+  $e_k=\|w_k-w^*\|_2$ già calcolata dal codice Python generato (stessa
+  notazione del riquadro di convergenza). Poiché `history` contiene
+  `max_iter+1` punti (da $w_0$ a $w_{max\_iter}$), l'ultimo valore è
+  l'errore dopo `max_iter` iterazioni qualunque sia il valore scelto
+  dall'utente. Il blocco è difensivo (`errs` può mancare → nessun crash e
+  nessun errore in caption) e vale sia per la caption mostrata sotto il
+  grafico sia per le immagini salvate in galleria (`buildColabCaption` è
+  usata da entrambe). Validato: sintassi del file OK (parse `new Function`
+  via deno) e harness deno con DOM fittizio sulle funzioni reali
+  estratte dal file — 4/4 scenari PASS (GD riuso no con `1.010e-1`; riuso
+  illimitato + traiettoria quasi ferma con `2.300e-3` e warning passi reali;
+  Newton-CG L1 con iperparametri R/maxcg/ν/σ/η; `currentData` senza `errs`
+  → caption senza errore e senza crash). Nessun sorgente LaTeX toccato.
+
 - **Ultimo intervento (24/08/2026).** **Nuova Figura 6.2: stessa Traiettoria 2D
   della Figura 6.1 ma sul problema quadratico molto mal condizionato
   ($\kappa\approx100$).** In `tesi/tesi.tex` aggiunta la nuova figura

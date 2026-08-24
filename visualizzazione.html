@@ -4542,6 +4542,12 @@ function buildColabCaption() {
   if (currentData) {
     const n = currentData.batch_sizes[currentData.batch_sizes.length - 1] ?? '—';
     parts.push('<span class="cap-dim">' + currentData.history.length + ' iter · batch finale n=' + n + '</span>');
+    // Errore finale dopo max_iter iterazioni: e_K = ||w_K − w*||_2 (stessa metrica
+    // della tesi e del riquadro di convergenza). L'ultimo punto di history è w_max_iter.
+    if (currentData.errs && currentData.errs.length) {
+      const lastErr = currentData.errs[currentData.errs.length - 1];
+      parts.push('<span class="cap-dim">err finale ‖w−w*‖=' + lastErr.toExponential(3) + '</span>');
+    }
     const t = colabTrajectoryStats(currentData.history);
     if (t.stuck) parts.push('<span class="cap-dim" style="color:var(--amber)">⚠️ ' + t.nMoves + '/' + t.nIter + ' passi reali</span>');
   }
