@@ -173,6 +173,38 @@ Da tenere presente nelle sessioni di lavoro successive:
   tesi.tex/tesi.pdf/tesi_finale.pdf/README.md (md5 verificati). `bozza.tex`
   non toccata.
 
+- **Ultimo intervento (24/08/2026).** **Scala logaritmica globale dei colori su
+  TUTTE le tabelle della Sezione 6 + tabella 6.21 spiegata meglio + nuova
+  Figura 6.1.** (1) In `tesi/tesi.tex` le 4055 celle di errore delle 36
+  tabelle della Sezione 6 (6.1–6.3, dettaglio riuso 6.4–6.19, sintesi 6.20,
+  validation 6.22–6.24, consigliati 6.26–6.34) ora hanno lo sfondo colorato
+  con la macro `\colorcell{mantissa}{esponente}` (preambolo), che calcola il
+  colore a compile-time con pgfmath su una **scala logaritmica globale**: il
+  verde chiaro corrisponde all'errore minimo assoluto $1.0991\times10^{-14}$
+  (Tabella 6.2, BB-CCV $\kappa\approx100$, k=11) e il rosso scuro al massimo
+  $1.4142$ (punto iniziale comune). La tabella 6.20 passa dal vecchio
+  `\cellcolor[RGB]` precalcolato alla stessa macro (colori ora su scala
+  globale) e la didascalia è aggiornata. Aggiunta una nota introduttiva sui
+  colori in "Risultati Numerici". (2) **Tabella 6.21 (`tab:riuso_robustezza`)
+  ristrutturata**: le colonne $M{=}\infty$ e $M{=}10$ hanno ora tre
+  sottocolonne esplicite \emph{Migl.}/\emph{Pegg.}/\emph{Uguale} (i "5 / 0 /
+  0" sono divisi in celle separate) e la didascalia spiega la lettura
+  (numero di seed su 5 in cui il riuso migliora/peggiora/lascia invariato
+  $e_{30}$ rispetto alla base). (3) **Figura 6.1 sostituita**: il vecchio
+  `download.png` (traiettorie ben/mal condizionato) è rimosso e al suo posto
+  c'è `tesi/fig_riuso_traiettorie.png` (screenshot del pannello *Traiettoria
+  2D* dell'app: Dynamic GD su $\kappa\approx1.1$, in alto ricampionamento, in
+  basso riuso illimitato $M{=}\infty$; $w_0=(0.11,-1.66)$, seed 42, punti
+  CCV violata marcati), con prosa e didascalia aggiornate. Ricompilati
+  `tesi.pdf` (**121 → 122 pp**) e `tesi_finale.pdf` (**122 pp**), 0 errori, 0
+  undefined, overfull solo preesistenti. Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf/fig_riuso_traiettorie.png (nuovo)/
+  README.md; `tesi/download.png` rimosso (non più referenziato; md5
+  verificati). `bozza.tex` non toccata. Nota: essendo la scala globale
+  ancorata al minimo $1.0991\times10^{-14}$, la gran parte delle celle risulta
+  nelle tonalità rosso-arancio; solo i valori prossimi alla precisione macchina
+  appaiono verdi.
+
 - **Ultimo intervento (24/08/2026).** **Tabelle del riuso dei metodi di Newton:
   ripristinato il formato con intestazione descrittiva e didascalie complete
   (revert delle righe in testa $M$/$M_H$/$H_k$).** In `tesi/tesi.tex` le 8
