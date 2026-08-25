@@ -103,7 +103,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (24/08/2026)
+## Note operative e stato corrente (25/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -157,6 +157,46 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (25/08/2026).** **App web: nuovo criterio adattivo
+  "Riuso per discesa della loss sul batch" per la durata del riuso del
+  mini-batch, strutturalmente identico allo stop adattivo con validation
+  set.** In `visualizzazione.html` (file solo nella repo, nessun PDF
+  coinvolto) aggiunta la checkbox **"Usa la discesa della loss sul batch per
+  lo stop del riuso"** (subito sotto quella della validation, mutuamente
+  esclusiva: spuntare una deseleziona l'altra) con pannello iperparametri
+  dello stesso stile della validation: **tolleranza relativa** `descTol`
+  (default 1e-4), **soglia minima assoluta** `descMinAbs` (default 0),
+  **pazienza** `descPatience` (default 1) e **frequenza valutazione**
+  `descFreq` (default 1). Quando attivo, M (e M_H per i metodi di Newton)
+  non si impostano più a mano: il riuso è forzato e i controlli manuali
+  nascosti, come per la validation. **Criterio (versione firmata, NON in
+  modulo):** si continua a riusare lo stesso mini-batch finché
+  $J_{\\mathcal{S}}(w_{k+1}) \\le J_{\\mathcal{S}}(w_k) - \\text{tol}\\,|J_{\\mathcal{S}}(w_k)| - \\text{min}\\_\\text{abs}$
+  (riduzione relativa tra iterati **consecutivi sullo stesso batch**: il
+  confronto è sempre tra loss dello stesso $\\mathcal{S}$, $J_{\\mathcal{S}}^{\\text{prev}}$
+  viene azzerata a ogni cambio batch). Un **aumento** della loss non è
+  progresso → ricampiona (questo è il motivo per cui non si usa il modulo).
+  Nessun validation set: i mini-batch si campionano dall'intero dataset e la
+  CCV ha tetto $N$ (come nel riuso manuale); la CCV resta ortogonale
+  (governa la dimensione, il nuovo criterio la durata). **Per Newton-L1 la
+  funzione monitorata è $F_{\\mathcal{S}} = J_{\\mathcal{S}} + \\nu\\|w\\|_1$**
+  (la stessa che la line search proiettata minimizza). Generazione codice per
+  i 4 algoritmi (`generate*Descent`, dispatch in `generateGD/BB/NewtonCG/
+  NewtonL1`), `preLoop`/`sample`/`evalDescent` in `descentSnippets`,
+  `M_actual` e storico `desc_hist` restituiti come la validation, nuova card
+  metrica **J_batch (ultima valutazione)**, nuovo grafico **"Loss sul batch
+  J_batch(w_k) — riuso per discesa"**, caption della Traiettoria 2D con i 4
+  iperparametri e pseudocodice dinamico (teoria) per GD, BB, Newton-CG e
+  Newton-L1 (righe `J_{\\mathcal{S}}=J_{\\mathcal{S}_k}(w_{k+1})`,
+  `J_{\\mathcal{S}}^{\\text{prev}}` e pazienza $p_{\\mathcal{S}}/p_{\\mathcal{H}}$).
+  Validazione: sintassi JS (parse `new Function` + `deno check` sul blocco
+  `<script>`), smoke test con DOM fittizio (top-level senza errori), generazione
+  Python effettiva dei 4 algoritmi (varianti Wolfe/Armijo, H legata/indipendente)
+  eseguita end-to-end su quadratica (seed 42): `desc_hist` popolata, `m_actual`
+  con valori > 1 (il riuso avviene) e `resample_pts` non vuoti nei casi
+  Armijo/Newton-CG (il criterio di discesa ricampiona davvero), più unit test
+  della versione firmata (discesa → migliora; aumento → ricampiona; passo
+  piatto → ricampiona). `bozza.tex` non toccata.
 - **Ultimo intervento (24/08/2026).** **Sez. 6.7.6 e 6.7.7: precisato il ruolo
   di $\tau$ (tolleranza) nella frequenza di ricampionamento e corretto il
   conteggio degli iperparametri dello stop adattivo (5 → 6).** (1) Il

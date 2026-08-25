@@ -407,6 +407,36 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <p class="field-hint" id="valParamsHint">Progresso se <em>J_val(w<sub>k+1</sub>) &le; J_val<sup>best</sup> &middot; (1 &minus; tol) &minus; min_abs</em>. Il validation set &egrave; separato dal training una volta all'inizio (fixed) o a ogni cambio di batch (dynamic); i mini-batch si campionano dal solo training set.</p>
       </div>
 
+      <!-- Riuso per discesa della loss sul batch: M deciso dalla riduzione relativa di J_batch -->
+      <div class="field-row" style="margin-top:10px">
+        <label class="field-label" for="descUseChk">Riuso per discesa della loss sul batch — tutti gli algoritmi</label>
+        <div class="checkbox-row"><input type="checkbox" id="descUseChk"><label for="descUseChk">Usa la discesa della loss sul batch per lo stop del riuso</label></div>
+        <p class="field-hint" id="descUseHint">Quando attivo, <strong>M</strong> (e <strong>M_H</strong> per i metodi di Newton) non si impostano pi&ugrave; a mano: si continua a riusare lo stesso mini-batch finch&eacute; la riduzione relativa della loss sul batch corrente resta sopra la soglia; quando scende sotto soglia per <em>pazienza</em> valutazioni consecutive si ricampiona (e l'Hessiana, se legata). La CCV continua a ingrandire il batch quando la varianza &egrave; troppo alta. Contatore <strong>M_actual</strong>: iterazioni consecutive sullo stesso batch.</p>
+      </div>
+      <div class="field-row" id="descParams" style="margin-top:10px;display:none">
+        <div class="param-grid">
+          <div class="param-item">
+            <span class="param-label">Tolleranza relativa discesa</span>
+            <input type="number" id="descTol" value="0.0001" step="0.0001" min="0">
+          </div>
+          <div class="param-item">
+            <span class="param-label">Soglia minima assoluta</span>
+            <input type="number" id="descMinAbs" value="0.0" step="0.001" min="0">
+          </div>
+          <div class="param-item">
+            <span class="param-label">Pazienza (valutazioni senza progresso)</span>
+            <input type="range" id="descPatience" min="1" max="10" step="1" value="1" style="width:100%">
+            <span class="param-label" id="descPatienceValue" style="color:var(--text-2)">1</span>
+          </div>
+          <div class="param-item">
+            <span class="param-label">Frequenza valutazione (ogni k iter.)</span>
+            <input type="range" id="descFreq" min="1" max="10" step="1" value="1" style="width:100%">
+            <span class="param-label" id="descFreqValue" style="color:var(--text-2)">1</span>
+          </div>
+        </div>
+        <p class="field-hint" id="descParamsHint">Progresso se <em>J_batch(w<sub>k+1</sub>) &le; J_batch(w<sub>k</sub>) &minus; tol&middot;|J_batch(w<sub>k</sub>)| &minus; min_abs</em>. La loss &egrave; calcolata sullo stesso mini-batch in uso (confronto tra iterati consecutivi: versione firmata, un peggioramento non &egrave; progresso). Nessun validation set: i mini-batch si campionano dall&rsquo;intero dataset e la CCV ha tetto N.</p>
+      </div>
+
       <!-- Parametri per il riuso dell'Hessiana (solo Newton-CG e Newton-L1) -->
       <div class="field-row" id="hessianReuseParams" style="margin-top:10px;display:none">
         <div class="param-grid">
@@ -502,6 +532,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <div class="metric-card" style="grid-column:1/-1"><div class="metric-label">Batch size nₖ</div><div class="metric-value green" id="batchDisplay">—</div></div>
         <div class="metric-card" id="mActualCard" style="display:none"><div class="metric-label">M_actual (riusi correnti batch)</div><div class="metric-value" id="mActualDisplay">—</div></div>
         <div class="metric-card" id="valJCard" style="display:none"><div class="metric-label">J_val (ultima valutazione)</div><div class="metric-value green" id="valJDisplay">—</div></div>
+        <div class="metric-card" id="descJCard" style="display:none"><div class="metric-label">J_batch (ultima valutazione)</div><div class="metric-value green" id="descJDisplay">—</div></div>
       </div>
       <div id="convergenceResult" class="convergence-result"></div>
     </div>
@@ -1311,6 +1342,21 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
       <div class="debug-strip" id="valDebugInfo">Ogni punto &egrave; una valutazione di J_val: quando non migliora per <em>pazienza</em> valutazioni consecutive il batch viene ricampionato (e l'Hessiana, se legata).</div>
     </div>
 
+    <!-- Plot della loss sul batch (riuso per discesa) -->
+    <div class="plot-card" id="descPlotCard" style="display:none">
+      <div class="plot-card-header">
+        <div class="plot-card-title">
+          <div class="dot" style="background:var(--green);box-shadow:0 0 6px var(--green)"></div>
+          <span>Loss sul batch J<sub>batch</sub>(w<sub>k</sub>) — riuso per discesa</span>
+        </div>
+        <div class="iter-status">
+          <span class="iter-counter">iter = <span id="descIterDisplay">0</span></span>
+        </div>
+      </div>
+      <div id="descPlot" style="width:100%;height:300px;background:transparent"></div>
+      <div class="debug-strip" id="descDebugInfo">Ogni punto &egrave; una valutazione di J_batch: quando la riduzione relativa scende sotto la soglia per <em>pazienza</em> valutazioni consecutive il batch viene ricampionato (e l'Hessiana, se legata).</div>
+    </div>
+
     <!-- ============ TEORIA: analisi stocastica (in fondo) ============ -->
     <div class="theory-card">
       <div class="theory-card-header"><div class="theory-card-title">📘 Analisi stocastica: n<sub>k</sub> vs a<sup>k</sup></div></div>
@@ -2048,7 +2094,13 @@ function getAlgoOptions() {
     valPatience: parseInt(document.getElementById('valPatience').value, 10) || 3,
     valFreq: parseInt(document.getElementById('valFreq').value, 10) || 1,
     valMinAbs: (function(){ const m = parseFloat(document.getElementById('valMinAbs').value); return isNaN(m) ? 0.0 : m; })(),
-    valStrategy: document.getElementById('valStrategy').value
+    valStrategy: document.getElementById('valStrategy').value,
+    // Riuso per discesa della loss sul batch (M/M_H automatici)
+    descentLoss: document.getElementById('descUseChk').checked,
+    descentTol: (function(){ const t = parseFloat(document.getElementById('descTol').value); return isNaN(t) ? 1e-4 : t; })(),
+    descentMinAbs: (function(){ const m = parseFloat(document.getElementById('descMinAbs').value); return isNaN(m) ? 0.0 : m; })(),
+    descentPatience: parseInt(document.getElementById('descPatience').value, 10) || 1,
+    descentFreq: parseInt(document.getElementById('descFreq').value, 10) || 1
   };
 }
 
@@ -2293,6 +2345,247 @@ function validationSnippets(opts) {
   };
 }
 
+/* =====================================================================
+   Riuso per discesa della loss sul batch (M/M_H automatici).
+   Quando la checkbox "Usa la discesa della loss sul batch per lo stop del
+   riuso" e' attiva, i limiti numerici manuali M e M_H sono ignorati: si
+   continua a riusare lo stesso mini-batch finche' la riduzione relativa
+   della loss sul batch corrente resta sopra la soglia:
+       J_batch(w_{k+1}) <= J_batch(w_k) - tol*|J_batch(w_k)| - min_abs
+   - nessun validation set: i mini-batch si campionano dall'intero dataset
+     e la CCV ha tetto N (come nel riuso manuale);
+   - la valutazione di J_batch avviene DOPO w_{k+1} (anche con step=0);
+     il confronto e' tra iterati CONSECUTIVI sullo stesso batch: Jb_prev
+     viene azzerato nel blocco di campionamento quando il batch cambia,
+     per non confrontare mai loss di batch diversi;
+   - versione FIRMATA (NON in modulo): se la loss aumenta, improved=False
+     -> si ricampiona (un peggioramento non e' progresso);
+   - la CCV resta invariata: ingrandisce il batch quando la varianza e'
+     troppo alta, con tetto N;
+   - il contatore M_actual (iterazioni consecutive sullo stesso batch)
+     e lo storico desc_hist sono restituiti insieme a history/batch_sizes.
+   ===================================================================== */
+function descentSnippets(opts) {
+  const descTol      = (opts.descentTol === undefined || opts.descentTol === null || isNaN(opts.descentTol)) ? 1e-4 : opts.descentTol;
+  const descMinAbs   = (opts.descentMinAbs === undefined || opts.descentMinAbs === null || isNaN(opts.descentMinAbs)) ? 0.0 : opts.descentMinAbs;
+  const descPatience = parseInt(opts.descentPatience, 10) || 1;
+  const descFreq     = parseInt(opts.descentFreq, 10) || 1;
+  const Hsample      = opts.hkSubset
+    ? `            indices_H = np.random.choice(indices_S, size=n_h, replace=False)\n`
+    : `            indices_H = np.random.choice(N, size=n_h, replace=False)\n`;
+  return {
+    descTol, descMinAbs, descPatience, descFreq,
+    modCallVars: `desc_tol = ${descTol}\ndesc_min_abs = ${descMinAbs}\ndesc_patience = ${descPatience}\ndesc_freq = ${descFreq}\n`,
+    sig: `, desc_tol, desc_min_abs, desc_patience, desc_freq`,
+    // pre-ciclo GD/BB: contatori del criterio di discesa
+    preLoop: `    indices = None
+    used = 0
+    need_resample = True
+    Jb_prev = None
+    patience_dec = 0
+    desc_hist = []
+    m_actual = [0]
+    desc_resample = False
+`,
+    // pre-ciclo Newton: contatori del criterio di discesa (S e H)
+    preLoopNewton: `    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    Jb_prev = None
+    patience_dec = 0
+    desc_hist = []
+    m_actual = [0]
+    desc_resample = False
+`,
+    // campionamento del mini-batch GD/BB dall'intero dataset.
+    // M_actual = iterazioni consecutive sullo stesso batch: si incrementa
+    // subito dopo il campionamento. Jb_prev azzerato a ogni cambio batch.
+    sample: `        if need_resample or indices is None:
+            if desc_resample:
+                resample_pts.append(w.copy().tolist())
+                desc_resample = False
+            n = min(n, N)
+            indices = np.random.choice(N, size=n, replace=False)
+            used = 0
+            need_resample = False
+            Jb_prev = None
+        used += 1
+        m_actual.append(used)
+`,
+    // campionamento di S (e di H se legata) per i metodi di Newton
+    sampleNewton: `        if need_resample_S or indices_S is None:
+            if desc_resample:
+                resample_pts.append(w.copy().tolist())
+                desc_resample = False
+            n = min(n, N)
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), N)
+            used_S = 0
+            need_resample_S = False
+            Jb_prev = None
+` + (opts.reuseHessian ? Hsample + `            used_H = 0
+            need_resample_H = False
+` : '') + `        used_S += 1
+        m_actual.append(used_S)
+`,
+    // H_k indipendente da S_k: ricampionata con lo STESSO criterio di discesa
+    hessianIndepSample: `        # H_k indipendente da S_k: anche M_H segue il criterio di discesa (stessa J_batch su S_k)
+        if need_resample_H or indices_H is None:
+            n_h = min(max(1, int(round(R * n))), N)
+` + Hsample + `            used_H = 0
+            need_resample_H = False
+`,
+    // CCV GD/BB: batch esaurito -> batch piu' grande e ricampiona
+    ccvGD: `        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
+                need_resample = True
+`,
+    // CCV Newton-CG: batch esaurito -> batch piu' grande, ricampiona S e H
+    ccvNewtonCG: `        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads_arr, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
+            n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+            n = min(n_new, N)
+            resize_points.append(w.copy().tolist())
+            need_resample_S = True
+            need_resample_H = True
+`,
+    // CCV Newton-L1: come sopra, con i nomi di variabile del L1
+    ccvNewtonL1: `        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_batch)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g_batch, g_batch)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
+                need_resample_S = True
+                need_resample_H = True
+`,
+    // valutazione della riduzione relativa di J_batch dopo w_{k+1} (GD/BB).
+    // Confronto con l'iterato precedente sullo STESSO batch (Jb_prev e'
+    // azzerato quando il batch cambia). Versione firmata: improved significa
+    // "la loss sul batch e' DIMINUITA di almeno tol*|prec| + min_abs".
+    evalDescent: `        if k % desc_freq == 0:
+            Jb = float(J_batch(w))
+            desc_hist.append(Jb)
+            if Jb_prev is not None:
+                improved = (Jb_prev - Jb >= desc_tol * abs(Jb_prev) + desc_min_abs)
+                if improved:
+                    patience_dec = 0
+                else:
+                    patience_dec += 1
+                    if patience_dec >= desc_patience:
+                        if not need_resample:
+                            desc_resample = True
+                        need_resample = True
+                        patience_dec = 0
+            Jb_prev = Jb
+`,
+    // valutazione per i metodi di Newton (S e H decise separatamente, stesso criterio)
+    evalDescentNewton: `        if k % desc_freq == 0:
+            Jb = float(J_batch(w))
+            desc_hist.append(Jb)
+            if Jb_prev is not None:
+                improved = (Jb_prev - Jb >= desc_tol * abs(Jb_prev) + desc_min_abs)
+                if improved:
+                    patience_S = 0
+                    patience_H = 0
+                else:
+                    patience_S += 1
+                    patience_H += 1
+                    if patience_S >= desc_patience or patience_H >= desc_patience:
+                        if not need_resample_S:
+                            desc_resample = True
+                        need_resample_S = True
+                        patience_S = 0
+                        need_resample_H = True
+                        patience_H = 0
+            Jb_prev = Jb
+`,
+    // variante Newton-L1: la funzione minimizzata sul batch e' F_batch = J_batch + nu*||w||_1
+    evalDescentL1: `        if k % desc_freq == 0:
+            Jb = float(F_batch(w, indices_S))
+            desc_hist.append(Jb)
+            if Jb_prev is not None:
+                improved = (Jb_prev - Jb >= desc_tol * abs(Jb_prev) + desc_min_abs)
+                if improved:
+                    patience_S = 0
+                    patience_H = 0
+                else:
+                    patience_S += 1
+                    patience_H += 1
+                    if patience_S >= desc_patience or patience_H >= desc_patience:
+                        if not need_resample_S:
+                            desc_resample = True
+                        need_resample_S = True
+                        patience_S = 0
+                        need_resample_H = True
+                        patience_H = 0
+            Jb_prev = Jb
+`,
+    retTail: `    return history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist
+`,
+    // line search Wolfe (GD/BB)
+    lsWolfeGD: `        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices], axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+`,
+    // line search Armijo (GD/BB)
+    lsArmijoGD: `        # Line search Armijo
+        c1 = 1e-4
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w - step * g
+`,
+  };
+}
+
 /* Generatore GD con validation set (M automatico). */
 function generateGDValidation(opts) {
   const dyn = opts.dynamicBatch;
@@ -2321,6 +2614,37 @@ ${ls}${vs.evalGD}        if np.linalg.norm(grad_full(w)) < 1e-6:
         batch_sizes.append(n)
 ${vs.retTail}
 ${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore GD con riuso per discesa della loss sul batch (M automatico). */
+function generateGDDescent(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = descentSnippets(opts);
+  const dynBlock = dyn ? vs.ccvGD : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls  = opts.lineSearch === 'wolfe' ? vs.lsWolfeGD : vs.lsArmijoGD;
+  return `import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+${vs.preLoop}    for k in range(max_iter):
+${vs.sample}        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+${dynBlock}        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+${ls}${vs.evalDescent}        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq)
 `;
 }
 
@@ -2368,6 +2692,53 @@ ${dynBlock}        history.append(w.copy().tolist())
         batch_sizes.append(n)
 ${vs.retTail}
 ${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore BB-CCV con riuso per discesa della loss sul batch (M automatico). */
+function generateBBDescent(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = descentSnippets(opts);
+  const dynBlock = dyn ? vs.ccvGD : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls  = opts.lineSearch === 'wolfe' ? vs.lsWolfeGD : vs.lsArmijoGD;
+  const bbStep = `        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+        w_prev = w.copy()
+        g_prev = g.copy()
+`;
+  return `import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+    w_prev = w.copy()
+    g_prev = None
+${vs.preLoop}    for k in range(max_iter):
+${vs.sample}        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+${bbStep}        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+${ls}${vs.evalDescent}        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+${dynBlock}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq)
 `;
 }
 
@@ -2461,6 +2832,99 @@ ${ls}${vs.evalNewton}        history.append(w.copy().tolist())
             break
 ${vs.retTail}
 ${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+`;
+}
+
+/* Generatore Newton-CG con riuso per discesa della loss sul batch (M e M_H automatici). */
+function generateNewtonCGDescent(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = descentSnippets(opts);
+  const tied = opts.reuseHessian;   // true = H_k legato a S_k, false = indipendente
+  const hessianSample = tied ? '' : vs.hessianIndepSample;
+  const dynBlock = dyn ? vs.ccvNewtonCG : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const ls = (opts.lineSearch === 'wolfe')
+    ? `        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                g_new = np.mean([grad_i(w_new, i) for i in indices_S], axis=0)
+                if np.dot(g_new, d) >= c2 * gd:
+                    break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+`
+    : `        # Line search Armijo
+        c1 = 1e-4
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+`;
+  return `import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history, batch_sizes = [w.copy().tolist()], [n]
+    resize_points = []
+    resample_pts = []
+${vs.preLoopNewton}    for k in range(max_iter):
+${vs.sampleNewton}${hessianSample}        grads_arr = np.array([grad_i(w, i) for i in indices_S])
+        g = np.mean(grads_arr, axis=0)
+${dynBlock}        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
+        p0 = -g
+        p0_norm2 = np.dot(p0, p0)
+        gamma = 0.0
+        if p0_norm2 > 1e-16 and n_h > 1:
+            Hp0 = np.array([hessvec_i(w, i, p0) for i in indices_H])
+            gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
+        d = cg(Hv, -g, gamma, maxcg)
+        J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+${ls}${vs.evalDescentNewton}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, desc_tol, desc_min_abs, desc_patience, desc_freq)
 `;
 }
 
@@ -2615,8 +3079,162 @@ ${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, va
 `;
 }
 
+/* Generatore Newton-L1 con riuso per discesa della loss sul batch (M e M_H automatici).
+   Per L1 la funzione monitorata e' F_batch = J_batch + nu*||w||_1, cioe' la stessa
+   obiettivo che la line search di Armijo proiettata minimizza sul batch. */
+function generateNewtonL1Descent(opts) {
+  const dyn = opts.dynamicBatch;
+  const vs  = descentSnippets(opts);
+  const tied = opts.reuseHessian;   // true = H_k legato a S_k, false = indipendente
+  const hf  = opts.hessianFreeL1;   // true = Hessian-free, false = Hessiana esplicita
+  const hessianSample = tied ? '' : vs.hessianIndepSample;
+  const dynBlock = dyn ? vs.ccvNewtonL1 : `        # Batch dinamico disattivato: n rimane costante a batch0\n`;
+  const cgBlock = hf
+    ? `            # Hessian-free: prodotto H·v senza costruire H esplicita
+            def Hv(v_full):
+                return np.mean([hessvec_i(w, i, v_full) for i in indices_H], axis=0)
+            def Hv_free(v_free):
+                v_full = np.zeros_like(w)
+                v_full[free] = v_free
+                Hv_full = Hv(v_full)
+                return Hv_full[free]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = Hv_free(p)
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+`
+    : `            # Hessiana esplicita
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+`;
+  return `import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta${vs.sig}):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+    def F_batch(v, indices):
+        Jb = np.mean([loss_i(v, i) for i in indices])
+        return Jb + nu * np.sum(np.abs(v))
+    def subgrad_batch(v, indices):
+        grads = np.array([grad_i(v, i) for i in indices])
+        gJ = np.mean(grads, axis=0)
+        g = np.zeros_like(v)
+        for i in range(len(v)):
+            if v[i] > 0:
+                g[i] = gJ[i] + nu
+            elif v[i] < 0:
+                g[i] = gJ[i] - nu
+            else:
+                if gJ[i] < -nu:
+                    g[i] = gJ[i] + nu
+                elif gJ[i] > nu:
+                    g[i] = gJ[i] - nu
+                else:
+                    g[i] = 0.0
+        return g
+    def project_orthant(v, z):
+        res = v.copy()
+        for i in range(len(v)):
+            if z[i] != 0 and np.sign(res[i]) != z[i]:
+                res[i] = 0.0
+        return res
+${vs.preLoopNewton}    for k in range(max_iter):
+${vs.sampleNewton}${hessianSample}        grads = np.array([grad_i(w, i) for i in indices_S])
+        g_batch = np.mean(grads, axis=0)
+${dynBlock}        z = np.where(w > 0, 1,
+            np.where(w < 0, -1,
+                np.where(g_batch < -nu, 1,
+                    np.where(g_batch > nu, -1, 0))))
+        sg = subgrad_batch(w, indices_S)
+        sgn = np.linalg.norm(sg)
+        if sgn < 1e-10:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        free = (z != 0)
+        d = np.zeros_like(w)
+        if np.any(free):
+            g_free = sg[free]
+${cgBlock}        step = alpha
+        F_w = F_batch(w, indices_S)
+        sg_d = np.dot(sg, d)
+        if sg_d >= 0:
+            d = -sg
+            sg_d = -np.dot(sg, sg)
+        w_new = w.copy()
+        for _ in range(20):
+            w_trial = project_orthant(w + step * d, z)
+            if F_batch(w_trial, indices_S) <= F_w + sigma * step * sg_d:
+                w_new = w_trial
+                break
+            step *= 0.5
+            if step < 1e-12:
+                w_new = w.copy()
+                break
+        w = w_new
+${vs.evalDescentL1}        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+${vs.retTail}
+${vs.modCallVars}history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, desc_tol, desc_min_abs, desc_patience, desc_freq)
+`;
+}
+
 function generateGD(opts) {
   if (opts.validation) return generateGDValidation(opts);
+  if (opts.descentLoss) return generateGDDescent(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const reuse = opts.reuseBatch;
@@ -2718,6 +3336,7 @@ ${modCall}`;
 
 function generateNewtonCG(opts) {
   if (opts.validation) return generateNewtonCGValidation(opts);
+  if (opts.descentLoss) return generateNewtonCGDescent(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const subset = opts.hkSubset;
@@ -2882,6 +3501,7 @@ ${modCall}`;
 
 function generateNewtonL1(opts) {
   if (opts.validation) return generateNewtonL1Validation(opts);
+  if (opts.descentLoss) return generateNewtonL1Descent(opts);
   const dyn = opts.dynamicBatch;
   const subset = opts.hkSubset;
   const hf = opts.hessianFreeL1;
@@ -3118,6 +3738,7 @@ ${modCall}`;
 
 function generateBB(opts) {
   if (opts.validation) return generateBBValidation(opts);
+  if (opts.descentLoss) return generateBBDescent(opts);
   const dyn = opts.dynamicBatch;
   const wolfe = opts.lineSearch === 'wolfe';
   const reuse = opts.reuseBatch;
@@ -3308,6 +3929,21 @@ const valPlotCardEl        = document.getElementById('valPlotCard');
 const valPlotDiv           = document.getElementById('valPlot');
 const valIterDisplay       = document.getElementById('valIterDisplay');
 const valDebugInfoEl       = document.getElementById('valDebugInfo');
+// Controlli del riuso per discesa della loss sul batch
+const descUseChk           = document.getElementById('descUseChk');
+const descParamsEl         = document.getElementById('descParams');
+const descTolEl            = document.getElementById('descTol');
+const descMinAbsEl         = document.getElementById('descMinAbs');
+const descPatienceEl       = document.getElementById('descPatience');
+const descPatienceValueEl  = document.getElementById('descPatienceValue');
+const descFreqEl           = document.getElementById('descFreq');
+const descFreqValueEl      = document.getElementById('descFreqValue');
+const descJDisplay         = document.getElementById('descJDisplay');
+const descJCardEl          = document.getElementById('descJCard');
+const descPlotCardEl       = document.getElementById('descPlotCard');
+const descPlotDiv          = document.getElementById('descPlot');
+const descIterDisplay      = document.getElementById('descIterDisplay');
+const descDebugInfoEl      = document.getElementById('descDebugInfo');
 
 /* =====================================================================
    Generazione dinamica dello pseudocodice della teoria.
@@ -3346,6 +3982,35 @@ function pseudoGDValidation(o) {
 }
 
 
+/* Pseudocodice GD con riuso per discesa della loss sul batch (M automatico). */
+function pseudoGDDescent(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha) \\\\';
+  const dynLine = dyn
+    ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\']
+    : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\'];
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;\\text{tol},\\;\\text{min}\\_\\text{abs},\\;p_{\\text{pat}},\\;\\text{freq} \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero},\\;\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None},\\;\\; p=0 \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso},\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...dynLine,
+    lsCall,
+    '\\quad w_{k+1} = w_k - \\alpha_k g_k,\\qquad j=j+1 \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\\\',
+    '\\quad\\quad J_{\\mathcal{S}}=J_{\\mathcal{S}_k}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}\\neq\\texttt{None}:\\\\',
+    '\\quad\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}-J_{\\mathcal{S}} \\ge \\text{tol}\\,|J_{\\mathcal{S}}^{\\text{prev}}|+\\text{min}\\_\\text{abs}:\\; p=0 \\\\',
+    '\\quad\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0 \\\\',
+    '\\quad\\quad J_{\\mathcal{S}}^{\\text{prev}}=J_{\\mathcal{S}}'
+  ].join('\n');
+}
+
+
 function pseudoGD(o) {
   const dyn = o.dynamicBatch;
   const lsCall = o.lineSearch === 'wolfe'
@@ -3356,6 +4021,7 @@ function pseudoGD(o) {
     '\\quad\\quad n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil + 1 \\\\'
   ];
   if (o.validation) return pseudoGDValidation(o);
+  if (o.descentLoss) return pseudoGDDescent(o);
 
   if (!o.reuseBatch) {
     return [
@@ -3434,6 +4100,52 @@ function pseudoNewtonCGValidation(o) {
 }
 
 
+/* Pseudocodice Newton-CG con riuso per discesa (M e M_H automatici via riduzione relativa di J_batch). */
+function pseudoNewtonCGDescent(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const indep = !o.reuseHessian;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,d_k,\\alpha) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,d_k,\\alpha) \\\\';
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,n_k\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(N,\\lceil R\\,n_k\\rceil)';
+  const CG = [
+    '\\quad p_0 = -g_k \\\\',
+    '\\quad \\gamma = \\frac{\\|\\operatorname{Var}_{i\\in\\mathcal{H}_k}[\\nabla^{2}\\ell_i(w_k)\\,p_0]\\|_1}{|\\mathcal{H}_k|\\,\\|p_0\\|^{2}} \\\\',
+    '\\quad d_0 = 0,\\quad r_0 = -g_k,\\quad p = p_0,\\quad j = 0 \\\\',
+    '\\quad \\textbf{while}\\;\\|r_j\\|^{2} > \\gamma\\|d_j\\|^{2}\\;\\textbf{and}\\; j < \\text{maxcg}: \\\\',
+    '\\quad\\quad s_j = H_k\\,p_j \\\\',
+    '\\quad\\quad \\alpha_j = \\frac{r_j^{\\top}r_j}{p_j^{\\top}s_j} \\\\',
+    '\\quad\\quad d_{j+1} = d_j + \\alpha_j p_j \\\\',
+    '\\quad\\quad r_{j+1} = r_j + \\alpha_j s_j \\\\',
+    '\\quad\\quad \\beta_{j+1} = \\frac{r_{j+1}^{\\top}r_{j+1}}{r_j^{\\top}r_j} \\\\',
+    '\\quad\\quad p_{j+1} = -r_{j+1} + \\beta_{j+1} p_j \\\\',
+    '\\quad\\quad j = j+1 \\\\',
+    '\\quad d_k = d_j \\\\'
+  ];
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;R,\\;\\text{maxcg},\\;K,\\;\\text{tol},\\;\\text{min}\\_\\text{abs},\\;p_{\\text{pat}},\\;\\text{freq} \\\\',
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\;\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None},\\;\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso},\\;\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None} \\\\',
+    '\\quad\\quad ' + Hline + (indep ? ',\\;\\; \\textbf{se}\\; \\texttt{indipendente}:\\; \\text{ricampiona } \\mathcal{H}_k,\\; j_{\\mathcal{H}}=0' : ',\\; j_{\\mathcal{H}}=0') + ' \\\\',
+    ...(dyn ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'] : []),
+    ...CG,
+    lsCall,
+    '\\quad w_{k+1} = w_k + \\alpha_k d_k,\\qquad j_{\\mathcal{S}}=j_{\\mathcal{S}}+1' + (indep ? ',\\;\\; \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}}=j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\\\',
+    '\\quad\\quad J_{\\mathcal{S}}=J_{\\mathcal{S}_k}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}\\neq\\texttt{None}:\\\\',
+    '\\quad\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}-J_{\\mathcal{S}} \\ge \\text{tol}\\,|J_{\\mathcal{S}}^{\\text{prev}}|+\\text{min}\\_\\text{abs}:\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad J_{\\mathcal{S}}^{\\text{prev}}=J_{\\mathcal{S}}'
+  ].join('\n');
+}
+
+
 function pseudoNewtonCG(o) {
   const dyn = o.dynamicBatch;
   const subset = o.hkSubset;
@@ -3458,6 +4170,7 @@ function pseudoNewtonCG(o) {
     '\\quad d_k = d_j \\\\'
   ];
   if (o.validation) return pseudoNewtonCGValidation(o);
+  if (o.descentLoss) return pseudoNewtonCGDescent(o);
 
   if (!o.reuseBatch) {
     return [
@@ -3545,6 +4258,42 @@ function pseudoNewtonL1Validation(o) {
 }
 
 
+/* Pseudocodice Newton-L1 con riuso per discesa (M e M_H automatici via riduzione relativa di F_batch). */
+function pseudoNewtonL1Descent(o) {
+  const dyn = o.dynamicBatch;
+  const subset = o.hkSubset;
+  const indep = !o.reuseHessian;
+  const hf = o.hessianFreeL1;
+  const Hline = subset
+    ? '\\mathcal{H}_k \\sim \\mathcal{U}(\\mathcal{S}_k,\\lceil R\\,|\\mathcal{S}_k|\\rceil)'
+    : '\\mathcal{H}_k \\sim \\mathcal{U}(N,\\lceil R\\,|\\mathcal{S}_k|\\rceil)';
+  const cgNote = hf
+    ? '\\qquad \\text{Hessian-free (prodotto Hessiana-vettore)} \\\\'
+    : '\\qquad \\text{Hessiana esplicita sul campione } \\mathcal{H}_k \\\\';
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;\\nu,\\;\\eta,\\;\\sigma,\\;\\text{maxcg},\\;K,\\;\\text{tol},\\;\\text{min}\\_\\text{abs},\\;p_{\\text{pat}},\\;\\text{freq} \\\\',
+    '\\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\;\\; F_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None},\\;\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,|\\mathcal{S}_k|),\\qquad j_{\\mathcal{S}}=0,\\qquad \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{falso},\\;\\; F_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None} \\\\',
+    '\\quad\\quad ' + Hline + (indep ? ',\\;\\; \\textbf{se}\\; \\texttt{indipendente}:\\; \\text{ricampiona } \\mathcal{H}_k,\\; j_{\\mathcal{H}}=0' : ',\\; j_{\\mathcal{H}}=0') + ' \\\\',
+    ...(dyn ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; |\\mathcal{S}_{k+1}| = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ' \\\\'] : []),
+    '\\quad z_k=\\operatorname{faccia\\_ortante}(w_k,\\nabla J_{\\mathcal{S}_k}(w_k),\\nu) \\\\',
+    '\\quad \\mathcal{A}_k=\\{i\\mid z_k^i=0\\} \\\\',
+    '\\quad d^Y=\\operatorname{CG}\\bigl(Y_k^{\\top}\\nabla^2 J_{\\mathcal{H}_k}(w_k)Y_k,\\;-Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k),\\;\\eta\\|Y_k^{\\top}\\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)\\|\\bigr)' + cgNote,
+    '\\quad d_k=Y_k d^Y \\\\',
+    '\\quad \\alpha_k=\\operatorname{Armijo}_{\\text{proj}}(w_k,d_k,z_k,\\sigma) \\\\',
+    '\\quad w_{k+1}=P_{\\Omega_k}(w_k+\\alpha_k d_k),\\qquad j_{\\mathcal{S}}=j_{\\mathcal{S}}+1' + (indep ? ',\\;\\; \\text{(se } \\texttt{indipendente}\\text{)}\\; j_{\\mathcal{H}}=j_{\\mathcal{H}}+1' : '') + ' \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\\\',
+    '\\quad\\quad F_{\\mathcal{S}}=F_{\\mathcal{S}_k}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; F_{\\mathcal{S}}^{\\text{prev}}\\neq\\texttt{None}:\\\\',
+    '\\quad\\quad\\quad \\textbf{if}\\; F_{\\mathcal{S}}^{\\text{prev}}-F_{\\mathcal{S}} \\ge \\text{tol}\\,|F_{\\mathcal{S}}^{\\text{prev}}|+\\text{min}\\_\\text{abs}:\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad\\quad \\textbf{else}:\\; p_{\\mathcal{S}}=p_{\\mathcal{S}}+1,\\; p_{\\mathcal{H}}=p_{\\mathcal{H}}+1,\\;\\; \\textbf{if}\\; p_{\\mathcal{S}}\\ge p_{\\text{pat}}\\;\\textbf{or}\\; p_{\\mathcal{H}}\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}_{\\mathcal{S}}=\\texttt{vero}' + (indep ? ',\\;\\; \\mathtt{da\\_ricampionare}_{\\mathcal{H}}=\\texttt{vero}' : '') + ',\\; p_{\\mathcal{S}}=p_{\\mathcal{H}}=0 \\\\',
+    '\\quad\\quad F_{\\mathcal{S}}^{\\text{prev}}=F_{\\mathcal{S}}'
+  ].join('\n');
+}
+
+
 function pseudoNewtonL1(o) {
   const dyn = o.dynamicBatch;
   const subset = o.hkSubset;
@@ -3556,6 +4305,7 @@ function pseudoNewtonL1(o) {
     ? '\\qquad \\text{Hessian-free (prodotto Hessiana-vettore)} \\\\'
     : '\\qquad \\text{Hessiana esplicita sul campione } \\mathcal{H}_k \\\\';
   if (o.validation) return pseudoNewtonL1Validation(o);
+  if (o.descentLoss) return pseudoNewtonL1Descent(o);
 
   if (!o.reuseBatch) {
     return [
@@ -3655,6 +4405,42 @@ function pseudoBBValidation(o) {
 }
 
 
+/* Pseudocodice BB-CCV con riuso per discesa della loss sul batch (M automatico). */
+function pseudoBBDescent(o) {
+  const dyn = o.dynamicBatch;
+  const lsCall = o.lineSearch === 'wolfe'
+    ? '\\quad \\alpha_k = \\operatorname{Wolfe}(w_k,-g_k,\\alpha_k) \\\\'
+    : '\\quad \\alpha_k = \\operatorname{Armijo}(w_k,-g_k,\\alpha_k) \\\\';
+  const bbStep = [
+    '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
+    '\\quad \\textbf{if}\\; k>0:\\; s=w_k-w_{k-1},\\; y=g_k-g_{k-1} \\\\',
+    '\\quad\\quad \\alpha_k^{\\text{BB}} = \\frac{s^{\\top}s}{s^{\\top}y},\\qquad \\alpha_k = \\operatorname{clip}(\\alpha_k^{\\text{BB}},\\alpha/20,5\\alpha) \\\\',
+    '\\quad \\textbf{else}:\\; \\alpha_k=\\alpha \\\\',
+    lsCall
+  ];
+  const dynLine = dyn
+    ? ['\\quad \\textbf{if}\\;\\|\\widehat{\\mathcal{V}}_k\\|_1/n_k > \\theta^{2}\\|g_k\\|^{2}:\\; \\text{batch esaurito},\\; n_{k+1} = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1,\\; \\mathtt{da\\_ricampionare}=\\texttt{vero} \\\\']
+    : ['\\quad \\text{(batch fisso: } n_k=n_0\\text{ costante)} \\\\'];
+  return [
+    '\\textbf{Input:}\\; w_0,\\;\\theta,\\;\\alpha,\\;n_0,\\;K,\\;\\text{tol},\\;\\text{min}\\_\\text{abs},\\;p_{\\text{pat}},\\;\\text{freq} \\\\',
+    '\\mathtt{da\\_ricampionare}=\\texttt{vero},\\;\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None},\\;\\; p=0 \\\\',
+    '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
+    '\\quad \\textbf{if}\\; \\mathtt{da\\_ricampionare}: \\\\',
+    '\\quad\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,n_k),\\; j=0,\\; \\mathtt{da\\_ricampionare}=\\texttt{falso},\\; J_{\\mathcal{S}}^{\\text{prev}}=\\texttt{None} \\\\',
+    '\\quad g_k = \\frac{1}{n_k}\\sum_{i\\in\\mathcal{S}_k}\\nabla\\ell_i(w_k) \\\\',
+    ...bbStep,
+    ...dynLine,
+    '\\quad w_{k+1}=w_k-\\alpha_k g_k,\\qquad j=j+1 \\\\',
+    '\\quad \\textbf{if}\\; k\\equiv 0\\;(\\bmod\\;\\text{freq}):\\\\',
+    '\\quad\\quad J_{\\mathcal{S}}=J_{\\mathcal{S}_k}(w_{k+1}) \\\\',
+    '\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}\\neq\\texttt{None}:\\\\',
+    '\\quad\\quad\\quad \\textbf{if}\\; J_{\\mathcal{S}}^{\\text{prev}}-J_{\\mathcal{S}} \\ge \\text{tol}\\,|J_{\\mathcal{S}}^{\\text{prev}}|+\\text{min}\\_\\text{abs}:\\; p=0 \\\\',
+    '\\quad\\quad\\quad \\textbf{else}:\\; p=p+1,\\;\\; \\textbf{if}\\; p\\ge p_{\\text{pat}}:\\; \\mathtt{da\\_ricampionare}=\\texttt{vero},\\; p=0 \\\\',
+    '\\quad\\quad J_{\\mathcal{S}}^{\\text{prev}}=J_{\\mathcal{S}}'
+  ].join('\n');
+}
+
+
 function pseudoBB(o) {
   const dyn = o.dynamicBatch;
   const lsCall = o.lineSearch === 'wolfe'
@@ -3668,6 +4454,7 @@ function pseudoBB(o) {
     lsCall
   ];
   if (o.validation) return pseudoBBValidation(o);
+  if (o.descentLoss) return pseudoBBDescent(o);
 
   if (!o.reuseBatch) {
     return [
@@ -3725,16 +4512,28 @@ function renderPseudo() {
 
 function updateReuseControls() {
   updateValidationControls();
+  updateDescentControls();
+  // Se NESSUN criterio adattivo e' attivo, ripristina i controlli manuali
+  // di M/M_H e il testo del hint del riuso.
+  if (!valUseChk.checked && !descUseChk.checked) {
+    reuseBatchModeEl.disabled = false;
+    const reuseOn = reuseBatchModeEl.value === 'enabled';
+    reuseBatchHintEl.textContent = 'Default: a ogni iterazione si ricampiona il mini-batch. Attivo: lo stesso mini-batch viene riusato per pi\u00f9 iterazioni consecutive; quando la CCV non \u00e8 pi\u00f9 soddisfatta il batch viene ingrandito e ricampionato.';
+    maxConsecRowEl.style.display = reuseOn ? '' : 'none';
+    maxConsecEl.style.display = (reuseOn && maxConsecModeEl.value === 'custom') ? '' : 'none';
+    updateHessianReuseVisibility(reuseOn);
+  }
 }
 
 function updateValidationControls() {
   const on = valUseChk.checked;
   valParamsEl.style.display = on ? '' : 'none';
-  const reuseOn = reuseBatchModeEl.value === 'enabled';
   if (on) {
     // Con il validation set attivo M e M_H sono decisi automaticamente:
     // il riuso del batch e' forzato e i controlli manuali di M e M_H
     // vengono nascosti (il codice generato usa la modalita' validation).
+    // I due criteri adattivi (validation / discesa) sono alternativi.
+    if (descUseChk.checked) descUseChk.checked = false;
     reuseBatchModeEl.value = 'enabled';
     reuseBatchModeEl.disabled = true;
     maxConsecRowEl.style.display = 'none';
@@ -3742,13 +4541,29 @@ function updateValidationControls() {
     mhContainerEl.style.display = 'none';
     mhValueEl.style.display = 'none';
     reuseBatchHintEl.textContent = 'Con il validation set attivo M e M_H sono decisi automaticamente dalla loss di validazione: il riuso del batch e\' forzato.';
-  } else {
-    reuseBatchModeEl.disabled = false;
-    reuseBatchHintEl.textContent = 'Default: a ogni iterazione si ricampiona il mini-batch. Attivo: lo stesso mini-batch viene riusato per pi\u00f9 iterazioni consecutive; quando la CCV non \u00e8 pi\u00f9 soddisfatta il batch viene ingrandito e ricampionato.';
-    maxConsecRowEl.style.display = reuseOn ? '' : 'none';
-    maxConsecEl.style.display = (reuseOn && maxConsecModeEl.value === 'custom') ? '' : 'none';
   }
-  updateHessianReuseVisibility(reuseOn || on);
+  updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled' || on);
+  if (on) mhContainerEl.style.display = 'none';
+}
+
+function updateDescentControls() {
+  const on = descUseChk.checked;
+  descParamsEl.style.display = on ? '' : 'none';
+  if (on) {
+    // Con il criterio di discesa attivo M e M_H sono decisi automaticamente:
+    // il riuso del batch e' forzato e i controlli manuali di M e M_H
+    // vengono nascosti (il codice generato usa la modalita' discesa).
+    // I due criteri adattivi (validation / discesa) sono alternativi.
+    if (valUseChk.checked) valUseChk.checked = false;
+    reuseBatchModeEl.value = 'enabled';
+    reuseBatchModeEl.disabled = true;
+    maxConsecRowEl.style.display = 'none';
+    maxConsecEl.style.display = 'none';
+    mhContainerEl.style.display = 'none';
+    mhValueEl.style.display = 'none';
+    reuseBatchHintEl.textContent = 'Con il criterio di discesa attivo M e M_H sono decisi automaticamente dalla riduzione della loss sul batch: il riuso del batch e\' forzato.';
+  }
+  updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled' || on);
   if (on) mhContainerEl.style.display = 'none';
 }
 
@@ -3757,7 +4572,7 @@ function updateHessianReuseVisibility(reuseOn) {
   const showHessian = reuseOn && (algo === 'newton_cg' || algo === 'newton_l1');
   hessianReuseParamsEl.style.display = showHessian ? '' : 'none';
   const mode = hessianReuseModeEl.value;
-  const mhIndependent = showHessian && mode === 'independent' && !valUseChk.checked;
+  const mhIndependent = showHessian && mode === 'independent' && !valUseChk.checked && !descUseChk.checked;
   mhContainerEl.style.display = mhIndependent ? '' : 'none';
   mhValueEl.style.display = (mhIndependent && mhModeEl.value === 'custom') ? '' : 'none';
 }
@@ -3856,6 +4671,7 @@ function updateParamsVisibility() {
     algo === 'newton_l1' ? '' : 'none';
   updateHessianReuseVisibility(reuseBatchModeEl.value === 'enabled');
   updateValidationControls();
+  updateDescentControls();
 }
 
 function updateTheory() {
@@ -4007,6 +4823,7 @@ _out = _json.dumps({
   "levels":      _levels,
   "m_actual":    [int(m) for m in m_actual] if 'm_actual' in globals() else [],
   "val_hist":    [float(v) for v in val_hist] if 'val_hist' in globals() else [],
+  "desc_hist":   [float(v) for v in desc_hist] if 'desc_hist' in globals() else [],
   "surf_x":      surf_x,
   "surf_y":      surf_y,
   "surf_z":      surf_z,
@@ -4099,12 +4916,14 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const surf        = { x: out.surf_x, y: out.surf_y, z: out.surf_z };
     const m_actual    = out.m_actual || [];
     const val_hist    = out.val_hist || [];
+    const desc_hist   = out.desc_hist || [];
 
     currentData = { history, batch_sizes, pts_J, pts_gN, errs, w_star, J_star, dim, surf,
                     colabZ: out.surf_colab_z || [], colabJ: out.surf_colab_J || [],
                     resize_pts: out.resize_pts || [], resample_pts: out.resample_pts || [],
                     levels: out.levels || [], w0,
-                    m_actual, val_hist, valFreq: parseInt(valFreqEl.value, 10) || 1 };
+                    m_actual, val_hist, valFreq: parseInt(valFreqEl.value, 10) || 1,
+                    desc_hist, descFreq: parseInt(descFreqEl.value, 10) || 1 };
 
     const maxIdx = history.length - 1;
     iterSlider.max = maxIdx; iterNum.max = maxIdx;
@@ -4114,7 +4933,10 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const valInfo = (val_hist.length > 0)
       ? ` · M_actual finale: ${m_actual[m_actual.length-1] ?? '—'} · eval J_val: ${val_hist.length}`
       : '';
-    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}${valInfo}`;
+    const descInfo = (desc_hist.length > 0)
+      ? ` · M_actual finale: ${m_actual[m_actual.length-1] ?? '—'} · eval J_batch: ${desc_hist.length}`
+      : '';
+    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}${valInfo}${descInfo}`;
 
     renderPlot(0);
     updateInfo(0);
@@ -4224,12 +5046,13 @@ function renderPlot(iter) {
   updateInfo(idx);
   renderBatchPlot(idx);
   renderValPlot(idx);
+  renderDescentPlot(idx);
 }
 
 function updateInfo(idx) {
 
   if (!currentData) return;
-  const { history, batch_sizes, pts_J, pts_gN, errs, w_star, dim, m_actual, val_hist, valFreq } = currentData;
+  const { history, batch_sizes, pts_J, pts_gN, errs, w_star, dim, m_actual, val_hist, valFreq, desc_hist, descFreq } = currentData;
   const w = history[idx];
   wDisplay.textContent    = dim===1 ? w[0].toFixed(6) : `(${w[0].toFixed(4)}, ${w[1].toFixed(4)})`;
   jDisplay.textContent    = pts_J[idx].toExponential(4);
@@ -4248,6 +5071,16 @@ function updateInfo(idx) {
     const f  = valFreq || 1;
     const ev = Math.min(Math.floor(idx / f), val_hist.length - 1);
     valJDisplay.textContent = val_hist[ev].toExponential(4);
+  }
+  // Riuso per discesa: contatore M_actual e ultima J_batch valutata
+  const hasDesc = !!(desc_hist && desc_hist.length > 0);
+  mActualCardEl.style.display = (hasVal || hasDesc) ? '' : 'none';
+  descJCardEl.style.display   = hasDesc ? '' : 'none';
+  if (hasDesc) {
+    mActualDisplay.textContent = (m_actual && m_actual[idx] !== undefined) ? String(m_actual[idx]) : '—';
+    const f  = descFreq || 1;
+    const ev = Math.min(Math.floor(idx / f), desc_hist.length - 1);
+    descJDisplay.textContent = desc_hist[ev].toExponential(4);
   }
 }
 
@@ -4389,6 +5222,45 @@ function renderValPlot(iter) {
     `M_actual = ${(m_actual && m_actual[kCur] !== undefined) ? m_actual[kCur] : '—'} · J_val = ${val_hist[evIdx].toExponential(4)} · valutazioni: ${evIdx+1}/${val_hist.length}`;
 }
 
+// ── PLOT 4: loss sul batch (riuso per discesa) ─────────────────────────
+function renderDescentPlot(iter) {
+  if (!currentData) return;
+  const { desc_hist, descFreq, m_actual } = currentData;
+  const hasDesc = !!(desc_hist && desc_hist.length > 0);
+  descPlotCardEl.style.display = hasDesc ? '' : 'none';
+  if (!hasDesc) return;
+  const f  = descFreq || 1;
+  const idx = Math.min(iter, (desc_hist.length - 1) * f);
+  const evIdx = Math.max(0, Math.min(Math.floor(idx / f), desc_hist.length - 1));
+
+  const xPts = [], yPts = [];
+  for (let j = 0; j <= evIdx; j++) { xPts.push(j * f); yPts.push(desc_hist[j]); }
+  const traces = [
+    { x: xPts, y: yPts, type: 'scatter', mode: 'lines+markers',
+      name: 'J_batch', line: { color: '#3EC97A', width: 2 },
+      marker: { color: '#3EC97A', size: 5 } },
+    { x: [evIdx * f], y: [desc_hist[evIdx]], type: 'scatter', mode: 'markers',
+      name: 'val corrente', marker: { color: '#FFFFFF', size: 11, symbol: 'star',
+      line: { color: '#0B1222', width: 2 } } }
+  ];
+  const layout = {
+    ...BASE,
+    title: { text: 'J_batch(w_k) · valutazione ogni ' + f + ' iter.',
+             font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
+    xaxis: { title: 'iterazione k', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
+    yaxis: { title: 'J_batch', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090',
+             type: 'linear', autorange: true },
+    legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
+    margin: { l: 60, r: 20, t: 50, b: 50 },
+    showlegend: true
+  };
+  Plotly.react(descPlotDiv, traces, layout, CFG);
+  descIterDisplay.textContent = evIdx * f;
+  const kCur = evIdx * f;
+  descDebugInfoEl.textContent =
+    `M_actual = ${(m_actual && m_actual[kCur] !== undefined) ? m_actual[kCur] : '—'} · J_batch = ${desc_hist[evIdx].toExponential(4)} · valutazioni: ${evIdx+1}/${desc_hist.length}`;
+}
+
 
 function runConvergenceTest() {
   if (!currentData) {
@@ -4468,6 +5340,12 @@ valPatienceEl.addEventListener('input', () => { valPatienceValueEl.textContent =
 valFreqEl.addEventListener('input', () => { valFreqValueEl.textContent = valFreqEl.value; });
 [valPctEl, valPatienceEl, valFreqEl, valTolEl, valMinAbsEl, valStrategyEl].forEach(el =>
   el.addEventListener('change', () => { if (valUseChk.checked) loadAlgoPreset(); }));
+// Riuso per discesa della loss sul batch: stessi eventi del blocco validation.
+descUseChk.addEventListener('change', () => { updateReuseControls(); loadAlgoPreset(); });
+descPatienceEl.addEventListener('input', () => { descPatienceValueEl.textContent = descPatienceEl.value; });
+descFreqEl.addEventListener('input', () => { descFreqValueEl.textContent = descFreqEl.value; });
+[descTolEl, descMinAbsEl, descPatienceEl, descFreqEl].forEach(el =>
+  el.addEventListener('change', () => { if (descUseChk.checked) loadAlgoPreset(); }));
 updateReuseControls();
 
 // Quando N o Seed cambiano, aggiorna automaticamente il codice della loss
@@ -4548,6 +5426,11 @@ defaultBtn.addEventListener('click', () => {
   valTolEl.value='0.0001';
   valMinAbsEl.value='0.0';
   valStrategyEl.value='fixed';
+  descUseChk.checked = false;
+  descTolEl.value='0.0001';
+  descMinAbsEl.value='0.0';
+  descPatienceEl.value='1';   descPatienceValueEl.textContent='1';
+  descFreqEl.value='1';       descFreqValueEl.textContent='1';
   updateReuseControls();
   currentData=null; savedCamera=null;
   runAlgorithm();
@@ -4694,6 +5577,14 @@ function buildColabCaption() {
                'tol=' + valTolEl.value,
                'min_abs=' + valMinAbsEl.value,
                'val ' + (valStrategyEl.value === 'dynamic' ? 'dynamic' : 'fixed'));
+  }
+  // Riuso per discesa della loss sul batch: stessi iperparametri nella caption.
+  if (descUseChk.checked) {
+    parts.push('riuso per discesa (loss batch)',
+               'tol=' + descTolEl.value,
+               'min_abs=' + descMinAbsEl.value,
+               'pazienza=' + descPatienceEl.value,
+               'freq=' + descFreqEl.value);
   }
   if (algo === 'gd' || algo === 'newton_cg' || algo === 'bb') {
     parts.push('line search: ' + document.getElementById('lineSearchMode').value);
