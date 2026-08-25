@@ -225,9 +225,10 @@ statistiche della varianza del gradiente stocastico. I contributi di questo
 lavoro sono un'analisi teorica completa dei metodi a campione dinamico
 (convergenza lineare deterministica e in aspettativa, stima della complessità
 totale), il miglioramento di alcuni risultati di convergenza mediante
-disuguaglianze più strette, e un'implementazione Python dei tre algoritmi
+disuguaglianze più strette, e un'implementazione Python dei quattro algoritmi
 (gradiente a campione dinamico, Newton-CG con Hessiana sottocampionata,
-estensione ai problemi con regolarizzazione $L_1$) con un'applicazione web
+estensione ai problemi con regolarizzazione $L_1$ e BB-CCV, il gradiente
+dinamico con passo di Barzilai--Borwein) con un'applicazione web
 interattiva per la sperimentazione. Il documento
 è organizzato in sette capitoli: dopo l'introduzione e il background
 necessario, si formula il problema di ottimizzazione, si passano in rassegna i
@@ -317,9 +318,9 @@ risultati di convergenza e l'implementazione:
   $1-\frac{(1-\theta)\lambda}{L}$ usando la disuguaglianza di
   Polyak--Lojasiewicz nella forma forte
   (Sezione~\ref{sec:convergenza-deterministica}).
-  \item Implementazioni. I tre algoritmi (gradiente a campione
-  dinamico, Newton-CG e variante $L_1$) sono implementati in Python e resi
-  disponibili in un'applicazione web interattiva, con esperimenti numerici
+  \item Implementazioni. I quattro algoritmi (Dynamic GD, Newton-CG,
+  Newton-CG~$L_1$ e BB-CCV) sono implementati in Python e disponibili
+  nell'applicazione web interattiva, con esperimenti numerici
   (Capitolo~\ref{sec:esperimenti}) e codici completi (Appendice~B).
 \end{enumerate}
 
@@ -2175,7 +2176,7 @@ proiettata mantiene le variabili dell'active set a zero.}
   libere sfruttando l'informazione di curvatura dell'Hessiana sottocampionata.
 \end{notebox}
 % ═══════════════════════════════════════════════════════════════════════════
-% Tabella 5.2 - confronto dei tre metodi proposti
+% Tabella 5.2 - confronto dei tre metodi a campione dinamico con analisi di complessità
 \begin{table}[H]
 \centering
 \footnotesize
@@ -2207,10 +2208,12 @@ Identificazione corretta della faccia ortante (5.41)--(5.46) &
 Come Newton-CG \\
 \bottomrule
 \end{tabular}
-\caption{Confronto dei tre metodi proposti nel Capitolo~\ref{sec:algoritmi}.
-$n_k$ \`e la dimensione del batch corrente, $n_h = R\,n_k$ quella del
-sottocampione per l'Hessiana, $j_k$ il numero di iterazioni interne del
-gradiente coniugato, $m$ il numero di variabili.}
+\caption{Confronto dei tre metodi a campione dinamico con analisi di
+complessità (Dynamic GD, Newton-CG e Newton-CG con regolarizzazione $L_1$);
+il metodo BB-CCV della Sezione~\ref{sec:bbccv} è escluso perché non ha un
+bound di complessità totale. $n_k$ \`e la dimensione del batch corrente,
+$n_h = R\,n_k$ quella del sottocampione per l'Hessiana, $j_k$ il numero di
+iterazioni interne del gradiente coniugato, $m$ il numero di variabili.}
 \label{tab:5_1}
 \end{table}
 
@@ -2432,9 +2435,9 @@ dimensione del dataset $N = 200$, punto iniziale $w_0 = (2,-3)$, seme
 casuale fissato (seed $42$), passo iniziale $\alpha = 0.1$, tolleranza della
 CCV $\theta = 0.5$, batch iniziale $n_0 = 5$ e un budget di 30 iterazioni; la
 convergenza è dichiarata quando $\|\nabla J(w_k)\|_2 < 10^{-6}$. Gli algoritmi
-confrontati sono i tre implementati nell'applicazione -- Dynamic GD,
-Newton-CG e Newton-CG~$L_1$ -- e il metodo BB-CCV descritto
-nella Sezione~\ref{sec:bbccv}, eseguito sugli stessi preset.
+confrontati sono i quattro implementati nell'applicazione -- Dynamic GD,
+Newton-CG, Newton-CG~$L_1$ e BB-CCV (Sezione~\ref{sec:bbccv}) -- eseguiti
+sugli stessi preset.
 
 Tutti i valori riportati in questo capitolo sono quelli mostrati dal pannello
 ``Analisi'' dell'applicazione: selezionando il preset, l'algoritmo e i
@@ -2445,7 +2448,7 @@ parametri sopra indicati e premendo il pulsante ``Ricalcola'' e poi
 
 Per rendere concreti i concetti teorici esposti nel
 Capitolo~\ref{sec:algoritmi}, è stata realizzata un'applicazione web
-interattiva che implementa i tre algoritmi in un ambiente visivo e
+interattiva che implementa i quattro algoritmi in un ambiente visivo e
 modificabile dall'utente. Il codice sorgente è disponibile al seguente
 repository GitHub:
 \begin{center}
@@ -2463,9 +2466,9 @@ L'interfaccia permette di:
   \item selezionare o scrivere una funzione obiettivo $J(w)$ con gradiente
   $\nabla J(w)$ e Hessiana $\nabla^2 J(w)$, scegliendo tra preset predefiniti
   o codice personalizzato;
-  \item scegliere tra i tre algoritmi discussi (gradiente dinamico,
+  \item scegliere tra i quattro algoritmi discussi (gradiente dinamico,
   Newton-CG con campionamento dinamico, Newton-CG con regolarizzazione
-  $L_1$), il cui codice Python è visibile e modificabile;
+  $L_1$ e BB-CCV), il cui codice Python è visibile e modificabile;
   \item variare i parametri dell'algoritmo in tempo reale;
   \item visualizzare il percorso di ottimizzazione sulla superficie di
   $J(w)$ (in 3D per funzioni 2D, in 2D per funzioni 1D), con possibilità di
@@ -3053,7 +3056,7 @@ L'utente può:
   \item osservare la dinamica del batch: il grafico della dimensione
   del batch in funzione dell'iterazione mostra i ``gradini'' di crescita,
   che si verificano esattamente quando la varianza stimata supera la soglia;
-  \item confrontare i tre algoritmi sulla stessa funzione obiettivo,
+  \item confrontare i quattro algoritmi sulla stessa funzione obiettivo,
   variando in tempo reale i parametri (batch iniziale, rapporto $R$, passo,
   regolarizzazione $\nu$), e visualizzando i percorsi sovrapposti sulla
   superficie di $J(w)$;
@@ -5137,8 +5140,9 @@ esperimenti del Capitolo~\ref{sec:esperimenti}.
 In terzo luogo, abbiamo studiato il campionamento dinamico per i problemi con
 regolarizzazione $L_1$, utilizzando il gradiente generalizzato, l'identificazione
 dell'active set e la ricerca lineare proiettata. Abbiamo infine realizzato
-un'applicazione web interattiva che implementa i tre algoritmi e ne permette la
-sperimentazione visuale su funzioni obiettivo modificabili dall'utente.
+un'applicazione web interattiva che implementa i quattro algoritmi e ne
+permette la sperimentazione visuale su funzioni obiettivo modificabili
+dall'utente.
 
 \subsection{Limiti dello studio}
 
@@ -5696,9 +5700,9 @@ La condizione $0<c_1<c_2<1$ garantisce che le due disuguaglianze siano compatibi
 \section{Codici Python completi}\label{app:codici}
 % ═══════════════════════════════════════════════════════════════════════════
 
-In questa appendice sono riportati i codici Python completi dei tre algoritmi
-discussi nel Capitolo~\ref{sec:algoritmi} e implementati nell'applicazione
-interattiva (Capitolo~\ref{sec:esperimenti}). I codici fanno riferimento alle
+In questa appendice sono riportati i codici Python completi dei quattro
+algoritmi discussi nel Capitolo~\ref{sec:algoritmi} e implementati
+nell'applicazione interattiva (Capitolo~\ref{sec:esperimenti}). I codici fanno riferimento alle
 seguenti funzioni ausiliarie, definite dall'utente e dipendenti dal dataset:
 
 \begin{itemize}

@@ -157,6 +157,30 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Risolte 9 incoerenze "tre algoritmi" vs
+  "quattro algoritmi" nel documento.** In `tesi/tesi.tex` il documento usa
+  ovunque la lista canonica di 4 algoritmi (Dynamic GD, Newton-CG,
+  Newton-CG~$L_1$, BB-CCV), ma 8 punti dicevano ancora "i tre algoritmi"
+  escludendo BB-CCV: Abstract, Sez. 1.4 (Contributi, punto 3),
+  Sez. 6.1 (Setup: "i tre implementati nell'applicazione ... e il metodo
+  BB-CCV", dove BB-CCV è invece implementato nell'app), Sez. 6.2
+  (Architettura, testo e bullet), Sez. 6.4 (bullet "confrontare i tre
+  algoritmi"), Conclusioni e Appendice B (che contiene 4 codici, B.1-B.4).
+  Tutti aggiornati a "quattro algoritmi" (+BB-CCV dove l'elenco era esplicito).
+  Inoltre la caption della Tabella 5.2 diceva "Confronto dei tre metodi
+  proposti nel Capitolo 5", ambigua perché il Capitolo 5 propone anche
+  BB-CCV (Sez. 5.4): riscritta in "Confronto dei tre metodi a campione
+  dinamico con analisi di complessità ... il metodo BB-CCV della
+  Sezione~\ref{sec:bbccv} è escluso perché non ha un bound di complessità
+  totale" (verificato: la Sez. 5.4 non ha analisi di complessità). Lasciati
+  invariati i "tre" corretti: "tre aspetti" (1.3), "tre problemi test"
+  (esperimenti: il preset κ≈20 non è usato), "tre colonne/casi/indicazioni",
+  Tab. 5.1 "Bound di complessità per tre metodi" (dinamico vs fisso vs SGD).
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**), 0 errori, 0
+  undefined, overfull solo preesistenti (8). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
+
 - **Ultimo intervento (24/08/2026).** **Sez. 6.7.6: corretto il riferimento
   sbagliato alla Sezione 6.4 nel paragrafo dello stop adattivo.** In
   `tesi/tesi.tex` la frase "Il meccanismo è quello descritto nella
