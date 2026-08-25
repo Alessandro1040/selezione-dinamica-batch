@@ -167,7 +167,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   ristrutturato in **quattro preset quadratici** (ben condizionato $\kappa\approx1.1$,
   mal condizionato $\kappa\approx20$, molto mal condizionato $\kappa\approx100$,
   termine incrociato), con l'indicazione che i primi tre sono usati nei Risultati
-  Numerici (Sez. 6.2) e tutti e quattro negli esperimenti sul riuso (Sez. 6.7).
+  Numerici (Sez. 6.3) e tutti e quattro negli esperimenti sul riuso (Sez. 6.7).
   Aggiunti gli autovalori della Hessiana per giustificare la denominazione dei
   preset: ben condizionata (Hessiana $\begin{psmallmatrix}2&0.1\\0.1&2\end{psmallmatrix}$,
   autovalori $2.1$/$1.9$, $\kappa\approx1.1$: il termine $0.1\,w_1w_2$ è un piccolo
@@ -175,7 +175,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   autovalori $2.5$/$1.5$, $\kappa\approx1.67$: l'accoppiamento $0.5(w_1-1)(w_2+2)$ è la
   caratteristica dominante). (2) Caption Figura BB-CCV (Cap. 5): "nei tre
   esperimenti della Sezione 6" -> "nei tre problemi dei Risultati Numerici
-  (Sezione 6.2)", per non confonderli con i quattro preset della parte sul
+  (Sezione 6.3)", per non confonderli con i quattro preset della parte sul
   riuso. (3) Verificata l'Appendice D: "tre problemi test, tre valori di
   $\theta$, quattro algoritmi" è corretta (descrive `sim_exp.py`:
   `probs=[build_ls(), build_ls(kappa_goal=1), build_rosen()]`, $\theta\in\{0.1,0.5,0.9\}$,
