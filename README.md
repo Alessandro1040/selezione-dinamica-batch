@@ -157,6 +157,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (25/08/2026).** **Tesi Appendice B.4: titolo semplificato,
+  rimosso "Codice BB-CCV".** Il titolo della sottosezione B.4 passa da "Codice
+  BB-CCV (Barzilai--Borwein con campionamento dinamico)" a "Barzilai--Borwein
+  con campionamento dinamico" (resta solo la parte tra parentesi). Nessun
+  riferimento da aggiornare: la sottosezione non ha `\label{app:bbccv}` (i
+  riferimenti all'algoritmo usano già `sec:bbccv`) e nessun testo cita il
+  vecchio titolo per esteso. Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**123 pp**, 0 errori, 0 undefined, overfull solo preesistenti).
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (25/08/2026).** **Tesi: rimossi i termini "isotropa" e
   "anisotropia" dal paragrafo "Osservazioni comparative" (Sez. 6.3), riscritti
   in parole semplici (ma da tesi).** (i) "la curvatura quasi isotropa rende un

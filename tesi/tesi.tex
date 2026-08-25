@@ -6196,7 +6196,7 @@ dove $g_{k+1}$ è il gradiente della parte liscia sul nuovo campione. Se la cond
 n \;\leftarrow\; \min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_{k+1}\|_2^2}\right\rceil+1\right\}.
 \]
 Questa è un'estensione dinamica rispetto al paper originale, dove il campione per il caso $L_1$ era mantenuto fisso. Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch, quindi si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
-\subsection{Codice BB-CCV (Barzilai--Borwein con campionamento dinamico)}
+\subsection{Barzilai--Borwein con campionamento dinamico}
 
 Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
 adattivo di Barzilai--Borwein, che stima la curvatura di $J$ usando solo i
