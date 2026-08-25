@@ -3033,8 +3033,8 @@ $k$ & $\|w_k-w_*\|_2$\\
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono tre
 indicazioni. (i)~Sul problema ben condizionato ($\kappa \approx 1.1$) i più
 veloci sono Dynamic GD, Newton-CG~$L_1$ e BB-CCV, il più lento Newton-CG
-($\approx 4\times10^{-1}$): la curvatura quasi isotropa rende un passo
-scalare ben calibrato in ogni direzione, mentre Newton-CG paga la soluzione
+($\approx 4\times10^{-1}$): la curvatura varia pochissimo da una direzione
+all'altra, perciò un passo scalare ben calibrato è adeguato in ogni direzione, mentre Newton-CG paga la soluzione
 del sistema di Newton senza guadagnarne. (ii)~Sul problema molto mal condizionato ($\kappa \approx
 100$) il numero di condizionamento entra nel tasso di convergenza dei metodi
 del primo ordine (Sezione~\ref{sec:lavori}): Dynamic GD, Newton-CG~$L_1$ e
@@ -3042,8 +3042,8 @@ Newton-CG restano bloccati sopra $10^{-1}$, mentre BB-CCV raggiunge la
 precisione macchina in
 11 iterazioni, perché il passo di Barzilai--Borwein stima la curvatura dai
 soli gradienti già calcolati (Sezione~\ref{sec:bbccv}) e si adatta
-all'anisotropia, dove un passo fisso non può essere insieme abbastanza
-piccolo nella direzione ripida e abbastanza grande in quella piatta.
+ai problemi in cui la curvatura è molto diversa da una direzione all'altra:
+un passo fisso non può essere insieme abbastanza piccolo nella direzione ripida e abbastanza grande in quella piatta.
 (iii)~Con il termine incrociato BB-CCV è di nuovo il migliore
 ($\approx 6\times10^{-4}$ in 16 iterazioni), seguito da Dynamic GD e
 Newton-CG~$L_1$; Newton-CG resta attorno a $10^{-1}$. In sintesi, BB-CCV è il

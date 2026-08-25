@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (25/08/2026).** **Tesi: rimossi i termini "isotropa" e
+  "anisotropia" dal paragrafo "Osservazioni comparative" (Sez. 6.3), riscritti
+  in parole semplici (ma da tesi).** (i) "la curvatura quasi isotropa rende un
+  passo scalare ben calibrato in ogni direzione" è diventato "la curvatura
+  varia pochissimo da una direzione all'altra, perciò un passo scalare ben
+  calibrato è adeguato in ogni direzione"; (ii) "si adatta all'anisotropia,
+  dove un passo fisso non può essere..." è diventato "si adatta ai problemi in
+  cui la curvatura è molto diversa da una direzione all'altra: un passo fisso
+  non può essere...". La spiegazione in parole semplici (direzione
+  ripida/piatta) era già nel testo e resta invariata. Nessun contenuto tecnico
+  perso. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**, 0 errori, 0
+  undefined, overfull solo preesistenti). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata
+  (nessuna occorrenza dei termini).
 - **Ultimo intervento (25/08/2026).** **Tesi: corretta l'incoerenza del preset
   $\kappa\approx20$ nella Sez. 6.1 (Setup) e precisata la caption della Figura
   BB-CCV.** (1) La frase "L'applicazione offre anche il preset 'Quadratica mal
@@ -1121,15 +1135,17 @@ Da tenere presente nelle sessioni di lavoro successive:
   una sola pagina.** Il paragrafo dopo le Tabelle 6.1--6.3 sforava di ~4 parole
   ("BB-CCV, permette di progredire.") sulla pagina successiva. Riscritto in
   forma più compatta e con i "perché" dei risultati osservati: (i)~sul ben
-  condizionato ($\kappa\approx1.1$) la curvatura quasi isotropa rende un passo
-  scalare adeguato in ogni direzione, perciò Dynamic GD/Newton-CG-$L_1$/BB-CCV
+  condizionato ($\kappa\approx1.1$) la curvatura varia pochissimo da una
+  direzione all'altra, perciò un passo scalare adeguato funziona in ogni
+  direzione: Dynamic GD/Newton-CG-$L_1$/BB-CCV
   sono i più veloci e Newton-CG il più lento (paga la soluzione del sistema di
   Newton senza guadagnarne); (ii)~sul molto mal condizionato ($\kappa\approx
   100$) il numero di condizionamento entra nel tasso dei metodi del primo
   ordine (Sez. 4), quindi Dynamic GD/Newton-CG-$L_1$/Newton-CG restano sopra
   $10^{-1}$, mentre BB-CCV raggiunge la precisione macchina in 11 iterazioni
   perché il passo di Barzilai--Borwein stima la curvatura dai soli gradienti
-  (App. E) e si adatta all'anisotropia; (iii)~con il termine incrociato BB-CCV
+  (App. E) e si adatta ai problemi in cui la curvatura è molto diversa da una
+  direzione all'altra; (iii)~con il termine incrociato BB-CCV
   è di nuovo il migliore. Rimossi i dettagli numerici già presenti nelle
   tabelle. Ora il paragrafo entra tutto nella pagina in cui inizia (niente
   riga orfana in cima alla successiva: lì inizia la Sez. 6.4). Documento
