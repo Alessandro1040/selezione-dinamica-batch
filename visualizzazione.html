@@ -241,6 +241,8 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           <option value="1d_quartic">1D Quartica + quadratica</option>
           <option value="1d_sin">1D Sinusoidale + quadratica</option>
           <option value="1d_exp">1D Esponenziale + quadratica</option>
+          <option value="logistic2d">Logistica 2D (cross-entropia, convessa)</option>
+          <option value="mlp2d">mini tanh-MLP 2D (non convessa)</option>
           <option value="custom">✏️ Custom</option>
         </select>
         <p class="field-hint" id="lossHint">Carica un preset o modifica direttamente il codice Python sotto.</p>
@@ -1828,6 +1830,168 @@ DIM    = 1
 W_STAR = np.array([1.0, 0.0])
 XMIN, XMAX = -1.0, 3.0
 YMIN, YMAX = 0.0,  2.5`
+  },
+  logistic2d: {
+    label: 'Logistica 2D (cross-entropia, κ variabile)',
+    dim: 2,
+    hint: 'J(w) = (1/N) Σ log(1+exp(−yᵢ·w·xᵢ)) + (λ/2)‖w‖² — analoga alla loss softmax di NSynth (nota): convessa ma NON quadratica (Hessiana che varia con w)',
+    code: `import numpy as np
+
+def J(w):
+    z = X @ w
+    return float(np.mean(np.log1p(np.exp(-Y * z))) + 0.5 * LAM * np.dot(w, w))
+
+def gradJ(w):
+    z = X @ w
+    p = 1.0 / (1.0 + np.exp(-Y * z))
+    return -np.mean((Y * (1.0 - p))[:, None] * X, axis=0) + LAM * w
+
+def hessJ(w):
+    z = X @ w
+    p = 1.0 / (1.0 + np.exp(-Y * z))
+    wts = p * (1.0 - p)
+    return np.einsum('n,nj,nk->jk', wts, X, X) / N + LAM * np.eye(2)
+
+N = __N__
+LAM = 1e-2
+np.random.seed(__SEED__)
+X = np.concatenate([np.random.randn(N // 2, 2) * 0.9 + np.array([-1.5, 0.0]),
+                    np.random.randn(N - N // 2, 2) * 0.9 + np.array([ 1.5, 0.0])])
+Y = np.concatenate([-np.ones(N // 2), np.ones(N - N // 2)])
+
+def loss_i(w, i):
+    z = X[i] @ w
+    return np.log1p(np.exp(-Y[i] * z)) + 0.5 * LAM * np.dot(w, w)
+
+def grad_i(w, i):
+    z = X[i] @ w
+    p = 1.0 / (1.0 + np.exp(-Y[i] * z))
+    return -Y[i] * (1.0 - p) * X[i] + LAM * w
+
+def hess_i(w, i):
+    z = X[i] @ w
+    p = 1.0 / (1.0 + np.exp(-Y[i] * z))
+    return p * (1.0 - p) * np.outer(X[i], X[i]) + LAM * np.eye(2)
+
+def hessvec_i(w, i, v):
+    z = X[i] @ w
+    p = 1.0 / (1.0 + np.exp(-Y[i] * z))
+    return p * (1.0 - p) * (X[i] @ v) * X[i] + LAM * v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+# Minimo numerico (loss convessa strettamente per LAM>0: Newton converge)
+def _wstar():
+    _w = np.zeros(2)
+    for _ in range(200):
+        _g, _H = gradJ(_w), hessJ(_w)
+        if np.linalg.norm(_g) < 1e-12:
+            break
+        _w = _w - np.linalg.solve(_H, _g)
+    return _w
+
+DIM    = 2
+W_STAR = _wstar()
+XMIN, XMAX = -2.0, 6.5
+YMIN, YMAX = -4.0, 4.0`,
+  },
+
+  mlp2d: {
+    label: 'mini tanh-MLP 2D (non convessa)',
+    dim: 2,
+    hint: 'J(w) = (1/N) Σ (w₂·tanh(w₁·xᵢ) − yᵢ)² + (λ/2)‖w‖² — analoga alla loss della rete NSynth (strumenti): NON convessa (minimi simmetrici w→−w). ATTENZIONE: w=(0,0) è una sella con gradiente nullo: evitalo come w₀.',
+    code: `import numpy as np
+
+def J(w):
+    t = np.tanh(w[0] * xs)
+    r = w[1] * t - ys
+    return float(np.mean(r * r) + 0.5 * LAM * np.dot(w, w))
+
+def gradJ(w):
+    t = np.tanh(w[0] * xs)
+    dt = 1.0 - t * t
+    r = w[1] * t - ys
+    return np.array([2.0 * np.mean(r * w[1] * xs * dt) + LAM * w[0],
+                     2.0 * np.mean(r * t) + LAM * w[1]])
+
+def hessJ(w):
+    t = np.tanh(w[0] * xs)
+    dt = 1.0 - t * t
+    r = w[1] * t - ys
+    d2t = -2.0 * t * dt * xs * xs
+    a = 2.0 * np.mean((w[1] * xs * dt) ** 2 + r * w[1] * d2t) + LAM
+    b = 2.0 * np.mean(r * xs * dt + w[1] * t * xs * dt)
+    c = 2.0 * np.mean(t * t) + LAM
+    return np.array([[a, b], [b, c]])
+
+N = __N__
+LAM = 1e-3
+np.random.seed(__SEED__)
+xs = np.random.uniform(-3.0, 3.0, N)
+ys = np.tanh(2.0 * xs) + 0.05 * np.random.randn(N)
+
+def loss_i(w, i):
+    r = w[1] * np.tanh(w[0] * xs[i]) - ys[i]
+    return r * r + 0.5 * LAM * np.dot(w, w)
+
+def grad_i(w, i):
+    x = xs[i]
+    t = np.tanh(w[0] * x)
+    dt = 1.0 - t * t
+    r = w[1] * t - ys[i]
+    return np.array([2.0 * r * w[1] * x * dt + LAM * w[0],
+                     2.0 * r * t + LAM * w[1]])
+
+def hess_i(w, i):
+    x = xs[i]
+    t = np.tanh(w[0] * x)
+    dt = 1.0 - t * t
+    r = w[1] * t - ys[i]
+    d2t = -2.0 * t * dt * x * x
+    H = np.array([[2.0 * (w[1] * x * dt) ** 2 + 2.0 * r * w[1] * d2t,
+                   2.0 * r * x * dt + 2.0 * w[1] * t * x * dt],
+                  [2.0 * r * x * dt + 2.0 * w[1] * t * x * dt,
+                   2.0 * t * t]])
+    return H + LAM * np.eye(2)
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J_full(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def grad_full(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+# Minimi locali: problema NON convesso (simmetria w -> -w).
+# W_STAR = migliore tra piu' partenze Newton smorzato.
+def _wstar():
+    _best = None
+    for _s in ([2.0, 1.0], [-2.0, -1.0], [0.5, 3.0], [0.0, 0.0]):
+        _w = np.array(_s, dtype=float)
+        for _ in range(100):
+            _g, _H = gradJ(_w), hessJ(_w)
+            if np.linalg.norm(_g) < 1e-10:
+                break
+            try:
+                _d = np.linalg.solve(_H + 1e-8 * np.eye(2), _g)
+            except np.linalg.LinAlgError:
+                _d = _g
+            if np.dot(_d, _g) <= 0:
+                _d = _g
+            _w = _w - 0.5 * _d
+        if _best is None or J(_w) < J(_best):
+            _best = _w.copy()
+    return _best
+
+DIM    = 2
+W_STAR = _wstar()
+XMIN, XMAX = -4.0, 4.0
+YMIN, YMAX = -2.5, 2.5`,
   },
   custom: {
     label: '✏️ Custom', dim: 2,
