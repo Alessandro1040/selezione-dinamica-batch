@@ -157,6 +157,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Sez. 6.7.6 e 6.7.7: precisato il ruolo
+  di $\tau$ (tolleranza) nella frequenza di ricampionamento e corretto il
+  conteggio degli iperparametri dello stop adattivo (5 → 6).** (1) Il
+  paragrafo "Quali iperparametri vale la pena testare" ora spiega che
+  pazienza e tolleranza controllano la frequenza attraverso il criterio
+  $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$:
+  un $\tau$ più grande alza la soglia di miglioramento e ricampiona più
+  spesso, uno più piccolo ricampiona meno spesso; e anticipa che
+  nell'intervallo testato ($10^{-5}$--$10^{-3}$) l'effetto è ininfluente
+  (come mostrato dalla Tab. 6.23). (2) "L'applicazione espone cinque
+  iperparametri" era errato: l'app ne espone **sei** (aggiunta la soglia
+  assoluta $\epsilon_{\mathrm{abs}}$, campo `valMinAbs`, default 0, che
+  compariva già nella formula del criterio ma non era elencata). Corretta
+  anche l'occorrenza gemella in Sez. 6.7.7 ("Restano quindi da scegliere i
+  sei iperparametri..."). (3) Sistemato il verbo mancante nella frase "La
+  percentuale $p$ [bilancia] la qualità della stima di $J_{\mathrm{val}}$...".
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**), 0 errori, 0
+  undefined, overfull solo preesistenti (8). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
+
 - **Ultimo intervento (24/08/2026).** **Corrette 4 incoerenze fattuali nella
   Sezione 6.7 (riuso) e 1 riferimento tecnico nella Tabella 5.2.** (1) Caption
   della Tabella 6.21: l'esempio "su κ≈1.1 con M=∞ il riuso migliora su tutti

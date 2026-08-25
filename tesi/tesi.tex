@@ -4297,17 +4297,24 @@ confrontati direttamente con le colonne della Tabella~\ref{tab:riuso_sintesi},
 che usano tutti gli $N=200$ esempi.
 
 \paragraph{Quali iperparametri vale la pena testare.}
-L'applicazione espone cinque iperparametri: la pazienza $P$ (numero di
+L'applicazione espone sei iperparametri: la pazienza $P$ (numero di
 valutazioni senza miglioramento prima di ricampionare, default 3), la
-tolleranza relativa $\tau$ (default $10^{-4}$), la percentuale di validation
-$p$ (default 20\%), la frequenza di valutazione $f$ (default 1) e la
-strategia di split (default fisso). Pazienza e tolleranza controllano
-direttamente la frequenza di ricampionamento: valori piccoli di $P$
-ricampionano presto, avvicinandosi alla \emph{base}; valori grandi tengono
-il batch più a lungo, avvicinandosi a $M=\infty$. La percentuale $p$
-la qualità della stima di $J_{\mathrm{val}}$ con la quantità di
-dati di training; la frequenza $f$ controlla la prontezza del criterio; la
-strategia dinamica cambia il validation set a ogni ricampionamento.
+tolleranza relativa $\tau$ (default $10^{-4}$), la soglia assoluta
+$\epsilon_{\mathrm{abs}}$ (default 0), la percentuale di validation $p$
+(default 20\%), la frequenza di valutazione $f$ (default 1) e la strategia di
+split (default fisso). Pazienza e tolleranza controllano la frequenza di
+ricampionamento attraverso il criterio di miglioramento
+$J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$:
+una $\tau$ più grande alza la soglia richiesta per azzerare il contatore di
+pazienza, quindi ricampiona più spesso; una $\tau$ più piccola la abbassa e
+ricampiona meno spesso (nell'intervallo testato, $10^{-5}$--$10^{-3}$,
+l'effetto risulta però ininfluente, come discusso qui sotto). La pazienza
+$P$ agisce invece direttamente: valori piccoli ricampionano presto,
+avvicinandosi alla \emph{base}; valori grandi tengono il batch più a lungo,
+avvicinandosi a $M=\infty$. La percentuale $p$ bilancia la qualità della
+stima di $J_{\mathrm{val}}$ con la quantità di dati di training; la
+frequenza $f$ controlla la prontezza del criterio; la strategia dinamica
+cambia il validation set a ogni ricampionamento.
 
 
 La Tabella~\ref{tab:riuso_valid_iper} riporta l'effetto marginale di
@@ -4480,8 +4487,9 @@ J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\varepsilon_{\mathrm{abs}}$, il batch
 viene ricampionato all'iterazione successiva. La strategia di split è
 \emph{fissa} (train e validation estratti una sola volta) o \emph{dinamica}
 (risplit a ogni cambio di batch); per i metodi di Newton l'Hessiana segue il
-batch in modalità legata. Restano quindi da scegliere i cinque iperparametri
-$P$, $f$, $p$, $\tau$ e la strategia di split, oltre al limite $M$ del riuso.
+batch in modalità legata. Restano quindi da scegliere i sei iperparametri
+$P$, $f$, $p$, $\tau$, $\epsilon_{\mathrm{abs}}$ e la strategia di split,
+oltre al limite $M$ del riuso.
 
 Questa sottosezione riporta la scelta consigliata per ciascun metodo, ottenuta
 con una ricerca a griglia mirata sugli stessi problemi e con lo stesso setup
