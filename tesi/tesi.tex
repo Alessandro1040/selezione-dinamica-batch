@@ -2386,10 +2386,11 @@ e $y = g_k - g_{k-1}$, con la formula $\alpha_k^{BB} = \frac{s^T s}{s^T y}$ di
 Barzilai--Borwein (per $k = 0$, $\alpha_0 = \alpha$); il passo è salvaguardato in
 $[\alpha/20,\, 5\alpha]$ per la stabilità sui problemi non quadratici e rifinito
 da una line search di Armijo con backtracking. BB usa solo quantità già
-disponibili, quindi non richiede la Hessiana: nei tre esperimenti della
-Sezione~\ref{sec:esperimenti} il metodo impiega in media $\approx 13$ iterazioni (12, 11 e 16 sui
-tre problemi) contro le 30 del GD, e sui problemi mal condizionati raggiunge
-precisioni $10^{-8}$--$10^{-14}$ invece di $10^{-1}$--$10^{-2}$.}
+disponibili, quindi non richiede la Hessiana: nei tre problemi dei Risultati
+Numerici (Sezione~\ref{sec:risultati}) il metodo impiega in media
+$\approx 13$ iterazioni (12, 11 e 16 sui tre problemi) contro le 30 del GD,
+e sui problemi mal condizionati raggiunge precisioni $10^{-8}$--$10^{-14}$
+invece di $10^{-1}$--$10^{-2}$.}
 \label{fig:bbccv}
 \end{figure}
 
@@ -2412,23 +2413,31 @@ centrato'' descritta nella Sezione~\ref{sec:architettura}, che consente di
 controllare esattamente la soluzione $w^*$ e di misurare l'errore finale
 $\|w_k - w^*\|$ senza ambiguità.
 
-Le funzioni test utilizzate sono i seguenti preset quadratici
-dell'applicazione.
+Le funzioni test utilizzate nel Capitolo sono i seguenti preset quadratici
+dell'applicazione. I primi tre sono usati nei Risultati Numerici della
+Sezione~\ref{sec:risultati}; il quarto è usato negli esperimenti sul riuso
+del mini-batch (Sezione~\ref{app:riuso}), che impiegano complessivamente
+tutti e quattro i preset.
 
 \begin{itemize}
   \item Quadratica ben condizionata ($\kappa \approx 1.1$):
   $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.1\,w_1 w_2$ (preset ``Quadratica ben
-  condizionata ($\kappa \approx 1.1$)'').
+  condizionata ($\kappa \approx 1.1$)''). Il termine $0.1\,w_1w_2$ è un piccolo
+  accoppiamento tra le variabili: la Hessiana $\nabla^2 J$ ha autovalori $2.1$
+  e $1.9$, da cui $\kappa = 2.1/1.9 \approx 1.1$.
+  \item Quadratica mal condizionata ($\kappa \approx 20$):
+  $J(w) = 20\,(w_1 - 1)^2 + (w_2 + 2)^2$ (preset ``Quadratica mal condizionata
+  ($\kappa \approx 20$)''), usata negli esperimenti della
+  Sezione~\ref{app:riuso}.
   \item Quadratica molto mal condizionata ($\kappa \approx 100$):
   $J(w) = 100\,(w_1 - 1)^2 + (w_2 + 2)^2$ (preset ``Quadratica molto mal
   condizionata ($\kappa \approx 100$)'').
   \item Quadratica con termine incrociato:
   $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.5\,(w_1 - 1)(w_2 + 2)$ (preset
-  ``Quadratica con termine incrociato'').
+  ``Quadratica con termine incrociato''). Qui l'accoppiamento è la
+  caratteristica dominante: la Hessiana $\nabla^2 J$ ha autovalori $2.5$ e
+  $1.5$, quindi $\kappa = 2.5/1.5 \approx 1.67$.
 \end{itemize}
-
-L'applicazione offre anche il preset ``Quadratica mal condizionata
-($\kappa \approx 20$)'', non usato nei test riportati in questo capitolo.
 
 I test sono eseguiti con i parametri di default dell'applicazione:
 dimensione del dataset $N = 200$, punto iniziale $w_0 = (2,-3)$, seme

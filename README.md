@@ -157,6 +157,32 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (25/08/2026).** **Tesi: corretta l'incoerenza del preset
+  $\kappa\approx20$ nella Sez. 6.1 (Setup) e precisata la caption della Figura
+  BB-CCV.** (1) La frase "L'applicazione offre anche il preset 'Quadratica mal
+  condizionata ($\kappa\approx20$)', non usato nei test riportati in questo
+  capitolo" era **falsa**: il preset $\kappa\approx20$ È usato negli esperimenti
+  sul riuso del mini-batch (Sez. 6.7, tabelle `tab:riuso_malcond_gd/_ncg/_l1/_bb`
+  e Risultati numerici). L'elenco delle funzioni test della Sez. 6.1 è stato
+  ristrutturato in **quattro preset quadratici** (ben condizionato $\kappa\approx1.1$,
+  mal condizionato $\kappa\approx20$, molto mal condizionato $\kappa\approx100$,
+  termine incrociato), con l'indicazione che i primi tre sono usati nei Risultati
+  Numerici (Sez. 6.2) e tutti e quattro negli esperimenti sul riuso (Sez. 6.7).
+  Aggiunti gli autovalori della Hessiana per giustificare la denominazione dei
+  preset: ben condizionata (Hessiana $\begin{psmallmatrix}2&0.1\\0.1&2\end{psmallmatrix}$,
+  autovalori $2.1$/$1.9$, $\kappa\approx1.1$: il termine $0.1\,w_1w_2$ è un piccolo
+  accoppiamento) vs termine incrociato (Hessiana $\begin{psmallmatrix}2&0.5\\0.5&2\end{psmallmatrix}$,
+  autovalori $2.5$/$1.5$, $\kappa\approx1.67$: l'accoppiamento $0.5(w_1-1)(w_2+2)$ è la
+  caratteristica dominante). (2) Caption Figura BB-CCV (Cap. 5): "nei tre
+  esperimenti della Sezione 6" -> "nei tre problemi dei Risultati Numerici
+  (Sezione 6.2)", per non confonderli con i quattro preset della parte sul
+  riuso. (3) Verificata l'Appendice D: "tre problemi test, tre valori di
+  $\theta$, quattro algoritmi" è corretta (descrive `sim_exp.py`:
+  `probs=[build_ls(), build_ls(kappa_goal=1), build_rosen()]`, $\theta\in\{0.1,0.5,0.9\}$,
+  confronto di 4 metodi) — nessuna modifica. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined, overfull solo
+  preesistenti). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (25/08/2026).** **App web: nuovo criterio adattivo
   "Riuso per discesa della loss sul batch" per la durata del riuso del
   mini-batch, strutturalmente identico allo stop adattivo con validation
