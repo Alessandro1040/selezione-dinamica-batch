@@ -157,6 +157,31 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (24/08/2026).** **Corrette 4 incoerenze fattuali nella
+  Sezione 6.7 (riuso) e 1 riferimento tecnico nella Tabella 5.2.** (1) Caption
+  della Tabella 6.21: l'esempio "su κ≈1.1 con M=∞ il riuso migliora su tutti
+  e 5 i seed per tutti gli algoritmi" era falso (per Newton-CG e Newton-CG
+  $L_1$ è 4 su 5, verificato dalla stessa tabella) → riscritto con i valori
+  esatti (5/5 per GD e BB-CCV, 4/5 per i Newton). (2) Stessa caption:
+  "rispetto alla colonna base della Tabella 6.20" era impreciso → "rispetto
+  alla versione base con la stessa seed" (il confronto è per-seed, non contro
+  i valori seed-42 della 6.20). (3) Sez. 6.7.2 (Meccanismo): "Fa eccezione il
+  problema con termine incrociato" per Newton-CG era incompleto → aggiunto
+  anche il caso ben condizionato (migliora su 4 seed su 5). (4) Sez. 6.7.4
+  (Risultati numerici): "Newton-CG è penalizzato quasi universalmente, con
+  l'eccezione del termine incrociato" contraddiceva la Tabella 6.21 (κ≈1.1:
+  4/5 con M=∞) → riscritto: penalizzato sui mal condizionati (0/5 su κ≈20 e
+  κ≈100), aiutato su ben condizionato (4/5) e termine incrociato con M=∞.
+  (5) Tabella 5.2: "criterio di arresto (5.35)--(5.36)" → "(5.35a)--(5.36)"
+  (la (5.35) esiste solo come (5.35a)/(5.35b)). Verificati invece come
+  coerenti: tutte le affermazioni numeriche delle Tabelle 6.1-6.3 (12/11/16
+  iterazioni, 4×10⁻¹, 1.099×10⁻¹⁴, 6.164×10⁻⁴), la sezione validation
+  (medie 2.37/2.87/10.7/2.53, effetti marginali P/τ/p/f/strategia,
+  vittorie 14/13/14) e i riferimenti incrociati. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**123 pp**), 0 errori, 0 undefined, overfull solo
+  preesistenti (8). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+
 - **Ultimo intervento (24/08/2026).** **Risolte 9 incoerenze "tre algoritmi" vs
   "quattro algoritmi" nel documento.** In `tesi/tesi.tex` il documento usa
   ovunque la lista canonica di 4 algoritmi (Dynamic GD, Newton-CG,
