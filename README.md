@@ -163,16 +163,17 @@ Da tenere presente nelle sessioni di lavoro successive:
   "cioè si sceglie il subgradiente che rende il gradiente generalizzato
   $d_i + g_i$ il più vicino possibile a zero" — che segue il problema di
   proiezione $g_i = \arg\min_{g\in[-\nu,\nu]} |d_i + g|$ — è stata inserita
-  una nota in `\textit` che motiva la regola: tra tutti i subgradienti
-  possibili rispetto al parametro $w_i$ si seleziona quello che annulla
-  $d_i + g_i$ oppure, quando questo non è possibile, quello che lo rende il
-  più piccolo possibile in valore assoluto; in questo modo si trova un minimo
-  effettivo per i parametri, migliore dei minimi che si otterrebbero usando
-  altri subgradienti. Nessun contenuto tecnico nuovo (la regola di proiezione
-  era già esposta), solo la motivazione resa esplicita. Ricompilati
-  `tesi.pdf` e `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined, overfull
-  solo preesistenti). Sincronizzati nella repo
-  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+  una nota in `\textit` che motiva la regola: quando $w_i=0$, tra tutti i
+  subgradienti possibili in $[-\nu,+\nu]$ vogliamo selezionare quello che
+  rende minima la componente del gradiente generalizzato (zero se possibile),
+  così che $w_i=0$ venga riconosciuto come un vero minimo del problema ogni
+  volta che lo è e l'algoritmo non rischi di allontanarsene. La formulazione
+  è stata poi riveduta in corsivo con le virgole al posto dei trattini.
+  Nessun contenuto tecnico nuovo (la regola di proiezione era già esposta),
+  solo la motivazione resa esplicita. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined, overfull solo
+  preesistenti). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 5.1.5/5.1.6: corretto
   `\eqref{eq:discesa}` che rendeva "(5.1.5)" invece di "(5.1)".** Il `\label`
   della condizione di discesa era dentro un display `\[...\]` non numerato
