@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7 (Tabella 6.21
+  `tab:riuso_robustezza`): aggiunto il numero di condizionamento alla riga
+  "incrociato" (→ "incrociato ($\kappa\approx1.67$)") e inserito dopo la
+  tabella un commento breve che spiega i risultati.** Il commento: conferma
+  il quadro già noto (riuso aiuta su $\kappa\approx1.1$, 5/5 per GD/BB-CCV;
+  peggiora su $\kappa\approx20$ per la deriva verso il minimo campionario);
+  spiega la differenza tra i metodi (Newton-CG e Newton-CG~$L_1$ riusano
+  l'Hessiana, che diventa obsoleta: su $\kappa\approx20$ Newton-CG 0/5 e L1
+  1--2/5, mentre GD/BB-CCV riusano solo il gradiente e mantengono qualche
+  vittoria); spiega perché su $\kappa\approx100$ i metodi del primo ordine
+  migliorano su 3/5 seed (4/5 per L1 con $M{=}10$): con curvatura estrema
+  l'errore è dominato dal rimbalzo nella direzione piatta, attenuato dal
+  riuso che fissa il campione, mentre Newton-CG resta 0/5; infine
+  l'incrociato ($\kappa\approx1.67$) aiuta quasi tutti (4/5 con $M{=}\infty$),
+  con l'eccezione di Newton-CG~$L_1$ (2/5), meno robusto per la combinazione
+  Hessiana riusata + proiezione ortante + subgradiente $L_1$. Numeri coerenti
+  con le righe della tabella. Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**123 pp**, 0 errori, 0 undefined). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7.6 ("Stop adattivo con
   validation set"): riscritta in modo molto più sintetico.** (1) Il paragrafo
   "Quali iperparametri vale la pena testare" è diventato "Iperparametri

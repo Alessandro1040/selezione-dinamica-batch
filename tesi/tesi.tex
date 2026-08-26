@@ -4257,7 +4257,7 @@ $\kappa\approx100$ & Dynamic GD & 3 & 2 & 0 & 3 & 2 & 0\\
 
 \midrule
 
-incrociato & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
+incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 
  & Newton-CG & 4 & 1 & 0 & 3 & 2 & 0\\
 
@@ -4270,6 +4270,27 @@ incrociato & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 \end{tabular}
 
 \end{table}
+Questa tabella conferma, come già osservato, che il riuso porta
+miglioramenti sui problemi ben condizionati ($\kappa\approx1.1$: quasi tutti
+i seed migliorano, con 5/5 per Dynamic GD e BB-CCV) mentre sui mal
+condizionati il quadro si ribalta ($\kappa\approx20$: la maggior parte dei
+seed peggiora, a causa della deriva verso il minimo campionario). La
+differenza tra i metodi sta nella Hessiana riusata: Newton-CG e
+Newton-CG~$L_1$ calcolano la direzione di Newton su una Hessiana stimata da
+un campione vecchio, che diventa obsoleta; per questo su $\kappa\approx20$
+Newton-CG non migliora su nessun seed (0/5) e Newton-CG~$L_1$ solo su 1--2
+su 5, mentre Dynamic GD e BB-CCV, che riusano solo il gradiente, mantengono
+qualche vittoria. Su $\kappa\approx100$ i metodi del primo ordine migliorano
+su 3 seed su 5 (4/5 per Newton-CG~$L_1$ con $M{=}10$): con una curvatura
+così estrema l'errore è dominato dal rimbalzo dell'iterato nella direzione
+piatta, che il riuso attenua fissando il campione; Newton-CG resta invece
+sempre peggiorativo (0/5), perché il danno dell'Hessiana obsoleta prevale su
+ogni beneficio. Sul termine incrociato ($\kappa\approx1.67$) il riuso aiuta
+quasi tutti i metodi (4/5 con $M{=}\infty$), con l'eccezione di
+Newton-CG~$L_1$ (2/5), meno robusto quando al riuso di batch e Hessiana si
+sommano la proiezione ortante e il subgradiente del termine $L_1$.
+
+
 
 
 
