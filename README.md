@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7: aggiunto
+  $\kappa\approx1.67$ alla etichetta "incrociato"/"incr" in tutte le tabelle
+  che elencano le quattro loss con il loro numero di condizionamento.**
+  Modificate: Tab. 6.21 (già fatta), Tab. E.17 sintesi (`tab:riuso_sintesi`,
+  4 righe), Tab. E.19 confronto (`tab:riuso_valid_confronto`, 4 righe), Tab.
+  E.21 robustezza (`tab:riuso_valid_robustezza`, header colonna "incr." →
+  "incr. ($\kappa{\approx}1.67$)") e Tab. sintesi consigliati
+  (`tab:riuso_cons_sintesi`, 4 righe). Etichette: "incrociato
+  ($\kappa\approx1.67$)" e "incr. ($\kappa{\approx}1.67$)", coerenti con le
+  altre righe/colonne ($\kappa\approx1.1$, $\kappa\approx20$,
+  $\kappa\approx100$). Aggiornati anche i generatori per la riproducibilità:
+  `gen_tabelle_riuso_validation.py` (PRESET_LATEX per E.19 e header E.21) e
+  `gen_tabelle_riuso.py` (label E.17 nel --data); sintassi verificata con
+  `py_compile`. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**, 0
+  errori, 0 undefined). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7.6: corretta la notazione
   dell'intervallo di test della tolleranza $\tau$.** La scrittura
   `($10^{-5}$--$10^{-3}$)` è stata sostituita con la notazione intervallo

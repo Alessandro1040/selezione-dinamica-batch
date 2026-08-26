@@ -769,7 +769,7 @@ def main():
                 v = data[(pname, algo, c)][-1]
                 cells.append(fmt3(v) + marker(base30, v))
             pname_it = {"quad_well": "$\\kappa\\approx1.1$", "quad_ill": "$\\kappa\\approx20$",
-                        "quad_very_ill": "$\\kappa\\approx100$", "quad_offdiag": "incrociato"}[pname]
+                        "quad_very_ill": "$\\kappa\\approx100$", "quad_offdiag": "incrociato ($\\kappa\\approx1.67$)"}[pname]
             algo_it = {"newton_cg": "Newton-CG", "newton_l1": "Newton-CG $L_1$"}[algo]
             print(f"  {pname_it} - {algo_it} & " + " & ".join(cells) + "\\\\")
         print()

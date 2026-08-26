@@ -195,7 +195,7 @@ PRESET_LATEX = {
     "quad_well": r"$\kappa\approx1.1$",
     "quad_ill": r"$\kappa\approx20$",
     "quad_very_ill": r"$\kappa\approx100$",
-    "quad_offdiag": "incrociato",
+    "quad_offdiag": r"incrociato ($\kappa\approx1.67$)",
 }
 
 # ----------------------------------------------------------------------
@@ -696,7 +696,7 @@ def gen_tables_tex(data, refs, rob):
     out.append("\\label{tab:riuso_valid_robustezza}")
     out.append("\\begin{tabular}{@{}lrrrrrr@{}}")
     out.append("\\toprule")
-    out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & $\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & $\\kappa{\\approx}100$ & incr.\\\\")
+    out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & $\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & $\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\")
     out.append("\\midrule")
     for c in CONFIG_COLS:
         es = [np.mean(rob[(p, a, c)]) for p in presets for a in algos]
