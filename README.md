@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 5.3 ("Il gradiente
+  generalizzato"): aggiunta una precisazione in corsivo sulla scelta del
+  subgradiente tramite il problema di proiezione.** Subito dopo la frase
+  "cioè si sceglie il subgradiente che rende il gradiente generalizzato
+  $d_i + g_i$ il più vicino possibile a zero" — che segue il problema di
+  proiezione $g_i = \arg\min_{g\in[-\nu,\nu]} |d_i + g|$ — è stata inserita
+  una nota in `\textit` che motiva la regola: tra tutti i subgradienti
+  possibili rispetto al parametro $w_i$ si seleziona quello che annulla
+  $d_i + g_i$ oppure, quando questo non è possibile, quello che lo rende il
+  più piccolo possibile in valore assoluto; in questo modo si trova un minimo
+  effettivo per i parametri, migliore dei minimi che si otterrebbero usando
+  altri subgradienti. Nessun contenuto tecnico nuovo (la regola di proiezione
+  era già esposta), solo la motivazione resa esplicita. Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined, overfull
+  solo preesistenti). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 5.1.5/5.1.6: corretto
   `\eqref{eq:discesa}` che rendeva "(5.1.5)" invece di "(5.1)".** Il `\label`
   della condizione di discesa era dentro un display `\[...\]` non numerato

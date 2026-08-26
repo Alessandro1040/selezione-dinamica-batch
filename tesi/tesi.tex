@@ -1930,7 +1930,7 @@ La scelta di \(g_i\) viene effettuata risolvendo il problema di proiezione:
 \[
 g_i = \arg\min_{g \in [-\nu, \nu]} |d_i + g|,
 \]
-cioè si sceglie il subgradiente che rende il gradiente generalizzato \(d_i + g_i\) il più vicino possibile a zero. Ne derivano i tre casi seguenti:
+cioè si sceglie il subgradiente che rende il gradiente generalizzato \(d_i + g_i\) il più vicino possibile a zero. \textit{Con questa scelta vogliamo selezionare, tra tutti i subgradienti possibili rispetto al parametro $w_i$, quello che annulla $d_i + g_i$ oppure, quando questo non è possibile, quello che lo rende il più piccolo possibile in valore assoluto: in questo modo troviamo un minimo effettivo per i parametri, migliore dei minimi che otterremmo usando qualsiasi altro subgradiente.} Ne derivano i tre casi seguenti:
 
 {\small
 \setlength{\tabcolsep}{4pt}
