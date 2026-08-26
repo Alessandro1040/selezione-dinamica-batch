@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Appendice B (spiegazione del codice
+  Newton-L1): corretti 7 riferimenti a equazioni con la vecchia numerazione
+  "6.x" → "5.x".** La prosa che spiega il codice $L_1$ citava equazioni del
+  capitolo 6 — "(6.2)", "(6.3)", "(6.4)", "(6.5)", "(6.6)", "(6.10)", "(6.11)"
+  — ma il capitolo 6 non contiene alcuna equazione: i numeri erano rimasti
+  quelli di prima dello spostamento del metodo L1 nel capitolo 5. Corretti in
+  (5.42) [definizione di $F_{\mathcal{S}}$], (5.43) [subgradiente
+  generalizzato], (5.44) [vettore $z_k$], (5.45) [faccia ortante $\Omega_k$],
+  (5.46) [active set $\mathcal{A}_k$], (5.50) [condizione di Armijo
+  proiettata], (5.51) [criterio di arresto del CG] — tutti verificati contro i
+  tag reali delle equazioni. Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**123 pp**, 0 errori, 0 undefined, overfull solo preesistenti).
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (25/08/2026).** **Tesi Appendice B.4: titolo semplificato,
   rimosso "Codice BB-CCV".** Il titolo della sottosezione B.4 passa da "Codice
   BB-CCV (Barzilai--Borwein con campionamento dinamico)" a "Barzilai--Borwein
