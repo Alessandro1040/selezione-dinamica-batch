@@ -157,6 +157,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7.6: corretta la notazione
+  dell'intervallo di test della tolleranza $\tau$.** La scrittura
+  `($10^{-5}$--$10^{-3}$)` è stata sostituita con la notazione intervallo
+  corretta `$(10^{-5},\,10^{-3})$` (parentesi tonde, non trattino).
+  Corretta anche la stessa occorrenza in una nota precedente del README.
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**123 pp**, 0 errori, 0
+  undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7 (Tabella 6.21
   `tab:riuso_robustezza`): aggiunto il numero di condizionamento alla riga
   "incrociato" (→ "incrociato ($\kappa\approx1.67$)") e inserito dopo la
@@ -362,7 +370,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$:
   un $\tau$ più grande alza la soglia di miglioramento e ricampiona più
   spesso, uno più piccolo ricampiona meno spesso; e anticipa che
-  nell'intervallo testato ($10^{-5}$--$10^{-3}$) l'effetto è ininfluente
+  nell'intervallo testato $(10^{-5},\,10^{-3})$ l'effetto è ininfluente
   (come mostrato dalla Tab. 6.23). (2) "L'applicazione espone cinque
   iperparametri" era errato: l'app ne espone **sei** (aggiunta la soglia
   assoluta $\epsilon_{\mathrm{abs}}$, campo `valMinAbs`, default 0, che
