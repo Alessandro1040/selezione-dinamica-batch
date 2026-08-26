@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Nuovo script di riproduzione della
+  Tabella 6.22 (`tab:riuso_valid_confronto`): `altro/script/
+  riproduci_tabella_622.py`.** Codice pronto per Colab che riproduce
+  esattamente i valori della Tabella 6.22 (4 problemi × 4 algoritmi = 16
+  combinazioni; colonne base, $M=\infty$, def., $P{=}1,p{=}0.1$,dyn e
+  $P{=}3,p{=}0.1$,dyn). Usa il codice ESATTO dell'app: preset =
+  `LOSS_PRESETS` di `visualizzazione.html` (costruzione dataset) e algoritmi
+  = codici generati dall'app (varianti *Validation) in
+  `validation_codice_generato/` (Dynamic GD Wolfe, BB-CCV Armijo,
+  Newton-CG e Newton-CG~$L_1$ con $H_k$ legata a $S_k$); la colonna base
+  forza il ricampionamento a ogni iterazione (guard → `if True:`) come in
+  `gen_tabelle_riuso_validation.py`. Validato: l'output coincide
+  riga per riga con la Tabella 6.22 di `tesi.tex` (valori e ricampionamenti).
+  Nessun PDF coinvolto (file solo in repo). README aggiornato.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7: aggiunto
   $\kappa\approx1.67$ alla etichetta "incrociato"/"incr" in tutte le tabelle
   che elencano le quattro loss con il loro numero di condizionamento.**
