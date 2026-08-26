@@ -157,6 +157,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 5.1.5/5.1.6: corretto
+  `\eqref{eq:discesa}` che rendeva "(5.1.5)" invece di "(5.1)".** Il `\label`
+  della condizione di discesa era dentro un display `\[...\]` non numerato
+  (Sez. 5.1.5, Convergenza deterministica), quindi la referenza a riga 809
+  catturava il numero della sottosezione e nel PDF compariva "(5.1.5)" — un
+  numero di equazione inesistente. Spostato il `\label{eq:discesa}` sul display
+  che porta la numerazione (5.1) della condizione di accuratezza (Sez. 5.1.6,
+  Analisi stocastica), che ora è `\tag{5.1}\label{eq:discesa}`. Verificato nel
+  PDF: "(5.1.5)" sparisce come riferimento (restano solo i numeri di
+  sottosezione 5.1.5 nel TOC/headings), "Dalla condizione di discesa (5.1)"
+  corretto. I 42 warning pdfTeX "duplicate ignored (equation.5.1)" nel log
+  sono preesistenti (mix di display `\[ \]` con `\tag` e ambienti
+  `equation` nella Sez. 5) e non cambiano: cosmetici, da ripulire
+  eventualmente in un refactor dedicato. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined, overfull solo
+  preesistenti). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Appendice B (spiegazione del codice
   Newton-L1): corretti 7 riferimenti a equazioni con la vecchia numerazione
   "6.x" → "5.x".** La prosa che spiega il codice $L_1$ citava equazioni del

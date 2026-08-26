@@ -887,7 +887,6 @@ w_{k+1} = w_k - \alpha g_k, \qquad \alpha = \frac{1-\theta}{L},
 dove $g_k$ è un'approssimazione di $\nabla J(w_k)$ che soddisfa la condizione di accuratezza
 \[
 \|g_k - \nabla J(w_k)\|_2 \leq \theta \|g_k\|_2, \qquad \theta \in [0,1).
-\label{eq:discesa}
 \]
 
 \begin{lemma}\label{lem:accuratezza}
@@ -1092,7 +1091,7 @@ Questa è la stima del numero di iterazioni necessarie per ridurre l'errore al d
 
 Nell'analisi deterministica abbiamo assunto la condizione di accuratezza
 \[
-\|g_k - \nabla J(w_k)\|_2 \le \theta \|g_k\|_2, \qquad \theta \in [0,1), \tag{5.1}
+\|g_k - \nabla J(w_k)\|_2 \le \theta \|g_k\|_2, \qquad \theta \in [0,1), \tag{5.1}\label{eq:discesa}
 \]
 garantendo che \(-g_k\) sia una direzione di discesa per \(J\) e stabilendo la convergenza lineare (Teorema di Convergenza Deterministica).
 
