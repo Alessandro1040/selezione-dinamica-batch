@@ -2395,6 +2395,8 @@ function descentSnippets(opts) {
     need_resample_S = True
     need_resample_H = True
     Jb_prev = None
+    patience_S = 0
+    patience_H = 0
     patience_dec = 0
     desc_hist = []
     m_actual = [0]

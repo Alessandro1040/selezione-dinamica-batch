@@ -157,6 +157,52 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7: nuovo esperimento
+  ``Riuso per discesa della loss sul batch'' (criterio alternativo allo stop
+  adattivo con validation set), replicando esattamente la procedura della
+  Sez. 6.7.6.** (1) **Fix bug in `visualizzazione.html`**: nel
+  `preLoopNewton` di `descentSnippets` mancavano `patience_S = 0` e
+  `patience_H = 0` (la variante validation li inizializza); in Python il
+  codice generato dei metodi di Newton crashava (`UnboundLocalError`) al
+  primo mancato miglioramento, in JS `patience_S += 1` su `undefined`
+  produceva `NaN` e il criterio non scattava mai (varianti Newton del riuso
+  per discesa rotte nell'app). Aggiunte le due righe, allineate a
+  `validationSnippets`. (2) **Harness di estrazione**: nuovo
+  `altro/script/estrai_codice_descesa.mjs` (Deno + DOM fittizio, come per le
+  varianti *Validation) che estrae da `visualizzazione.html` i 4 codici
+  Python esatti col criterio di discesa in
+  `altro/script/descent_codice_generato/` (gd_wolfe, bb_armijo,
+  newton_cg_tied, newton_l1_tied; line search come Sez. 6/Appendice E,
+  Hessiana legata a $S_k$). (3) **Sweep**: nuovo
+  `altro/script/gen_tabelle_riuso_descesa.py` (analogo a
+  `gen_tabelle_riuso_validation.py`): 18 configurazioni
+  ($\\tau\\in\\{10^{-5},10^{-4},10^{-3}\\}$, $P\\in\\{1,3,8\\}$,
+  $f\\in\\{1,3\\}$, $\\epsilon_{\\mathrm{abs}}=0$) × 4 problemi × 4
+  algoritmi, seed 42; riferimenti *base* e $M=\\infty$ sull'intero dataset
+  (nessun validation set, tetto CCV $N$). Dati in `descent_sweep.json` e
+  robustezza 5 seed in `descent_robustezza.json`. (4) **Tesi Sez. 6.7.7**:
+  nuova sottosezione ``Riuso per discesa della loss sul batch''
+  (`app:riuso-descesa`) tra la validation (6.7.6) e i consigliati (ora
+  6.7.8), con meccanismo, setup, iperparametri testati, 3 tabelle
+  (`tab:riuso_desc_confronto`, `tab:riuso_desc_iper`,
+  `tab:riuso_desc_robustezza`) e confronto finale base vs validation vs
+  discesa (`tab:riuso_confronto_finale`). Risultati: pazienza $P{=}1$
+  migliore ($2.61\\times10^{-1}$ vs $3.30\\times10^{-1}$ di $P{=}8$);
+  tolleranza quasi ininfluente; $f{=}1$ meglio di $f{=}3$. La monotonia
+  delle ricerche lineari rende il criterio poco sensibile (per i metodi del
+  primo ordine il default ≈ $M{=}\\infty$), ma per i metodi di Newton evita
+  il collasso di $M{=}\\infty$. Migliore configurazione
+  $\\tau{=}10^{-3},P{=}1,f{=}1$: media su 5 seed $2.31\\times10^{-1}$
+  (12/16 vittorie vs *base* $2.43\\times10^{-1}$; $M{=}\\infty$
+  $3.95\\times10^{-1}$). Confronto finale: validation calibrata
+  $2.24\\times10^{-1}$ (11/16 vs base sul training set), discesa calibrata
+  $2.31\\times10^{-1}$ (12/16 vs base sull'intero dataset): la validation è
+  leggermente migliore in media ma tiene fuori il 10\\% dei dati; la discesa
+  usa tutto il dataset senza split. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**127 pp**, 0 errori, 0 undefined, overfull solo
+  preesistenti). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf/
+  visualizzazione.html + nuovo materiale in `altro/script/` (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Nuovo script di riproduzione della
   Tabella 6.22 (`tab:riuso_valid_confronto`): `altro/script/
   riproduci_tabella_622.py`.** Codice pronto per Colab che riproduce

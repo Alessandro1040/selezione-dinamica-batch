@@ -4480,6 +4480,255 @@ $P{=}3,p{=}0.1$,dyn &\colorcell{2.43}{-1}& 11/16 &\colorcell{1.40}{-1}&\colorcel
 \end{tabular}
 \end{table}
 
+\subsubsection{Riuso per discesa della loss sul batch}\label{app:riuso-descesa}
+
+Lo stop adattivo con validation set
+(Sezione~\ref{app:riuso-validation}) tiene fuori dal campionamento una
+frazione $p$ degli esempi, riducendo il training set disponibile. Il
+\emph{riuso per discesa della loss sul batch} persegue lo stesso obiettivo
+--- decidere automaticamente quando ricampionare il mini-batch --- senza
+riservare alcun dato: la decisione è presa osservando esclusivamente
+l'andamento di $J_{\mathrm{batch}}$ sul mini-batch corrente.
+
+Il meccanismo è il seguente. Dopo ogni aggiornamento $w_{k+1}$ la loss media
+$J_{\mathrm{batch}}(w_k)$ è valutata sul batch corrente ogni $f$ iterazioni e
+confrontata con il valore dell'iterazione precedente \emph{sullo stesso
+batch} (il confronto riparte da zero dopo ogni ricampionamento). La versione
+firmata del criterio considera un miglioramento solo se
+\[
+J_{\mathrm{batch}}(w_{k-1})-J_{\mathrm{batch}}(w_k)
+\ge \tau\,\lvert J_{\mathrm{batch}}(w_{k-1})\rvert+\epsilon_{\mathrm{abs}},
+\]
+con tolleranza relativa $\tau$ e soglia assoluta $\epsilon_{\mathrm{abs}}$;
+se per $P$ valutazioni consecutive non si registra un miglioramento, il batch
+viene ricampionato all'iterazione successiva. Non essendoci split, il
+mini-batch è campionato dall'\emph{intero} dataset e la CCV ha tetto $N$; per
+i metodi di Newton l'Hessiana segue il batch in modalità legata e $M_H$
+segue lo stesso criterio (per Newton-CG~$L_1$ si monitora la funzione
+completa $F_{\mathrm{batch}}=J_{\mathrm{batch}}+\nu\lVert w\rVert_1$).
+
+Una differenza qualitativa rispetto al criterio di validazione è importante.
+Le ricerche lineari (Wolfe per Dynamic GD e Newton-CG, Armijo per BB-CCV)
+garantiscono già che $J_{\mathrm{batch}}$ decresca a ogni passo accettato: il
+criterio di discesa non scatta quando la loss \emph{cresce} (non può, a meno
+di passo nullo), ma quando \emph{decresce troppo poco}, cioè quando la
+riduzione relativa è sotto soglia. Questo accade tipicamente in prossimità
+del minimo campionario del batch, dove il batch è ``esaurito'' nel senso
+della CCV; la tolleranza $\tau$ funziona quindi come soglia di sensibilità:
+valori più alti (per esempio $10^{-3}$) dichiarano il batch esaurito prima e
+generano più ricampionamenti.
+
+% =====================================================================
+% Tabelle riuso per discesa (confronto, sensibilità, robustezza) e
+% confronto finale - generate da gen_tabelle_riuso_descesa.py
+% (conversione colorcell come per le tabelle E.19-E.21)
+% =====================================================================
+
+Setup come nella Sezione~\ref{app:riuso-setup} (quattro preset quadratici,
+$N=200$, $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni,
+seed 42), con gli algoritmi esatti generati dall'applicazione (varianti con
+criterio di discesa dei codici Python dell'Appendice~\ref{app:codici}). I
+riferimenti \emph{base} e $M=\infty$ sono ricalcolati sull'intero dataset
+con lo stesso codice: la \emph{base} ricampiona il mini-batch a ogni
+iterazione, $M=\infty$ corrisponde a pazienza infinita (si ricampiona solo
+quando la CCV aumenta il batch). Non essendoci split, queste colonne non
+vanno confrontate con quelle della
+Tabella~\ref{tab:riuso_valid_confronto}, che campionano dal solo training
+set.
+
+\paragraph{Iperparametri testati.}
+L'applicazione espone quattro iperparametri:
+\begin{itemize}
+  \item la pazienza $P$ (default 1): valutazioni senza miglioramento prima di
+  ricampionare;
+  \item la tolleranza relativa $\tau$ (default $10^{-4}$) e la soglia assoluta
+  $\epsilon_{\mathrm{abs}}$ (default 0): definiscono il criterio di
+  miglioramento qui sopra;
+  \item la frequenza di valutazione $f$ (default 1): una valutazione ogni $f$
+  iterazioni.
+\end{itemize}
+
+
+La Tabella~\ref{tab:riuso_desc_iper} riporta l'effetto marginale di ciascun
+iperparametro, mediato sulle 16 combinazioni problema$\times$algoritmo. Il
+quadro è simile a quello del criterio di validazione: la pazienza è
+l'iperparametro più influente ($P=1$ riduce l'errore medio di circa il 21\%
+rispetto a $P=8$, $2.61\times10^{-1}$ contro $3.30\times10^{-1}$, con pochi
+ricampionamenti in più: 11.1 contro 10.2 su 30 iterazioni); la tolleranza è
+quasi ininfluente nell'intervallo testato
+$(10^{-5},\,10^{-3})$ --- la differenza tra $10^{-5}$ e $10^{-4}$ non è
+misurabile e solo $10^{-3}$ dà un errore medio di poco inferiore; valutare a
+ogni iterazione ($f=1$) è meglio di $f=3$
+($2.67\times10^{-1}$ contro $3.15\times10^{-1}$).
+
+% =====================================================================
+% Tabelle riuso per discesa (confronto, sensibilità, robustezza) e
+% confronto finale - generate da gen_tabelle_riuso_descesa.py
+% (conversione colorcell come per le tabelle E.19-E.21)
+% =====================================================================
+
+% Tabella confronto - riuso per discesa vs riferimenti (seed 42)
+\begin{table}[H]
+\centering
+\tiny
+\renewcommand{\arraystretch}{1.0}
+\setlength{\tabcolsep}{1.0pt}
+\caption{Riuso per discesa della loss sul batch: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default del criterio di discesa ($\tau=10^{-4}$, $P=1$, $f=1$, soglia assoluta 0); $P{=}1,\tau{=}10^{-3}$ e $P{=}1,\tau{=}10^{-5}$ (in entrambe $f{=}1$) = migliori configurazioni dello sweep (media di $e_{30}$ su 16 combinazioni problema$\times$algoritmo). Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dall'intero dataset (nessun validation set). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato.}
+\label{tab:riuso_desc_confronto}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,\tau{=}10^{-3}$ & $P{=}1,\tau{=}10^{-5}$\\
+\midrule
+$\kappa\approx1.1$ - Dynamic GD & \colorcell{1.19}{-1} (29) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - BB-CCV & \colorcell{1.19}{-1} (29) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - Newton-CG & \colorcell{3.06}{-1} (29) & \colorcell{2.22}{-1}$\blacktriangle$ (2) & \colorcell{1.65}{-1}$\blacktriangle$ (4) & \colorcell{1.65}{-1}$\blacktriangle$ (4) & \colorcell{1.65}{-1}$\blacktriangle$ (4)\\
+$\kappa\approx1.1$ - Newton-CG $L_1$ & \colorcell{1.00}{-1} (29) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8)\\
+\midrule
+$\kappa\approx20$ - Dynamic GD & \colorcell{4.91}{-2} (29) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{4.89}{-2}$\blacktriangle$ (14) & \colorcell{1.01}{-1}$\blacktriangledown$ (1)\\
+$\kappa\approx20$ - BB-CCV & \colorcell{4.91}{-2} (29) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{4.89}{-2}$\blacktriangle$ (14) & \colorcell{1.01}{-1}$\blacktriangledown$ (1)\\
+$\kappa\approx20$ - Newton-CG & \colorcell{1.67}{-1} (29) & \colorcell{1.28}{0}$\blacktriangledown$ (0) & \colorcell{2.48}{-1}$\blacktriangledown$ (8) & \colorcell{2.48}{-1}$\blacktriangledown$ (8) & \colorcell{2.48}{-1}$\blacktriangledown$ (8)\\
+$\kappa\approx20$ - Newton-CG $L_1$ & \colorcell{5.46}{-1} (29) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5)\\
+\midrule
+
+$\kappa\approx100$ - Dynamic GD & \colorcell{4.67}{-1} (29) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27)\\
+$\kappa\approx100$ - BB-CCV & \colorcell{4.67}{-1} (29) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27)\\
+$\kappa\approx100$ - Newton-CG & \colorcell{2.30}{-1} (29) & \colorcell{1.28}{0}$\blacktriangledown$ (0) & \colorcell{4.26}{-1}$\blacktriangledown$ (11) & \colorcell{4.26}{-1}$\blacktriangledown$ (11) & \colorcell{4.26}{-1}$\blacktriangledown$ (11)\\
+$\kappa\approx100$ - Newton-CG $L_1$ & \colorcell{8.66}{-1} (29) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5)\\
+\midrule
+incrociato ($\kappa\approx1.67$) - Dynamic GD & \colorcell{9.42}{-3} (29) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16)\\
+incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{9.42}{-3} (29) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16)\\
+incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.64}{-1} (29) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5)\\
+incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.52}{-2} (29) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10)\\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella sensibilità - iperparametri del riuso per discesa
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{5pt}
+\caption{Sensibilità dell'errore finale $e_{30}$ agli iperparametri del riuso per discesa: media di $e_{30}$ e del numero di ricampionamenti sulle 16 combinazioni problema$\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri. $P$ = pazienza, $\tau$ = tolleranza relativa (criterio firmato $J_{\mathrm{batch}}(w_{k-1})-J_{\mathrm{batch}}(w_k) \ge \tau\lvert J_{\mathrm{batch}}(w_{k-1})\rvert + \epsilon_{\mathrm{abs}}$, con $\epsilon_{\mathrm{abs}}=0$), $f$ = frequenza di valutazione.}
+\label{tab:riuso_desc_iper}
+\begin{tabular}{@{}llrr@{}}
+\toprule
+Iperparametro & Valore & $\overline{e}_{30}$ & ricampionamenti medi\\
+\midrule
+Pazienza $P$ & 1 & \colorcell{2.61}{-1} & 11.1\\
+ & 3 & \colorcell{2.82}{-1} & 10.5\\
+ & 8 & \colorcell{3.30}{-1} & 10.2\\
+\midrule
+ & $10^{-5}$ & \colorcell{2.92}{-1} & 10.5\\
+ & $10^{-4}$ & \colorcell{2.92}{-1} & 10.5\\
+ & $10^{-3}$ & \colorcell{2.90}{-1} & 10.8\\
+\midrule
+ & 1 & \colorcell{2.67}{-1} & 10.9\\
+ & 3 & \colorcell{3.15}{-1} & 10.2\\
+\midrule
+\bottomrule
+\end{tabular}
+\end{table}
+
+% Tabella robustezza su 5 seed
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3.5pt}
+\caption{Robustezza su 5 seed indipendenti ($\{42,7,123,2024,999\}$) del riuso per discesa della loss sul batch. Per ogni configurazione: $\overline{e}_{30}$ = media di $e_{30}$ su 16 caselle $\times$ 5 seed; \emph{vitt.} = numero di caselle (su 16) in cui la media su 5 seed è minore di quella di \emph{base}; le ultime quattro colonne riportano la media su 5 seed per problema (mediata sui 4 algoritmi). Configurazioni come nella Tabella~\ref{tab:riuso_desc_confronto}.}
+\label{tab:riuso_desc_robustezza}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$)\\
+\midrule
+\emph{base} & \colorcell{2.43}{-1} & 0/16 & \colorcell{1.80}{-1} & \colorcell{1.89}{-1} & \colorcell{5.18}{-1} & \colorcell{8.39}{-2}\\
+$M{=}\infty$ & \colorcell{3.95}{-1} & 8/16 & \colorcell{1.91}{-1} & \colorcell{5.20}{-1} & \colorcell{7.69}{-1} & \colorcell{1.00}{-1}\\
+\midrule
+def. & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \colorcell{2.59}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+$P{=}1,\tau{=}10^{-3}$ & \colorcell{2.31}{-1} & 12/16 & \colorcell{1.18}{-1} & \colorcell{2.46}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+$P{=}1,\tau{=}10^{-5}$ & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \colorcell{2.59}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\paragraph{Confronto con i riferimenti.}
+La Tabella~\ref{tab:riuso_desc_confronto} confronta il criterio di discesa
+con la \emph{base} e con $M=\infty$ (seed 42). Con i valori di default il
+criterio si comporta quasi come $M=\infty$ per i metodi del primo ordine:
+per Dynamic GD e BB-CCV la monotonia della ricerca lineare mantiene il batch
+``in discesa'' e i ricampionamenti aggiuntivi sono rari (per esempio su
+$\kappa\approx20$ il default ricampiona una sola volta, come $M=\infty$,
+peggiorando la \emph{base}: $1.01\times10^{-1}$ contro $4.91\times10^{-2}$).
+Per i metodi di Newton, invece, il criterio limita il riuso ed evita il
+collasso di $M=\infty$: su Newton-CG con $\kappa\approx20$ l'errore finale
+passa da $1.28$ (riuso illimitato) a $2.48\times10^{-1}$. La calibrazione che
+emerge dallo sweep è $\tau=10^{-3}$, $P=1$, $f=1$: una tolleranza più lasca
+riconosce il batch ``esaurito'' prima, e sui problemi in cui $M=\infty$
+fallisce riporta i metodi del primo ordine vicino alla \emph{base} (su
+$\kappa\approx20$ l'errore passa da $1.01\times10^{-1}$ a
+$4.89\times10^{-2}$ con 14 ricampionamenti invece di 1).
+
+\paragraph{Robustezza.}
+La Tabella~\ref{tab:riuso_desc_robustezza} riporta la robustezza su 5 seed
+indipendenti. La configurazione consigliata
+($\tau=10^{-3}$, $P=1$, $f=1$) porta l'errore medio su 5 seed a
+$2.31\times10^{-1}$, inferiore a quello della \emph{base}
+($2.43\times10^{-1}$) e di $M=\infty$ ($3.95\times10^{-1}$), vincendo in 12
+delle 16 combinazioni problema$\times$algoritmo. Il default
+($\tau=10^{-4}$, $P=1$, $f=1$) è leggermente peggiore
+($2.35\times10^{-1}$, 10/16): la tolleranza di default è troppo stretta
+perché i metodi del primo ordine vengano riconosciuti ``esauriti''.
+
+\paragraph{Confronto tra i due criteri automatici.}
+La Tabella~\ref{tab:riuso_confronto_finale} riassume il confronto su 5 seed
+tra la \emph{base}, lo stop adattivo con validation set calibrato ($P=1$,
+$p=10\%$, split dinamico; Sezione~\ref{app:riuso-validation}) e il riuso per
+discesa calibrato ($\tau=10^{-3}$, $P=1$, $f=1$). Entrambi i criteri battono
+la \emph{base} (in 11/16 caselle la validation, in 12/16 la discesa,
+ciascuno rispetto al proprio riferimento: la \emph{base} sul training set per
+la validation, sull'intero dataset per la discesa) ed evitano il collasso di
+$M=\infty$. In media la validation è leggermente migliore
+($2.24\times10^{-1}$ contro $2.31\times10^{-1}$), ma paga il costo di tenere
+fuori dal campionamento il $10\%$ dei dati; il criterio di discesa usa
+l'intero dataset, non richiede split né validation set ed è più semplice da
+applicare. Su $\kappa\approx20$, il problema su cui $M=\infty$ è più
+pericoloso, i due criteri sono entrambi efficaci ($2.28\times10^{-1}$ e
+$2.46\times10^{-1}$ contro $1.89\times10^{-1}$ della \emph{base} e
+$5.20\times10^{-1}$ di $M=\infty$).
+
+In sintesi, il riuso per discesa è un'alternativa valida allo stop adattivo
+con validation set quando non si vuole (o non si può) riservare una frazione
+dei dati: prestazioni vicine alla \emph{base} con molti meno ricampionamenti
+e protezione dal collasso di $M=\infty$ per i metodi del secondo ordine. Va
+però calibrata la tolleranza ($\tau=10^{-3}$ invece del default $10^{-4}$),
+perché la monotonia della ricerca lineare rende il criterio poco sensibile
+con soglie troppo strette.
+
+% Tabella confronto finale - base vs validation vs discesa (5 seed)
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.1}
+\setlength{\tabcolsep}{3pt}
+\caption{Confronto finale su 5 seed indipendenti (16 combinazioni problema$\times$algoritmo) tra la \emph{base} (ricampionamento a ogni iterazione, dataset intero), lo stop adattivo con validation set calibrato ($P{=}1$, $p{=}10\%$, split dinamico; Sezione~\ref{app:riuso-validation}) e il riuso per discesa calibrato ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$; Sezione~\ref{app:riuso-descesa}). $\overline{e}_{30}$ = media di $e_{30}$ su 16 caselle $\times$ 5 seed; \emph{vitt.} = caselle (su 16) in cui la media su 5 seed è minore del proprio riferimento (\emph{base} sul training set per la validation, \emph{base} sull'intero dataset per la discesa); le ultime quattro colonne riportano la media su 5 seed per problema (mediata sui 4 algoritmi).}
+\label{tab:riuso_confronto_finale}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$)\\
+\midrule
+\emph{base} & \colorcell{2.43}{-1} & 0/16 & \colorcell{1.80}{-1} & \colorcell{1.89}{-1} & \colorcell{5.18}{-1} & \colorcell{8.39}{-2}\\
+$M{=}\infty$ & \colorcell{3.95}{-1} & 8/16 & \colorcell{1.91}{-1} & \colorcell{5.20}{-1} & \colorcell{7.69}{-1} & \colorcell{1.00}{-1}\\
+\midrule
+$P{=}1,p{=}0.1$,dyn & \colorcell{2.24}{-1} & 11/16 & \colorcell{1.41}{-1} & \colorcell{2.28}{-1} & \colorcell{4.84}{-1} & \colorcell{4.15}{-2}\\
+$\tau{=}10^{-3},P{=}1,f{=}1$ & \colorcell{2.31}{-1} & 12/16 & \colorcell{1.18}{-1} & \colorcell{2.46}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
 % ====================================================================================================
 % E.7 - Iperparametri consigliati per ciascun metodo
 % ====================================================================================================
@@ -4500,7 +4749,12 @@ viene ricampionato all'iterazione successiva. La strategia di split è
 (risplit a ogni cambio di batch); per i metodi di Newton l'Hessiana segue il
 batch in modalità legata. Restano quindi da scegliere i sei iperparametri
 $P$, $f$, $p$, $\tau$, $\epsilon_{\mathrm{abs}}$ e la strategia di split,
-oltre al limite $M$ del riuso.
+oltre al limite $M$ del riuso. Un'alternativa senza validation set è il
+\emph{riuso per discesa della loss sul batch}
+(Sezione~\ref{app:riuso-descesa}), che usa gli stessi iperparametri $P$,
+$\tau$, $\epsilon_{\mathrm{abs}}$ e $f$ osservando la sola loss sul batch
+corrente; il confronto tra i due criteri è riportato nella
+Tabella~\ref{tab:riuso_confronto_finale}.
 
 Questa sottosezione riporta la scelta consigliata per ciascun metodo, ottenuta
 con una ricerca a griglia mirata sugli stessi problemi e con lo stesso setup
