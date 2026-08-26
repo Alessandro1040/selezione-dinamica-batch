@@ -3030,25 +3030,39 @@ $k$ & $\|w_k-w_*\|_2$\\
 
 \paragraph{Osservazioni comparative.} Dai valori delle
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono tre
-indicazioni. (i)~Sul problema ben condizionato ($\kappa \approx 1.1$) i più
-veloci sono Dynamic GD, Newton-CG~$L_1$ e BB-CCV, il più lento Newton-CG
-($\approx 4\times10^{-1}$): la curvatura varia pochissimo da una direzione
-all'altra, perciò un passo scalare ben calibrato è adeguato in ogni direzione, mentre Newton-CG paga la soluzione
-del sistema di Newton senza guadagnarne. (ii)~Sul problema molto mal condizionato ($\kappa \approx
-100$) il numero di condizionamento entra nel tasso di convergenza dei metodi
-del primo ordine (Sezione~\ref{sec:lavori}): Dynamic GD, Newton-CG~$L_1$ e
-Newton-CG restano bloccati sopra $10^{-1}$, mentre BB-CCV raggiunge la
-precisione macchina in
-11 iterazioni, perché il passo di Barzilai--Borwein stima la curvatura dai
-soli gradienti già calcolati (Sezione~\ref{sec:bbccv}) e si adatta
-ai problemi in cui la curvatura è molto diversa da una direzione all'altra:
-un passo fisso non può essere insieme abbastanza piccolo nella direzione ripida e abbastanza grande in quella piatta.
+indicazioni.
+
+(i)~Sul problema ben condizionato ($\kappa \approx 1.1$) la curvatura è quasi
+la stessa in tutte le direzioni: il terreno è regolare e un unico passo ben
+calibrato va bene ovunque. Per questo Dynamic GD, BB-CCV e Newton-CG~$L_1$
+sono i più veloci, mentre Newton-CG è il più lento
+($\approx 4\times10^{-1}$): risolve il sistema di Newton ma non ne ricava
+alcun vantaggio.
+
+(ii)~Sul problema molto mal condizionato ($\kappa \approx 100$) la curvatura
+cambia molto da una direzione all'altra: alcune direzioni sono ripide e
+richiedono un passo piccolo, altre sono piatte e richiederebbero un passo
+grande. Dynamic GD non ha alcun meccanismo per adattare il passo a questo
+terreno irregolare, e infatti resta bloccato sopra $10^{-1}$, come
+Newton-CG~$L_1$ e Newton-CG. BB-CCV invece raggiunge la precisione macchina
+in 11 iterazioni. Il motivo è che il passo di Barzilai--Borwein
+(Sezione~\ref{sec:bbccv}) ricava l'informazione sulla curvatura del problema
+senza calcolare la Hessiana, che è un'operazione costosa: gli basta
+confrontare gli ultimi due gradienti già calcolati, cioè osservare quanto è
+cambiata la pendenza nell'ultimo passo. Se è cambiata molto, la funzione è
+ripida e il passo si accorcia; se è cambiata poco, è piatta e il passo si
+allunga. È un'informazione a costo quasi nullo, che permette al metodo di
+adattarsi al terreno a ogni iterazione.
+
 (iii)~Con il termine incrociato BB-CCV è di nuovo il migliore
 ($\approx 6\times10^{-4}$ in 16 iterazioni), seguito da Dynamic GD e
-Newton-CG~$L_1$; Newton-CG resta attorno a $10^{-1}$. In sintesi, BB-CCV è il
-migliore sui problemi considerati, in particolare sui mal condizionati;
-Dynamic GD basta dove la curvatura è ben bilanciata ma collassa dove non lo
-è, dove serve l'informazione di curvatura.
+Newton-CG~$L_1$; Newton-CG resta attorno a $10^{-1}$.
+
+In sintesi, BB-CCV è il metodo più robusto sui problemi considerati, in
+particolare sui mal condizionati: è il punto di equilibrio tra costo di
+calcolo e adattabilità al terreno. Dynamic GD è sufficiente solo dove la
+curvatura è ben bilanciata, ma fallisce dove non lo è, perché non ha un modo
+per adattare il passo alla forma della funzione.
 
 \subsection{Visualizzazione Interattiva}\label{sec:visualizzazione}
 

@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.3 ("Osservazioni
+  comparative"): paragrafo riscritto in modo più semplice e intuitivo.** (i)
+  Problema ben condizionato ($\kappa \approx 1.1$): curvatura quasi uniforme,
+  un passo scalare ben calibrato basta in ogni direzione → Dynamic GD, BB-CCV
+  e Newton-CG~$L_1$ i più veloci; Newton-CG il più lento perché risolve il
+  sistema di Newton senza ricavarne vantaggio. (ii) Problema molto mal
+  condizionato ($\kappa \approx 100$): direzioni ripide (passo piccolo) e
+  piatte (passo grande) coesistono, un passo fisso non basta → Dynamic GD,
+  Newton-CG~$L_1$ e Newton-CG restano sopra $10^{-1}$; BB-CCV arriva alla
+  precisione macchina in 11 iterazioni perché il passo di Barzilai--Borwein
+  ricava l'informazione sulla curvatura dai soli ultimi due gradienti (senza
+  Hessiana): se il gradiente è cambiato molto lungo l'ultimo passo la
+  funzione è ripida e il passo si accorcia, se è cambiato poco è piatta e si
+  allunga. (iii) Termine incrociato: BB-CCV di nuovo il migliore
+  ($\approx 6\times10^{-4}$ in 16 iterazioni). Sintesi: BB-CCV il più
+  robusto, punto di equilibrio tra costo di calcolo e adattabilità;
+  Dynamic GD sufficiente solo con curvatura ben bilanciata. Rimossi il
+  termine "valle" e l'analogia del sensore economico (richiesto dall'utente).
+  Numeri e riferimenti invariati e verificati. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**123 pp**, 0 errori, 0 undefined). Sincronizzati nella
+  repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 5.3 ("Il gradiente
   generalizzato"): aggiunta una precisazione in corsivo sulla scelta del
   subgradiente tramite il problema di proiezione.** Subito dopo la frase
