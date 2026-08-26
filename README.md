@@ -157,6 +157,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7.6 ("Stop adattivo con
+  validation set"): riscritta in modo molto più sintetico.** (1) Il paragrafo
+  "Quali iperparametri vale la pena testare" è diventato "Iperparametri
+  testati" e i sei iperparametri ($P$, $\tau$, $\epsilon_{\mathrm{abs}}$, $p$,
+  $f$, strategia di split) sono ora elencati con `itemize`. (2) Intro e
+  meccanismo condensati in due paragrafi (criterio
+  $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$,
+  CCV con tetto $\lvert\mathcal{T}\rvert$, split fisso/dinamico, Hessiana in
+  modalità legata). (3) Paragrafo sui risultati di sensibilità ridotto
+  (pazienza più influente: $P=1$ ~24\% meglio di $P=8$; $\tau$ ininfluente;
+  $p=10\%$ migliore; $f=1$ meglio di $f=3$; strategia dinamica migliore).
+  (4) "Confronto con i riferimenti" condensato (default paragonabile alla
+  base con meno ricampionamenti; calibrazione $P{=}1,p{=}10\%$,dyn →
+  $2.24\times10^{-1}$ vs base $2.47\times10^{-1}$; sintesi finale). Tabelle
+  E.19–E.21 **intatte** (auto-generate, non modificate); numeri e riferimenti
+  invariati e verificati. Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**123 pp**, 0 errori, 0 undefined). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.3 ("Osservazioni
   comparative"): paragrafo riscritto in modo più semplice e intuitivo.** (i)
   Problema ben condizionato ($\kappa \approx 1.1$): curvatura quasi uniforme,

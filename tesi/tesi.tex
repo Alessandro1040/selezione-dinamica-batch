@@ -4281,116 +4281,84 @@ incrociato & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 \subsubsection{Stop adattivo con validation set}\label{app:riuso-validation}
 
 Le Tabelle~\ref{tab:riuso_sintesi} e~\ref{tab:riuso_robustezza} mostrano che
-il numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch va
-scelto con cura: il valore migliore cambia con il problema e con
-l'algoritmo, e per i metodi di Newton un valore troppo alto (in particolare
-$M=\infty$) può far collassare la convergenza (errore finale $e_{30}$ fino a
-$1.4$ sui problemi mal condizionati). L'applicazione offre una variante che
-automatizza questa scelta, lo \emph{stop adattivo con validation set}: il
-momento in cui ricampionare il batch (e, per i metodi di Newton, l'Hessiana)
-è deciso dalla loss media su un validation set, senza dover fissare $M$ a
-priori.
+il numero massimo $M$ di iterazioni sullo stesso mini-batch va scelto con
+cura: il valore migliore cambia con problema e algoritmo, e per i metodi di
+Newton un valore troppo alto ($M=\infty$) può far collassare la convergenza
+(errore finale $e_{30}$ fino a $1.4$ sui problemi mal condizionati). Lo
+\emph{stop adattivo con validation set} automatizza questa scelta: il momento
+in cui ricampionare il batch (e, per i metodi di Newton, l'Hessiana) è deciso
+dalla loss media su un validation set, senza fissare $M$ a priori.
 
-Il meccanismo è il seguente: il dataset di $N$ esempi è diviso in training e
-validation ($p$ è la percentuale in validation), il mini-batch è campionato
-dal solo training set e la CCV continua ad aumentarne la dimensione, con
-tetto $\lvert\mathcal{T}\rvert$ (la dimensione del training set) invece di
-$N$.
-Dopo ogni aggiornamento $w_{k+1}$ (anche a passo nullo) la loss media
-$J_{\mathrm{val}}(w_{k+1})$ è valutata sul validation set con frequenza $f$
-(una valutazione ogni $f$ iterazioni); se per $P$ valutazioni consecutive
-non risulta $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)
-- \epsilon_{\mathrm{abs}}$, il batch viene ricampionato all'iterazione
-successiva. La strategia di split è \emph{fissa} (train e validation estratti
-una sola volta all'inizio) o \emph{dinamica} (risplit a ogni cambio di
-batch). Per i metodi di Newton, l'Hessiana segue il batch in modalità legata
+Il meccanismo è il seguente. Il dataset è diviso in training e validation
+($p$ è la percentuale in validation); il mini-batch è campionato dal solo
+training set, con la CCV che ne aumenta la dimensione con tetto
+$\lvert\mathcal{T}\rvert$ invece di $N$. Dopo ogni aggiornamento $w_{k+1}$
+(anche a passo nullo) la loss media $J_{\mathrm{val}}$ è valutata ogni $f$
+iterazioni; se per $P$ valutazioni consecutive non risulta
+$J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$,
+il batch viene ricampionato all'iterazione successiva. La strategia di split
+è \emph{fissa} (una volta all'inizio) o \emph{dinamica} (a ogni cambio di
+batch); per i metodi di Newton l'Hessiana segue il batch in modalità legata
 (Sezione~\ref{app:riuso-descrizione}).
 
-Gli esperimenti di questa sottosezione usano lo stesso setup della
-Sezione~\ref{app:riuso-setup} (quattro preset quadratici, $N=200$, $w_0=(2,-3)$,
-$\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni, seed 42) e gli algoritmi
-esatti generati dall'applicazione, cioè le varianti con validation set dei
-codici Python dell'Appendice~\ref{app:codici} (per BB-CCV, la
-sottosezione~B.4). Per isolare l'effetto
-del criterio di stop, i riferimenti \emph{base} (ricampionamento a ogni
-iterazione) e $M=\infty$ (riuso illimitato) sono ricalcolati sul solo
-training set, con lo stesso split della variante adattiva: non vanno quindi
-confrontati direttamente con le colonne della Tabella~\ref{tab:riuso_sintesi},
+Setup come nella Sezione~\ref{app:riuso-setup} (quattro preset quadratici,
+$N=200$, $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni,
+seed 42), con gli algoritmi esatti generati dall'applicazione (varianti con
+validation set dei codici Python dell'Appendice~\ref{app:codici}). I
+riferimenti \emph{base} e $M=\infty$ sono ricalcolati sul solo training set e
+non vanno confrontati con le colonne della Tabella~\ref{tab:riuso_sintesi},
 che usano tutti gli $N=200$ esempi.
 
-\paragraph{Quali iperparametri vale la pena testare.}
-L'applicazione espone sei iperparametri: la pazienza $P$ (numero di
-valutazioni senza miglioramento prima di ricampionare, default 3), la
-tolleranza relativa $\tau$ (default $10^{-4}$), la soglia assoluta
-$\epsilon_{\mathrm{abs}}$ (default 0), la percentuale di validation $p$
-(default 20\%), la frequenza di valutazione $f$ (default 1) e la strategia di
-split (default fisso). Pazienza e tolleranza controllano la frequenza di
-ricampionamento attraverso il criterio di miglioramento
-$J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$:
-una $\tau$ più grande alza la soglia richiesta per azzerare il contatore di
-pazienza, quindi ricampiona più spesso; una $\tau$ più piccola la abbassa e
-ricampiona meno spesso (nell'intervallo testato, $10^{-5}$--$10^{-3}$,
-l'effetto risulta però ininfluente, come discusso qui sotto). La pazienza
-$P$ agisce invece direttamente: valori piccoli ricampionano presto,
-avvicinandosi alla \emph{base}; valori grandi tengono il batch più a lungo,
-avvicinandosi a $M=\infty$. La percentuale $p$ bilancia la qualità della
-stima di $J_{\mathrm{val}}$ con la quantità di dati di training; la
-frequenza $f$ controlla la prontezza del criterio; la strategia dinamica
-cambia il validation set a ogni ricampionamento.
+\paragraph{Iperparametri testati.}
+L'applicazione espone sei iperparametri:
+\begin{itemize}
+  \item la pazienza $P$ (default 3): valutazioni senza miglioramento prima di
+  ricampionare;
+  \item la tolleranza relativa $\tau$ (default $10^{-4}$) e la soglia assoluta
+  $\epsilon_{\mathrm{abs}}$ (default 0): definiscono il criterio di
+  miglioramento $J_{\mathrm{val}} \le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$
+  che azzera il contatore di pazienza;
+  \item la percentuale di validation $p$ (default 20\%);
+  \item la frequenza di valutazione $f$ (default 1): una valutazione ogni $f$
+  iterazioni;
+  \item la strategia di split: \emph{fissa} o \emph{dinamica} (default fissa).
+\end{itemize}
 
 
-La Tabella~\ref{tab:riuso_valid_iper} riporta l'effetto marginale di
-ciascun iperparametro, mediato sulle 16 combinazioni problema per algoritmo
-(4 problemi $\times$ 4 algoritmi, seed 42). Il quadro è netto. La pazienza è
-l'iperparametro più influente: $P=1$ riduce l'errore medio di circa il 24\%
-rispetto a $P=8$ ($2.63\times10^{-1}$ contro $3.45\times10^{-1}$), a fronte
-di un numero di ricampionamenti solo leggermente superiore (12.8 contro 9.3
-su 30 iterazioni): ricampionare appena la loss di validazione smette di
-migliorare è la scelta migliore, perché mantiene la freschezza del campione
-senza pagare il costo pieno della \emph{base} (29 ricampionamenti). La
-tolleranza $\tau$ è ininfluente nell'intervallo testato: le loss di
-validazione di questi problemi variano di ordini di grandezza, quindi
-$\tau \in \{10^{-5},10^{-4},10^{-3}\}$ produce lo stesso numero di
-valutazioni considerate miglioramenti e, di fatto, le stesse traiettorie. La
-percentuale di validation migliore è la più piccola testata, $p=10\%$
-($2.70\times10^{-1}$ contro $3.30\times10^{-1}$ di $p=30\%$): tenere più dati
-nel training set aiuta, e il segnale di validazione resta affidabile.
-Valutare a ogni iterazione ($f=1$) è meglio che valutare ogni tre
-($2.76\times10^{-1}$ contro $3.28\times10^{-1}$), perché il criterio scatta
-prima. La strategia dinamica è sistematicamente migliore di quella fissa
-($2.83\times10^{-1}$ contro $3.21\times10^{-1}$): risplittare a ogni cambio
-di batch ruota i dati di training ed evita che il validation set fisso
-diventi poco informativo.
+La Tabella~\ref{tab:riuso_valid_iper} riporta l'effetto marginale di ciascun
+iperparametro, mediato sulle 16 combinazioni problema$\times$algoritmo. Il
+quadro è netto: la pazienza è l'iperparametro più influente ($P=1$ riduce
+l'errore medio di circa il 24\% rispetto a $P=8$, $2.63\times10^{-1}$ contro
+$3.45\times10^{-1}$, con solo pochi ricampionamenti in più: 12.8 contro 9.3 su
+30 iterazioni); la tolleranza $\tau$ è ininfluente nell'intervallo testato
+($10^{-5}$--$10^{-3}$); la percentuale migliore è la più piccola, $p=10\%$
+($2.70\times10^{-1}$ contro $3.30\times10^{-1}$ di $p=30\%$), perché tenere più
+dati nel training aiuta; valutare a ogni iterazione ($f=1$) è meglio di $f=3$
+($2.76\times10^{-1}$ contro $3.28\times10^{-1}$); la strategia dinamica è
+sistematicamente migliore di quella fissa ($2.83\times10^{-1}$ contro
+$3.21\times10^{-1}$), perché risplittare a ogni cambio di batch evita che il
+validation set diventi poco informativo.
 
 \paragraph{Confronto con i riferimenti.}
-La Tabella~\ref{tab:riuso_valid_confronto} confronta al seed 42 lo stop
-adattivo con la \emph{base} e con $M=\infty$ sul training set. Con i valori
-di default lo stop adattivo è in media paragonabile alla \emph{base}
-($2.87\times10^{-1}$ contro $2.37\times10^{-1}$) ma con un numero di
-ricampionamenti molto più basso (10.7 contro 29), e per i metodi di Newton
-evita il collasso di $M=\infty$: su Newton-CG con termine incrociato
-l'errore finale passa da $1.41$ (riuso illimitato) a $7.88\times10^{-2}$,
-migliore persino della \emph{base} ($2.87\times10^{-1}$).
+La Tabella~\ref{tab:riuso_valid_confronto} confronta lo stop adattivo con la
+\emph{base} e con $M=\infty$ (seed 42). Con i valori di default lo stop
+adattivo è paragonabile alla \emph{base} ($2.87\times10^{-1}$ contro
+$2.37\times10^{-1}$) ma con molti meno ricampionamenti (10.7 contro 29) e, per
+i metodi di Newton, evita il collasso di $M=\infty$: su Newton-CG con termine
+incrociato l'errore finale passa da $1.41$ (riuso illimitato) a
+$7.88\times10^{-2}$, migliore persino della \emph{base}. La calibrazione
+($P=1$, $p=10\%$, strategia dinamica) porta l'errore medio su 5 seed
+(Tabella~\ref{tab:riuso_valid_robustezza}) a $2.24\times10^{-1}$, inferiore a
+quello della \emph{base} ($2.47\times10^{-1}$) e di $M=\infty$
+($4.29\times10^{-1}$), vincendo in 11 delle 16 combinazioni
+problema$\times$algoritmo.
 
-La calibrazione degli iperparametri migliora ulteriormente il quadro. La
-configurazione $P=1$, $p=10\%$, strategia dinamica porta l'errore medio su 5
-seed (Tabella~\ref{tab:riuso_valid_robustezza}) a
-$2.24\times10^{-1}$, inferiore a quello della \emph{base}
-($2.47\times10^{-1}$) e molto inferiore a quello di $M=\infty$
-($4.29\times10^{-1}$), vincendo contro la \emph{base} in 11 delle 16
-combinazioni problema per algoritmo. Al seed 42 i due approcci sono invece
-comparabili (la \emph{base} registra $2.37\times10^{-1}$ contro
-$2.53\times10^{-1}$ della configurazione calibrata): il vantaggio dello stop
-adattivo calibrato sta nella robustezza, non nella singola realizzazione.
-
-In sintesi, lo stop adattivo con validation set rende il riuso del
-mini-batch una scelta sicura di default, soprattutto per i metodi del
-secondo ordine, dove $M=\infty$ è pericoloso. Gli iperparametri che contano
-sono la pazienza (bassa), la percentuale di validation (bassa) e la
-strategia dinamica; la tolleranza relativa è ininfluente in questo regime.
-Il costo aggiuntivo è una valutazione di $J_{\mathrm{val}}$ ogni $f$
-iterazioni su circa $pN$ esempi, trascurabile rispetto al costo di
-un'iterazione.
+In sintesi, lo stop adattivo rende il riuso del mini-batch una scelta sicura
+di default, soprattutto per i metodi del secondo ordine, dove $M=\infty$ è
+pericoloso. Gli iperparametri che contano sono la pazienza (bassa), la
+percentuale di validation (bassa) e la strategia dinamica; la tolleranza
+relativa è ininfluente in questo regime. Il costo aggiuntivo è trascurabile:
+una valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni su circa $pN$ esempi.
 
 % Tabelle E.19-E.21 generate da gen_tabelle_riuso_validation.py (altro/script)
 
