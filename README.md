@@ -157,6 +157,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi: aggiunte sotto ognuna delle 44
+  tabelle una breve nota introduttiva `\noindent\emph{Lettura.}` che spiega a
+  cosa serve quella tabella e sintetizza la prosa che la segue (richiesto:
+  non prolissa come le spiegazioni dell'LLM).** Note aggiunte a tutte le 44
+  tabelle: ``Bound di complessità'', Tab. 5.1 (confronto dei tre metodi),
+  Tab. BB-CCV, Tabelle 6.1--6.3 (errore per iterazione, Sez. 5), Tabelle
+  E.1--E.16 (riuso del mini-batch, errore per iterazione), E.17 (sintesi
+  $e_{30}$), E.18 (robustezza su 5 seed), E.19--E.21 (stop adattivo con
+  validation set), tabelle del riuso per discesa, Tabella confronto finale e
+  le 13 tabelle ``consigliati'' (sintesi + confronto iterazione per
+  iterazione). Ogni nota riporta la lettura chiave della tabella (es. per i
+  consigliati: riuso $M=5$ per Dynamic GD, base per BB-CCV, stop adattivo
+  ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M=3$ per
+  Newton-CG $L_1$). Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**127 → 129 pp**, 0 errori, 0 undefined; i 12 overfull risultano identici
+  a quelli della build precedente, verificato ricompilando la versione pre-edit
+  in `/tmp`). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (26/08/2026).** **Tesi Sez. 6.7: nuovo esperimento
   ``Riuso per discesa della loss sul batch'' (criterio alternativo allo stop
   adattivo con validation set), replicando esattamente la procedura della

@@ -1402,6 +1402,8 @@ Metodo del gradiente stocastico & \(O(m\bar{\nu}\kappa^2 / \varepsilon)\) \\
 \end{tabular}
 \caption{Bound di complessità per tre metodi. Qui \(m\) è il numero di variabili, \(\kappa = L/\lambda\), \(\omega\) e \(\bar{\nu}\) sono definiti in (5.4) e (5.29), e \(\bar{\alpha} \in [1/2, 1]\).}
 \end{table}
+\noindent\emph{Lettura.} Confronta i bound di complessità del metodo a gradiente dinamico con quelli del campione fisso e dell'SGD: il termine $\kappa$ (invece di $\kappa^2$) rende il metodo dinamico competitivo e particolarmente vantaggioso sui problemi mal condizionati (grande $\kappa$).
+
 
 I metodi a campione fisso e stocastico sono definiti come:
 \begin{itemize}
@@ -2215,6 +2217,8 @@ $n_h = R\,n_k$ quella del sottocampione per l'Hessiana, $j_k$ il numero di
 iterazioni interne del gradiente coniugato, $m$ il numero di variabili.}
 \label{tab:5_1}
 \end{table}
+\noindent\emph{Lettura.} La tabella riassume le differenze strutturali tra i tre metodi a campione dinamico (costo per iterazione, memoria, ipotesi aggiuntive e complessità totale); il BB-CCV è escluso perché non ha un bound di complessità totale.
+
 
 \subsection{Metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}\label{sec:bbccv}
 
@@ -2305,6 +2309,8 @@ Convergenza & superlineare (in due dimensioni bastano 2--3 passi) & lineare lent
 \caption{Il passo di Barzilai--Borwein sulle funzioni quadratiche e generali.}
 \label{tab:bb_confronto}
 \end{table}
+\noindent\emph{Lettura.} Spiega perché il passo di Barzilai--Borwein è esatto e ottimale sul quadratico ma richiede una salvaguardia sui problemi generali (il denominatore $s^\top y$ può essere $\le0$ o $\approx0$): nella pratica la salvaguardia di BB-CCV è sufficiente a renderlo il metodo più veloce tra quelli testati.
+
 
 Nella pratica, sui problemi della Sezione~\ref{sec:risultati} la salvaguardia
 di BB-CCV è sufficiente: il metodo risulta il più veloce tra quelli testati e
@@ -2712,6 +2718,8 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{tabular}
 \end{subtable}
 \end{table}
+\noindent\emph{Lettura.} La tabella riporta l'errore $\|w_k-w_*\|_2$ a ogni iterazione per i quattro algoritmi sul problema ben condizionato (una sottotabella per metodo) e serve a confrontare velocità di convergenza ed errore finale: qui Dynamic GD, BB-CCV e Newton-CG~$L_1$ sono i più veloci, mentre Newton-CG è il più lento ($\approx4\times10^{-1}$).
+
 
 % Tabella 6.2 - quadratico molto mal condizionato ($\kappa \approx 100$)
 \begin{table}[H]
@@ -2867,6 +2875,8 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{tabular}
 \end{subtable}
 \end{table}
+\noindent\emph{Lettura.} Stesso confronto sul problema molto mal condizionato ($\kappa\approx100$): solo BB-CCV raggiunge la precisione macchina (in 11 iterazioni), mentre Dynamic GD, Newton-CG e Newton-CG~$L_1$ restano bloccati sopra $10^{-1}$.
+
 
 % Tabella 6.3 - quadratico con termine incrociato
 \begin{table}[H]
@@ -3027,6 +3037,8 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{tabular}
 \end{subtable}
 \end{table}
+\noindent\emph{Lettura.} Stesso confronto sul problema con termine incrociato: BB-CCV è di nuovo il migliore ($\approx6\times10^{-4}$ in 16 iterazioni), seguito da Dynamic GD e Newton-CG~$L_1$; Newton-CG resta attorno a $10^{-1}$.
+
 
 \paragraph{Osservazioni comparative.} Dai valori delle
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono tre
@@ -3407,6 +3419,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD sul problema ben condizionato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. Il riuso migliora sistematicamente l'errore finale, con il vantaggio che emerge nella seconda metà delle iterazioni.
+
 
 % Tabella E.2 - quad_well, Newton-CG
 \begin{table}[H]
@@ -3454,6 +3468,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG sul problema ben condizionato: il riuso migliora l'errore finale; l'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) mostra che tenere la Hessiana oltre il ricampionamento del batch aiuta ($3.15\times10^{-1}$ contro $3.74\times10^{-1}$).
+
 
 % Tabella E.3 - quad_well, Newton-CG $L_1$
 \begin{table}[H]
@@ -3501,6 +3517,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ sul problema ben condizionato: comportamento intermedio, senza una tendenza netta tra le politiche di riuso.
+
 
 % Tabella E.4 - quad_well, BB-CCV
 \begin{table}[H]
@@ -3548,6 +3566,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul problema ben condizionato: come per Dynamic GD, il riuso migliora sistematicamente l'errore finale (5 seed su 5 con $M{=}\infty$ e $M{=}10$).
+
 
 
 % Tabella E.5 - quad_ill, Dynamic GD
@@ -3596,6 +3616,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx20$: il riuso peggiora l'errore finale rispetto alla base (con $M{=}\infty$ su tutti e 5 i seed).
+
 
 % Tabella E.6 - quad_ill, Newton-CG
 \begin{table}[H]
@@ -3643,6 +3665,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG su $\kappa\approx20$: il riuso è pericoloso ($M{=}\infty$ collassa la convergenza) e la modalità \emph{Indipendente da $S_k$} peggiora ulteriormente la $M{=}10$ legata ($1.15$ contro $9.49\times10^{-1}$).
+
 
 % Tabella E.7 - quad_ill, Newton-CG $L_1$
 \begin{table}[H]
@@ -3690,6 +3714,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ su $\kappa\approx20$: comportamento intermedio, senza una tendenza netta tra le politiche di riuso.
+
 
 % Tabella E.8 - quad_ill, BB-CCV
 \begin{table}[H]
@@ -3737,6 +3763,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx20$: il riuso peggiora l'errore finale rispetto alla base, per la deriva verso il minimo campionario.
+
 
 
 % Tabella E.9 - quad_very_ill, Dynamic GD
@@ -3785,6 +3813,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx100$: il riuso con $M{=}\infty$ peggiora l'errore finale rispetto alla base (su tutti e 5 i seed).
+
 
 % Tabella E.10 - quad_very_ill, Newton-CG
 \begin{table}[H]
@@ -3832,6 +3862,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG su $\kappa\approx100$: $M{=}\infty$ fa collassare l'errore finale ($\approx1.4$); la modalità \emph{Indipendente da $S_k$} peggiora ulteriormente la $M{=}10$ legata ($1.16$ contro $6.44\times10^{-1}$).
+
 
 % Tabella E.11 - quad_very_ill, Newton-CG $L_1$
 \begin{table}[H]
@@ -3879,6 +3911,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ su $\kappa\approx100$: comportamento intermedio, senza una tendenza netta tra le politiche di riuso.
+
 
 % Tabella E.12 - quad_very_ill, BB-CCV
 \begin{table}[H]
@@ -3926,6 +3960,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx100$: il riuso peggiora l'errore finale rispetto alla base, come sugli altri problemi mal condizionati.
+
 
 
 % Tabella E.13 - quad_offdiag, Dynamic GD
@@ -3974,6 +4010,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD sul termine incrociato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. Con $M{=}\infty$ il riuso aiuta l'errore finale.
+
 
 % Tabella E.14 - quad_offdiag, Newton-CG
 \begin{table}[H]
@@ -4021,6 +4059,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG sul termine incrociato: il riuso illimitato ($M{=}\infty$) fa collassare la convergenza; la modalità \emph{Indipendente da $S_k$} (ultima colonna) migliora la colonna $M{=}10$ legata.
+
 
 % Tabella E.15 - quad_offdiag, Newton-CG $L_1$
 \begin{table}[H]
@@ -4068,6 +4108,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ sul termine incrociato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) mostra che tenere la Hessiana oltre il ricampionamento del batch migliora l'errore finale ($2.50\times10^{-2}$ contro $3.94\times10^{-2}$).
+
 
 % Tabella E.16 - quad_offdiag, BB-CCV
 \begin{table}[H]
@@ -4115,6 +4157,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul termine incrociato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. Con $M{=}\infty$ il riuso aiuta l'errore finale, come per Dynamic GD.
+
 
 
 
@@ -4192,6 +4236,8 @@ incrociato ($\kappa\approx1.67$) - BB-CCV &\colorcell{9.42}{-3}&\colorcell{5.53}
 \end{tabular}
 
 \end{table}
+\noindent\emph{Lettura.} Tabella di sintesi dell'esperimento di riuso: errore finale $e_{30}$ (seed 42) per tutti i valori di $M\in\{\infty,10,5,3,2,1\}$ su tutte le coppie problema$\times$algoritmo. Si legge per individuare dove il riuso aiuta (ben condizionato e termine incrociato) e dove peggiora (mal condizionati, e metodi di Newton con $M{=}\infty$).
+
 
 
 
@@ -4270,6 +4316,8 @@ incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 \end{tabular}
 
 \end{table}
+\noindent\emph{Lettura.} Verifica se il vantaggio del riuso regge al variare del seed: per ogni coppia problema--algoritmo conta su quanti seed (su 5) il riuso migliora, peggiora o lascia invariata la base. Conferma il quadro: quasi tutti i metodi migliorano su $\kappa\approx1.1$ e sul termine incrociato, mentre sui mal condizionati il riuso peggiora (Newton-CG non migliora mai su $\kappa\approx20$ e $\kappa\approx100$ per la Hessiana obsoleta).
+
 Questa tabella conferma, come già osservato, che il riuso porta
 miglioramenti sui problemi ben condizionati ($\kappa\approx1.1$: quasi tutti
 i seed migliorano, con 5/5 per Dynamic GD e BB-CCV) mentre sui mal
@@ -4423,6 +4471,8 @@ incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ &\colorcell{1.06}{-2} (29)&\c
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronta lo stop adattivo con validation set con la base e con $M{=}\infty$ (seed 42), riportando tra parentesi il numero di ricampionamenti: con i valori di default si evita il collasso di $M{=}\infty$ per i metodi di Newton, e la calibrazione $P{=}1,p{=}0.1$,dyn migliora o eguaglia la base nella maggior parte delle combinazioni.
+
 
 % Tabella E.20 - sensibilità agli iperparametri (media su 16 caselle, seed 42)
 \begin{table}[H]
@@ -4457,6 +4507,8 @@ Pazienza $P$ & 1 &\colorcell{2.63}{-1}& 12.8\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Mostra quanto incide ogni iperparametro dello stop adattivo su errore medio e numero di ricampionamenti: la pazienza è la più influente ($P=1$ meglio di $P=8$), la tolleranza $\tau$ è ininfluente in $(10^{-5},10^{-3})$, la percentuale migliore è $p=10\%$, valutare a ogni iterazione ($f=1$) vince su $f=3$ e lo split dinamico batte quello fisso.
+
 
 % Tabella E.21 - robustezza su 5 seed
 \begin{table}[H]
@@ -4479,6 +4531,8 @@ $P{=}3,p{=}0.1$,dyn &\colorcell{2.43}{-1}& 11/16 &\colorcell{1.40}{-1}&\colorcel
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Robustezza su 5 seed: la calibrazione $P{=}1,p{=}0.1$,dyn porta l'errore medio a $2.24\times10^{-1}$, inferiore a quello della base ($2.47\times10^{-1}$) e di $M{=}\infty$ ($4.29\times10^{-1}$), vincendo in 11 combinazioni su 16.
+
 
 \subsubsection{Riuso per discesa della loss sul batch}\label{app:riuso-descesa}
 
@@ -4603,6 +4657,8 @@ incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.52}{-2} (29) &
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronta il criterio di discesa (che non riserva dati) con la base e con $M{=}\infty$: per Dynamic GD e BB-CCV si comporta quasi come $M{=}\infty$ (la line search tiene il batch ``in discesa''), per i metodi di Newton evita il collasso di $M{=}\infty$ (su $\kappa\approx20$: da $1.28$ a $2.48\times10^{-1}$).
+
 
 % Tabella sensibilità - iperparametri del riuso per discesa
 \begin{table}[H]
@@ -4630,6 +4686,8 @@ Pazienza $P$ & 1 & \colorcell{2.61}{-1} & 11.1\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Sensibilità agli iperparametri del criterio di discesa: $P=1$ e $f=1$ sono i migliori, mentre la tolleranza $\tau=10^{-3}$ riconosce prima il batch ``esaurito'' e dà l'errore medio più basso.
+
 
 % Tabella robustezza su 5 seed
 \begin{table}[H]
@@ -4652,6 +4710,8 @@ $P{=}1,\tau{=}10^{-5}$ & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Robustezza su 5 seed: la configurazione consigliata ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$) porta l'errore medio a $2.31\times10^{-1}$, inferiore a quello della base ($2.43\times10^{-1}$) e di $M{=}\infty$ ($3.95\times10^{-1}$), con 12 vittorie su 16 combinazioni problema$\times$algoritmo.
+
 
 
 \paragraph{Confronto con i riferimenti.}
@@ -4727,6 +4787,8 @@ $\tau{=}10^{-3},P{=}1,f{=}1$ & \colorcell{2.31}{-1} & 12/16 & \colorcell{1.18}{-
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Chiude il confronto tra i due criteri automatici su 5 seed: la validation calibrata è leggermente migliore in media ($2.24\times10^{-1}$ contro $2.31\times10^{-1}$) ma tiene fuori il 10\% dei dati; la discesa usa l'intero dataset, non richiede split né validation set ed è più semplice da applicare.
+
 
 
 % ====================================================================================================
@@ -4820,6 +4882,8 @@ incrociato ($\kappa\approx1.67$) & Newton-CG $L_1$ & riuso $M{=}3$ &\colorcell{2
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} È la tabella operativa della sezione: per ognuna delle 16 combinazioni problema$\times$algoritmo indica la configurazione consigliata, la mediana di $e_{30}$ su 5 seed della base e della configurazione consigliata, e su quanti seed (su 5) la configurazione consigliata batte la base. Regola d'insieme: riuso $M{=}5$ per Dynamic GD, base per BB-CCV, stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M{=}3$ per Newton-CG~$L_1$; con queste scelte nessun metodo peggiora la mediana della base su nessun problema.
+
 \paragraph{Confronto iterazione per iterazione.}
 Le Tabelle~\ref{tab:riuso_cons_bencond_gd}--\ref{tab:riuso_cons_offdiag_nl1}
 riportano l'errore $e_k$ a ogni iterazione (seed 42) per la configurazione
@@ -4873,6 +4937,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}5$) per Dynamic GD su $\kappa\approx1.1$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -4919,6 +4985,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG su $\kappa\approx1.1$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -4965,6 +5033,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}3$) per Newton-CG~$L_1$ su $\kappa\approx1.1$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5011,6 +5081,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}5$) per Dynamic GD su $\kappa\approx20$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5057,6 +5129,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG su $\kappa\approx20$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5103,6 +5177,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}3$) per Newton-CG~$L_1$ su $\kappa\approx20$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5149,6 +5225,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}5$) per Dynamic GD su $\kappa\approx100$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5195,6 +5273,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG su $\kappa\approx100$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5241,6 +5321,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}3$) per Newton-CG~$L_1$ su $\kappa\approx100$: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5287,6 +5369,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}5$) per Dynamic GD sul termine incrociato: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5333,6 +5417,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG sul termine incrociato: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 \begin{table}[H]
 \centering
@@ -5379,6 +5465,8 @@ $k$ & \emph{base} & consigliato\\
 \bottomrule
 \end{tabular}
 \end{table}
+\noindent\emph{Lettura.} Confronto iterazione per iterazione (seed 42) tra base e configurazione consigliata (riuso $M{=}3$) per Newton-CG~$L_1$ sul termine incrociato: mostra dove la configurazione consigliata guadagna e che le curve non sono monotone rispetto alla base; il verdetto su 5 seed è nella Tabella~\ref{tab:riuso_cons_sintesi}.
+
 
 
 % ═══════════════════════════════════════════════════════════════════════════
