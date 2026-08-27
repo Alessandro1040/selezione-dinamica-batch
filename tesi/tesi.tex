@@ -616,7 +616,16 @@ soluzione l'operatore di soglia
 S_\nu(w_i) = \operatorname{sign}(w_i)\,\max\{|w_i| - \nu,\, 0\},
 \]
 che riduce in modulo ogni coefficiente di $\nu$ e lo azzera se scende sotto
-soglia (metodi proximali). In questa tesi si segue invece la strategia
+soglia. In questo modo la non differenziabilità della $L_1$ in $0$ viene
+aggirata senza mai derivare il termine non liscio: l'operatore $S_\nu(w_i)$ è
+la soluzione esatta in forma chiusa del problema $\min_z \tfrac{1}{2}(z-w_i)^2
++ \nu|z|$, la cui condizione di ottimalità --- scritta con la sottoderivata
+della norma, che in $z=0$ vale $[-\nu,\nu]$ --- si risolve analiticamente: per
+$|w_i| \le \nu$ il minimizzatore è $z=0$ (il punto di non differenziabilità è
+un minimo stazionario), per $|w_i| > \nu$ è
+$\operatorname{sign}(w_i)(|w_i|-\nu)$. Il passo di discesa coinvolge quindi
+solo la parte liscia $J$; il termine $L_1$ non viene derivato né trascurato,
+ma minimizzato esattamente. In questa tesi si segue invece la strategia
 dell'\emph{active set} (o delle facce ortanti): si identifica l'insieme delle
 variabili che all'ottimo saranno nulle e si minimizza la funzione obiettivo
 solo sulle variabili libere, dove la $L_1$ è differenziabile, mantenendo le
