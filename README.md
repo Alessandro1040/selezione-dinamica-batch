@@ -157,6 +157,26 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi: corrette 6 note \emph{Lettura.}
+  sotto le tabelle di errore del riuso (E.1--E.16) con affermazioni errate o
+  non riferite al seed della tabella.** (a) Le note sotto
+  `tab:riuso_bencond_bb`, `tab:riuso_malcond_gd` e `tab:riuso_veryill_gd`
+  attribuivano alla tabella (che è al solo seed 42) risultati su 5 seed: le
+  affermazioni su 5 seed sono ora qualificate con rimando alla Tabella
+  `tab:riuso_robustezza` (per Dynamic GD su $\kappa\approx20$ il quadro su 5
+  seed è misto: 2 migliora/3 peggiora, non "su tutti e 5"). (b) Le note sotto
+  `tab:riuso_veryill_gd` e `tab:riuso_veryill_bb` dicevano che $M=\infty$
+  peggiora su $\kappa\approx100$: le tabelle mostrano invece che migliora
+  ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base, guadagno di
+  coerenza su una base già molto lenta): corrette. (c) La nota sotto
+  `tab:riuso_offdiag_ncg` diceva che $M=\infty$ fa collassare la convergenza
+  sul termine incrociato: la tabella mostra che $M=\infty$ è la colonna
+  migliore ($4.10\times10^{-2}$ contro $3.52\times10^{-1}$): corretta. (d)
+  Corretta l'entità del collasso di Newton-CG su $\kappa\approx100$
+  ($e_{30}\approx1.28$, non 1.4) nella nota di `tab:riuso_veryill_ncg`.
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**129 pp**, 0 errori, 0
+  undefined; overfull identici alle build precedenti). Sincronizzati nella
+  repo (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7: aggiunte due
   spiegazioni concettuali sintetiche (richieste).** (1) **Perché il riuso
   peggiora sui problemi mal condizionati e, in particolare, per i metodi di

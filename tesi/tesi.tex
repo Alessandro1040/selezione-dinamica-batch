@@ -3569,7 +3569,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul problema ben condizionato: come per Dynamic GD, il riuso migliora sistematicamente l'errore finale (5 seed su 5 con $M{=}\infty$ e $M{=}10$).
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul problema ben condizionato (seed 42): come per Dynamic GD, il riuso migliora l'errore finale; la conferma su 5 seed (5/5 con $M{=}\infty$ e $M{=}10$) è nella Tabella~\ref{tab:riuso_robustezza}.
 
 
 
@@ -3619,7 +3619,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx20$: il riuso peggiora l'errore finale rispetto alla base (con $M{=}\infty$ su tutti e 5 i seed).
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx20$ (seed 42): con $M{=}\infty$ il riuso peggiora sensibilmente l'errore finale; su 5 seed il quadro è misto (2 migliora, 3 peggiora, Tabella~\ref{tab:riuso_robustezza}).
 
 
 % Tabella E.6 - quad_ill, Newton-CG
@@ -3816,7 +3816,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx100$: il riuso con $M{=}\infty$ peggiora l'errore finale rispetto alla base (su tutti e 5 i seed).
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx100$ (seed 42): a differenza dei problemi mal condizionati, il riuso con $M{=}\infty$ migliora l'errore finale ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base), perché la base converge già così lentamente che il guadagno in coerenza prevale sul rischio di deriva; su 5 seed migliora in 3 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
 
 
 % Tabella E.10 - quad_very_ill, Newton-CG
@@ -3865,7 +3865,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG su $\kappa\approx100$: $M{=}\infty$ fa collassare l'errore finale ($\approx1.4$); la modalità \emph{Indipendente da $S_k$} peggiora ulteriormente la $M{=}10$ legata ($1.16$ contro $6.44\times10^{-1}$).
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG su $\kappa\approx100$ (seed 42): $M{=}\infty$ fa collassare l'errore finale ($e_{30}\approx1.28$); la modalità \emph{Indipendente da $S_k$} peggiora ulteriormente la $M{=}10$ legata ($1.16$ contro $6.44\times10^{-1}$).
 
 
 % Tabella E.11 - quad_very_ill, Newton-CG $L_1$
@@ -3963,7 +3963,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx100$: il riuso peggiora l'errore finale rispetto alla base, come sugli altri problemi mal condizionati.
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx100$ (seed 42): come per Dynamic GD, il riuso con $M{=}\infty$ migliora l'errore finale ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base).
 
 
 
@@ -4062,7 +4062,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG sul termine incrociato: il riuso illimitato ($M{=}\infty$) fa collassare la convergenza; la modalità \emph{Indipendente da $S_k$} (ultima colonna) migliora la colonna $M{=}10$ legata.
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG sul termine incrociato (seed 42): come sul problema ben condizionato, il riuso aiuta e $M{=}\infty$ è la colonna migliore ($4.10\times10^{-2}$ contro $3.52\times10^{-1}$ della base); l'ultima colonna ($M{=}10$, H ind.) è pressoché identica alla $M{=}10$ legata.
 
 
 % Tabella E.15 - quad_offdiag, Newton-CG $L_1$
