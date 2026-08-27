@@ -4335,7 +4335,7 @@ incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 \end{tabular}
 
 \end{table}
-\noindent\emph{Lettura.} Verifica se il vantaggio del riuso regge al variare del seed: per ogni coppia problema--algoritmo conta su quanti seed (su 5) il riuso migliora, peggiora o lascia invariata la base. Conferma il quadro: quasi tutti i metodi migliorano su $\kappa\approx1.1$ e sul termine incrociato, mentre sui mal condizionati il riuso peggiora (Newton-CG non migliora mai su $\kappa\approx20$ e $\kappa\approx100$ per la Hessiana obsoleta).
+\noindent\emph{Lettura.} Verifica se il vantaggio del riuso regge al variare del seed: per ogni coppia problema--algoritmo conta su quanti seed (su 5) il riuso migliora, peggiora o lascia invariata la base. Conferma il quadro: quasi tutti i metodi migliorano su $\kappa\approx1.1$, mentre sui mal condizionati il segno dell'effetto dipende dal metodo e dal problema (per esempio BB-CCV migliora su $\kappa\approx20$ ma peggiora su $\kappa\approx100$, dove è già alla precisione macchina) e Newton-CG non migliora mai su $\kappa\approx20$ e $\kappa\approx100$ per la Hessiana obsoleta.
 
 Questa tabella conferma, come già osservato, che il riuso porta
 miglioramenti sui problemi ben condizionati ($\kappa\approx1.1$: quasi tutti

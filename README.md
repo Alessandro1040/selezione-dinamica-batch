@@ -157,6 +157,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
+  Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
+  (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
+  e Newton-L1 non hanno lo stesso problema, il `step = alpha` nelle Newton-L1
+  è il passo iniziale legittimo della line search proiettata, presente anche
+  nella versione normale) e la tesi (tabelle e prosa). Corretta la nota
+  *Lettura.* sotto `tab:riuso_robustezza` (6.21), che diceva "quasi tutti i
+  metodi migliorano sul termine incrociato" e "sui mal condizionati il riuso
+  peggiora": con i nuovi dati BB il segno dell'effetto dipende dal metodo
+  (BB-CCV migliora su κ≈20 ma peggiora su κ≈100, già alla precisione
+  macchina). Verificato che `tab:riuso_cons_sintesi` (6.29, generata con il
+  BB corretto) è coerente con i nuovi dati: mediana BB su κ≈20 = 4.7042e-6
+  (riprodotta esattamente), su κ≈100 coerente con l'early stop. I valori
+  uguali della colonna base BB su κ≈20 e κ≈100 nella tabella validation sono
+  corretti (bias del training set, indipendente da κ). Ricompilati
+  `tesi.pdf`/`tesi_finale.pdf` (**130 pp**, 0 errori, 0 undefined).
+  Sincronizzati in repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
 - **Ultimo intervento (27/08/2026).** **BB-CCV: corretto un bug che scartava
   il passo di Barzilai–Borwein negli esperimenti del riuso (Sez. 6.7), nella
   app (varianti validation/descesa) e negli harness; rigenerati tutti i dati
