@@ -157,6 +157,26 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7 (Tabelle 6.23 e 6.26):
+  corrette le tabelle "iperparametri" che non riportavano il nome
+  dell'iperparametro nella prima colonna.** In `tab:riuso_valid_iper`
+  (Tabella 6.23) e `tab:riuso_desc_iper` (Tabella 6.26) la colonna
+  *Iperparametro* mostrava il nome solo sulla prima riga ("Pazienza $P$") e
+  lasciava vuote le righe di $\tau$, $p$, $f$ e strategia di split. Ora il
+  nome compare in **ogni riga** di ogni gruppo (Pazienza $P$, Tolleranza
+  $\tau$, Percentuale $p$, Frequenza $f$, Strategia di split per la 6.23;
+  Pazienza $P$, Tolleranza $\tau$, Frequenza $f$ per la 6.26). Valori
+  numerici invariati. Allineati anche i generatori:
+  `altro/script/gen_tabelle_riuso_validation.py` e
+  `altro/script/gen_tabelle_riuso_descesa.py` (rimosso il flag `first` che
+  emetteva il label solo nella prima riga del primo gruppo; etichetta
+  "Strategia" resa "Strategia di split" nel generatore validation). Le righe
+  di tabella generate ora iniziano con `{label} & {vs} & ...` per ogni riga.
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**129 pp**, 0 errori, 0
+  undefined; i 13 overfull identici a quelli preesistenti, nessuno dentro le
+  due tabelle corrette). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf e i due generatori (md5 verificati). `bozza.tex` non
+  toccata.
 - **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7 (Tabelle 6.5 e 6.6):
   spiegato il profilo a "scalini" e corretta la nota *Lettura.* di Newton-CG
   $L_1$ sul ben condizionato.** (1) Dopo la nota *Lettura.* della Tabella 6.5

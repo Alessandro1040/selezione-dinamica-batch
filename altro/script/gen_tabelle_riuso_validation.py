@@ -661,9 +661,8 @@ def gen_tables_tex(data, refs, rob):
         ("Tolleranza $\\tau$", "val_tol", VAL_TOLS),
         ("Percentuale $p$", "val_pct", VAL_PCTS),
         ("Frequenza $f$", "val_freq", VAL_FREQ),
-        ("Strategia", "val_strategy", VAL_STRATEGY),
+        ("Strategia di split", "val_strategy", VAL_STRATEGY),
     ]
-    first = True
     for label, key_name, values in dims:
         for v in values:
             es, rs = [], []
@@ -672,11 +671,7 @@ def gen_tables_tex(data, refs, rob):
                     es.append(m["e30"])
                     rs.append(m["resamples"])
             vs = fmt_hp_value(key_name, v)
-            if first:
-                row = f"{label} & {vs} & {fmt3(float(np.mean(es)))} & {np.mean(rs):.1f}\\\\"
-                first = False
-            else:
-                row = f" & {vs} & {fmt3(float(np.mean(es)))} & {np.mean(rs):.1f}\\\\"
+            row = f"{label} & {vs} & {fmt3(float(np.mean(es)))} & {np.mean(rs):.1f}\\\\"
             out.append(row)
         out.append("\\midrule")
     out.append("\\bottomrule")

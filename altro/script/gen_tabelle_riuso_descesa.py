@@ -701,7 +701,6 @@ def gen_tables_tex(data, refs, rob, best_keys):
         ("Tolleranza $\\tau$", "desc_tol", DESC_TOLS),
         ("Frequenza $f$", "desc_freq", DESC_FREQ),
     ]
-    first = True
     for label, key_name, values in dims:
         for v in values:
             es, rs = [], []
@@ -710,13 +709,8 @@ def gen_tables_tex(data, refs, rob, best_keys):
                     es.append(m["e30"])
                     rs.append(m["resamples"])
             vs = fmt_hp_value(key_name, v)
-            if first:
-                row = (f"{label} & {vs} & {fmt3(float(np.mean(es)))} "
-                       f"& {np.mean(rs):.1f}\\\\")
-                first = False
-            else:
-                row = (f" & {vs} & {fmt3(float(np.mean(es)))} "
-                       f"& {np.mean(rs):.1f}\\\\")
+            row = (f"{label} & {vs} & {fmt3(float(np.mean(es)))} "
+                   f"& {np.mean(rs):.1f}\\\\")
             out.append(row)
         out.append("\\midrule")
     out.append("\\bottomrule")
