@@ -3473,6 +3473,8 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \end{table}
 \noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG sul problema ben condizionato: il riuso migliora l'errore finale; l'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) mostra che tenere la Hessiana oltre il ricampionamento del batch aiuta ($3.15\times10^{-1}$ contro $3.74\times10^{-1}$).
 
+I profili a ``scalini'' delle curve si spiegano con la qualità della direzione di Newton. La Hessiana è stimata sul sottoinsieme $H_k\subseteq\mathcal{S}_k$ di dimensione $n_h=\min(\max(1,\lceil R n_k\rceil),N)$: finché $n_k=5$ (gran parte delle iterazioni) si ha $n_h=1$, cioè la curvatura di un solo campione, e la direzione del CG troncato che ne deriva spesso non soddisfa le condizioni di Wolfe sulla loss del batch per nessun passo nel range testato; la line search restituisce un passo nullo e l'iterato resta fermo (tratti piatti). La CCV non aumenta il batch perché misura la varianza del gradiente, non la qualità della direzione. Il calo arriva quando un nuovo campione, o un batch ingrandito dopo una violazione della CCV, produce una direzione accettabile: il passo è accettato e l'errore scende rapidamente, finché il processo non si ripete. Il fenomeno non dipende dal riuso (compare anche nella colonna \emph{base}, che ha la stessa $n_k$ e la stessa $n_h$); il riuso rende solo i tratti piatti più lunghi e regolari, perché riusa gli stessi campioni.
+
 
 % Tabella E.3 - quad_well, Newton-CG $L_1$
 \begin{table}[H]
@@ -3520,7 +3522,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ sul problema ben condizionato: comportamento intermedio, senza una tendenza netta tra le politiche di riuso.
+\noindent\emph{Lettura.} Errore a ogni iterazione di Newton-CG~$L_1$ sul problema ben condizionato: qui il riuso migliora l'errore finale con tutte le politiche (la \emph{base} si ferma a $1.02\times10^{-1}$, il riuso scende fino a $8.17\times10^{-2}$ con $M{=}\infty$ e resta sotto la base anche con $M{=}2$, $9.41\times10^{-2}$, e con Hessiana indipendente, $9.78\times10^{-2}$). Il comportamento ``intermedio, senza una tendenza netta'' descritto nella Sezione~\ref{app:riuso-risultati} riguarda i problemi mal condizionati; qui, invece, tutte le politiche aiutano, con il massimo guadagno per $M{=}\infty$.
 
 
 % Tabella E.4 - quad_well, BB-CCV

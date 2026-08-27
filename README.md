@@ -157,6 +157,37 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7 (Tabelle 6.5 e 6.6):
+  spiegato il profilo a "scalini" e corretta la nota *Lettura.* di Newton-CG
+  $L_1$ sul ben condizionato.** (1) Dopo la nota *Lettura.* della Tabella 6.5
+  (`tab:riuso_bencond_ncg`, Newton-CG su $\kappa\approx1.1$) aggiunto un
+  paragrafo che spiega perché l'errore procede a "scalini": la direzione di
+  Newton usa la Hessiana stimata su $n_h=\min(\max(1,\lceil Rn_k\rceil),N)$
+  campioni; finché $n_k=5$ si ha $n_h=1$ (curvatura di un solo campione) e la
+  direzione del CG troncato spesso non soddisfa le condizioni di Wolfe sulla
+  loss del batch per nessun passo nel range testato, quindi la line search
+  restituisce un passo nullo e l'iterato resta fermo (tratti piatti); la CCV
+  non aumenta il batch perché misura la varianza del gradiente, non la
+  qualità della direzione; il calo arriva quando un nuovo campione (o un
+  batch ingrandito dopo violazione della CCV) produce una direzione
+  accettabile. Il fenomeno non dipende dal riuso (compare anche nella colonna
+  *base*, che ha la stessa $n_k$ e la stessa $n_h$). Spiegazione verificata
+  eseguendo il codice esatto di `altro/script/gen_tabelle_riuso.py`
+  (diagnostica: nei tratti piatti la line search di Wolfe restituisce
+  esattamente step=0.0). (2) Corretta la nota *Lettura.* della Tabella 6.6
+  (`tab:riuso_bencond_l1`, Newton-CG $L_1$ su $\kappa\approx1.1$): diceva
+  "comportamento intermedio, senza una tendenza netta tra le politiche di
+  riuso" ma in questa tabella il riuso migliora l'errore finale con TUTTE le
+  politiche (base $1.02\times10^{-1}$; $M{=}\infty$ $8.17\times10^{-2}$;
+  $M{=}10$ $9.24\times10^{-2}$; $M{=}5$ $1.00\times10^{-1}$; $M{=}2$
+  $9.41\times10^{-2}$; H ind. $9.78\times10^{-2}$); la nota ora lo specifica
+  e precisa che il comportamento "intermedio, senza tendenza netta" vale per
+  i problemi mal condizionati. Le note di `tab:riuso_malcond_l1` e
+  `tab:riuso_veryill_l1` restano invariate (lì il segno dell'effetto cambia
+  con la politica di riuso). Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**129 pp**, 0 errori, 0 undefined; overfull identici alle build
+  precedenti). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf
+  (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026).** **Tesi: corrette 6 note \emph{Lettura.}
   sotto le tabelle di errore del riuso (E.1--E.16) con affermazioni errate o
   non riferite al seed della tabella.** (a) Le note sotto
