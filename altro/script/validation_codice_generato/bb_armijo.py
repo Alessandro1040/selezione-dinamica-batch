@@ -50,7 +50,6 @@ def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_pati
             return np.mean([loss_i(w_curr, i) for i in indices])
         # Line search Armijo
         c1 = 1e-4
-        step = alpha
         J_curr = J_batch(w)
         g_norm2 = np.dot(g, g)
         if g_norm2 > 1e-16:

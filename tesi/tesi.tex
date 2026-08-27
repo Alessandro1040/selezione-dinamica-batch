@@ -2301,7 +2301,7 @@ Caratteristica & Funzione quadratica & Funzione generale \\
 \midrule
 Hessiana & costante, $\nabla^2 J = A$ & varia nel tempo, $\nabla^2 J(w)$ \\
 Relazione fondamentale & $y = A s$, esatta e globale & approssimata: media della Hessiana lungo il percorso \\
-Passo calcolato & inverso del quoziente di Rayleigh (ottimale) & media degli ultimi passi, obsoleta al passo successivo \\
+Passo calcolato & inverso della curvatura media lungo $s$ (ottimale) & media degli ultimi passi, obsoleta al passo successivo \\
 Denominatore $s^\top y$ & sempre positivo, stabile & può essere $\le 0$ o $\approx 0$: serve la salvaguardia \\
 Convergenza & superlineare (in due dimensioni bastano 2--3 passi) & lineare lenta, o divergente senza salvaguardia \\
 \bottomrule
@@ -3213,12 +3213,17 @@ condizionamento $\kappa$ e dall'algoritmo:
   è lentissimo. Anche un modesto spostamento del minimo campionato
   ($\bar\varepsilon_2 \approx 0.09$ per $n_k=5$) può far deviare la
   traiettoria in modo permanente. La CCV non rileva il problema: misura la
-  varianza interna del batch, non il bias sistematico. Per $\kappa \approx 20$,
-  $M=\infty$ peggiora ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della
-  base); per $\kappa \approx 100$, sorprendentemente, il riuso torna ad
-  aiutare ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$), perché la base
-  converge già così lentamente che il guadagno in coerenza prevale sul rischio
-  di deriva.
+  varianza interna del batch, non il bias sistematico. Questo spiega il
+  comportamento di Dynamic GD: per $\kappa \approx 20$, $M=\infty$ peggiora
+  ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della base); per
+  $\kappa \approx 100$, sorprendentemente, il riuso torna ad aiutare
+  ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$), perché la base converge
+  già così lentamente che il guadagno in coerenza prevale sul rischio
+  di deriva. BB-CCV fa eccezione: il passo di Barzilai--Borwein lo porta alla
+  precisione macchina già senza riuso ($9.72\times10^{-5}$ su
+  $\kappa\approx20$, $1.10\times10^{-14}$ su $\kappa\approx100$), quindi il
+  riuso non ha margine su $\kappa\approx100$ e lo peggiora
+  ($7.45\times10^{-3}$ con $M=\infty$).
 \item Metodi di Newton. La direzione di Newton dipende anche dalla
   Hessiana stimata sul batch. Riusandolo, la curvatura rimane quella del punto
   in cui il batch è stato estratto, mentre il punto corrente si è spostato,
@@ -3237,7 +3242,7 @@ condizionamento $\kappa$ e dall'algoritmo:
   garantire un vantaggio uniforme.
 \end{itemize}
 \paragraph{Perché il riuso peggiora sui problemi mal condizionati e, in particolare, per i metodi di Newton.}
-La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.4$ con $M=\infty$ su $\kappa\approx100$). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
+La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.28$ con $M=\infty$ su $\kappa\approx100$). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
 
 
 La Figura~\ref{fig:riuso_traiettorie} mostra due esecuzioni di Dynamic GD sul
@@ -3310,11 +3315,17 @@ l'errore $e_k = \|w_k - w^*\|_2$ iterazione per iterazione. Il quadro
 emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
 
 \begin{itemize}
-\item Dynamic GD e BB-CCV si comportano in modo quasi identico.
-  Su $\kappa \approx 1.1$ il riuso migliora sistematicamente (5 seed su 5
-  con $M=\infty$ e $M=10$), con il vantaggio che emerge nella seconda metà
-  delle iterazioni. Su $\kappa \approx 20$ il riuso illimitato peggiora;
-  su $\kappa \approx 100$ il riuso torna ad aiutare.
+\item Dynamic GD e BB-CCV si comportano in modo simile solo sul problema
+  ben condizionato: su $\kappa \approx 1.1$ il riuso migliora su 5 seed su 5
+  con $M=\infty$ e $M=10$, con il vantaggio che emerge nella seconda metà
+  delle iterazioni. Sui mal condizionati i due metodi divergono: su
+  $\kappa \approx 20$ il riuso illimitato peggiora Dynamic GD
+  ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della base) ma aiuta
+  BB-CCV, la cui base converge a $9.72\times10^{-5}$ e con $M=\infty$ scende
+  a $9.54\times10^{-10}$; su $\kappa \approx 100$ il riuso aiuta Dynamic GD
+  ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$) ma peggiora BB-CCV, la
+  cui base è già alla precisione macchina ($1.10\times10^{-14}$) e con
+  $M=\infty$ sale a $7.45\times10^{-3}$.
 \item Newton-CG è penalizzato sui problemi mal condizionati
   (su $\kappa\approx20$ e $\kappa\approx100$ peggiora su tutti e 5 i seed con
   $M=\infty$), mentre il riuso lo aiuta sul problema ben condizionato
@@ -3350,9 +3361,12 @@ su cinque seed indipendenti.
   campionato è vicino a $w^*$ in tutte le direzioni, i passi coerenti riducono
   il rimbalzo attorno al minimo e l'iterato scende sotto il pavimento di
   rumore.
-\item Il riuso non aiuta quando il problema è mal condizionato
-  (deriva verso il minimo campionario, non rilevata dalla CCV) o si usano
-  metodi del secondo ordine (Hessiana obsoleta).
+\item Il riuso non aiuta quando il problema è mal condizionato e il metodo
+  non ha margine di miglioramento: è il caso di Dynamic GD su
+  $\kappa\approx20$ e di BB-CCV su $\kappa\approx100$, dove la base è già alla
+  precisione macchina e il riuso introduce la deriva verso il minimo
+  campionario, non rilevata dalla CCV; non aiuta nemmeno con i metodi del
+  secondo ordine (Hessiana obsoleta).
 \item La modalità \emph{Indipendente da $S_k$} con $M_H=\infty$ non cambia il
   quadro qualitativo: la colonna $M{=}10$, H ind. $M_H{=}\infty$ segue
   l'andamento della colonna $M{=}10$ legata, con lievi miglioramenti sui
@@ -3539,39 +3553,39 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \midrule
 0 &\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}\\
 1 &\colorcell{1.1516}{0}&\colorcell{1.1516}{0}&\colorcell{1.1516}{0}&\colorcell{1.1516}{0}&\colorcell{1.1516}{0}\\
-2 &\colorcell{9.5519}{-1}&\colorcell{9.3935}{-1}&\colorcell{9.3935}{-1}&\colorcell{9.3935}{-1}&\colorcell{9.3935}{-1}\\
-3 &\colorcell{7.8850}{-1}&\colorcell{7.6789}{-1}&\colorcell{7.6789}{-1}&\colorcell{7.6789}{-1}&\colorcell{7.8293}{-1}\\
-4 &\colorcell{6.7471}{-1}&\colorcell{6.2940}{-1}&\colorcell{6.2940}{-1}&\colorcell{6.2940}{-1}&\colorcell{6.5623}{-1}\\
-5 &\colorcell{5.5214}{-1}&\colorcell{5.1757}{-1}&\colorcell{5.1757}{-1}&\colorcell{5.1757}{-1}&\colorcell{5.4593}{-1}\\
-6 &\colorcell{4.3385}{-1}&\colorcell{4.2731}{-1}&\colorcell{4.2731}{-1}&\colorcell{4.4035}{-1}&\colorcell{4.5648}{-1}\\
-7 &\colorcell{3.8792}{-1}&\colorcell{3.5451}{-1}&\colorcell{3.5451}{-1}&\colorcell{3.7811}{-1}&\colorcell{4.0797}{-1}\\
-8 &\colorcell{3.5366}{-1}&\colorcell{2.9583}{-1}&\colorcell{2.9583}{-1}&\colorcell{3.2801}{-1}&\colorcell{3.7052}{-1}\\
-9 &\colorcell{3.0927}{-1}&\colorcell{2.4860}{-1}&\colorcell{2.4860}{-1}&\colorcell{2.8772}{-1}&\colorcell{3.1646}{-1}\\
-10 &\colorcell{2.5516}{-1}&\colorcell{2.1063}{-1}&\colorcell{2.1063}{-1}&\colorcell{2.4659}{-1}&\colorcell{2.7796}{-1}\\
-11 &\colorcell{2.3129}{-1}&\colorcell{1.7823}{-1}&\colorcell{1.7823}{-1}&\colorcell{2.4346}{-1}&\colorcell{2.3093}{-1}\\
-12 &\colorcell{2.1401}{-1}&\colorcell{1.5662}{-1}&\colorcell{1.5662}{-1}&\colorcell{2.2097}{-1}&\colorcell{1.9685}{-1}\\
-13 &\colorcell{2.0084}{-1}&\colorcell{1.4060}{-1}&\colorcell{1.4060}{-1}&\colorcell{2.0277}{-1}&\colorcell{1.8284}{-1}\\
-14 &\colorcell{1.8252}{-1}&\colorcell{1.3342}{-1}&\colorcell{1.3342}{-1}&\colorcell{1.8804}{-1}&\colorcell{1.6456}{-1}\\
-15 &\colorcell{1.6601}{-1}&\colorcell{1.2886}{-1}&\colorcell{1.2886}{-1}&\colorcell{1.7613}{-1}&\colorcell{1.5065}{-1}\\
-16 &\colorcell{1.6395}{-1}&\colorcell{1.3345}{-1}&\colorcell{1.3345}{-1}&\colorcell{1.6649}{-1}&\colorcell{1.4519}{-1}\\
-17 &\colorcell{1.5471}{-1}&\colorcell{1.3005}{-1}&\colorcell{1.3005}{-1}&\colorcell{1.5698}{-1}&\colorcell{1.3899}{-1}\\
-18 &\colorcell{1.4730}{-1}&\colorcell{1.2735}{-1}&\colorcell{1.2735}{-1}&\colorcell{1.4930}{-1}&\colorcell{1.3420}{-1}\\
-19 &\colorcell{1.4134}{-1}&\colorcell{1.2521}{-1}&\colorcell{1.2521}{-1}&\colorcell{1.4302}{-1}&\colorcell{1.3048}{-1}\\
-20 &\colorcell{1.3654}{-1}&\colorcell{1.2350}{-1}&\colorcell{1.2350}{-1}&\colorcell{1.3796}{-1}&\colorcell{1.2758}{-1}\\
-21 &\colorcell{1.3268}{-1}&\colorcell{1.2214}{-1}&\colorcell{1.2214}{-1}&\colorcell{1.3388}{-1}&\colorcell{1.2531}{-1}\\
-22 &\colorcell{1.2957}{-1}&\colorcell{1.2105}{-1}&\colorcell{1.2105}{-1}&\colorcell{1.3058}{-1}&\colorcell{1.2353}{-1}\\
-23 &\colorcell{1.2707}{-1}&\colorcell{1.2017}{-1}&\colorcell{1.2017}{-1}&\colorcell{1.2791}{-1}&\colorcell{1.2212}{-1}\\
-24 &\colorcell{1.2505}{-1}&\colorcell{1.1948}{-1}&\colorcell{1.1948}{-1}&\colorcell{1.2576}{-1}&\colorcell{1.2101}{-1}\\
-25 &\colorcell{1.2342}{-1}&\colorcell{1.1891}{-1}&\colorcell{1.1891}{-1}&\colorcell{1.2402}{-1}&\colorcell{1.2012}{-1}\\
-26 &\colorcell{1.2211}{-1}&\colorcell{1.1846}{-1}&\colorcell{1.1846}{-1}&\colorcell{1.2261}{-1}&\colorcell{1.1942}{-1}\\
-27 &\colorcell{1.2105}{-1}&\colorcell{1.1810}{-1}&\colorcell{1.1810}{-1}&\colorcell{1.2147}{-1}&\colorcell{1.1886}{-1}\\
-28 &\colorcell{1.2020}{-1}&\colorcell{1.1781}{-1}&\colorcell{1.1781}{-1}&\colorcell{1.2055}{-1}&\colorcell{1.1842}{-1}\\
-29 &\colorcell{1.1951}{-1}&\colorcell{1.1758}{-1}&\colorcell{1.1758}{-1}&\colorcell{1.1980}{-1}&\colorcell{1.1806}{-1}\\
-30 &\colorcell{1.1895}{-1}&\colorcell{1.1739}{-1}&\colorcell{1.1739}{-1}&\colorcell{1.1920}{-1}&\colorcell{1.1777}{-1}\\
+2 &\colorcell{3.8420}{-1}&\colorcell{1.0020}{-1}&\colorcell{1.0020}{-1}&\colorcell{1.0020}{-1}&\colorcell{1.0020}{-1}\\
+3 &\colorcell{9.3399}{-2}&\colorcell{6.2656}{-2}&\colorcell{6.2656}{-2}&\colorcell{6.2656}{-2}&\colorcell{1.2409}{-1}\\
+4 &\colorcell{2.0089}{-1}&\colorcell{7.3409}{-2}&\colorcell{7.3409}{-2}&\colorcell{7.3409}{-2}&\colorcell{1.1930}{-1}\\
+5 &\colorcell{1.6584}{-1}&\colorcell{1.2256}{-1}&\colorcell{1.2256}{-1}&\colorcell{1.2256}{-1}&\colorcell{1.1619}{-1}\\
+6 &\colorcell{7.9543}{-2}&\colorcell{1.2433}{-1}&\colorcell{1.2433}{-1}&\colorcell{1.2433}{-1}&\colorcell{1.1563}{-1}\\
+7 &\colorcell{1.0292}{-1}&\colorcell{1.1669}{-1}&\colorcell{1.1669}{-1}&\colorcell{1.1669}{-1}&\colorcell{1.1654}{-1}\\
+8 &\colorcell{1.1777}{-1}&\colorcell{1.1664}{-1}&\colorcell{1.1664}{-1}&\colorcell{1.1664}{-1}&\colorcell{1.1661}{-1}\\
+9 &\colorcell{1.1707}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+10 &\colorcell{1.1673}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+11 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+12 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+13 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+14 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+15 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+16 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+17 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+18 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+19 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+20 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+21 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+22 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+23 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+24 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+25 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+26 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+27 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+28 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+29 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
+30 &\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}&\colorcell{1.1662}{-1}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul problema ben condizionato (seed 42): come per Dynamic GD, il riuso migliora l'errore finale; la conferma su 5 seed (5/5 con $M{=}\infty$ e $M{=}10$) è nella Tabella~\ref{tab:riuso_robustezza}.
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul problema ben condizionato (seed 42): tutte le colonne convergono rapidamente al pavimento di rumore ($\approx1.17\times10^{-1}$); il riuso lascia pressoché invariato l'errore finale, risultando comunque leggermente migliore su 5 seed (5/5 con $M{=}\infty$ e $M{=}10$, Tabella~\ref{tab:riuso_robustezza}).
 
 
 
@@ -3736,39 +3750,39 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \midrule
 0 &\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}\\
 1 &\colorcell{1.2185}{0}&\colorcell{1.2185}{0}&\colorcell{1.2185}{0}&\colorcell{1.2185}{0}&\colorcell{1.2185}{0}\\
-2 &\colorcell{1.2440}{0}&\colorcell{1.2895}{0}&\colorcell{1.2895}{0}&\colorcell{1.2895}{0}&\colorcell{1.2895}{0}\\
-3 &\colorcell{1.3338}{0}&\colorcell{1.1003}{0}&\colorcell{1.1003}{0}&\colorcell{1.1003}{0}&\colorcell{1.1459}{0}\\
-4 &\colorcell{1.3196}{0}&\colorcell{1.2001}{0}&\colorcell{1.2001}{0}&\colorcell{1.2001}{0}&\colorcell{1.2007}{0}\\
-5 &\colorcell{1.1515}{0}&\colorcell{1.0149}{0}&\colorcell{1.0149}{0}&\colorcell{1.0149}{0}&\colorcell{1.3173}{0}\\
-6 &\colorcell{1.3192}{0}&\colorcell{1.1372}{0}&\colorcell{1.1372}{0}&\colorcell{1.0853}{0}&\colorcell{1.1370}{0}\\
-7 &\colorcell{1.3119}{0}&\colorcell{9.5415}{-1}&\colorcell{9.5415}{-1}&\colorcell{9.5470}{-1}&\colorcell{1.0904}{0}\\
-8 &\colorcell{1.1849}{0}&\colorcell{1.0936}{0}&\colorcell{1.0936}{0}&\colorcell{1.0399}{0}&\colorcell{1.0950}{0}\\
-9 &\colorcell{1.1914}{0}&\colorcell{9.1173}{-1}&\colorcell{9.1173}{-1}&\colorcell{9.1259}{-1}&\colorcell{9.3482}{-1}\\
-10 &\colorcell{1.3429}{0}&\colorcell{1.0637}{0}&\colorcell{1.0637}{0}&\colorcell{1.0086}{0}&\colorcell{1.0622}{0}\\
-11 &\colorcell{1.3922}{0}&\colorcell{8.8246}{-1}&\colorcell{9.3840}{-1}&\colorcell{1.1610}{0}&\colorcell{8.4194}{-1}\\
-12 &\colorcell{2.9524}{-1}&\colorcell{1.0434}{0}&\colorcell{1.0437}{0}&\colorcell{9.8645}{-1}&\colorcell{1.0399}{0}\\
-13 &\colorcell{2.6608}{-1}&\colorcell{8.6245}{-1}&\colorcell{9.1986}{-1}&\colorcell{1.1455}{0}&\colorcell{1.0468}{0}\\
-14 &\colorcell{2.3965}{-1}&\colorcell{1.0296}{0}&\colorcell{1.0301}{0}&\colorcell{9.7151}{-1}&\colorcell{1.0255}{0}\\
-15 &\colorcell{2.1588}{-1}&\colorcell{8.4883}{-1}&\colorcell{9.0722}{-1}&\colorcell{1.1350}{0}&\colorcell{1.1311}{0}\\
-16 &\colorcell{1.9451}{-1}&\colorcell{1.0203}{0}&\colorcell{1.0209}{0}&\colorcell{2.1297}{-1}&\colorcell{1.0139}{0}\\
-17 &\colorcell{1.7531}{-1}&\colorcell{2.1374}{-1}&\colorcell{2.0559}{-1}&\colorcell{1.7879}{-1}&\colorcell{1.6351}{-1}\\
-18 &\colorcell{1.5805}{-1}&\colorcell{1.8311}{-1}&\colorcell{1.7350}{-1}&\colorcell{1.6101}{-1}&\colorcell{1.4840}{-1}\\
-19 &\colorcell{1.4254}{-1}&\colorcell{1.6945}{-1}&\colorcell{1.5836}{-1}&\colorcell{1.4502}{-1}&\colorcell{1.3362}{-1}\\
-20 &\colorcell{1.2862}{-1}&\colorcell{1.5752}{-1}&\colorcell{1.4495}{-1}&\colorcell{1.3065}{-1}&\colorcell{1.2033}{-1}\\
-21 &\colorcell{1.1613}{-1}&\colorcell{1.4715}{-1}&\colorcell{1.3311}{-1}&\colorcell{1.1772}{-1}&\colorcell{1.0838}{-1}\\
-22 &\colorcell{1.0492}{-1}&\colorcell{1.3818}{-1}&\colorcell{1.2267}{-1}&\colorcell{1.0611}{-1}&\colorcell{9.7628}{-2}\\
-23 &\colorcell{9.4880}{-2}&\colorcell{1.3047}{-1}&\colorcell{1.1352}{-1}&\colorcell{9.5672}{-2}&\colorcell{8.7964}{-2}\\
-24 &\colorcell{8.5890}{-2}&\colorcell{1.2387}{-1}&\colorcell{1.0552}{-1}&\colorcell{8.6298}{-2}&\colorcell{7.9276}{-2}\\
-25 &\colorcell{7.7851}{-2}&\colorcell{1.1825}{-1}&\colorcell{9.8576}{-2}&\colorcell{7.7882}{-2}&\colorcell{7.1470}{-2}\\
-26 &\colorcell{7.0673}{-2}&\colorcell{1.1350}{-1}&\colorcell{9.2566}{-2}&\colorcell{7.0330}{-2}&\colorcell{6.4457}{-2}\\
-27 &\colorcell{6.4273}{-2}&\colorcell{1.0950}{-1}&\colorcell{8.7395}{-2}&\colorcell{6.3559}{-2}&\colorcell{5.8160}{-2}\\
-28 &\colorcell{5.8579}{-2}&\colorcell{1.0614}{-1}&\colorcell{8.2971}{-2}&\colorcell{5.7493}{-2}&\colorcell{5.2508}{-2}\\
-29 &\colorcell{5.3525}{-2}&\colorcell{1.0335}{-1}&\colorcell{7.9206}{-2}&\colorcell{5.2064}{-2}&\colorcell{4.7440}{-2}\\
-30 &\colorcell{4.9050}{-2}&\colorcell{1.0103}{-1}&\colorcell{7.6020}{-2}&\colorcell{4.7211}{-2}&\colorcell{4.2898}{-2}\\
+2 &\colorcell{8.6105}{-1}&\colorcell{8.6300}{-1}&\colorcell{8.6300}{-1}&\colorcell{8.6300}{-1}&\colorcell{8.6300}{-1}\\
+3 &\colorcell{8.2371}{-1}&\colorcell{8.2105}{-1}&\colorcell{8.2105}{-1}&\colorcell{8.2105}{-1}&\colorcell{8.1997}{-1}\\
+4 &\colorcell{7.9710}{-1}&\colorcell{8.1118}{-1}&\colorcell{8.1118}{-1}&\colorcell{8.1118}{-1}&\colorcell{8.1048}{-1}\\
+5 &\colorcell{7.0281}{-1}&\colorcell{7.5974}{-1}&\colorcell{7.5974}{-1}&\colorcell{7.5974}{-1}&\colorcell{7.6777}{-1}\\
+6 &\colorcell{6.5120}{-1}&\colorcell{7.1036}{-1}&\colorcell{7.1036}{-1}&\colorcell{7.1036}{-1}&\colorcell{7.3670}{-1}\\
+7 &\colorcell{6.0802}{-1}&\colorcell{4.9574}{-1}&\colorcell{4.9574}{-1}&\colorcell{4.9574}{-1}&\colorcell{6.9037}{-1}\\
+8 &\colorcell{4.6587}{-1}&\colorcell{4.0326}{-1}&\colorcell{4.0326}{-1}&\colorcell{4.0326}{-1}&\colorcell{5.3175}{-1}\\
+9 &\colorcell{4.2194}{-1}&\colorcell{3.6223}{-1}&\colorcell{3.6223}{-1}&\colorcell{3.6158}{-1}&\colorcell{4.9226}{-1}\\
+10 &\colorcell{3.9018}{-1}&\colorcell{3.3567}{-1}&\colorcell{3.3567}{-1}&\colorcell{3.3456}{-1}&\colorcell{4.5355}{-1}\\
+11 &\colorcell{3.6447}{-1}&\colorcell{3.1799}{-1}&\colorcell{3.1799}{-1}&\colorcell{3.1661}{-1}&\colorcell{1.2467}{-1}\\
+12 &\colorcell{3.2652}{-1}&\colorcell{2.1225}{-1}&\colorcell{2.1225}{-1}&\colorcell{2.2387}{-1}&\colorcell{1.1050}{-1}\\
+13 &\colorcell{2.9964}{-1}&\colorcell{1.6754}{-1}&\colorcell{1.6754}{-1}&\colorcell{1.7523}{-1}&\colorcell{1.0247}{-1}\\
+14 &\colorcell{2.7815}{-1}&\colorcell{1.5475}{-1}&\colorcell{1.5475}{-1}&\colorcell{1.5897}{-1}&\colorcell{9.6781}{-2}\\
+15 &\colorcell{2.5184}{-1}&\colorcell{1.4606}{-1}&\colorcell{1.4606}{-1}&\colorcell{1.4886}{-1}&\colorcell{8.5399}{-2}\\
+16 &\colorcell{1.9301}{-1}&\colorcell{1.3327}{-1}&\colorcell{1.3327}{-1}&\colorcell{1.4002}{-1}&\colorcell{1.3100}{-2}\\
+17 &\colorcell{1.8029}{-1}&\colorcell{2.6680}{-2}&\colorcell{2.6680}{-2}&\colorcell{9.8010}{-2}&\colorcell{1.2018}{-2}\\
+18 &\colorcell{1.6945}{-1}&\colorcell{2.3677}{-2}&\colorcell{2.3677}{-2}&\colorcell{7.6271}{-2}&\colorcell{8.1988}{-3}\\
+19 &\colorcell{1.3385}{-1}&\colorcell{2.2462}{-2}&\colorcell{2.2462}{-2}&\colorcell{6.8840}{-2}&\colorcell{7.7878}{-3}\\
+20 &\colorcell{8.0846}{-2}&\colorcell{1.8953}{-2}&\colorcell{1.8953}{-2}&\colorcell{6.4319}{-2}&\colorcell{4.2289}{-4}\\
+21 &\colorcell{7.3365}{-2}&\colorcell{5.2080}{-4}&\colorcell{5.2080}{-4}&\colorcell{6.0630}{-2}&\colorcell{1.9438}{-5}\\
+22 &\colorcell{6.9333}{-2}&\colorcell{1.2752}{-4}&\colorcell{1.2752}{-4}&\colorcell{4.6124}{-2}&\colorcell{3.8271}{-6}\\
+23 &\colorcell{6.4693}{-2}&\colorcell{4.2151}{-5}&\colorcell{4.2151}{-5}&\colorcell{2.5700}{-2}&\colorcell{1.5436}{-10}\\
+24 &\colorcell{4.2703}{-3}&\colorcell{4.0043}{-5}&\colorcell{4.0043}{-5}&\colorcell{2.3214}{-2}&\colorcell{1.5436}{-10}\\
+25 &\colorcell{3.8442}{-3}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{2.1599}{-2}&\colorcell{1.5436}{-10}\\
+26 &\colorcell{3.6361}{-3}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{2.0452}{-2}&\colorcell{1.5436}{-10}\\
+27 &\colorcell{3.3838}{-3}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{6.0225}{-3}&\colorcell{1.5436}{-10}\\
+28 &\colorcell{1.2191}{-4}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{3.2347}{-3}&\colorcell{1.5436}{-10}\\
+29 &\colorcell{1.0321}{-4}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{2.8425}{-3}&\colorcell{1.5436}{-10}\\
+30 &\colorcell{9.7195}{-5}&\colorcell{9.5364}{-10}&\colorcell{9.5364}{-10}&\colorcell{2.6835}{-3}&\colorcell{1.5436}{-10}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx20$: il riuso peggiora l'errore finale rispetto alla base, per la deriva verso il minimo campionario.
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx20$ (seed 42): la base converge a $9.72\times10^{-5}$ e il riuso con $M{=}\infty$, $M{=}10$, $M{=}3$ e $M{=}2$ la migliora ulteriormente (fino a $9.54\times10^{-10}$ con $M{=}\infty$), mentre $M{=}5$ peggiora ($2.68\times10^{-3}$); su 5 seed il riuso migliora in 3 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
 
 
 
@@ -3933,39 +3947,39 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \midrule
 0 &\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}\\
 1 &\colorcell{9.9721}{-1}&\colorcell{9.9721}{-1}&\colorcell{9.9721}{-1}&\colorcell{9.9721}{-1}&\colorcell{9.9721}{-1}\\
-2 &\colorcell{9.8193}{-1}&\colorcell{9.8675}{-1}&\colorcell{9.8675}{-1}&\colorcell{9.8675}{-1}&\colorcell{9.8675}{-1}\\
-3 &\colorcell{9.7324}{-1}&\colorcell{9.6394}{-1}&\colorcell{9.6394}{-1}&\colorcell{9.6394}{-1}&\colorcell{9.6394}{-1}\\
-4 &\colorcell{9.5355}{-1}&\colorcell{9.5558}{-1}&\colorcell{9.5558}{-1}&\colorcell{9.5558}{-1}&\colorcell{9.5558}{-1}\\
-5 &\colorcell{9.4387}{-1}&\colorcell{9.4047}{-1}&\colorcell{9.4047}{-1}&\colorcell{9.4047}{-1}&\colorcell{9.4047}{-1}\\
-6 &\colorcell{9.2830}{-1}&\colorcell{7.4773}{-1}&\colorcell{7.4773}{-1}&\colorcell{7.4773}{-1}&\colorcell{7.4773}{-1}\\
-7 &\colorcell{8.8226}{-1}&\colorcell{7.3764}{-1}&\colorcell{7.3764}{-1}&\colorcell{7.3764}{-1}&\colorcell{7.3764}{-1}\\
-8 &\colorcell{8.6034}{-1}&\colorcell{7.1927}{-1}&\colorcell{7.1927}{-1}&\colorcell{7.1927}{-1}&\colorcell{7.1927}{-1}\\
-9 &\colorcell{8.4937}{-1}&\colorcell{7.0145}{-1}&\colorcell{7.0145}{-1}&\colorcell{7.0145}{-1}&\colorcell{7.0145}{-1}\\
-10 &\colorcell{8.0714}{-1}&\colorcell{6.9243}{-1}&\colorcell{6.9243}{-1}&\colorcell{6.9243}{-1}&\colorcell{6.9243}{-1}\\
-11 &\colorcell{7.9682}{-1}&\colorcell{6.5808}{-1}&\colorcell{6.5808}{-1}&\colorcell{6.5808}{-1}&\colorcell{6.5808}{-1}\\
-12 &\colorcell{7.5723}{-1}&\colorcell{6.4958}{-1}&\colorcell{6.4958}{-1}&\colorcell{6.4958}{-1}&\colorcell{6.4958}{-1}\\
-13 &\colorcell{7.4751}{-1}&\colorcell{6.1740}{-1}&\colorcell{6.1740}{-1}&\colorcell{6.1740}{-1}&\colorcell{6.1740}{-1}\\
-14 &\colorcell{7.1041}{-1}&\colorcell{6.0939}{-1}&\colorcell{6.0939}{-1}&\colorcell{6.0939}{-1}&\colorcell{6.0939}{-1}\\
-15 &\colorcell{7.0126}{-1}&\colorcell{5.7923}{-1}&\colorcell{5.7923}{-1}&\colorcell{5.7923}{-1}&\colorcell{5.7923}{-1}\\
-16 &\colorcell{6.6649}{-1}&\colorcell{5.7169}{-1}&\colorcell{5.7169}{-1}&\colorcell{5.7169}{-1}&\colorcell{5.7169}{-1}\\
-17 &\colorcell{6.5788}{-1}&\colorcell{5.5743}{-1}&\colorcell{5.5743}{-1}&\colorcell{5.5743}{-1}&\colorcell{5.5743}{-1}\\
-18 &\colorcell{6.2529}{-1}&\colorcell{5.4355}{-1}&\colorcell{5.4355}{-1}&\colorcell{5.4355}{-1}&\colorcell{5.4355}{-1}\\
-19 &\colorcell{6.1717}{-1}&\colorcell{5.3666}{-1}&\colorcell{5.3666}{-1}&\colorcell{5.3666}{-1}&\colorcell{5.3666}{-1}\\
-20 &\colorcell{6.0177}{-1}&\colorcell{5.0994}{-1}&\colorcell{5.0994}{-1}&\colorcell{5.0994}{-1}&\colorcell{5.0994}{-1}\\
-21 &\colorcell{5.8679}{-1}&\colorcell{5.0345}{-1}&\colorcell{5.0345}{-1}&\colorcell{5.0345}{-1}&\colorcell{5.0345}{-1}\\
-22 &\colorcell{5.7227}{-1}&\colorcell{4.7840}{-1}&\colorcell{4.7840}{-1}&\colorcell{4.7840}{-1}&\colorcell{4.7840}{-1}\\
-23 &\colorcell{5.6488}{-1}&\colorcell{4.7230}{-1}&\colorcell{4.7230}{-1}&\colorcell{4.7230}{-1}&\colorcell{4.7230}{-1}\\
-24 &\colorcell{5.3689}{-1}&\colorcell{4.4881}{-1}&\colorcell{4.4881}{-1}&\colorcell{4.4881}{-1}&\colorcell{4.4881}{-1}\\
-25 &\colorcell{5.2993}{-1}&\colorcell{4.4308}{-1}&\colorcell{4.4308}{-1}&\colorcell{4.4308}{-1}&\colorcell{4.4308}{-1}\\
-26 &\colorcell{5.0370}{-1}&\colorcell{4.2106}{-1}&\colorcell{4.2106}{-1}&\colorcell{4.2106}{-1}&\colorcell{4.2106}{-1}\\
-27 &\colorcell{4.9714}{-1}&\colorcell{4.1567}{-1}&\colorcell{4.1567}{-1}&\colorcell{4.1567}{-1}&\colorcell{4.1567}{-1}\\
-28 &\colorcell{4.8474}{-1}&\colorcell{3.9503}{-1}&\colorcell{3.9503}{-1}&\colorcell{3.9503}{-1}&\colorcell{3.9503}{-1}\\
-29 &\colorcell{4.7267}{-1}&\colorcell{3.8995}{-1}&\colorcell{3.8995}{-1}&\colorcell{3.8995}{-1}&\colorcell{3.8995}{-1}\\
-30 &\colorcell{4.6668}{-1}&\colorcell{3.7060}{-1}&\colorcell{3.7060}{-1}&\colorcell{3.7060}{-1}&\colorcell{3.7060}{-1}\\
+2 &\colorcell{9.8012}{-1}&\colorcell{9.8228}{-1}&\colorcell{9.8228}{-1}&\colorcell{9.8228}{-1}&\colorcell{9.8228}{-1}\\
+3 &\colorcell{9.7212}{-1}&\colorcell{9.6904}{-1}&\colorcell{9.6904}{-1}&\colorcell{9.6904}{-1}&\colorcell{9.6904}{-1}\\
+4 &\colorcell{9.5909}{-1}&\colorcell{9.6000}{-1}&\colorcell{9.6000}{-1}&\colorcell{9.6000}{-1}&\colorcell{9.6000}{-1}\\
+5 &\colorcell{9.5065}{-1}&\colorcell{9.5019}{-1}&\colorcell{9.5019}{-1}&\colorcell{9.5019}{-1}&\colorcell{9.5019}{-1}\\
+6 &\colorcell{9.3418}{-1}&\colorcell{9.3107}{-1}&\colorcell{9.3107}{-1}&\colorcell{9.3107}{-1}&\colorcell{9.3107}{-1}\\
+7 &\colorcell{9.1599}{-1}&\colorcell{9.2022}{-1}&\colorcell{9.2022}{-1}&\colorcell{9.2022}{-1}&\colorcell{9.2022}{-1}\\
+8 &\colorcell{8.9981}{-1}&\colorcell{9.1065}{-1}&\colorcell{9.1065}{-1}&\colorcell{9.1065}{-1}&\colorcell{9.1065}{-1}\\
+9 &\colorcell{8.9001}{-1}&\colorcell{7.4657}{-1}&\colorcell{7.4657}{-1}&\colorcell{7.4657}{-1}&\colorcell{7.4657}{-1}\\
+10 &\colorcell{8.8062}{-1}&\colorcell{5.6236}{-1}&\colorcell{5.6236}{-1}&\colorcell{5.6236}{-1}&\colorcell{5.6236}{-1}\\
+11 &\colorcell{1.0991}{-14}&\colorcell{5.5343}{-1}&\colorcell{5.5343}{-1}&\colorcell{5.5343}{-1}&\colorcell{5.5343}{-1}\\
+12 &\colorcell{1.0991}{-14}&\colorcell{5.4753}{-1}&\colorcell{5.4753}{-1}&\colorcell{5.4753}{-1}&\colorcell{5.4753}{-1}\\
+13 &\colorcell{1.0991}{-14}&\colorcell{5.4132}{-1}&\colorcell{5.4132}{-1}&\colorcell{5.4132}{-1}&\colorcell{5.4132}{-1}\\
+14 &\colorcell{1.0991}{-14}&\colorcell{2.0434}{-1}&\colorcell{2.0434}{-1}&\colorcell{2.0434}{-1}&\colorcell{2.0434}{-1}\\
+15 &\colorcell{1.0991}{-14}&\colorcell{2.0116}{-1}&\colorcell{2.0116}{-1}&\colorcell{2.0116}{-1}&\colorcell{2.0116}{-1}\\
+16 &\colorcell{1.0991}{-14}&\colorcell{1.9848}{-1}&\colorcell{1.9848}{-1}&\colorcell{1.9848}{-1}&\colorcell{1.9848}{-1}\\
+17 &\colorcell{1.0991}{-14}&\colorcell{1.9439}{-1}&\colorcell{1.9439}{-1}&\colorcell{1.9439}{-1}&\colorcell{1.9439}{-1}\\
+18 &\colorcell{1.0991}{-14}&\colorcell{1.7533}{-1}&\colorcell{1.7533}{-1}&\colorcell{1.7533}{-1}&\colorcell{1.7533}{-1}\\
+19 &\colorcell{1.0991}{-14}&\colorcell{1.7159}{-1}&\colorcell{1.7159}{-1}&\colorcell{1.7159}{-1}&\colorcell{1.7159}{-1}\\
+20 &\colorcell{1.0991}{-14}&\colorcell{1.6959}{-1}&\colorcell{1.6959}{-1}&\colorcell{1.6959}{-1}&\colorcell{1.6959}{-1}\\
+21 &\colorcell{1.0991}{-14}&\colorcell{1.6779}{-1}&\colorcell{1.6779}{-1}&\colorcell{1.6779}{-1}&\colorcell{1.6779}{-1}\\
+22 &\colorcell{1.0991}{-14}&\colorcell{1.5349}{-1}&\colorcell{1.5349}{-1}&\colorcell{1.5349}{-1}&\colorcell{1.5349}{-1}\\
+23 &\colorcell{1.0991}{-14}&\colorcell{8.1110}{-2}&\colorcell{8.1110}{-2}&\colorcell{8.1110}{-2}&\colorcell{8.1110}{-2}\\
+24 &\colorcell{1.0991}{-14}&\colorcell{7.9178}{-2}&\colorcell{7.9178}{-2}&\colorcell{7.9178}{-2}&\colorcell{7.9178}{-2}\\
+25 &\colorcell{1.0991}{-14}&\colorcell{7.8066}{-2}&\colorcell{7.8066}{-2}&\colorcell{7.8066}{-2}&\colorcell{7.8066}{-2}\\
+26 &\colorcell{1.0991}{-14}&\colorcell{7.7276}{-2}&\colorcell{7.7276}{-2}&\colorcell{7.7276}{-2}&\colorcell{7.7276}{-2}\\
+27 &\colorcell{1.0991}{-14}&\colorcell{8.7044}{-3}&\colorcell{8.7044}{-3}&\colorcell{8.7044}{-3}&\colorcell{8.7044}{-3}\\
+28 &\colorcell{1.0991}{-14}&\colorcell{7.6241}{-3}&\colorcell{7.6241}{-3}&\colorcell{7.6241}{-3}&\colorcell{7.6241}{-3}\\
+29 &\colorcell{1.0991}{-14}&\colorcell{7.5328}{-3}&\colorcell{7.5328}{-3}&\colorcell{7.5328}{-3}&\colorcell{7.5328}{-3}\\
+30 &\colorcell{1.0991}{-14}&\colorcell{7.4538}{-3}&\colorcell{7.4538}{-3}&\colorcell{7.4538}{-3}&\colorcell{7.4538}{-3}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx100$ (seed 42): come per Dynamic GD, il riuso con $M{=}\infty$ migliora l'errore finale ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base).
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV su $\kappa\approx100$ (seed 42): la base raggiunge la precisione macchina in 11 iterazioni ($1.10\times10^{-14}$), mentre il riuso la peggiora sensibilmente ($7.45\times10^{-3}$ con $M{=}\infty$), perché fissa il batch e introduce la deriva verso il minimo campionario; su 5 seed il riuso peggiora in 3 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
 
 
 
@@ -4130,39 +4144,39 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \midrule
 0 &\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}&\colorcell{1.4142}{0}\\
 1 &\colorcell{1.1925}{0}&\colorcell{1.1925}{0}&\colorcell{1.1925}{0}&\colorcell{1.1925}{0}&\colorcell{1.1925}{0}\\
-2 &\colorcell{1.0131}{0}&\colorcell{1.0047}{0}&\colorcell{1.0047}{0}&\colorcell{1.0047}{0}&\colorcell{1.0047}{0}\\
-3 &\colorcell{8.5375}{-1}&\colorcell{8.4561}{-1}&\colorcell{8.4561}{-1}&\colorcell{8.4561}{-1}&\colorcell{8.5313}{-1}\\
-4 &\colorcell{7.4106}{-1}&\colorcell{7.1089}{-1}&\colorcell{7.1089}{-1}&\colorcell{7.1089}{-1}&\colorcell{7.2418}{-1}\\
-5 &\colorcell{6.1967}{-1}&\colorcell{5.9687}{-1}&\colorcell{5.9687}{-1}&\colorcell{5.9687}{-1}&\colorcell{6.0766}{-1}\\
-6 &\colorcell{5.0270}{-1}&\colorcell{5.0043}{-1}&\colorcell{5.0043}{-1}&\colorcell{5.0534}{-1}&\colorcell{5.0843}{-1}\\
-7 &\colorcell{4.3324}{-1}&\colorcell{4.1896}{-1}&\colorcell{4.1896}{-1}&\colorcell{4.2773}{-1}&\colorcell{4.4882}{-1}\\
-8 &\colorcell{3.8973}{-1}&\colorcell{3.5026}{-1}&\colorcell{3.5026}{-1}&\colorcell{3.6188}{-1}&\colorcell{4.0025}{-1}\\
-9 &\colorcell{3.1558}{-1}&\colorcell{2.9247}{-1}&\colorcell{2.9247}{-1}&\colorcell{3.0596}{-1}&\colorcell{3.3397}{-1}\\
-10 &\colorcell{2.5451}{-1}&\colorcell{2.4405}{-1}&\colorcell{2.4405}{-1}&\colorcell{2.5847}{-1}&\colorcell{2.8054}{-1}\\
-11 &\colorcell{2.1774}{-1}&\colorcell{2.0372}{-1}&\colorcell{2.0300}{-1}&\colorcell{2.0792}{-1}&\colorcell{2.1825}{-1}\\
-12 &\colorcell{1.9163}{-1}&\colorcell{1.7042}{-1}&\colorcell{1.5608}{-1}&\colorcell{1.9085}{-1}&\colorcell{1.6712}{-1}\\
-13 &\colorcell{1.5804}{-1}&\colorcell{1.2452}{-1}&\colorcell{1.1778}{-1}&\colorcell{1.6226}{-1}&\colorcell{1.3247}{-1}\\
-14 &\colorcell{1.2980}{-1}&\colorcell{9.1739}{-2}&\colorcell{1.1521}{-1}&\colorcell{1.3808}{-1}&\colorcell{1.2269}{-1}\\
-15 &\colorcell{1.1956}{-1}&\colorcell{6.6717}{-2}&\colorcell{9.9627}{-2}&\colorcell{1.0996}{-1}&\colorcell{1.0335}{-1}\\
-16 &\colorcell{1.0807}{-1}&\colorcell{5.4355}{-2}&\colorcell{8.6414}{-2}&\colorcell{8.6370}{-2}&\colorcell{8.7256}{-2}\\
-17 &\colorcell{9.1075}{-2}&\colorcell{4.7829}{-2}&\colorcell{7.5203}{-2}&\colorcell{6.6753}{-2}&\colorcell{7.1346}{-2}\\
-18 &\colorcell{6.9281}{-2}&\colorcell{4.1403}{-2}&\colorcell{6.5689}{-2}&\colorcell{5.0755}{-2}&\colorcell{5.8653}{-2}\\
-19 &\colorcell{5.8837}{-2}&\colorcell{3.4210}{-2}&\colorcell{5.6584}{-2}&\colorcell{3.6824}{-2}&\colorcell{5.1121}{-2}\\
-20 &\colorcell{5.1543}{-2}&\colorcell{2.8493}{-2}&\colorcell{4.8917}{-2}&\colorcell{2.8740}{-2}&\colorcell{4.3280}{-2}\\
-21 &\colorcell{4.2974}{-2}&\colorcell{2.3845}{-2}&\colorcell{4.1611}{-2}&\colorcell{2.4971}{-2}&\colorcell{3.6695}{-2}\\
-22 &\colorcell{3.5601}{-2}&\colorcell{2.0037}{-2}&\colorcell{3.5413}{-2}&\colorcell{2.1132}{-2}&\colorcell{3.1151}{-2}\\
-23 &\colorcell{2.9857}{-2}&\colorcell{1.6898}{-2}&\colorcell{3.0152}{-2}&\colorcell{1.7921}{-2}&\colorcell{2.6473}{-2}\\
-24 &\colorcell{2.5128}{-2}&\colorcell{1.4296}{-2}&\colorcell{2.5686}{-2}&\colorcell{1.5228}{-2}&\colorcell{2.2521}{-2}\\
-25 &\colorcell{2.1212}{-2}&\colorcell{1.2128}{-2}&\colorcell{2.1893}{-2}&\colorcell{1.2962}{-2}&\colorcell{1.9177}{-2}\\
-26 &\colorcell{1.7954}{-2}&\colorcell{1.0316}{-2}&\colorcell{1.8672}{-2}&\colorcell{1.1053}{-2}&\colorcell{1.6346}{-2}\\
-27 &\colorcell{1.5232}{-2}&\colorcell{8.7958}{-3}&\colorcell{1.5935}{-2}&\colorcell{9.4410}{-3}&\colorcell{1.3946}{-2}\\
-28 &\colorcell{1.2950}{-2}&\colorcell{7.5175}{-3}&\colorcell{1.3610}{-2}&\colorcell{8.0783}{-3}&\colorcell{1.1912}{-2}\\
-29 &\colorcell{1.1032}{-2}&\colorcell{6.4404}{-3}&\colorcell{1.1635}{-2}&\colorcell{6.9253}{-3}&\colorcell{1.0186}{-2}\\
-30 &\colorcell{9.4161}{-3}&\colorcell{5.5315}{-3}&\colorcell{9.9566}{-3}&\colorcell{5.9490}{-3}&\colorcell{8.7213}{-3}\\
+2 &\colorcell{2.9864}{-1}&\colorcell{2.6602}{-1}&\colorcell{2.6602}{-1}&\colorcell{2.6602}{-1}&\colorcell{2.6602}{-1}\\
+3 &\colorcell{3.6502}{-2}&\colorcell{7.4283}{-2}&\colorcell{7.4283}{-2}&\colorcell{7.4283}{-2}&\colorcell{6.9336}{-2}\\
+4 &\colorcell{1.3817}{-1}&\colorcell{8.0350}{-2}&\colorcell{8.0350}{-2}&\colorcell{8.0350}{-2}&\colorcell{6.8621}{-2}\\
+5 &\colorcell{1.1954}{-1}&\colorcell{3.6626}{-2}&\colorcell{3.6626}{-2}&\colorcell{3.6626}{-2}&\colorcell{7.9344}{-2}\\
+6 &\colorcell{6.5108}{-2}&\colorcell{2.0293}{-2}&\colorcell{2.0293}{-2}&\colorcell{2.0293}{-2}&\colorcell{4.6001}{-2}\\
+7 &\colorcell{4.4710}{-2}&\colorcell{4.8937}{-3}&\colorcell{4.8937}{-3}&\colorcell{4.8937}{-3}&\colorcell{2.1224}{-3}\\
+8 &\colorcell{1.4514}{-2}&\colorcell{1.7036}{-3}&\colorcell{1.7036}{-3}&\colorcell{1.7036}{-3}&\colorcell{1.2032}{-2}\\
+9 &\colorcell{2.9908}{-3}&\colorcell{9.1154}{-4}&\colorcell{9.1154}{-4}&\colorcell{9.1154}{-4}&\colorcell{5.3671}{-3}\\
+10 &\colorcell{6.4737}{-4}&\colorcell{6.9113}{-4}&\colorcell{6.9113}{-4}&\colorcell{6.9113}{-4}&\colorcell{1.4489}{-3}\\
+11 &\colorcell{4.6638}{-4}&\colorcell{6.3233}{-4}&\colorcell{6.3233}{-4}&\colorcell{6.3233}{-4}&\colorcell{9.0709}{-4}\\
+12 &\colorcell{5.7492}{-4}&\colorcell{6.2110}{-4}&\colorcell{6.2110}{-4}&\colorcell{6.2110}{-4}&\colorcell{6.8189}{-4}\\
+13 &\colorcell{6.0513}{-4}&\colorcell{6.1758}{-4}&\colorcell{6.1758}{-4}&\colorcell{6.1758}{-4}&\colorcell{6.3271}{-4}\\
+14 &\colorcell{6.1389}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.2051}{-4}\\
+15 &\colorcell{6.1588}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1760}{-4}\\
+16 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+17 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+18 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+19 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+20 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+21 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+22 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+23 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+24 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+25 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+26 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+27 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+28 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+29 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
+30 &\colorcell{6.1644}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1689}{-4}&\colorcell{6.1685}{-4}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul termine incrociato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. Con $M{=}\infty$ il riuso aiuta l'errore finale, come per Dynamic GD.
+\noindent\emph{Lettura.} Errore a ogni iterazione di BB-CCV sul termine incrociato: la colonna \emph{base} è il riferimento senza riuso, le altre il riuso dello stesso batch per $M$ iterazioni. Il riuso lascia pressoché invariato l'errore finale ($6.17\times10^{-4}$ contro $6.16\times10^{-4}$ della base); su 5 seed migliora in 2 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
 
 
 
@@ -4204,7 +4218,7 @@ $\kappa\approx1.1$ - Newton-CG &\colorcell{4.03}{-1}&\colorcell{2.22}{-1}$\black
 
 $\kappa\approx1.1$ - Newton-CG $L_1$ &\colorcell{1.02}{-1}&\colorcell{8.17}{-2}$\blacktriangle$&\colorcell{9.24}{-2}$\blacktriangle$&\colorcell{1.00}{-1}$\blacktriangle$&\colorcell{1.06}{-1}$\blacktriangledown$&\colorcell{9.41}{-2}$\blacktriangle$&\colorcell{1.00}{-1}$\blacktriangle$\\
 
-$\kappa\approx1.1$ - BB-CCV &\colorcell{1.19}{-1}&\colorcell{1.17}{-1}$\blacktriangle$&\colorcell{1.17}{-1}$\blacktriangle$&\colorcell{1.19}{-1}$\blacktriangledown$&\colorcell{1.19}{-1}$\blacktriangledown$&\colorcell{1.18}{-1}$\blacktriangle$&\colorcell{1.19}{-1}$=$\\
+$\kappa\approx1.1$ - BB-CCV &\colorcell{1.17}{-1}&\colorcell{1.17}{-1}$=$&\colorcell{1.17}{-1}$=$&\colorcell{1.17}{-1}$=$&\colorcell{1.17}{-1}$=$&\colorcell{1.17}{-1}$=$&\colorcell{1.17}{-1}$=$\\
 
 \midrule
 
@@ -4214,7 +4228,7 @@ $\kappa\approx20$ - Newton-CG &\colorcell{2.35}{-1}&\colorcell{1.28}{0}$\blacktr
 
 $\kappa\approx20$ - Newton-CG $L_1$ &\colorcell{4.88}{-1}&\colorcell{7.62}{-1}$\blacktriangledown$&\colorcell{5.57}{-1}$\blacktriangledown$&\colorcell{6.22}{-1}$\blacktriangledown$&\colorcell{4.55}{-1}$\blacktriangle$&\colorcell{4.34}{-1}$\blacktriangle$&\colorcell{5.46}{-1}$\blacktriangledown$\\
 
-$\kappa\approx20$ - BB-CCV &\colorcell{4.91}{-2}&\colorcell{1.01}{-1}$\blacktriangledown$&\colorcell{7.60}{-2}$\blacktriangledown$&\colorcell{4.72}{-2}$\blacktriangle$&\colorcell{1.17}{-1}$\blacktriangledown$&\colorcell{4.29}{-2}$\blacktriangle$&\colorcell{4.91}{-2}$=$\\
+$\kappa\approx20$ - BB-CCV &\colorcell{9.72}{-5}&\colorcell{9.54}{-10}$\blacktriangle$&\colorcell{9.54}{-10}$\blacktriangle$&\colorcell{2.68}{-3}$\blacktriangledown$&\colorcell{3.84}{-8}$\blacktriangle$&\colorcell{1.54}{-10}$\blacktriangle$&\colorcell{9.72}{-5}$=$\\
 
 \midrule
 
@@ -4224,7 +4238,7 @@ $\kappa\approx100$ - Newton-CG &\colorcell{2.10}{-1}&\colorcell{1.28}{0}$\blackt
 
 $\kappa\approx100$ - Newton-CG $L_1$ &\colorcell{9.70}{-1}&\colorcell{9.71}{-1}$\blacktriangledown$&\colorcell{8.64}{-1}$\blacktriangle$&\colorcell{9.70}{-1}$\blacktriangledown$&\colorcell{8.77}{-1}$\blacktriangle$&\colorcell{9.69}{-1}$\blacktriangle$&\colorcell{8.66}{-1}$\blacktriangle$\\
 
-$\kappa\approx100$ - BB-CCV &\colorcell{4.67}{-1}&\colorcell{3.71}{-1}$\blacktriangle$&\colorcell{3.71}{-1}$\blacktriangle$&\colorcell{3.71}{-1}$\blacktriangle$&\colorcell{3.71}{-1}$\blacktriangle$&\colorcell{3.71}{-1}$\blacktriangle$&\colorcell{4.67}{-1}$=$\\
+$\kappa\approx100$ - BB-CCV &\colorcell{1.10}{-14}&\colorcell{7.45}{-3}$\blacktriangledown$&\colorcell{7.45}{-3}$\blacktriangledown$&\colorcell{7.45}{-3}$\blacktriangledown$&\colorcell{7.45}{-3}$\blacktriangledown$&\colorcell{7.45}{-3}$\blacktriangledown$&\colorcell{1.10}{-14}$=$\\
 
 \midrule
 
@@ -4234,14 +4248,14 @@ incrociato ($\kappa\approx1.67$) - Newton-CG &\colorcell{3.52}{-1}&\colorcell{4.
 
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ &\colorcell{2.09}{-2}&\colorcell{3.89}{-2}$\blacktriangledown$&\colorcell{3.94}{-2}$\blacktriangledown$&\colorcell{2.93}{-2}$\blacktriangledown$&\colorcell{2.36}{-2}$\blacktriangledown$&\colorcell{3.85}{-2}$\blacktriangledown$&\colorcell{2.52}{-2}$\blacktriangledown$\\
 
-incrociato ($\kappa\approx1.67$) - BB-CCV &\colorcell{9.42}{-3}&\colorcell{5.53}{-3}$\blacktriangle$&\colorcell{9.96}{-3}$\blacktriangledown$&\colorcell{5.95}{-3}$\blacktriangle$&\colorcell{7.58}{-3}$\blacktriangle$&\colorcell{8.72}{-3}$\blacktriangle$&\colorcell{9.42}{-3}$=$\\
+incrociato ($\kappa\approx1.67$) - BB-CCV &\colorcell{6.16}{-4}&\colorcell{6.17}{-4}$\blacktriangledown$&\colorcell{6.17}{-4}$\blacktriangledown$&\colorcell{6.17}{-4}$\blacktriangledown$&\colorcell{6.16}{-4}$\blacktriangle$&\colorcell{6.17}{-4}$\blacktriangledown$&\colorcell{6.16}{-4}$=$\\
 
 \bottomrule
 
 \end{tabular}
 
 \end{table}
-\noindent\emph{Lettura.} Tabella di sintesi dell'esperimento di riuso: errore finale $e_{30}$ (seed 42) per tutti i valori di $M\in\{\infty,10,5,3,2,1\}$ su tutte le coppie problema$\times$algoritmo. Si legge per individuare dove il riuso aiuta (ben condizionato e termine incrociato) e dove peggiora (mal condizionati, e metodi di Newton con $M{=}\infty$).
+\noindent\emph{Lettura.} Tabella di sintesi dell'esperimento di riuso: errore finale $e_{30}$ (seed 42) per tutti i valori di $M\in\{\infty,10,5,3,2,1\}$ su tutte le coppie problema$\times$algoritmo. Si legge per individuare dove il riuso aiuta e dove peggiora: in generale aiuta su ben condizionato e termine incrociato e per i metodi del primo ordine dove c'è margine (BB-CCV su $\kappa\approx20$), mentre peggiora per Dynamic GD e Newton-CG sui mal condizionati con $M{=}\infty$ e per BB-CCV su $\kappa\approx100$, dove la base è già alla precisione macchina.
 
 
 
@@ -4294,7 +4308,7 @@ $\kappa\approx20$ & Dynamic GD & 2 & 3 & 0 & 1 & 4 & 0\\
 
  & Newton-CG $L_1$ & 1 & 4 & 0 & 2 & 3 & 0\\
 
- & BB-CCV & 2 & 3 & 0 & 1 & 4 & 0\\
+ & BB-CCV & 3 & 2 & 0 & 3 & 2 & 0\\
 
 \midrule
 
@@ -4304,7 +4318,7 @@ $\kappa\approx100$ & Dynamic GD & 3 & 2 & 0 & 3 & 2 & 0\\
 
  & Newton-CG $L_1$ & 3 & 2 & 0 & 4 & 1 & 0\\
 
- & BB-CCV & 3 & 2 & 0 & 3 & 2 & 0\\
+ & BB-CCV & 1 & 3 & 1 & 1 & 3 & 1\\
 
 \midrule
 
@@ -4314,7 +4328,7 @@ incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 
  & Newton-CG $L_1$ & 2 & 3 & 0 & 1 & 4 & 0\\
 
- & BB-CCV & 4 & 1 & 0 & 3 & 2 & 0\\
+ & BB-CCV & 2 & 3 & 0 & 2 & 3 & 0\\
 
 \bottomrule
 
@@ -4325,23 +4339,23 @@ incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
 
 Questa tabella conferma, come già osservato, che il riuso porta
 miglioramenti sui problemi ben condizionati ($\kappa\approx1.1$: quasi tutti
-i seed migliorano, con 5/5 per Dynamic GD e BB-CCV) mentre sui mal
-condizionati il quadro si ribalta ($\kappa\approx20$: la maggior parte dei
-seed peggiora, a causa della deriva verso il minimo campionario). La
-differenza tra i metodi sta nella Hessiana riusata: Newton-CG e
-Newton-CG~$L_1$ calcolano la direzione di Newton su una Hessiana stimata da
-un campione vecchio, che diventa obsoleta; per questo su $\kappa\approx20$
-Newton-CG non migliora su nessun seed (0/5) e Newton-CG~$L_1$ solo su 1--2
-su 5, mentre Dynamic GD e BB-CCV, che riusano solo il gradiente, mantengono
-qualche vittoria. Su $\kappa\approx100$ i metodi del primo ordine migliorano
-su 3 seed su 5 (4/5 per Newton-CG~$L_1$ con $M{=}10$): con una curvatura
-così estrema l'errore è dominato dal rimbalzo dell'iterato nella direzione
-piatta, che il riuso attenua fissando il campione; Newton-CG resta invece
-sempre peggiorativo (0/5), perché il danno dell'Hessiana obsoleta prevale su
-ogni beneficio. Sul termine incrociato ($\kappa\approx1.67$) il riuso aiuta
-quasi tutti i metodi (4/5 con $M{=}\infty$), con l'eccezione di
-Newton-CG~$L_1$ (2/5), meno robusto quando al riuso di batch e Hessiana si
-sommano la proiezione ortante e il subgradiente del termine $L_1$.
+i seed migliorano, con 5/5 per Dynamic GD e BB-CCV). Sui mal condizionati il
+quadro dipende dal metodo: su $\kappa\approx20$ la maggior parte dei seed
+peggiora per Dynamic GD e Newton-CG (rispettivamente 2/5 e 0/5 migliorano, a
+causa della deriva verso il minimo campionario e dell'Hessiana obsoleta),
+mentre BB-CCV, che parte già da $9.72\times10^{-5}$, trae ancora beneficio
+dal riuso (3/5); Newton-CG~$L_1$ migliora solo su 1--2 seed su 5. Su
+$\kappa\approx100$ Dynamic GD migliora su 3 seed su 5 e Newton-CG~$L_1$ su 3
+su 5 con $M{=}\infty$ (4/5 con $M{=}10$): con una curvatura così estrema
+l'errore è dominato dal rimbalzo dell'iterato nella direzione piatta, che il
+riuso attenua fissando il campione; BB-CCV invece peggiora (1/5), perché la
+base è già alla precisione macchina; Newton-CG resta sempre peggiorativo
+(0/5), perché il danno dell'Hessiana obsoleta prevale su ogni beneficio. Sul
+termine incrociato ($\kappa\approx1.67$) il riuso aiuta Dynamic GD e
+Newton-CG (4/5 con $M{=}\infty$) ma non BB-CCV e Newton-CG~$L_1$ (2/5), meno
+robusti quando al riuso di batch e Hessiana si sommano la proiezione ortante
+e il subgradiente del termine $L_1$ (per $L_1$) o la sensibilità del passo di
+Barzilai--Borwein al campione fissato (per BB-CCV).
 
 
 
@@ -4358,7 +4372,7 @@ Le Tabelle~\ref{tab:riuso_sintesi} e~\ref{tab:riuso_robustezza} mostrano che
 il numero massimo $M$ di iterazioni sullo stesso mini-batch va scelto con
 cura: il valore migliore cambia con problema e algoritmo, e per i metodi di
 Newton un valore troppo alto ($M=\infty$) può far collassare la convergenza
-(errore finale $e_{30}$ fino a $1.4$ sui problemi mal condizionati). Lo
+(errore finale $e_{30}$ fino a $1.28$ sui problemi mal condizionati). Lo
 \emph{stop adattivo con validation set} automatizza questa scelta: il momento
 in cui ricampionare il batch (e, per i metodi di Newton, l'Hessiana) è deciso
 dalla loss media su un validation set, senza fissare $M$ a priori.
@@ -4402,36 +4416,39 @@ L'applicazione espone sei iperparametri:
 La Tabella~\ref{tab:riuso_valid_iper} riporta l'effetto marginale di ciascun
 iperparametro, mediato sulle 16 combinazioni problema$\times$algoritmo. Il
 quadro è netto: la pazienza è l'iperparametro più influente ($P=1$ riduce
-l'errore medio di circa il 24\% rispetto a $P=8$, $2.63\times10^{-1}$ contro
-$3.45\times10^{-1}$, con solo pochi ricampionamenti in più: 12.8 contro 9.3 su
+l'errore medio di circa il 26\% rispetto a $P=8$, $2.43\times10^{-1}$ contro
+$3.29\times10^{-1}$, con solo pochi ricampionamenti in più: 13.8 contro 10.9 su
 30 iterazioni); la tolleranza $\tau$ è ininfluente nell'intervallo testato
 $(10^{-5},\,10^{-3})$; la percentuale migliore è la più piccola, $p=10\%$
-($2.70\times10^{-1}$ contro $3.30\times10^{-1}$ di $p=30\%$), perché tenere più
+($2.48\times10^{-1}$ contro $3.14\times10^{-1}$ di $p=30\%$), perché tenere più
 dati nel training aiuta; valutare a ogni iterazione ($f=1$) è meglio di $f=3$
-($2.76\times10^{-1}$ contro $3.28\times10^{-1}$); la strategia dinamica è
-sistematicamente migliore di quella fissa ($2.83\times10^{-1}$ contro
-$3.21\times10^{-1}$), perché risplittare a ogni cambio di batch evita che il
+($2.57\times10^{-1}$ contro $3.12\times10^{-1}$); la strategia dinamica è
+leggermente migliore di quella fissa ($2.83\times10^{-1}$ contro
+$2.86\times10^{-1}$), perché risplittare a ogni cambio di batch evita che il
 validation set diventi poco informativo.
 
 \paragraph{Confronto con i riferimenti.}
 La Tabella~\ref{tab:riuso_valid_confronto} confronta lo stop adattivo con la
 \emph{base} e con $M=\infty$ (seed 42). Con i valori di default lo stop
-adattivo è paragonabile alla \emph{base} ($2.87\times10^{-1}$ contro
-$2.37\times10^{-1}$) ma con molti meno ricampionamenti (10.7 contro 29) e, per
+adattivo è peggiore della \emph{base} ($2.53\times10^{-1}$ contro
+$2.05\times10^{-1}$) ma con molti meno ricampionamenti (11.1 contro 29) e, per
 i metodi di Newton, evita il collasso di $M=\infty$: su Newton-CG con termine
 incrociato l'errore finale passa da $1.41$ (riuso illimitato) a
 $7.88\times10^{-2}$, migliore persino della \emph{base}. La calibrazione
 ($P=1$, $p=10\%$, strategia dinamica) porta l'errore medio su 5 seed
-(Tabella~\ref{tab:riuso_valid_robustezza}) a $2.24\times10^{-1}$, inferiore a
-quello della \emph{base} ($2.47\times10^{-1}$) e di $M=\infty$
-($4.29\times10^{-1}$), vincendo in 11 delle 16 combinazioni
+(Tabella~\ref{tab:riuso_valid_robustezza}) a $2.11\times10^{-1}$, inferiore a
+quello della \emph{base} ($2.17\times10^{-1}$) e di $M=\infty$
+($3.96\times10^{-1}$), vincendo in 10 delle 16 combinazioni
 problema$\times$algoritmo.
 
 In sintesi, lo stop adattivo rende il riuso del mini-batch una scelta sicura
-di default, soprattutto per i metodi del secondo ordine, dove $M=\infty$ è
-pericoloso. Gli iperparametri che contano sono la pazienza (bassa), la
-percentuale di validation (bassa) e la strategia dinamica; la tolleranza
-relativa è ininfluente in questo regime. Il costo aggiuntivo è trascurabile:
+per i metodi del secondo ordine, dove $M=\infty$ è pericoloso, ma i valori di
+default sono peggiori della \emph{base} ($2.64\times10^{-1}$ contro
+$2.17\times10^{-1}$ su 5 seed) e vanno calibrati: la calibrazione ($P=1$,
+$p=10\%$, strategia dinamica) porta l'errore medio sotto la \emph{base}
+($2.11\times10^{-1}$, 10/16). Gli iperparametri che contano sono la pazienza
+(bassa) e la percentuale di validation (bassa); la strategia di split e la
+tolleranza relativa hanno effetti marginali. Il costo aggiuntivo è trascurabile:
 una valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni su circa $pN$ esempi.
 
 % Tabelle E.19-E.21 generate da gen_tabelle_riuso_validation.py (altro/script)
@@ -4453,25 +4470,25 @@ una valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni su circa $pN$ esempi.
 \toprule
 Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,p{=}0.1$,dyn & $P{=}3,p{=}0.1$,dyn\\
 \midrule
-$\kappa\approx1.1$ - Dynamic GD &\colorcell{1.24}{-1} (29)&\colorcell{1.23}{-1}$\blacktriangle$ (19)&\colorcell{1.23}{-1}$\blacktriangle$ (19)&\colorcell{1.17}{-1}$\blacktriangle$ (19)&\colorcell{1.14}{-1}$\blacktriangle$ (18)\\
-$\kappa\approx1.1$ - BB-CCV &\colorcell{1.24}{-1} (29)&\colorcell{1.23}{-1}$\blacktriangle$ (19)&\colorcell{1.23}{-1}$\blacktriangle$ (19)&\colorcell{1.17}{-1}$\blacktriangle$ (19)&\colorcell{1.14}{-1}$\blacktriangle$ (18)\\
-$\kappa\approx1.1$ - Newton-CG &\colorcell{3.73}{-1} (29)&\colorcell{1.41}{0}$\blacktriangledown$ (0)&\colorcell{2.98}{-1}$\blacktriangle$ (3)&\colorcell{1.78}{-1}$\blacktriangle$ (5)&\colorcell{1.69}{-1}$\blacktriangle$ (6)\\
-$\kappa\approx1.1$ - Newton-CG $L_1$ &\colorcell{1.11}{-1} (29)&\colorcell{7.78}{-2}$\blacktriangle$ (6)&\colorcell{7.78}{-2}$\blacktriangle$ (6)&\colorcell{8.71}{-2}$\blacktriangle$ (13)&\colorcell{8.71}{-2}$\blacktriangle$ (13)\\
+$\kappa\approx1.1$ - Dynamic GD & \colorcell{1.24}{-1} (29) & \colorcell{1.23}{-1}$\blacktriangle$ (19) & \colorcell{1.23}{-1}$\blacktriangle$ (19) & \colorcell{1.17}{-1}$\blacktriangle$ (19) & \colorcell{1.14}{-1}$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - BB-CCV & \colorcell{1.23}{-1} (29) & \colorcell{1.23}{-1}$\blacktriangledown$ (8) & \colorcell{1.23}{-1}$\blacktriangledown$ (8) & \colorcell{1.16}{-1}$\blacktriangle$ (26) & \colorcell{1.16}{-1}$\blacktriangle$ (26)\\
+$\kappa\approx1.1$ - Newton-CG & \colorcell{3.73}{-1} (29) & \colorcell{1.41}{0}$\blacktriangledown$ (0) & \colorcell{2.98}{-1}$\blacktriangle$ (3) & \colorcell{1.78}{-1}$\blacktriangle$ (5) & \colorcell{1.69}{-1}$\blacktriangle$ (6)\\
+$\kappa\approx1.1$ - Newton-CG $L_1$ & \colorcell{1.11}{-1} (29) & \colorcell{7.78}{-2}$\blacktriangle$ (6) & \colorcell{7.78}{-2}$\blacktriangle$ (6) & \colorcell{8.71}{-2}$\blacktriangle$ (13) & \colorcell{8.71}{-2}$\blacktriangle$ (13)\\
 \midrule
-$\kappa\approx20$ - Dynamic GD &\colorcell{5.64}{-2} (29)&\colorcell{6.18}{-2}$\blacktriangledown$ (1)&\colorcell{6.18}{-2}$\blacktriangledown$ (1)&\colorcell{1.57}{-1}$\blacktriangledown$ (27)&\colorcell{1.21}{-2}$\blacktriangle$ (8)\\
-$\kappa\approx20$ - BB-CCV &\colorcell{5.64}{-2} (29)&\colorcell{6.18}{-2}$\blacktriangledown$ (1)&\colorcell{6.18}{-2}$\blacktriangledown$ (1)&\colorcell{1.57}{-1}$\blacktriangledown$ (27)&\colorcell{1.21}{-2}$\blacktriangle$ (8)\\
-$\kappa\approx20$ - Newton-CG &\colorcell{1.72}{-1} (29)&\colorcell{6.46}{-1}$\blacktriangledown$ (0)&\colorcell{3.70}{-1}$\blacktriangledown$ (6)&\colorcell{1.87}{-1}$\blacktriangledown$ (11)&\colorcell{4.07}{-1}$\blacktriangledown$ (5)\\
-$\kappa\approx20$ - Newton-CG $L_1$ &\colorcell{4.87}{-1} (29)&\colorcell{5.98}{-1}$\blacktriangledown$ (4)&\colorcell{5.98}{-1}$\blacktriangledown$ (4)&\colorcell{6.65}{-1}$\blacktriangledown$ (7)&\colorcell{6.72}{-1}$\blacktriangledown$ (5)\\
+$\kappa\approx20$ - Dynamic GD & \colorcell{5.64}{-2} (29) & \colorcell{6.18}{-2}$\blacktriangledown$ (1) & \colorcell{6.18}{-2}$\blacktriangledown$ (1) & \colorcell{1.57}{-1}$\blacktriangledown$ (27) & \colorcell{1.21}{-2}$\blacktriangle$ (8)\\
+$\kappa\approx20$ - BB-CCV & \colorcell{1.72}{-3} (29) & \colorcell{1.72}{-3}$\blacktriangle$ (10) & \colorcell{1.72}{-3}$\blacktriangle$ (13) & \colorcell{3.78}{-2}$\blacktriangledown$ (26) & \colorcell{1.62}{-2}$\blacktriangledown$ (20)\\
+$\kappa\approx20$ - Newton-CG & \colorcell{1.72}{-1} (29) & \colorcell{6.46}{-1}$\blacktriangledown$ (0) & \colorcell{3.70}{-1}$\blacktriangledown$ (6) & \colorcell{1.87}{-1}$\blacktriangledown$ (11) & \colorcell{4.07}{-1}$\blacktriangledown$ (5)\\
+$\kappa\approx20$ - Newton-CG $L_1$ & \colorcell{4.87}{-1} (29) & \colorcell{5.98}{-1}$\blacktriangledown$ (4) & \colorcell{5.98}{-1}$\blacktriangledown$ (4) & \colorcell{6.65}{-1}$\blacktriangledown$ (7) & \colorcell{6.72}{-1}$\blacktriangledown$ (5)\\
 \midrule
-$\kappa\approx100$ - Dynamic GD &\colorcell{4.54}{-1} (29)&\colorcell{4.71}{-1}$\blacktriangledown$ (26)&\colorcell{4.71}{-1}$\blacktriangledown$ (26)&\colorcell{5.41}{-1}$\blacktriangledown$ (27)&\colorcell{4.01}{-1}$\blacktriangle$ (26)\\
-$\kappa\approx100$ - BB-CCV &\colorcell{4.54}{-1} (29)&\colorcell{4.71}{-1}$\blacktriangledown$ (26)&\colorcell{4.71}{-1}$\blacktriangledown$ (26)&\colorcell{5.41}{-1}$\blacktriangledown$ (27)&\colorcell{4.01}{-1}$\blacktriangle$ (26)\\
-$\kappa\approx100$ - Newton-CG &\colorcell{1.83}{-1} (29)&\colorcell{1.41}{0}$\blacktriangledown$ (0)&\colorcell{8.26}{-1}$\blacktriangledown$ (8)&\colorcell{1.97}{-1}$\blacktriangledown$ (12)&\colorcell{3.95}{-1}$\blacktriangledown$ (5)\\
-$\kappa\approx100$ - Newton-CG $L_1$ &\colorcell{8.67}{-1} (29)&\colorcell{9.70}{-1}$\blacktriangledown$ (3)&\colorcell{9.69}{-1}$\blacktriangledown$ (4)&\colorcell{9.69}{-1}$\blacktriangledown$ (9)&\colorcell{9.69}{-1}$\blacktriangledown$ (4)\\
+$\kappa\approx100$ - Dynamic GD & \colorcell{4.54}{-1} (29) & \colorcell{4.71}{-1}$\blacktriangledown$ (26) & \colorcell{4.71}{-1}$\blacktriangledown$ (26) & \colorcell{5.41}{-1}$\blacktriangledown$ (27) & \colorcell{4.01}{-1}$\blacktriangle$ (26)\\
+$\kappa\approx100$ - BB-CCV & \colorcell{1.72}{-3} (29) & \colorcell{1.46}{-3}$\blacktriangle$ (26) & \colorcell{1.46}{-3}$\blacktriangle$ (26) & \colorcell{3.49}{-3}$\blacktriangledown$ (27) & \colorcell{2.26}{-1}$\blacktriangledown$ (25)\\
+$\kappa\approx100$ - Newton-CG & \colorcell{1.83}{-1} (29) & \colorcell{1.41}{0}$\blacktriangledown$ (0) & \colorcell{8.26}{-1}$\blacktriangledown$ (8) & \colorcell{1.97}{-1}$\blacktriangledown$ (12) & \colorcell{3.95}{-1}$\blacktriangledown$ (5)\\
+$\kappa\approx100$ - Newton-CG $L_1$ & \colorcell{8.67}{-1} (29) & \colorcell{9.70}{-1}$\blacktriangledown$ (3) & \colorcell{9.69}{-1}$\blacktriangledown$ (4) & \colorcell{9.69}{-1}$\blacktriangledown$ (9) & \colorcell{9.69}{-1}$\blacktriangledown$ (4)\\
 \midrule
-incrociato ($\kappa\approx1.67$) - Dynamic GD &\colorcell{1.87}{-2} (29)&\colorcell{1.73}{-2}$\blacktriangle$ (16)&\colorcell{1.73}{-2}$\blacktriangle$ (16)&\colorcell{6.15}{-3}$\blacktriangle$ (16)&\colorcell{6.24}{-3}$\blacktriangle$ (15)\\
-incrociato ($\kappa\approx1.67$) - BB-CCV &\colorcell{1.87}{-2} (29)&\colorcell{1.73}{-2}$\blacktriangle$ (16)&\colorcell{1.73}{-2}$\blacktriangle$ (16)&\colorcell{6.15}{-3}$\blacktriangle$ (16)&\colorcell{6.24}{-3}$\blacktriangle$ (15)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG &\colorcell{2.87}{-1} (29)&\colorcell{1.41}{0}$\blacktriangledown$ (0)&\colorcell{7.88}{-2}$\blacktriangle$ (5)&\colorcell{9.28}{-2}$\blacktriangle$ (11)&\colorcell{1.78}{-1}$\blacktriangle$ (8)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ &\colorcell{1.06}{-2} (29)&\colorcell{2.23}{-2}$\blacktriangledown$ (11)&\colorcell{2.23}{-2}$\blacktriangledown$ (11)&\colorcell{2.76}{-2}$\blacktriangledown$ (17)&\colorcell{2.78}{-2}$\blacktriangledown$ (14)\\
+incrociato ($\kappa\approx1.67$) - Dynamic GD & \colorcell{1.87}{-2} (29) & \colorcell{1.73}{-2}$\blacktriangle$ (16) & \colorcell{1.73}{-2}$\blacktriangle$ (16) & \colorcell{6.15}{-3}$\blacktriangle$ (16) & \colorcell{6.24}{-3}$\blacktriangle$ (15)\\
+incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{9.56}{-3} (29) & \colorcell{9.56}{-3}$\blacktriangle$ (19) & \colorcell{9.56}{-3}$\blacktriangle$ (21) & \colorcell{5.38}{-4}$\blacktriangle$ (27) & \colorcell{5.38}{-4}$\blacktriangle$ (27)\\
+incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.87}{-1} (29) & \colorcell{1.41}{0}$\blacktriangledown$ (0) & \colorcell{7.88}{-2}$\blacktriangle$ (5) & \colorcell{9.28}{-2}$\blacktriangle$ (11) & \colorcell{1.78}{-1}$\blacktriangle$ (8)\\
+incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{1.06}{-2} (29) & \colorcell{2.23}{-2}$\blacktriangledown$ (11) & \colorcell{2.23}{-2}$\blacktriangledown$ (11) & \colorcell{2.76}{-2}$\blacktriangledown$ (17) & \colorcell{2.78}{-2}$\blacktriangledown$ (14)\\
 \midrule
 \bottomrule
 \end{tabular}
@@ -4491,23 +4508,23 @@ incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ &\colorcell{1.06}{-2} (29)&\c
 \toprule
 Iperparametro & Valore & $\overline{e}_{30}$ & ricampionamenti medi\\
 \midrule
-Pazienza $P$ & 1 &\colorcell{2.63}{-1}& 12.8\\
-Pazienza $P$ & 3 &\colorcell{2.98}{-1}& 9.9\\
-Pazienza $P$ & 8 &\colorcell{3.45}{-1}& 9.3\\
+Pazienza $P$ & 1 & \colorcell{2.43}{-1} & 13.8\\
+Pazienza $P$ & 3 & \colorcell{2.81}{-1} & 11.6\\
+Pazienza $P$ & 8 & \colorcell{3.29}{-1} & 10.9\\
 \midrule
-Tolleranza $\tau$ & $10^{-5}$ &\colorcell{3.02}{-1}& 10.7\\
-Tolleranza $\tau$ & $10^{-4}$ &\colorcell{3.02}{-1}& 10.7\\
-Tolleranza $\tau$ & $10^{-3}$ &\colorcell{3.02}{-1}& 10.7\\
+Tolleranza $\tau$ & $10^{-5}$ & \colorcell{2.85}{-1} & 12.1\\
+Tolleranza $\tau$ & $10^{-4}$ & \colorcell{2.85}{-1} & 12.1\\
+Tolleranza $\tau$ & $10^{-3}$ & \colorcell{2.85}{-1} & 12.1\\
 \midrule
-Percentuale $p$ & 10\% &\colorcell{2.70}{-1}& 11.2\\
-Percentuale $p$ & 20\% &\colorcell{3.06}{-1}& 10.1\\
-Percentuale $p$ & 30\% &\colorcell{3.30}{-1}& 10.7\\
+Percentuale $p$ & 10\% & \colorcell{2.48}{-1} & 12.5\\
+Percentuale $p$ & 20\% & \colorcell{2.92}{-1} & 11.6\\
+Percentuale $p$ & 30\% & \colorcell{3.14}{-1} & 12.3\\
 \midrule
-Frequenza $f$ & 1 &\colorcell{2.76}{-1}& 11.5\\
-Frequenza $f$ & 3 &\colorcell{3.28}{-1}& 9.8\\
+Frequenza $f$ & 1 & \colorcell{2.57}{-1} & 12.9\\
+Frequenza $f$ & 3 & \colorcell{3.12}{-1} & 11.3\\
 \midrule
-Strategia di split & \emph{fisso} &\colorcell{3.21}{-1}& 10.9\\
-Strategia di split & \emph{dinamico} &\colorcell{2.83}{-1}& 10.5\\
+Strategia di split & \emph{fisso} & \colorcell{2.86}{-1} & 11.4\\
+Strategia di split & \emph{dinamico} & \colorcell{2.83}{-1} & 12.9\\
 \midrule
 \bottomrule
 \end{tabular}
@@ -4527,16 +4544,16 @@ Strategia di split & \emph{dinamico} &\colorcell{2.83}{-1}& 10.5\\
 \toprule
 Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$)\\
 \midrule
-\emph{base} &\colorcell{2.47}{-1}& 0/16 &\colorcell{1.89}{-1}&\colorcell{2.06}{-1}&\colorcell{5.06}{-1}&\colorcell{8.63}{-2}\\
-$M{=}\infty$ &\colorcell{4.29}{-1}& 5/16 &\colorcell{2.50}{-1}&\colorcell{4.73}{-1}&\colorcell{8.23}{-1}&\colorcell{1.71}{-1}\\
+\emph{base} & \colorcell{2.17}{-1} & 0/16 & \colorcell{1.88}{-1} & \colorcell{1.92}{-1} & \colorcell{4.04}{-1} & \colorcell{8.44}{-2}\\
+$M{=}\infty$ & \colorcell{3.96}{-1} & 5/16 & \colorcell{2.50}{-1} & \colorcell{4.51}{-1} & \colorcell{7.16}{-1} & \colorcell{1.70}{-1}\\
 \midrule
-def. &\colorcell{2.98}{-1}& 7/16 &\colorcell{1.35}{-1}&\colorcell{3.36}{-1}&\colorcell{6.81}{-1}&\colorcell{3.93}{-2}\\
-$P{=}1,p{=}0.1$,dyn &\colorcell{2.24}{-1}& 11/16 &\colorcell{1.41}{-1}&\colorcell{2.28}{-1}&\colorcell{4.84}{-1}&\colorcell{4.15}{-2}\\
-$P{=}3,p{=}0.1$,dyn &\colorcell{2.43}{-1}& 11/16 &\colorcell{1.40}{-1}&\colorcell{2.53}{-1}&\colorcell{5.33}{-1}&\colorcell{4.54}{-2}\\
+def. & \colorcell{2.64}{-1} & 7/16 & \colorcell{1.35}{-1} & \colorcell{3.14}{-1} & \colorcell{5.71}{-1} & \colorcell{3.81}{-2}\\
+$P{=}1,p{=}0.1$,dyn & \colorcell{2.11}{-1} & 10/16 & \colorcell{1.40}{-1} & \colorcell{2.11}{-1} & \colorcell{4.54}{-1} & \colorcell{3.92}{-2}\\
+$P{=}3,p{=}0.1$,dyn & \colorcell{2.40}{-1} & 9/16 & \colorcell{1.40}{-1} & \colorcell{2.47}{-1} & \colorcell{5.29}{-1} & \colorcell{4.37}{-2}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Robustezza su 5 seed: la calibrazione $P{=}1,p{=}0.1$,dyn porta l'errore medio a $2.24\times10^{-1}$, inferiore a quello della base ($2.47\times10^{-1}$) e di $M{=}\infty$ ($4.29\times10^{-1}$), vincendo in 11 combinazioni su 16.
+\noindent\emph{Lettura.} Robustezza su 5 seed: la calibrazione $P{=}1,p{=}0.1$,dyn porta l'errore medio a $2.11\times10^{-1}$, inferiore a quello della base ($2.17\times10^{-1}$) e di $M{=}\infty$ ($3.96\times10^{-1}$), vincendo in 10 combinazioni su 16.
 
 
 \subsubsection{Riuso per discesa della loss sul batch}\label{app:riuso-descesa}
@@ -4611,14 +4628,14 @@ L'applicazione espone quattro iperparametri:
 La Tabella~\ref{tab:riuso_desc_iper} riporta l'effetto marginale di ciascun
 iperparametro, mediato sulle 16 combinazioni problema$\times$algoritmo. Il
 quadro è simile a quello del criterio di validazione: la pazienza è
-l'iperparametro più influente ($P=1$ riduce l'errore medio di circa il 21\%
-rispetto a $P=8$, $2.61\times10^{-1}$ contro $3.30\times10^{-1}$, con pochi
-ricampionamenti in più: 11.1 contro 10.2 su 30 iterazioni); la tolleranza è
+l'iperparametro più influente ($P=1$ riduce l'errore medio di circa il 23\%
+rispetto a $P=8$, $2.32\times10^{-1}$ contro $3.00\times10^{-1}$, con pochi
+ricampionamenti in più: 10.4 contro 9.6 su 30 iterazioni); la tolleranza è
 quasi ininfluente nell'intervallo testato
 $(10^{-5},\,10^{-3})$ --- la differenza tra $10^{-5}$ e $10^{-4}$ non è
 misurabile e solo $10^{-3}$ dà un errore medio di poco inferiore; valutare a
 ogni iterazione ($f=1$) è meglio di $f=3$
-($2.67\times10^{-1}$ contro $3.15\times10^{-1}$).
+($2.39\times10^{-1}$ contro $2.85\times10^{-1}$).
 
 % =====================================================================
 % Tabelle riuso per discesa (confronto, sensibilità, robustezza) e
@@ -4631,31 +4648,30 @@ ogni iterazione ($f=1$) è meglio di $f=3$
 \centering
 \tiny
 \renewcommand{\arraystretch}{1.0}
-\setlength{\tabcolsep}{1.0pt}
-\caption{Riuso per discesa della loss sul batch: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default del criterio di discesa ($\tau=10^{-4}$, $P=1$, $f=1$, soglia assoluta 0); $P{=}1,\tau{=}10^{-3}$ e $P{=}1,\tau{=}10^{-5}$ (in entrambe $f{=}1$) = migliori configurazioni dello sweep (media di $e_{30}$ su 16 combinazioni problema$\times$algoritmo). Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dall'intero dataset (nessun validation set). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato.}
+\setlength{\tabcolsep}{1.5pt}
+\caption{Riuso per discesa della loss sul batch: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default del criterio di discesa ($\tau=10^{-4}$, $P=1$, $f=1$, soglia assoluta 0); $P{=}1,\tau{=}10^{-3},f{=}1$ e $P{=}1,\tau{=}10^{-5},f{=}1$ = migliori configurazioni dello sweep (media di $e_{30}$ su 16 combinazioni problema$\times$algoritmo). Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dall'intero dataset (nessun validation set). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato.}
 \label{tab:riuso_desc_confronto}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,\tau{=}10^{-3}$ & $P{=}1,\tau{=}10^{-5}$\\
+Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,\tau{=}10^{-3},f{=}1$ & $P{=}1,\tau{=}10^{-5},f{=}1$\\
 \midrule
 $\kappa\approx1.1$ - Dynamic GD & \colorcell{1.19}{-1} (29) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18)\\
-$\kappa\approx1.1$ - BB-CCV & \colorcell{1.19}{-1} (29) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18) & \colorcell{1.17}{-1}$\blacktriangle$ (18)\\
+$\kappa\approx1.1$ - BB-CCV & \colorcell{1.17}{-1} (11) & \colorcell{1.17}{-1}$\blacktriangle$ (5) & \colorcell{1.17}{-1}$\blacktriangle$ (5) & \colorcell{1.17}{-1}$\blacktriangle$ (5) & \colorcell{1.17}{-1}$\blacktriangle$ (5)\\
 $\kappa\approx1.1$ - Newton-CG & \colorcell{3.06}{-1} (29) & \colorcell{2.22}{-1}$\blacktriangle$ (2) & \colorcell{1.65}{-1}$\blacktriangle$ (4) & \colorcell{1.65}{-1}$\blacktriangle$ (4) & \colorcell{1.65}{-1}$\blacktriangle$ (4)\\
 $\kappa\approx1.1$ - Newton-CG $L_1$ & \colorcell{1.00}{-1} (29) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8) & \colorcell{8.17}{-2}$\blacktriangle$ (8)\\
 \midrule
 $\kappa\approx20$ - Dynamic GD & \colorcell{4.91}{-2} (29) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{4.89}{-2}$\blacktriangle$ (14) & \colorcell{1.01}{-1}$\blacktriangledown$ (1)\\
-$\kappa\approx20$ - BB-CCV & \colorcell{4.91}{-2} (29) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{1.01}{-1}$\blacktriangledown$ (1) & \colorcell{4.89}{-2}$\blacktriangle$ (14) & \colorcell{1.01}{-1}$\blacktriangledown$ (1)\\
+$\kappa\approx20$ - BB-CCV & \colorcell{9.72}{-5} (29) & \colorcell{9.54}{-10}$\blacktriangle$ (14) & \colorcell{9.54}{-10}$\blacktriangle$ (14) & \colorcell{9.54}{-10}$\blacktriangle$ (14) & \colorcell{9.54}{-10}$\blacktriangle$ (14)\\
 $\kappa\approx20$ - Newton-CG & \colorcell{1.67}{-1} (29) & \colorcell{1.28}{0}$\blacktriangledown$ (0) & \colorcell{2.48}{-1}$\blacktriangledown$ (8) & \colorcell{2.48}{-1}$\blacktriangledown$ (8) & \colorcell{2.48}{-1}$\blacktriangledown$ (8)\\
 $\kappa\approx20$ - Newton-CG $L_1$ & \colorcell{5.46}{-1} (29) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5) & \colorcell{7.62}{-1}$\blacktriangledown$ (5)\\
 \midrule
-
 $\kappa\approx100$ - Dynamic GD & \colorcell{4.67}{-1} (29) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27)\\
-$\kappa\approx100$ - BB-CCV & \colorcell{4.67}{-1} (29) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27) & \colorcell{3.71}{-1}$\blacktriangle$ (27)\\
+$\kappa\approx100$ - BB-CCV & \colorcell{1.10}{-14} (10) & \colorcell{7.45}{-3}$\blacktriangledown$ (24) & \colorcell{7.45}{-3}$\blacktriangledown$ (24) & \colorcell{7.45}{-3}$\blacktriangledown$ (24) & \colorcell{7.45}{-3}$\blacktriangledown$ (24)\\
 $\kappa\approx100$ - Newton-CG & \colorcell{2.30}{-1} (29) & \colorcell{1.28}{0}$\blacktriangledown$ (0) & \colorcell{4.26}{-1}$\blacktriangledown$ (11) & \colorcell{4.26}{-1}$\blacktriangledown$ (11) & \colorcell{4.26}{-1}$\blacktriangledown$ (11)\\
 $\kappa\approx100$ - Newton-CG $L_1$ & \colorcell{8.66}{-1} (29) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5) & \colorcell{9.71}{-1}$\blacktriangledown$ (5)\\
 \midrule
 incrociato ($\kappa\approx1.67$) - Dynamic GD & \colorcell{9.42}{-3} (29) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16)\\
-incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{9.42}{-3} (29) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16) & \colorcell{5.53}{-3}$\blacktriangle$ (16)\\
+incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{6.16}{-4} (15) & \colorcell{6.17}{-4}$\blacktriangledown$ (9) & \colorcell{6.17}{-4}$\blacktriangledown$ (9) & \colorcell{6.17}{-4}$\blacktriangledown$ (9) & \colorcell{6.17}{-4}$\blacktriangledown$ (9)\\
 incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.64}{-1} (29) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5) & \colorcell{4.10}{-2}$\blacktriangle$ (5)\\
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.52}{-2} (29) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10) & \colorcell{3.89}{-2}$\blacktriangledown$ (10)\\
 \midrule
@@ -4677,16 +4693,16 @@ incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.52}{-2} (29) &
 \toprule
 Iperparametro & Valore & $\overline{e}_{30}$ & ricampionamenti medi\\
 \midrule
-Pazienza $P$ & 1 & \colorcell{2.61}{-1} & 11.1\\
-Pazienza $P$ & 3 & \colorcell{2.82}{-1} & 10.5\\
-Pazienza $P$ & 8 & \colorcell{3.30}{-1} & 10.2\\
+Pazienza $P$ & 1 & \colorcell{2.32}{-1} & 10.4\\
+Pazienza $P$ & 3 & \colorcell{2.53}{-1} & 9.8\\
+Pazienza $P$ & 8 & \colorcell{3.00}{-1} & 9.6\\
 \midrule
-Tolleranza $\tau$ & $10^{-5}$ & \colorcell{2.92}{-1} & 10.5\\
-Tolleranza $\tau$ & $10^{-4}$ & \colorcell{2.92}{-1} & 10.5\\
-Tolleranza $\tau$ & $10^{-3}$ & \colorcell{2.90}{-1} & 10.8\\
+Tolleranza $\tau$ & $10^{-5}$ & \colorcell{2.62}{-1} & 9.9\\
+Tolleranza $\tau$ & $10^{-4}$ & \colorcell{2.62}{-1} & 9.9\\
+Tolleranza $\tau$ & $10^{-3}$ & \colorcell{2.61}{-1} & 10.0\\
 \midrule
-Frequenza $f$ & 1 & \colorcell{2.67}{-1} & 10.9\\
-Frequenza $f$ & 3 & \colorcell{3.15}{-1} & 10.2\\
+Frequenza $f$ & 1 & \colorcell{2.39}{-1} & 10.2\\
+Frequenza $f$ & 3 & \colorcell{2.85}{-1} & 9.6\\
 \midrule
 \bottomrule
 \end{tabular}
@@ -4706,16 +4722,16 @@ Frequenza $f$ & 3 & \colorcell{3.15}{-1} & 10.2\\
 \toprule
 Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$)\\
 \midrule
-\emph{base} & \colorcell{2.43}{-1} & 0/16 & \colorcell{1.80}{-1} & \colorcell{1.89}{-1} & \colorcell{5.18}{-1} & \colorcell{8.39}{-2}\\
-$M{=}\infty$ & \colorcell{3.95}{-1} & 8/16 & \colorcell{1.91}{-1} & \colorcell{5.20}{-1} & \colorcell{7.69}{-1} & \colorcell{1.00}{-1}\\
+\emph{base} & \colorcell{2.12}{-1} & 0/16 & \colorcell{1.79}{-1} & \colorcell{1.76}{-1} & \colorcell{4.12}{-1} & \colorcell{8.14}{-2}\\
+$M{=}\infty$ & \colorcell{3.64}{-1} & 8/16 & \colorcell{1.92}{-1} & \colorcell{5.01}{-1} & \colorcell{6.64}{-1} & \colorcell{9.88}{-2}\\
 \midrule
-def. & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \colorcell{2.59}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
-$P{=}1,\tau{=}10^{-3}$ & \colorcell{2.31}{-1} & 12/16 & \colorcell{1.18}{-1} & \colorcell{2.46}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
-$P{=}1,\tau{=}10^{-5}$ & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \colorcell{2.59}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+def. & \colorcell{2.03}{-1} & 10/16 & \colorcell{1.19}{-1} & \colorcell{2.41}{-1} & \colorcell{4.20}{-1} & \colorcell{3.44}{-2}\\
+$P{=}1,\tau{=}10^{-3},f{=}1$ & \colorcell{2.02}{-1} & 11/16 & \colorcell{1.19}{-1} & \colorcell{2.34}{-1} & \colorcell{4.20}{-1} & \colorcell{3.44}{-2}\\
+$P{=}1,\tau{=}10^{-5},f{=}1$ & \colorcell{2.03}{-1} & 10/16 & \colorcell{1.19}{-1} & \colorcell{2.41}{-1} & \colorcell{4.20}{-1} & \colorcell{3.44}{-2}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Robustezza su 5 seed: la configurazione consigliata ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$) porta l'errore medio a $2.31\times10^{-1}$, inferiore a quello della base ($2.43\times10^{-1}$) e di $M{=}\infty$ ($3.95\times10^{-1}$), con 12 vittorie su 16 combinazioni problema$\times$algoritmo.
+\noindent\emph{Lettura.} Robustezza su 5 seed: la configurazione consigliata ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$) porta l'errore medio a $2.02\times10^{-1}$, inferiore a quello della base ($2.12\times10^{-1}$) e di $M{=}\infty$ ($3.64\times10^{-1}$), con 11 vittorie su 16 combinazioni problema$\times$algoritmo.
 
 
 
@@ -4723,16 +4739,19 @@ $P{=}1,\tau{=}10^{-5}$ & \colorcell{2.35}{-1} & 10/16 & \colorcell{1.18}{-1} & \
 La Tabella~\ref{tab:riuso_desc_confronto} confronta il criterio di discesa
 con la \emph{base} e con $M=\infty$ (seed 42). Con i valori di default il
 criterio si comporta quasi come $M=\infty$ per i metodi del primo ordine:
-per Dynamic GD e BB-CCV la monotonia della ricerca lineare mantiene il batch
+per Dynamic GD la monotonia della ricerca lineare mantiene il batch
 ``in discesa'' e i ricampionamenti aggiuntivi sono rari (per esempio su
 $\kappa\approx20$ il default ricampiona una sola volta, come $M=\infty$,
 peggiorando la \emph{base}: $1.01\times10^{-1}$ contro $4.91\times10^{-2}$).
+Per BB-CCV, invece, il criterio migliora ulteriormente una base già alla
+precisione macchina su $\kappa\approx20$ ($9.54\times10^{-10}$ contro
+$9.72\times10^{-5}$ della \emph{base}).
 Per i metodi di Newton, invece, il criterio limita il riuso ed evita il
 collasso di $M=\infty$: su Newton-CG con $\kappa\approx20$ l'errore finale
 passa da $1.28$ (riuso illimitato) a $2.48\times10^{-1}$. La calibrazione che
 emerge dallo sweep è $\tau=10^{-3}$, $P=1$, $f=1$: una tolleranza più lasca
 riconosce il batch ``esaurito'' prima, e sui problemi in cui $M=\infty$
-fallisce riporta i metodi del primo ordine vicino alla \emph{base} (su
+fallisce riporta Dynamic GD vicino alla \emph{base} (su
 $\kappa\approx20$ l'errore passa da $1.01\times10^{-1}$ a
 $4.89\times10^{-2}$ con 14 ricampionamenti invece di 1).
 
@@ -4740,37 +4759,36 @@ $4.89\times10^{-2}$ con 14 ricampionamenti invece di 1).
 La Tabella~\ref{tab:riuso_desc_robustezza} riporta la robustezza su 5 seed
 indipendenti. La configurazione consigliata
 ($\tau=10^{-3}$, $P=1$, $f=1$) porta l'errore medio su 5 seed a
-$2.31\times10^{-1}$, inferiore a quello della \emph{base}
-($2.43\times10^{-1}$) e di $M=\infty$ ($3.95\times10^{-1}$), vincendo in 12
+$2.02\times10^{-1}$, inferiore a quello della \emph{base}
+($2.12\times10^{-1}$) e di $M=\infty$ ($3.64\times10^{-1}$), vincendo in 11
 delle 16 combinazioni problema$\times$algoritmo. Il default
-($\tau=10^{-4}$, $P=1$, $f=1$) è leggermente peggiore
-($2.35\times10^{-1}$, 10/16): la tolleranza di default è troppo stretta
-perché i metodi del primo ordine vengano riconosciuti ``esauriti''.
+($\tau=10^{-4}$, $P=1$, $f=1$) è pressoché equivalente
+($2.03\times10^{-1}$, 10/16): la tolleranza ha un effetto limitato perché la
+monotonia della ricerca lineare tiene comunque il batch ``in discesa''.
 
 \paragraph{Confronto tra i due criteri automatici.}
 La Tabella~\ref{tab:riuso_confronto_finale} riassume il confronto su 5 seed
 tra la \emph{base}, lo stop adattivo con validation set calibrato ($P=1$,
 $p=10\%$, split dinamico; Sezione~\ref{app:riuso-validation}) e il riuso per
 discesa calibrato ($\tau=10^{-3}$, $P=1$, $f=1$). Entrambi i criteri battono
-la \emph{base} (in 11/16 caselle la validation, in 12/16 la discesa,
+la \emph{base} (in 10/16 caselle la validation, in 11/16 la discesa,
 ciascuno rispetto al proprio riferimento: la \emph{base} sul training set per
 la validation, sull'intero dataset per la discesa) ed evitano il collasso di
-$M=\infty$. In media la validation è leggermente migliore
-($2.24\times10^{-1}$ contro $2.31\times10^{-1}$), ma paga il costo di tenere
-fuori dal campionamento il $10\%$ dei dati; il criterio di discesa usa
-l'intero dataset, non richiede split né validation set ed è più semplice da
-applicare. Su $\kappa\approx20$, il problema su cui $M=\infty$ è più
-pericoloso, i due criteri sono entrambi efficaci ($2.28\times10^{-1}$ e
-$2.46\times10^{-1}$ contro $1.89\times10^{-1}$ della \emph{base} e
-$5.20\times10^{-1}$ di $M=\infty$).
+$M=\infty$. In media la discesa è leggermente migliore
+($2.02\times10^{-1}$ contro $2.11\times10^{-1}$ della validation), e in più
+usa l'intero dataset, non richiede split né validation set ed è più semplice
+da applicare. Su $\kappa\approx20$, il problema su cui $M=\infty$ è più
+pericoloso, i due criteri sono entrambi efficaci ($2.11\times10^{-1}$ e
+$2.34\times10^{-1}$ contro $1.76\times10^{-1}$ della \emph{base} e
+$5.01\times10^{-1}$ di $M=\infty$).
 
 In sintesi, il riuso per discesa è un'alternativa valida allo stop adattivo
 con validation set quando non si vuole (o non si può) riservare una frazione
 dei dati: prestazioni vicine alla \emph{base} con molti meno ricampionamenti
-e protezione dal collasso di $M=\infty$ per i metodi del secondo ordine. Va
-però calibrata la tolleranza ($\tau=10^{-3}$ invece del default $10^{-4}$),
-perché la monotonia della ricerca lineare rende il criterio poco sensibile
-con soglie troppo strette.
+e protezione dal collasso di $M=\infty$ per i metodi del secondo ordine. La
+tolleranza ha un effetto limitato: $\tau=10^{-3}$ è appena meglio del default
+$10^{-4}$, perché la monotonia della ricerca lineare tiene comunque il batch
+``in discesa''.
 
 % Tabella confronto finale - base vs validation vs discesa (5 seed)
 \begin{table}[H]
@@ -4784,15 +4802,15 @@ con soglie troppo strette.
 \toprule
 Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$)\\
 \midrule
-\emph{base} & \colorcell{2.43}{-1} & 0/16 & \colorcell{1.80}{-1} & \colorcell{1.89}{-1} & \colorcell{5.18}{-1} & \colorcell{8.39}{-2}\\
-$M{=}\infty$ & \colorcell{3.95}{-1} & 8/16 & \colorcell{1.91}{-1} & \colorcell{5.20}{-1} & \colorcell{7.69}{-1} & \colorcell{1.00}{-1}\\
+\emph{base} & \colorcell{2.12}{-1} & 0/16 & \colorcell{1.79}{-1} & \colorcell{1.76}{-1} & \colorcell{4.12}{-1} & \colorcell{8.14}{-2}\\
+$M{=}\infty$ & \colorcell{3.64}{-1} & 8/16 & \colorcell{1.92}{-1} & \colorcell{5.01}{-1} & \colorcell{6.64}{-1} & \colorcell{9.88}{-2}\\
 \midrule
-$P{=}1,p{=}0.1$,dyn & \colorcell{2.24}{-1} & 11/16 & \colorcell{1.41}{-1} & \colorcell{2.28}{-1} & \colorcell{4.84}{-1} & \colorcell{4.15}{-2}\\
-$\tau{=}10^{-3},P{=}1,f{=}1$ & \colorcell{2.31}{-1} & 12/16 & \colorcell{1.18}{-1} & \colorcell{2.46}{-1} & \colorcell{5.24}{-1} & \colorcell{3.58}{-2}\\
+$P{=}1,p{=}0.1$,dyn & \colorcell{2.11}{-1} & 10/16 & \colorcell{1.40}{-1} & \colorcell{2.11}{-1} & \colorcell{4.54}{-1} & \colorcell{3.92}{-2}\\
+$\tau{=}10^{-3},P{=}1,f{=}1$ & \colorcell{2.02}{-1} & 11/16 & \colorcell{1.19}{-1} & \colorcell{2.34}{-1} & \colorcell{4.20}{-1} & \colorcell{3.44}{-2}\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Chiude il confronto tra i due criteri automatici su 5 seed: la validation calibrata è leggermente migliore in media ($2.24\times10^{-1}$ contro $2.31\times10^{-1}$) ma tiene fuori il 10\% dei dati; la discesa usa l'intero dataset, non richiede split né validation set ed è più semplice da applicare.
+\noindent\emph{Lettura.} Chiude il confronto tra i due criteri automatici su 5 seed: la discesa calibrata è leggermente migliore in media ($2.02\times10^{-1}$ contro $2.11\times10^{-1}$ della validation) e usa l'intero dataset, senza riservare dati; la validation tiene fuori il 10\% dei dati.
 
 
 
@@ -6614,9 +6632,12 @@ s_k = w_k - w_{k-1}, \qquad y_k = g_k - g_{k-1}, \qquad
 \alpha_k^{\mathrm{BB}} = \frac{s_k^{\top} s_k}{s_k^{\top} y_k}.
 \]
 Per una quadratica vale $y_k = \nabla^2 J\, s_k$; quindi
-$\alpha_k^{\mathrm{BB}}$ coincide con l'inverso di una media di Rayleigh
-della Hessiana lungo $s_k$, cioè un passo di Newton scalare a costo nullo,
-poiché $s_k$ e $y_k$ sono quantità già disponibili. Per robustezza sui problemi
+$\alpha_k^{\mathrm{BB}} = \frac{s_k^\top s_k}{s_k^\top \nabla^2 J\, s_k}$
+coincide con l'inverso della curvatura media di $\nabla^2 J$ lungo la direzione
+$s_k$ --- il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è una
+media pesata delle curvature della Hessiana --- cioè un passo di Newton scalare
+a costo nullo, poiché $s_k$ e $y_k$ sono quantità già disponibili. Per
+robustezza sui problemi
 non quadratici il passo è salvaguardato nell'intervallo $[\alpha/20,\,5\alpha]$
 tramite \texttt{np.clip}; se $s_k^{\top}y_k$ è numericamente nullo si torna al
 passo base $\alpha$. Alla prima iterazione ($k=0$) la coppia $(s,y)$ non esiste

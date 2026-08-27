@@ -157,6 +157,49 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **BB-CCV: corretto un bug che scartava
+  il passo di Barzilai–Borwein negli esperimenti del riuso (Sez. 6.7), nella
+  app (varianti validation/descesa) e negli harness; rigenerati tutti i dati
+  BB-CCV della Sez. 6.7; corretti anche due "1.4"→"1.28" e rimossa ogni
+  occorrenza di "Rayleigh".** (1) **Causa radice**: le varianti BB-CCV con
+  validation/descesa dell'app (`generateBBValidation`/`generateBBDescent`
+  usavano lo snippet `lsArmijoGD`/`lsWolfeGD` che contiene `step = alpha`) e
+  gli harness degli esperimenti (`validation_codice_generato/bb_armijo.py`,
+  `descent_codice_generato/bb_armijo.py`, e il generatore storico delle
+  tabelle E) **sovrascrivevano il passo BB con il default fisso α** prima
+  della line search di Armijo: BB-CCV degenerava in GD con Armijo. Corretto
+  aggiungendo `lsArmijoBB`/`lsWolfeBB` (senza il reset) in
+  `visualizzazione.html` e rimuovendo la riga `step = alpha` dai due file
+  estratti. Il BB-CCV normale (app, tabelle test Sez. 6.5, tabelle consigliati
+  6.29) era già corretto: per questo c'era la contraddizione interna (Sez.
+  6.5/6.29: BB alla precisione macchina su κ≈100; Sez. 6.7: BB bloccato a
+  4.67e-1). (2) **Rigenerati** con l'implementazione corretta: tabelle E-BB
+  (6.7/6.11/6.15/6.19), righe BB della sintesi 6.20 e della robustezza 6.21
+  (nuovi generatori in `/tmp`, non in repo), tabelle validation 6.22–6.24 e
+  descesa 6.25–6.27 (rieseguiti `gen_tabelle_riuso_validation.py` e
+  `gen_tabelle_riuso_descesa.py` con il BB corretto; GD/NCG/L1 invariati) e
+  confronto finale 6.28. **Nuovi risultati BB-CCV**: su κ≈20 la base converge
+  a 9.72e-5 e il riuso la migliora (M=∞: 9.54e-10); su κ≈100 la base è già
+  alla precisione macchina (1.10e-14 a k=11) e il riuso la peggiora (7.45e-3);
+  su κ≈1.1 e incrociato il riuso è neutro. *"Dynamic GD e BB-CCV si
+  comportano in modo quasi identico"* rimosso (era un artefatto del bug):
+  la prosa della Sez. 6.7.4/6.7.5/6.7.6/6.7.7 è stata riscritta per separare i
+  due metodi. (3) **Conseguenze a valle**: nello stop adattivo con validation
+  i default ora risultano peggiori della base (2.64e-1 vs 2.17e-1 su 5 seed;
+  la calibrazione P=1,p=10%,dyn li porta a 2.11e-1, 10/16); nella discesa τ ha
+  un effetto limitato e la config. consigliata (τ=10⁻³,P=1,f=1) dà 2.02e-1
+  (11/16), ora **leggermente meglio** della validation (2.11e-1, 10/16) —
+  invertita la frase "la validation è leggermente migliore". (4) Corretti
+  `e_{30}≈1.4` → `1.28` (righe 3240 e 4361) e rimossi "quoziente di
+  Rayleigh"/"media di Rayleigh" (righe 2304 e 6617, sostituiti con la
+  definizione di curvatura media pesata). Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**130 pp**, 0 errori, 0 undefined; i 13 overfull
+  preesistenti, nessun nuovo). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf + visualizzazione.html + i due bb_armijo.py
+  (md5 verificati). `bozza.tex` non toccata. Nota: i nuovi dati BB delle
+  tabelle E/sintesi/robustezza vengono da un generatore in `/tmp`
+  (non in repo); le tabelle validation/descesa sono rigenerabili con gli
+  script esistenti.
 - **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7.2 (Meccanismo del
   riuso): corretta la varianza del rumore per-esempio nel modello teorico.**
   Il modello illustrativo dichiarava $\varepsilon^{(i)} \sim
