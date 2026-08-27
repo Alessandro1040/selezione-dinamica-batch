@@ -3175,7 +3175,7 @@ J(w) = \kappa\, w_1^2 + w_2^2, \qquad w^* = (0,0),
 \]
 con loss individuale $\ell(w; i) = \kappa(w_1 + \varepsilon_1^{(i)})^2 +
 (w_2 + \varepsilon_2^{(i)})^2$, dove $\varepsilon^{(i)} \sim \mathcal{N}(0,
-0.36\,I)$. La media su tutti gli $N$ esempi coincide con $J(w)$, ma ogni loss
+0.04\,I)$. La media su tutti gli $N$ esempi coincide con $J(w)$, ma ogni loss
 è centrata in un punto diverso.
 
 Il gradiente sul batch $\mathcal{S}_k$ è
@@ -3211,7 +3211,7 @@ condizionamento $\kappa$ e dall'algoritmo:
 \item Mal condizionato ($\kappa \gg 1$). Esiste una direzione quasi
   piatta (nel nostro esempio $w_2$) in cui il gradiente è debole e il passo
   è lentissimo. Anche un modesto spostamento del minimo campionato
-  ($\bar\varepsilon_2 \approx 0.04$ per $n_k=5$) può far deviare la
+  ($\bar\varepsilon_2 \approx 0.09$ per $n_k=5$) può far deviare la
   traiettoria in modo permanente. La CCV non rileva il problema: misura la
   varianza interna del batch, non il bias sistematico. Per $\kappa \approx 20$,
   $M=\infty$ peggiora ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della

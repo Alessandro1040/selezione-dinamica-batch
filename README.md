@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7.2 (Meccanismo del
+  riuso): corretta la varianza del rumore per-esempio nel modello teorico.**
+  Il modello illustrativo dichiarava $\varepsilon^{(i)} \sim
+  \mathcal{N}(0, 0.36\,I)$ (σ=0.6), ma i codici (`visualizzazione.html`,
+  `altro/script/gen_tabelle_riuso.py`, `simulazione_batch.py`) generano i dati
+  con `0.2 * np.random.randn(...)` per $a_i$ e $b_i$: in coordinate spostate
+  ($\varepsilon_1 = a_i{-}1$, $\varepsilon_2 = b_i{+}2$) si ha quindi σ=0.2 e
+  **Var(ε)=0.04 per componente** (misurata sul dataset seed 42:
+  ≈0.035–0.039). Corretto `0.36\,I` → `0.04\,I`. Corretto anche lo
+  spostamento medio del minimo campionato: `\bar\varepsilon_2 ≈ 0.04` → `≈
+  0.09` per $n_k=5$ (0.2/√5 ≈ 0.089, senza correzione per popolazione
+  finita; il vecchio 0.04 era σ/n, scala sbagliata per una media).
+  L'archivio storico `altro/appendice_riuso.tex` (non ricompilato) conserva
+  i vecchi valori. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**129 pp**,
+  0 errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7 (Tabelle 6.23 e 6.26):
   corrette le tabelle "iperparametri" che non riportavano il nome
   dell'iperparametro nella prima colonna.** In `tab:riuso_valid_iper`
