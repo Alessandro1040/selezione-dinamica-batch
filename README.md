@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (27/08/2026).** **Tesi Sez. 6.7: aggiunte due
+  spiegazioni concettuali sintetiche (richieste).** (1) **Perché il riuso
+  peggiora sui problemi mal condizionati e, in particolare, per i metodi di
+  Newton**: nuovo paragrafo nella sottosezione "Meccanismo: vantaggi e limiti
+  del riuso" (`app:riuso-meccanismo`) che spiega la differenza geometrica
+  primo vs secondo ordine ($d_k=-g_k$ è sempre allineato alla pendenza nel
+  punto corrente, la discesa sul batch è garantita e il riuso provoca solo la
+  deriva; in Newton $d_k=-H_k^{-1}g_k$ e un'Hessiana "vecchia" ruota/riscala
+  il gradiente fresco applicando una geometria obsoleta: più $\kappa$ è
+  grande più il disallineamento è dannoso, l'angolo con la vera discesa si
+  avvicina a $90^\circ$ e la line search blocca il metodo). (2) **Perché
+  mediana e media geometrica** nel criterio dei consigliati (Sez. 6.7.8,
+  subito dopo la frase del criterio): la mediana è robusta ai seed divergenti
+  (filtro di ammissibilità; la conta delle vittorie ignorerebbe l'entità del
+  miglioramento e si può vincere 1/5 pur con mediana migliore) e la media
+  geometrica dei rapporti è invariante alla scala assoluta degli errori
+  (equivale alla media aritmetica dei logaritmi dei rapporti; dimezzare
+  l'errore su un problema conta quanto raddoppiarlo su un altro). Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**129 pp**, 0 errori, 0 undefined; i 12
+  overfull identici a quelli delle build precedenti). Sincronizzati nella
+  repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
 - **Ultimo intervento (27/08/2026).** **Tesi: aggiunte sotto ognuna delle 44
   tabelle una breve nota introduttiva `\noindent\emph{Lettura.}` che spiega a
   cosa serve quella tabella e sintetizza la prosa che la segue (richiesto:

@@ -3236,6 +3236,9 @@ condizionamento $\kappa$ e dall'algoritmo:
   $L_1$ sulla Hessiana rende la direzione più robusta, ma non abbastanza da
   garantire un vantaggio uniforme.
 \end{itemize}
+\paragraph{Perché il riuso peggiora sui problemi mal condizionati e, in particolare, per i metodi di Newton.}
+La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.4$ con $M=\infty$ su $\kappa\approx100$). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
+
 
 La Figura~\ref{fig:riuso_traiettorie} mostra due esecuzioni di Dynamic GD sul
 problema quadratico ben condizionato ($\kappa\approx1.1$), estratte dal
@@ -4835,6 +4838,8 @@ su tutti e quattro i problemi rispetto alla \emph{base} (ricampionamento a ogni
 iterazione) e, tra quelle ammissibili, ha la migliore media geometrica del
 rapporto $e_{30}^{\mathrm{cfg}}/e_{30}^{\mathrm{base}}$ sulle 20 combinazioni
 (4 problemi $\times$ 5 seed indipendenti, $\{42,7,123,2024,999\}$).
+La scelta della mediana come filtro e della media geometrica come criterio finale ha due motivazioni. La mediana (valore centrale di $e_{30}$ sui 5 seed) è robusta ai fallimenti catastrofici: un solo seed divergente non deve squalificare una configurazione il cui caso tipico è buono, mentre la semplice conta delle vittorie ignorerebbe l'entità del miglioramento e potrebbe premiare un metodo che vince di poco su quasi tutti i seed ma fallisce male sul quinto. Si noti anche che il numero di seed vinti può essere basso (anche 1/5) pur con mediana migliore, perché la mediana confronta i valori centrali, non le coppie seme per seme. La media geometrica dei rapporti $R_i=e_{30}^{\mathrm{cfg}}(i)/e_{30}^{\mathrm{base}}(i)$ è infine invariante alla scala assoluta degli errori, che spaziano su ordini di grandezza diversi da problema a problema: equivalendo alla media aritmetica dei $\log R_i$, dimezzare l'errore su un problema conta quanto raddoppiarlo su un altro e i risultati non sono dominati dal problema con l'errore più grande.
+
 
 \paragraph{Configurazioni consigliate.}
 La Tabella~\ref{tab:riuso_cons_sintesi} riporta, per ciascun problema e
