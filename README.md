@@ -103,7 +103,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (25/08/2026)
+## Note operative e stato corrente (28/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -157,6 +157,35 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
+  per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
+  (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,
+  sotto i risultati dell'Analisi, il pulsante **"🧪 Test batch"** che apre una
+  modale per eseguire il prodotto cartesiano di più dimensioni (loss,
+  algoritmo, strategia di riuso, seed e tutti gli iperparametri dell'app:
+  max_iter, alpha, theta, batch0, N, w0, line search, batch dinamico,
+  sottocampionamento Hessiana, Hessian-free L1, R, maxcg, nu, sigma, eta) e
+  generare la tabella e30 come nella Sez. 6.7. Per ogni dimensione si
+  inseriscono i valori separati da virgola; spuntando **"media"** la dimensione
+  viene marginalizzata (media aritmetica di e30 e ricampionamenti sui valori
+  inseriti, es. più seed per la robustezza). Colonne = strategia di riuso
+  (`base`, `M=inf`/`M=k`, `H ind M_H=inf`/`k`, `val P=..;p=..;tau=..;f=..;strat=..;minabs=..`,
+  `desc P=..;tau=..;f=..;minabs=..`, parametri separati da `;`), righe =
+  combinazioni delle dimensioni non-media (se `strategia` è su media le colonne
+  sono l'ultima dimensione non-media). Ogni run esegue ESATTAMENTE il codice
+  Python generato dall'app (`generateAlgoCode`) in un namespace pulito via
+  Pyodide (helper `_batch_run`), con barra di avanzamento e tolleranza di
+  errori per-run. Tabella con marcatori ▲/▼/≡ relativi a `base`, sfondo su
+  scala logaritmica, e pulsanti **"Copia LaTeX"** (ambiente
+  `table`/`tabular` come `gen_tabelle_riuso*.py --tex`), **"Scarica JSON"** e
+  **storico salvato nel browser** (localStorage, ultimi 8 esperimenti, pulsanti
+  👁/⬇/🗑). Validazione: sintassi JS (deno lint) e smoke test top-level con DOM
+  fittizio; 11 configurazioni (GD/BB/Newton-CG/Newton-L1 × base/M=2/M=∞/val/desc/
+  H ind) generate ed eseguite con Python reale: e30 identici alle tabelle della
+  tesi (es. base GD quad_well 1.19e-1, GD M=2 1.18e-1, L1 M=∞ 8.17e-2,
+  L1 M=5 1.00e-1), conteggio ricampionamenti coerente (base = numero di
+  iterazioni, val/desc da `m_actual`, riuso manuale = `resample_pts` +
+  `resize_points`). `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG

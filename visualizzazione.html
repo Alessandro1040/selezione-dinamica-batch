@@ -189,6 +189,46 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
 .colab-zoom-row input[type="range"]{flex:1;margin:0}
 .colab-zoom-row .zoom-value{font-family:var(--font-mono);font-size:10.5px;color:var(--gold);min-width:36px;text-align:right}
 .colab-warning{margin:0 18px;padding:8px 12px;border:1px solid rgba(245,166,35,.35);border-radius:var(--radius-sm);background:rgba(245,166,35,.08);color:var(--amber);font-size:11px;line-height:1.55}
+/* ── Test batch (esperimenti e tabelle in stile Sez. 6.7) ── */
+.batch-modal{position:fixed;inset:0;background:rgba(5,8,18,.82);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
+.batch-modal-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);width:min(1000px,100%);max-height:94vh;display:flex;flex-direction:column}
+.batch-modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-soft);background:var(--surface-2)}
+.batch-modal-title{font-family:var(--font-display);font-size:17px;font-weight:700;color:var(--text-1)}
+.batch-modal-sub{font-size:11px;color:var(--text-3);margin-top:4px;max-width:74ch;line-height:1.55}
+.batch-modal-body{padding:16px 20px;overflow-y:auto}
+.batch-dims{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:10px}
+.batch-dim-row{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
+.batch-dim-row.is-media{border-color:var(--gold-dim);background:rgba(200,169,110,.07)}
+.batch-dim-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.batch-dim-label{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.06em}
+.batch-media{display:inline-flex;align-items:center;gap:5px;font-size:10px;color:var(--text-3);cursor:pointer;font-family:var(--font-mono)}
+.batch-media input{accent-color:var(--gold);cursor:pointer}
+.batch-dim-row.is-media .batch-media{color:var(--gold);font-weight:700}
+.batch-dim-input{width:100%;padding:6px 9px;background:#0A0F1A;border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--text-code);font-family:var(--font-mono);font-size:11px}
+.batch-dim-input:focus{outline:none;border-color:var(--blue-dim);box-shadow:0 0 0 2px var(--blue-glow)}
+.batch-runinfo{display:flex;align-items:center;gap:12px;margin:14px 0 10px;flex-wrap:wrap}
+.batch-runinfo #batchRunCount{font-family:var(--font-mono);font-size:11px;color:var(--gold);font-weight:600}
+.batch-media-note{color:var(--text-3);font-size:10px;font-style:italic}
+.batch-actions{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.batch-progress{display:flex;align-items:center;gap:10px;margin-bottom:12px;font-family:var(--font-mono);font-size:11px;color:var(--text-2)}
+.batch-progress progress{flex:1;height:8px;accent-color:var(--blue)}
+.batch-table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius-sm);margin:10px 0 6px;max-height:520px}
+.batch-tbl{border-collapse:collapse;width:100%;font-family:var(--font-mono);font-size:10px;white-space:nowrap}
+.batch-tbl th{background:var(--surface-3);color:var(--text-3);padding:5px 10px;border-bottom:1px solid var(--border);font-size:9px;text-transform:uppercase;letter-spacing:.06em;position:sticky;top:0;z-index:2;text-align:left}
+.batch-tbl td{padding:4px 10px;border-bottom:1px solid var(--border-soft);color:var(--text-2);text-align:right}
+.batch-tbl td.rowlab{text-align:left;color:var(--text-3);font-size:9.5px;max-width:340px;white-space:normal;overflow-wrap:anywhere}
+.batch-tbl td.better{color:var(--green);font-weight:600}
+.batch-tbl td.worse{color:var(--red)}
+.batch-tbl td.same{color:var(--amber)}
+.batch-tbl tr:hover td{background:rgba(74,158,255,.06)}
+.batch-result-card{margin-bottom:16px;border:1px solid var(--border-soft);border-radius:var(--radius-sm);padding:10px 12px;background:rgba(0,0,0,.12)}
+.batch-result-card .cap{font-size:11px;color:var(--text-2);margin-bottom:8px;line-height:1.55}
+.batch-result-card .cap code{font-family:var(--font-mono);font-size:10px;color:var(--text-code);background:rgba(0,0,0,.3);padding:0 4px;border-radius:3px}
+.batch-tools{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+.batch-history{margin-top:18px;border-top:1px solid var(--border-soft);padding-top:12px}
+.batch-hist-item{display:flex;align-items:center;gap:10px;justify-content:space-between;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 12px;margin-bottom:6px;font-size:11px;color:var(--text-2);flex-wrap:wrap}
+.batch-hist-item .ts{font-family:var(--font-mono);font-size:10px;color:var(--text-3)}
+.batch-error{color:var(--red);font-size:11px}
 
 </style>
 <base target="_blank">
@@ -535,6 +575,15 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
         <div class="metric-card" id="descJCard" style="display:none"><div class="metric-label">J_batch (ultima valutazione)</div><div class="metric-value green" id="descJDisplay">—</div></div>
       </div>
       <div id="convergenceResult" class="convergence-result"></div>
+    </div>
+
+    <!-- EXPERIMENTS BATCH -->
+    <div class="sidebar-section">
+      <div class="section-label">Esperimenti batch (tabelle tesi)</div>
+      <p class="field-hint" style="margin-bottom:10px">Esegue il prodotto cartesiano di pi&ugrave; configurazioni e genera le tabelle e30 in stile Sez. 6.7. Dimensioni marcate <strong>media</strong> = mediate sui valori inseriti.</p>
+      <div class="btn-row" style="grid-template-columns:1fr">
+        <button class="btn btn-accent" id="batchTestBtn">🧪 Test batch</button>
+      </div>
     </div>
 
   </aside>
@@ -1386,6 +1435,36 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
   <div>🐍 Python via <strong>Pyodide</strong> · Grafici via <strong>Plotly.js</strong></div>
   <div class="footer-ref">Basato su: <em>Byrd, R.H., Chin, G.M., Nocedal, J. &amp; Wu, Y. (2012)</em></div>
 </footer>
+
+<!-- ==================== MODALE TEST BATCH ==================== -->
+<div id="batchModal" class="batch-modal hidden">
+  <div class="batch-modal-panel">
+    <div class="batch-modal-header">
+      <div>
+        <div class="batch-modal-title">🧪 Test batch — esperimenti di riuso</div>
+        <div class="batch-modal-sub">Genera il prodotto cartesiano delle dimensioni e le tabelle e30 come nella Sez. 6.7 della tesi. Per ogni dimensione inserisci i valori separati da virgola; se spunti <strong>media</strong> i risultati vengono mediati su quei valori (e la dimensione sparisce dalla tabella). Le colonne sono le strategie di riuso, le righe le combinazioni delle altre dimensioni non-media.</div>
+      </div>
+      <button class="btn-icon-sm" id="batchCloseBtn">✕ Chiudi</button>
+    </div>
+    <div class="batch-modal-body">
+      <div class="batch-dims" id="batchDims"></div>
+      <div class="batch-runinfo">
+        <span id="batchRunCount">Run: —</span>
+        <span class="batch-media-note" id="batchMediaNote"></span>
+      </div>
+      <div class="batch-progress hidden" id="batchProgress">
+        <progress id="batchProgressBar" max="100" value="0"></progress>
+        <span id="batchProgressVal">0/0</span>
+      </div>
+      <div class="batch-actions">
+        <button class="btn btn-primary" id="batchRunBtn">▶ Avvia</button>
+        <button class="btn btn-secondary" id="batchResetBtn">⟲ Ripristina default</button>
+      </div>
+      <div id="batchResults"></div>
+      <div class="batch-history" id="batchHistory"></div>
+    </div>
+  </div>
+</div>
 
 <script>
 'use strict';
@@ -6076,6 +6155,683 @@ document.getElementById('colabZoomReset').addEventListener('click', () => {
   colabRegridSeq++;
   onColabViewChanged();   // ripristina la griglia 1× migliore per la vista completa
 });
+
+/* =====================================================================
+   TEST BATCH — esperimenti e tabelle in stile Sez. 6.7 (riuso)
+   ---------------------------------------------------------------------
+   Un "esperimento batch" e' il prodotto cartesiano delle dimensioni
+   (loss, algoritmo, strategia di riuso, iperparametri...). Ogni run
+   esegue ESATTAMENTE il codice Python generato dall'app
+   (generateAlgoCode) dentro un namespace pulito in Pyodide. Le
+   dimensioni marcate "media" vengono marginalizzate: per ogni
+   combinazione delle altre, e30 e ricampionamenti sono la MEDIA
+   ARITMETICA sui valori di quella dimensione. La tabella finale ha
+   come colonne la strategia di riuso (se non e' su media, altrimenti
+   l'ultima dimensione non-media) e come righe le combinazioni delle
+   restanti dimensioni non-media.
+   ===================================================================== */
+
+const BATCH_DIM_DEFS = [
+  { key:'loss', label:'Loss (preset)', values:'quad_well,quad_ill,quad_very_ill,quad_offdiag', media:false,
+    hint:'Chiavi preset: quad_well, quad_ill, quad_very_ill, quad_offdiag, 1d_quad, 1d_quartic, 1d_sin, 1d_exp, logistic2d, mlp2d, custom.',
+    sugg:['quad_well','quad_ill','quad_very_ill','quad_offdiag','1d_quad','1d_quartic','1d_sin','1d_exp','logistic2d','mlp2d','custom'] },
+  { key:'algo', label:'Algoritmo', values:'gd,bb,newton_cg,newton_l1', media:false,
+    hint:'gd = Dynamic GD, bb = BB-CCV, newton_cg = Newton-CG, newton_l1 = Newton-CG L1.', sugg:['gd','bb','newton_cg','newton_l1'] },
+  { key:'strategia', label:'Strategia di riuso (colonne)', values:'base,M=inf,M=10,M=5,M=2,H ind M_H=inf', media:false,
+    hint:'base · M=inf / M=k · H ind M_H=inf / H ind M_H=k · val (P=..; p=..; tau=..; f=..; strat=..; minabs=..) · desc (P=..; tau=..; f=..; minabs=..). Parametri separati da ;.',
+    sugg:['base','M=inf','M=2','M=5','M=10','H ind M_H=inf','H ind M_H=5','val','val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic','desc','desc P=1;tau=1e-3;f=1'] },
+  { key:'seed', label:'Seed', values:'42', media:false, type:'num',
+    hint:'Più seed con media = robustezza (es. 42,7,123,2024,999 come nella tesi).' },
+  { key:'maxIter', label:'max_iter', values:'30', media:false, type:'num', hint:'e30 = errore all\'ultima iterazione.' },
+  { key:'alpha', label:'alpha (passo)', values:'0.1', media:false, type:'num', hint:'Passo base della line search.' },
+  { key:'theta', label:'θ (toll. CCV)', values:'0.5', media:false, type:'num', hint:'Soglia CCV della varianza.' },
+  { key:'batch0', label:'batch0', values:'5', media:false, type:'num', hint:'Dimensione iniziale del mini-batch.' },
+  { key:'totalN', label:'N (dataset)', values:'200', media:false, type:'num', hint:'Dimensione del dataset.' },
+  { key:'w0', label:'w0 (x,y)', values:'2.0,-3.0', media:false, type:'pair',
+    hint:'Coppia x,y separata da virgola (un solo valore per le loss 1D).' },
+  { key:'lineSearch', label:'Line search', values:'wolfe', media:false, type:'choice',
+    hint:'wolfe (default) o armijo. Ignorata da Newton-L1.', sugg:['wolfe','armijo'] },
+  { key:'dynBatch', label:'Batch dinamico CCV', values:'dynamic', media:false, type:'choice',
+    hint:'dynamic (default) o fixed.', sugg:['dynamic','fixed'] },
+  { key:'hkSubset', label:'Sottocamp. Hessiana', values:'subset', media:false, type:'choice',
+    hint:'subset = H_k da S_k (default), none = H_k da tutto N.', sugg:['subset','none'] },
+  { key:'hessianFree', label:'Hessian-free L1', values:'free', media:false, type:'choice',
+    hint:'free = CG Hessian-free (default), explicit = H esplicita. Solo Newton-L1.', sugg:['free','explicit'] },
+  { key:'R', label:'R (|H|/|S|)', values:'0.2', media:false, type:'num', hint:'Rapporto Hessiana/batch (Newton).' },
+  { key:'maxcg', label:'max CG iter', values:'10', media:false, type:'num', hint:'Iterazioni massime del CG (Newton).' },
+  { key:'nu', label:'ν (penalità L1)', values:'0.1', media:false, type:'num', hint:'Solo Newton-L1.' },
+  { key:'sigma', label:'σ (Armijo)', values:'0.1', media:false, type:'num', hint:'Solo Newton-L1.' },
+  { key:'eta', label:'η (toll. CG)', values:'0.5', media:false, type:'num', hint:'Solo Newton-L1.' }
+];
+
+const BATCH_EVAL_CODE = `
+import json as _json
+_errs = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
+_bs   = [int(b) for b in batch_sizes]
+if 'm_actual' in globals() and m_actual:
+    _res = sum(1 for m in m_actual if m == 1) - 1
+elif 'resample_pts' in globals():
+    _res = len(resample_pts) + (len(resize_points) if 'resize_points' in globals() else 0)
+else:
+    _res = len(history) - 1
+_res = max(_res, 0)
+_out = _json.dumps({
+  "e30": _errs[-1] if _errs else None,
+  "e_min": min(_errs) if _errs else None,
+  "iterations": len(history) - 1,
+  "final_batch": _bs[-1] if _bs else None,
+  "resamples": _res,
+  "ccv_resizes": len(resize_points) if 'resize_points' in globals() else 0,
+  "val_last": (float(val_hist[-1]) if 'val_hist' in globals() and val_hist else None),
+  "val_min": (float(min(val_hist)) if 'val_hist' in globals() and val_hist else None),
+  "desc_last": (float(desc_hist[-1]) if 'desc_hist' in globals() and desc_hist else None),
+  "desc_min": (float(min(desc_hist)) if 'desc_hist' in globals() and desc_hist else None)
+})
+`;
+
+function batchEsc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function batchParseList(str){ return String(str||'').split(',').map(s=>s.trim()).filter(Boolean); }
+function batchCartesian(sets){ let r=[[]]; for(const s of sets){ const n=[]; for(const x of r) for(const v of s) n.push(x.concat([v])); r=n; } return r; }
+
+function fmtNum(x){
+  if (x===null||x===undefined||isNaN(x)) return String(x);
+  if (Number.isInteger(x)) return String(x);
+  if (x===0) return '0';
+  const a=Math.abs(x);
+  if (a>=1e-3 && a<1e6) return String(+x.toPrecision(4));
+  const e=Math.floor(Math.log10(a));
+  return (x/Math.pow(10,e)).toPrecision(3)+'e'+e;
+}
+
+/* Parse di una strategia di riuso. Sintassi (parametri separati da ;):
+   base | M=inf | M=k | H ind M_H=inf | H ind M_H=k
+   val [P=..; p=..; tau=..; f=..; strat=fixed|dynamic; minabs=..]
+   desc [P=..; tau=..; f=..; minabs=..]                       */
+function batchParseStrategy(value){
+  const parts = String(value).split(';').map(s=>s.trim()).filter(Boolean);
+  const params = {};
+  const parseKV = tok => {
+    const m = tok.match(/^([A-Za-z][A-Za-z_]*)\s*=\s*(.+)$/);
+    if (!m) return false;
+    const k = m[1], v = m[2].trim();
+    if (k === 'P') params.patience = parseInt(v,10);
+    else if (k === 'p') params.percent = parseFloat(v);
+    else if (/^tau$/i.test(k) || /^tol$/i.test(k)) params.tol = parseFloat(v);
+    else if (/^f$/i.test(k)) params.freq = parseInt(v,10);
+    else if (/^strat/i.test(k) || /^strategy$/i.test(k)) params.strategy = v;
+    else if (/^minabs$/i.test(k) || /^ma$/i.test(k)) params.minAbs = parseFloat(v);
+    else if (/^m_h$/i.test(k) || /^mh$/i.test(k)) params.mh = (v==='inf'||v==='∞') ? null : parseInt(v,10);
+    else return false;
+    return true;
+  };
+  const firstTokens = (parts[0] || '').split(/\s+/).filter(Boolean);
+  let mode = '';
+  for (let i=0;i<firstTokens.length;i++){
+    const tok = firstTokens[i];
+    if (tok.toLowerCase()==='h' && firstTokens[i+1] && firstTokens[i+1].toLowerCase()==='ind'){ mode='h ind'; i++; continue; }
+    if (parseKV(tok)) continue;
+    if (!mode) mode = tok.toLowerCase();
+  }
+  for (let i=1;i<parts.length;i++){
+    for (const tok of parts[i].split(/\s+/)) parseKV(tok);
+  }
+  const infToNull = v => (v==='inf'||v==='∞') ? null : (Number.isFinite(parseInt(v,10)) ? parseInt(v,10) : null);
+  const o = {
+    kind:'base', maxConsec:null, reuseHessian:true, maxHessianReuse:null,
+    validation:false, descentLoss:false,
+    valPct:0.2, valTol:1e-4, valPatience:3, valFreq:1, valMinAbs:0, valStrategy:'fixed',
+    descTol:1e-4, descMinAbs:0, descPatience:1, descFreq:1
+  };
+  if (mode === '' || mode === 'base') { /* default: nessun riuso, ricampiona a ogni iterazione */ }
+  else if (/^m\s*=\s*/.test(mode)) { o.kind='manual'; o.maxConsec = infToNull(mode.split('=')[1].trim()); }
+  else if (mode === 'h ind') {
+    o.kind='hind'; o.reuseHessian=false;
+    o.maxHessianReuse = (params.mh!==undefined) ? params.mh : null;
+  }
+  else if (mode === 'val') {
+    o.kind='val'; o.validation=true;
+    o.valPatience = params.patience!==undefined ? params.patience : 3;
+    o.valPct      = params.percent!==undefined ? params.percent : 0.2;
+    o.valTol      = params.tol!==undefined ? params.tol : 1e-4;
+    o.valFreq     = params.freq!==undefined ? params.freq : 1;
+    o.valMinAbs   = params.minAbs!==undefined ? params.minAbs : 0;
+    o.valStrategy = params.strategy || 'fixed';
+  }
+  else if (mode === 'desc') {
+    o.kind='desc'; o.descentLoss=true;
+    o.descPatience = params.patience!==undefined ? params.patience : 1;
+    o.descTol      = params.tol!==undefined ? params.tol : 1e-4;
+    o.descFreq     = params.freq!==undefined ? params.freq : 1;
+    o.descMinAbs   = params.minAbs!==undefined ? params.minAbs : 0;
+  }
+  return o;
+}
+
+function batchStrategyLabel(s){
+  const o = batchParseStrategy(s);
+  switch(o.kind){
+    case 'base': return 'base';
+    case 'manual': return o.maxConsec===null ? 'M=∞' : 'M='+o.maxConsec;
+    case 'hind':  return 'H ind. M_H=' + (o.maxHessianReuse===null?'∞':o.maxHessianReuse);
+    case 'val': {
+      let l = 'val P='+o.valPatience+' p='+o.valPct+' τ='+fmtNum(o.valTol)+' f='+o.valFreq;
+      if (o.valStrategy!=='fixed') l += ' dyn';
+      if (o.valMinAbs!==0) l += ' ma='+o.valMinAbs;
+      return l;
+    }
+    case 'desc': {
+      let l = 'desc P='+o.descPatience+' τ='+fmtNum(o.descTol)+' f='+o.descFreq;
+      if (o.descMinAbs!==0) l += ' ma='+o.descMinAbs;
+      return l;
+    }
+    default: return String(s);
+  }
+}
+
+function batchStrategyHeaderLatex(s){
+  const o = batchParseStrategy(s);
+  switch(o.kind){
+    case 'base': return '\\emph{base}';
+    case 'manual': return o.maxConsec===null ? '$M{=}\\infty$' : '$M{=}'+o.maxConsec+'$';
+    case 'hind': return '$H$ ind. $M_H{=}'+(o.maxHessianReuse===null?'\\infty':o.maxHessianReuse)+'$';
+    case 'val': {
+      const a=[];
+      a.push('$P{=}'+o.valPatience+'$');
+      a.push('$p{=}'+o.valPct+'$');
+      a.push('$\\tau{=}'+fmtNumLatex(o.valTol)+'$');
+      a.push('$f{=}'+o.valFreq+'$');
+      if (o.valStrategy==='dynamic') a.push('dyn');
+      if (o.valMinAbs!==0) a.push('$\\epsilon{=}'+o.valMinAbs+'$');
+      return a.join(',');
+    }
+    case 'desc': {
+      const a=[];
+      a.push('$P{=}'+o.descPatience+'$');
+      a.push('$\\tau{=}'+fmtNumLatex(o.descTol)+'$');
+      a.push('$f{=}'+o.descFreq+'$');
+      if (o.descMinAbs!==0) a.push('$\\epsilon{=}'+o.descMinAbs+'$');
+      return a.join(',');
+    }
+    default: return String(s);
+  }
+}
+function fmtNumLatex(x){
+  if (x===null||x===undefined||isNaN(x)) return String(x);
+  if (Number.isInteger(x)) return String(x);
+  if (x===0) return '0';
+  const a=Math.abs(x);
+  if (a>=1e-3 && a<1e6) return String(+x.toPrecision(4));
+  const e=Math.floor(Math.log10(a));
+  return '10^{'+e+'}';
+}
+
+function batchLossCode(lossKey, N, seed){
+  const key = String(lossKey).trim();
+  if (key === 'custom') return lossCode.value;
+  const p = LOSS_PRESETS[key];
+  if (!p) throw new Error('Loss sconosciuta: '+key);
+  return (p.code || p.code_autodiff).replace(/__N__/g, String(N)).replace(/__SEED__/g, String(seed));
+}
+
+/* Blocco autodiff (come in runAlgorithm): usato se la loss custom definisce solo J. */
+const BATCH_AUTODIFF_BLOCK = `
+def _grad_fd(f, w, h=1e-6):
+    w = np.array(w, dtype=float)
+    g = np.zeros_like(w)
+    for i in range(len(w)):
+        wp = w.copy(); wp[i] += h
+        wm = w.copy(); wm[i] -= h
+        g[i] = (f(wp) - f(wm)) / (2*h)
+    return g
+def _hess_fd(f, w, h=1e-5):
+    n = len(w)
+    H = np.zeros((n, n))
+    for i in range(n):
+        for j in range(n):
+            wpp = w.copy(); wpp[i] += h; wpp[j] += h
+            wpm = w.copy(); wpm[i] += h; wpm[j] -= h
+            wmp = w.copy(); wmp[i] -= h; wmp[j] += h
+            wmm = w.copy(); wmm[i] -= h; wmm[j] -= h
+            H[i,j] = (f(wpp) - f(wpm) - f(wmp) + f(wmm)) / (4*h*h)
+    return H
+def _hessvec_fd(f, w, v, h=1e-5):
+    return (_grad_fd(f, w + h*v) - _grad_fd(f, w - h*v)) / (2*h)
+if 'gradJ' not in globals():
+    def gradJ(w): return _grad_fd(J, w)
+if 'hessJ' not in globals():
+    def hessJ(w): return _hess_fd(J, w)
+if 'grad_i' not in globals():
+    def grad_i(w, i): return _grad_fd(lambda ww: loss_i(ww, i), w)
+if 'hess_i' not in globals():
+    def hess_i(w, i): return _hess_fd(lambda ww: loss_i(ww, i), w)
+if 'hessvec_i' not in globals():
+    def hessvec_i(w, i, v): return _hessvec_fd(lambda ww: loss_i(ww, i), w, v)
+if 'J_full' not in globals():
+    def J_full(w): return J(w)
+if 'grad_full' not in globals():
+    def grad_full(w): return _grad_fd(J, w)
+`;
+
+/* Costruisce il codice Python completo per una run (preambolo + algoritmo + eval). */
+function batchBuildFullCode(cfg){
+  const s = batchParseStrategy(cfg.strategia);
+  const opts = {
+    hkSubset: cfg.hkSubset !== 'none',
+    lineSearch: cfg.lineSearch || 'wolfe',
+    dynamicBatch: cfg.dynBatch === 'dynamic',
+    hessianFreeL1: cfg.hessianFree === 'free',
+    reuseBatch: (s.kind === 'manual' || s.kind === 'hind'),
+    maxConsec: s.maxConsec,
+    reuseHessian: s.reuseHessian,
+    maxHessianReuse: s.maxHessianReuse,
+    validation: s.validation,
+    valPct: s.valPct, valTol: s.valTol, valPatience: s.valPatience,
+    valFreq: s.valFreq, valMinAbs: s.valMinAbs, valStrategy: s.valStrategy,
+    descentLoss: s.descentLoss,
+    descTol: s.descTol, descMinAbs: s.descMinAbs,
+    descPatience: s.descPatience, descFreq: s.descFreq
+  };
+  const N = parseInt(cfg.totalN,10) || 200;
+  const seed = parseInt(cfg.seed,10) || 42;
+  const lossKey = String(cfg.loss).trim();
+  const p1d = (lossKey !== 'custom' && LOSS_PRESETS[lossKey] && LOSS_PRESETS[lossKey].dim === 1);
+  const w0v = batchParseList(cfg.w0);
+  const wx = parseFloat(w0v[0]); const wy = parseFloat(w0v[1]);
+  const w0 = p1d ? [Number.isFinite(wx)?wx:2.0, 0.0] : [Number.isFinite(wx)?wx:2.0, Number.isFinite(wy)?wy:-3.0];
+  const extraLoss = (lossKey === 'custom') ? BATCH_AUTODIFF_BLOCK : '';
+  const preamble = [
+    'import numpy as np',
+    batchLossCode(lossKey, N, seed),
+    extraLoss,
+    'w0       = ['+w0[0]+', '+w0[1]+']',
+    'alpha    = '+(parseFloat(cfg.alpha)||0.1),
+    'max_iter = '+(parseInt(cfg.maxIter,10)||30),
+    'theta    = '+(parseFloat(cfg.theta)||0.5),
+    'batch0   = '+(parseInt(cfg.batch0,10)||5),
+    'R        = '+(parseFloat(cfg.R)||0.2),
+    'maxcg    = '+(parseInt(cfg.maxcg,10)||10),
+    'nu       = '+(parseFloat(cfg.nu)||0.1),
+    'sigma    = '+(parseFloat(cfg.sigma)||0.1),
+    'eta      = '+(parseFloat(cfg.eta)||0.5)
+  ].join('\n');
+  const algoPy = generateAlgoCode(cfg.algo, opts);
+  return preamble + '\n' + algoPy + '\n' + BATCH_EVAL_CODE;
+}
+
+function batchReadDims(){
+  return BATCH_DIM_DEFS.map(d=>({
+    key:d.key, label:d.label, type:d.type||'',
+    values:batchParseList(document.getElementById('batchDim_'+d.key).value),
+    media:document.getElementById('batchMedia_'+d.key).checked
+  }));
+}
+function batchValidate(dims){
+  const errs=[];
+  for(const d of dims){
+    if(!d.values.length){ errs.push(d.label+' senza valori'); continue; }
+    if(d.key==='loss') for(const v of d.values) if(v!=='custom' && !LOSS_PRESETS[v]) errs.push('Loss sconosciuta: '+v);
+    if(d.key==='algo') for(const v of d.values) if(!['gd','bb','newton_cg','newton_l1'].includes(v)) errs.push('Algoritmo sconosciuto: '+v);
+    if(d.key==='strategia') for(const v of d.values){ const k=batchParseStrategy(v).kind; if(k==='base' && v.toLowerCase().replace(/\s+/g,'')!=='base') errs.push('Strategia non riconosciuta: '+v); }
+  }
+  return errs;
+}
+function batchBuildGrid(dims){
+  let combos=[[]];
+  for(const d of dims){
+    const next=[];
+    for(const c of combos) for(const v of d.values) next.push(c.concat([{key:d.key, value:v}]));
+    combos=next;
+  }
+  return combos.map(c=>{ const cfg={}; for(const x of c) cfg[x.key]=x.value; return cfg; });
+}
+
+async function batchRunAll(){
+  if(!pyodideReady){ alert('Attendi il caricamento di Pyodide.'); return; }
+  const dims = batchReadDims();
+  const errs = batchValidate(dims);
+  if(errs.length){ alert('Problemi nella configurazione:\n• '+errs.join('\n• ')); return; }
+  const cfgs = batchBuildGrid(dims);
+  const total = cfgs.length;
+  if(total===0){ alert('Nessuna run da eseguire.'); return; }
+  if(total>600 && !confirm('Il prodotto cartesiano genera '+total.toLocaleString('it-IT')+' run. Continuare? (può richiedere alcuni minuti nel browser)')) return;
+  try{
+    pyodide.runPython('def _batch_run(code):\n    import json as _json\n    ns = {"np": np, "__builtins__": __builtins__}\n    exec(compile(code, "<batch>", "exec"), ns)\n    return ns.get("_out", "{}")\n');
+  }catch(e){ console.warn('Definizione _batch_run', e); }
+  batchProgress.classList.remove('hidden');
+  batchProgressBar.max = total; batchProgressBar.value = 0;
+  batchProgressVal.textContent = '0/'+total;
+  const results=[];
+  let errCount=0;
+  for(let i=0;i<total;i++){
+    const cfg = cfgs[i];
+    try{
+      const fullCode = batchBuildFullCode(cfg);
+      const out = pyodide.runPython('_batch_run('+JSON.stringify(fullCode)+')');
+      results.push({cfg, metrics: JSON.parse(out)});
+    }catch(e){
+      results.push({cfg, error: String(e&&e.message?e.message:e)});
+      errCount++;
+    }
+    if(i%3===2 || i===total-1){
+      batchProgressBar.value = i+1;
+      batchProgressVal.textContent = (i+1)+'/'+total+(errCount?' (err '+errCount+')':'');
+      await new Promise(r=>setTimeout(r,0));
+    }
+  }
+  batchProgressVal.textContent = 'Completato: '+(total-errCount)+' ok'+(errCount?', '+errCount+' errori':'');
+  batchRenderResults(dims, results);
+  batchSaveHistory(dims, results);
+}
+
+let batchShowRes = true;
+
+function batchAvgMetric(list, f){
+  const vals=list.map(f).filter(v=>v!==null&&v!==undefined&&!isNaN(v));
+  return vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+}
+
+function batchDimShortLabel(key){
+  const map={loss:'loss',algo:'algo',strategia:'strat',seed:'seed',maxIter:'k',alpha:'α',theta:'θ',batch0:'b₀',totalN:'N',w0:'w₀',lineSearch:'LS',dynBatch:'CCV',hkSubset:'H⊂',hessianFree:'HF',R:'R',maxcg:'cg',nu:'ν',sigma:'σ',eta:'η'};
+  return map[key]||key;
+}
+function batchValueLabel(key, v){
+  if(key==='loss') return (LOSS_PRESETS[v] ? LOSS_PRESETS[v].label.split('(')[0].trim() : v);
+  if(key==='algo'){ const m={gd:'GD',bb:'BB-CCV',newton_cg:'Newton-CG',newton_l1:'Newton-L1'}; return m[v]||v; }
+  if(key==='strategia') return batchStrategyLabel(v);
+  return String(v);
+}
+function batchLatexValueLabel(key, v){
+  if(key==='loss'){ const m={'quad_well':'$\\kappa\\approx1.1$','quad_ill':'$\\kappa\\approx20$','quad_very_ill':'$\\kappa\\approx100$','quad_offdiag':'incrociato ($\\kappa\\approx1.67$)','1d_quad':'1D quadratica','1d_quartic':'1D quartica','1d_sin':'1D sinusoidale','1d_exp':'1D esponenziale','logistic2d':'logistica 2D','mlp2d':'MLP 2D','custom':'custom'}; return m[v]||v; }
+  if(key==='algo'){ const m={gd:'Dynamic GD',bb:'BB-CCV',newton_cg:'Newton-CG',newton_l1:'Newton-CG $L_1$'}; return m[v]||v; }
+  return batchEscLatex(batchValueLabel(key, v));
+}
+function batchEscLatex(s){
+  return String(s).replace(/([\\{}_$%&#~^])/g, '\\$1');
+}
+
+function batchBuildTable(dims, results){
+  const nonMedia = dims.filter(d=>!d.media);
+  const mediaDims = dims.filter(d=>d.media);
+  let columnsDim=null;
+  const si=nonMedia.findIndex(d=>d.key==='strategia');
+  if(si>=0) columnsDim=nonMedia[si];
+  else if(nonMedia.length>0) columnsDim=nonMedia[nonMedia.length-1];
+  const rowDims = nonMedia.filter(d=>d!==columnsDim);
+  const colValues = columnsDim ? columnsDim.values : ['_all_'];
+  const rowCombos = rowDims.length ? batchCartesian(rowDims.map(d=>d.values.map(v=>({key:d.key,value:v})))) : [[]];
+  const cellMap=new Map();
+  for(const r of results){
+    if(r.error || !r.metrics) continue;
+    const rowIdx = rowCombos.findIndex(c=>rowDims.every((d,i)=>c[i].value===r.cfg[d.key]));
+    const colIdx = columnsDim ? colValues.indexOf(r.cfg[columnsDim.key]) : 0;
+    if(rowIdx<0 || (columnsDim && colIdx<0)) continue;
+    const k=rowIdx+'|'+colIdx;
+    if(!cellMap.has(k)) cellMap.set(k,[]);
+    cellMap.get(k).push(r.metrics);
+  }
+  const rowLabels = rowCombos.map(c=>{
+    if(!rowDims.length) return '—';
+    return rowDims.map((d,i)=>{
+      const v=c[i].value;
+      if(d.key==='loss'||d.key==='algo') return batchValueLabel(d.key,v);
+      return batchDimShortLabel(d.key)+'='+batchValueLabel(d.key,v);
+    }).join(' · ');
+  });
+  const rowLatex = rowCombos.map(c=>{
+    if(!rowDims.length) return '—';
+    return rowDims.map((d,i)=>{
+      const v=c[i].value;
+      if(d.key==='loss'||d.key==='algo') return batchLatexValueLabel(d.key,v);
+      return batchEscLatex(batchDimShortLabel(d.key))+'='+batchLatexValueLabel(d.key,v);
+    }).join(' - ');
+  });
+  const colLabels = columnsDim ? (columnsDim.key==='strategia' ? colValues.map(batchStrategyLabel) : colValues.map(v=>batchValueLabel(columnsDim.key,v))) : ['media su tutto'];
+  const colLatex = columnsDim ? (columnsDim.key==='strategia' ? colValues.map(batchStrategyHeaderLatex) : colValues.map(v=>batchLatexValueLabel(columnsDim.key,v))) : ['media su tutto'];
+  const baseCol = (columnsDim && columnsDim.key==='strategia') ? colValues.indexOf('base') : -1;
+  const cells=[];
+  let gmin=Infinity, gmax=-Infinity;
+  for(let r=0;r<rowCombos.length;r++){
+    const row=[];
+    for(let c=0;c<colValues.length;c++){
+      const list = cellMap.get(r+'|'+c) || [];
+      const e30 = list.length ? batchAvgMetric(list, m=>m.e30) : null;
+      const res = list.length ? batchAvgMetric(list, m=>m.resamples) : null;
+      if(e30!==null){ gmin=Math.min(gmin,e30); gmax=Math.max(gmax,e30); }
+      row.push({e30, res, count:list.length, hasErr:list.length===0});
+    }
+    cells.push(row);
+  }
+  return {dims, mediaDims, nonMedia, columnsDim, rowDims, colValues, colLabels, colLatex, rowLabels, rowLatex, cells, baseCol, gmin, gmax, total:results.length};
+}
+
+function batchFmt3(x){
+  if(x===null||x===undefined||isNaN(x)) return '—';
+  if(x===0) return '0';
+  return x.toExponential(2);
+}
+function batchFmt3Latex(x){
+  if(x===null||x===undefined||isNaN(x)) return '---';
+  if(x===0) return '$0$';
+  const e=Math.floor(Math.log10(Math.abs(x)));
+  const m=x/Math.pow(10,e);
+  return '$'+m.toFixed(2)+'\\times10^{'+e+'}$';
+}
+
+function batchCellClass(t, r, c){
+  const cell=t.cells[r][c];
+  if(t.baseCol<0 || t.baseCol===c) return '';
+  const base=t.cells[r][t.baseCol];
+  if(base.e30===null||cell.e30===null) return '';
+  if(cell.e30 < base.e30 - 1e-12) return 'better';
+  if(cell.e30 > base.e30 + 1e-12) return 'worse';
+  return 'same';
+}
+function batchCellMarker(t, r, c){
+  if(t.baseCol<0 || t.baseCol===c) return '';
+  const base=t.cells[r][t.baseCol];
+  if(base.e30===null||t.cells[r][c].e30===null) return '';
+  if(t.cells[r][c].e30 < base.e30 - 1e-12) return '▲';
+  if(t.cells[r][c].e30 > base.e30 + 1e-12) return '▼';
+  return '=';
+}
+
+function batchRenderResults(dims, results){
+  const t = batchBuildTable(dims, results);
+  const el = document.getElementById('batchResults');
+  const capParts=[];
+  capParts.push(t.total.toLocaleString('it-IT')+' run');
+  capParts.push('righe = '+(t.rowDims.length ? t.rowDims.map(d=>d.label).join(' × ') : '—'));
+  capParts.push('colonne = '+(t.columnsDim ? t.columnsDim.label : '—'));
+  if(t.mediaDims.length) capParts.push('media su: '+t.mediaDims.map(d=>d.label+' ∈ {'+d.values.join(', ')+'}').join('; '));
+  const lo = (t.gmin===Infinity) ? null : Math.log10(Math.max(t.gmin,1e-300));
+  const hi = (t.gmax===-Infinity) ? null : Math.log10(Math.max(t.gmax,1e-300));
+  let html = '<div class="batch-result-card">';
+  html += '<div class="cap"><strong>Tabella e30</strong> — '+batchEsc(capParts.join(' · '))+'</div>';
+  html += '<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>'+(t.rowDims.length ? t.rowDims.map(d=>batchEsc(d.label)).join(' × ') : '—')+'</th>';
+  for(const cl of t.colLabels) html += '<th>'+batchEsc(cl)+'</th>';
+  html += '</tr></thead><tbody>';
+  for(let r=0;r<t.rowLabels.length;r++){
+    html += '<tr><td class="rowlab">'+batchEsc(t.rowLabels[r])+'</td>';
+    for(let c=0;c<t.colValues.length;c++){
+      const cell=t.cells[r][c];
+      if(cell.hasErr){ html += '<td class="worse">err</td>'; continue; }
+      if(cell.e30===null){ html += '<td>—</td>'; continue; }
+      let bg='';
+      if(lo!==null && hi!==null && hi>lo && cell.e30>0){
+        const tt=(Math.log10(cell.e30)-lo)/(hi-lo);
+        bg='style="background:hsla('+(120*(1-Math.min(1,Math.max(0,tt)))).toFixed(0)+',70%,38%,0.30)"';
+      }
+      const mk = batchCellMarker(t,r,c);
+      const resTxt = batchShowRes ? ' ('+(cell.count>1?cell.res.toFixed(1):Math.round(cell.res))+')' : '';
+      html += '<td class="'+batchCellClass(t,r,c)+'" '+bg+' title="media su '+cell.count+' run · ricampionamenti '+cell.res+'">'+batchFmt3(cell.e30)+mk+resTxt+'</td>';
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="batch-tools">';
+  html += '<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>';
+  html += '<button class="btn-icon-sm" id="batchDlJsonBtn">💾 Scarica JSON</button>';
+  html += '<label class="batch-media" style="margin-left:auto"><input type="checkbox" id="batchShowRes" '+(batchShowRes?'checked':'')+'><span>ricampionamenti in parentesi</span></label>';
+  html += '</div></div>';
+  el.innerHTML = html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexExport(t)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchShowRes').addEventListener('change', e=>{ batchShowRes=e.target.checked; batchRenderResults(dims, results); });
+}
+
+function batchLatexExport(t){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\tiny');
+  L.push('\\renewcommand{\\arraystretch}{1.0}');
+  L.push('\\setlength{\\tabcolsep}{1.5pt}');
+  const cap=['Errore finale $e_{30}=\\|w_{30}-w_*\\|_2$'];
+  if(t.mediaDims.length) cap.push('mediato su: '+t.mediaDims.map(d=>'$'+d.key+'\\in\\{'+d.values.join(',')+'\\}$').join(', '));
+  cap.push('colonne: '+t.colLatex.join(', '));
+  L.push('\\caption{'+cap.join('; ')+'. Simboli relativi alla colonna \\emph{base}: $\\blacktriangle$ = il valore migliora, $\\blacktriangledown$ = peggiora, $=$ = invariato. Tra parentesi il numero medio di ricampionamenti.}');
+  L.push('\\label{tab:batch_test}');
+  L.push('\\begin{tabular}{@{}l'+'r'.repeat(t.colValues.length)+'@{}}');
+  L.push('\\toprule');
+  L.push(['Metodo'].concat(t.colLatex).join(' & ')+'\\\\');
+  L.push('\\midrule');
+  for(let r=0;r<t.rowLabels.length;r++){
+    const row=[t.rowLatex[r]];
+    for(let c=0;c<t.colValues.length;c++){
+      const cell=t.cells[r][c];
+      if(cell.hasErr || cell.e30===null){ row.push('---'); continue; }
+      let mk='';
+      if(t.baseCol>=0 && t.baseCol!==c && t.cells[r][t.baseCol].e30!==null){
+        const base=t.cells[r][t.baseCol];
+        mk = cell.e30 < base.e30 - 1e-12 ? '$\\blacktriangle$' : (cell.e30 > base.e30 + 1e-12 ? '$\\blacktriangledown$' : '$=$');
+      }
+      const resTxt = batchShowRes ? ' ('+(cell.count>1?cell.res.toFixed(1):Math.round(cell.res))+')' : '';
+      row.push(batchFmt3Latex(cell.e30)+mk+resTxt);
+    }
+    L.push(row.join(' & ')+'\\\\');
+  }
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
+}
+
+async function batchCopy(text){
+  try{ await navigator.clipboard.writeText(text); }
+  catch(e){
+    const ta=document.createElement('textarea');
+    ta.value=text; document.body.appendChild(ta); ta.select();
+    try{ document.execCommand('copy'); }catch(_){}
+    ta.remove();
+  }
+}
+
+const BATCH_HISTORY_KEY='batch_test_history_v1';
+function batchLoadHistoryRaw(){
+  try{ const raw=localStorage.getItem(BATCH_HISTORY_KEY); return raw?JSON.parse(raw):[]; }catch(e){ return []; }
+}
+function batchSaveHistory(dims, results){
+  const hist=batchLoadHistoryRaw();
+  const entry={ts:Date.now(), dims:dims.map(d=>({key:d.key,label:d.label,values:d.values,media:d.media})), results};
+  hist.unshift(entry);
+  while(hist.length>8) hist.pop();
+  try{ localStorage.setItem(BATCH_HISTORY_KEY, JSON.stringify(hist)); }catch(e){ console.warn('localStorage pieno: storico non salvato', e); }
+  batchRenderHistory();
+}
+function batchRenderHistory(){
+  const hist=batchLoadHistoryRaw();
+  const el=document.getElementById('batchHistory');
+  if(!hist.length){ el.innerHTML='<div class="field-hint">Nessun esperimento salvato: i risultati di ogni test vengono conservati qui nel browser.</div>'; return; }
+  let html='<div class="section-label" style="margin-bottom:10px">Storico esperimenti (salvati nel browser)</div>';
+  for(const h of hist){
+    const d=new Date(h.ts);
+    const summary=(h.dims?h.dims.filter(x=>!x.media).map(x=>x.label).join(' × '):'')+' · '+h.results.length+' run';
+    html += '<div class="batch-hist-item"><span class="ts">'+d.toLocaleString('it-IT')+'</span><span>'+batchEsc(summary)+'</span>';
+    html += '<span class="batch-tools" style="margin:0">';
+    html += '<button class="btn-icon-sm" data-hist="'+h.ts+'">👁</button>';
+    html += '<button class="btn-icon-sm" data-dl="'+h.ts+'">⬇</button>';
+    html += '<button class="btn-icon-sm" data-del="'+h.ts+'">🗑</button>';
+    html += '</span></div>';
+  }
+  el.innerHTML=html;
+  el.querySelectorAll('[data-hist]').forEach(b=>b.addEventListener('click', ()=>{
+    const h=batchLoadHistoryRaw().find(x=>x.ts===parseInt(b.dataset.hist,10));
+    if(h) batchRenderResults(h.dims, h.results);
+  }));
+  el.querySelectorAll('[data-dl]').forEach(b=>b.addEventListener('click', ()=>{
+    const h=batchLoadHistoryRaw().find(x=>x.ts===parseInt(b.dataset.dl,10));
+    if(h) batchDownloadJson(h.dims, h.results, h.ts);
+  }));
+  el.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click', ()=>{
+    const ts=parseInt(b.dataset.del,10);
+    const hist=batchLoadHistoryRaw().filter(x=>x.ts!==ts);
+    try{ localStorage.setItem(BATCH_HISTORY_KEY, JSON.stringify(hist)); }catch(e){}
+    batchRenderHistory();
+  }));
+}
+function batchDownloadJson(dims, results, ts){
+  const payload={ts:ts||Date.now(), dims:dims.map(d=>({key:d.key,label:d.label,values:d.values,media:d.media})), results};
+  const blob=new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='batch_test_'+(ts||Date.now())+'.json';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
+}
+
+function buildBatchDims(){
+  const el=document.getElementById('batchDims');
+  let html='';
+  for(const d of BATCH_DIM_DEFS){
+    html += '<div class="batch-dim-row" id="batchRow_'+d.key+(d.media?' is-media':'')+'">';
+    html += '<div class="batch-dim-head"><span class="batch-dim-label">'+batchEsc(d.label)+'</span>';
+    html += '<label class="batch-media"><input type="checkbox" id="batchMedia_'+d.key+'" '+(d.media?'checked':'')+'><span>media</span></label></div>';
+    html += '<input type="text" class="batch-dim-input" id="batchDim_'+d.key+'" list="batchSugg_'+d.key+'" value="'+batchEsc(d.values)+'" spellcheck="false">';
+    if(d.sugg && d.sugg.length) html += '<datalist id="batchSugg_'+d.key+'">'+d.sugg.map(s=>'<option value="'+batchEsc(s)+'"></option>').join('')+'</datalist>';
+    html += '<p class="field-hint" style="margin-top:5px">'+batchEsc(d.hint||'')+'</p>';
+    html += '</div>';
+  }
+  el.innerHTML=html;
+  for(const d of BATCH_DIM_DEFS){
+    document.getElementById('batchMedia_'+d.key).addEventListener('change', ()=>{
+      document.getElementById('batchRow_'+d.key).classList.toggle('is-media', document.getElementById('batchMedia_'+d.key).checked);
+      batchUpdateRunCount();
+    });
+    document.getElementById('batchDim_'+d.key).addEventListener('input', batchUpdateRunCount);
+  }
+  batchUpdateRunCount();
+}
+function batchUpdateRunCount(){
+  const lists=BATCH_DIM_DEFS.map(d=>batchParseList(document.getElementById('batchDim_'+d.key).value));
+  const total=lists.reduce((a,v)=>a*Math.max(1,v.length),1);
+  document.getElementById('batchRunCount').textContent='Run: '+lists.map(v=>v.length).join(' × ')+' = '+total.toLocaleString('it-IT');
+  const media=BATCH_DIM_DEFS.filter(d=>document.getElementById('batchMedia_'+d.key).checked);
+  document.getElementById('batchMediaNote').textContent = media.length
+    ? 'Media su: '+media.map(d=>d.label).join(', ') + ' (dimensione assente dalla tabella)'
+    : 'Nessuna dimensione su media: tabella completa.';
+}
+function batchResetDims(){
+  for(const d of BATCH_DIM_DEFS){
+    document.getElementById('batchDim_'+d.key).value=d.values;
+    document.getElementById('batchMedia_'+d.key).checked=d.media;
+    document.getElementById('batchRow_'+d.key).classList.toggle('is-media', d.media);
+  }
+  batchUpdateRunCount();
+}
+
+const batchModal=document.getElementById('batchModal');
+const batchProgress=document.getElementById('batchProgress');
+const batchProgressBar=document.getElementById('batchProgressBar');
+const batchProgressVal=document.getElementById('batchProgressVal');
+document.getElementById('batchTestBtn').addEventListener('click', ()=>{ batchModal.classList.remove('hidden'); batchUpdateRunCount(); batchRenderHistory(); });
+document.getElementById('batchCloseBtn').addEventListener('click', ()=>batchModal.classList.add('hidden'));
+batchModal.addEventListener('click', e=>{ if(e.target===batchModal) batchModal.classList.add('hidden'); });
+document.getElementById('batchRunBtn').addEventListener('click', batchRunAll);
+document.getElementById('batchResetBtn').addEventListener('click', batchResetDims);
+buildBatchDims();
 
 window.addEventListener('load', async () => {
   lossPreset.value='quad_well';
