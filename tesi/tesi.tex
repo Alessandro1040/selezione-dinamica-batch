@@ -3216,7 +3216,7 @@ condizionamento $\kappa$ e dall'algoritmo:
   simile in tutte le direzioni; $w^*_{\mathcal{S}}$ è vicino a $w^*$ in tutte
   le dimensioni. La deriva è trascurabile e il vantaggio in coerenza domina.
   Dynamic GD e BB-CCV migliorano su 5 seed su 5 con $M=\infty$ e $M=10$ su
-  $\kappa \approx 1.1$.
+  $\kappa \approx 1.1$ (Tabella~\ref{tab:riuso_robustezza}).
 \item Mal condizionato ($\kappa \gg 1$). Esiste una direzione quasi
   piatta (nel nostro esempio $w_2$) in cui il gradiente è debole e il passo
   è lentissimo. Anche un modesto spostamento del minimo campionato
@@ -3226,22 +3226,22 @@ condizionamento $\kappa$ e dall'algoritmo:
   comportamento di Dynamic GD: per $\kappa \approx 20$, $M=\infty$ peggiora
   ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della base); per
   $\kappa \approx 100$, sorprendentemente, il riuso torna ad aiutare
-  ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$), perché la base converge
+  ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$) (Tabella~\ref{tab:riuso_sintesi}), perché la base converge
   già così lentamente che il beneficio di un obiettivo non più fluttuante
   prevale sul costo del bias sistematico introdotto dal campione. BB-CCV fa eccezione: il passo di Barzilai--Borwein lo porta alla
   precisione macchina già senza riuso ($9.72\times10^{-5}$ su
   $\kappa\approx20$, $1.10\times10^{-14}$ su $\kappa\approx100$), quindi il
   riuso non ha margine su $\kappa\approx100$ e lo peggiora
-  ($7.45\times10^{-3}$ con $M=\infty$).
+  ($7.45\times10^{-3}$ con $M=\infty$) (Tabella~\ref{tab:riuso_sintesi}).
 \item Metodi di Newton. La direzione di Newton dipende anche dalla
   Hessiana stimata sul batch. Riusandolo, la curvatura rimane quella del punto
   in cui il batch è stato estratto, mentre il punto corrente si è spostato,
   rendendo la direzione obsoleta. Newton-CG è l'algoritmo che risente più
   negativamente del riuso: su $\kappa \approx 20$ con $M=\infty$ l'errore
-  rimane bloccato a $1.28\times10^0$ senza progressi. Fa eccezione, oltre al
-  caso ben condizionato dove il riuso migliora su 4 seed su 5, il problema
+  rimane bloccato a $1.28\times10^0$ senza progressi (Tabella~\ref{tab:riuso_sintesi}). Fa eccezione, oltre al
+  caso ben condizionato dove il riuso migliora su 4 seed su 5 (Tabella~\ref{tab:riuso_robustezza}), il problema
   con termine incrociato con $M=\infty$, dove Newton-CG raggiunge
-  $4.10\times10^{-2}$ contro $3.52\times10^{-1}$ della base. La modalità
+  $4.10\times10^{-2}$ contro $3.52\times10^{-1}$ della base (Tabella~\ref{tab:riuso_sintesi}). La modalità
   \emph{Indipendente da $S_k$} rende esplicita questa dipendenza: permette di
   tenere $H_k$ più a lungo del batch (colonna $M{=}10$, H ind. $M_H{=}\infty$)
   o di ricampionarla più spesso, controllando così quanto può diventare
@@ -3251,7 +3251,7 @@ condizionamento $\kappa$ e dall'algoritmo:
   garantire un vantaggio uniforme.
 \end{itemize}
 \paragraph{Perché il riuso peggiora sui problemi mal condizionati e, in particolare, per i metodi di Newton.}
-La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.28$ con $M=\infty$ su $\kappa\approx100$). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
+La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.28$ con $M=\infty$ su $\kappa\approx100$; Tabella~\ref{tab:riuso_sintesi}). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
 
 
 La Figura~\ref{fig:riuso_traiettorie} mostra due esecuzioni di Dynamic GD sul
@@ -3327,18 +3327,18 @@ emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
 \item Dynamic GD e BB-CCV si comportano in modo simile solo sul problema
   ben condizionato: su $\kappa \approx 1.1$ il riuso migliora su 5 seed su 5
   con $M=\infty$ e $M=10$, con il vantaggio che emerge nella seconda metà
-  delle iterazioni. Sui mal condizionati i due metodi divergono: su
+  delle iterazioni (Tabella~\ref{tab:riuso_robustezza}). Sui mal condizionati i due metodi divergono: su
   $\kappa \approx 20$ il riuso illimitato peggiora Dynamic GD
   ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della base) ma aiuta
   BB-CCV, la cui base converge a $9.72\times10^{-5}$ e con $M=\infty$ scende
   a $9.54\times10^{-10}$; su $\kappa \approx 100$ il riuso aiuta Dynamic GD
   ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$) ma peggiora BB-CCV, la
   cui base è già alla precisione macchina ($1.10\times10^{-14}$) e con
-  $M=\infty$ sale a $7.45\times10^{-3}$.
+  $M=\infty$ sale a $7.45\times10^{-3}$ (Tabella~\ref{tab:riuso_sintesi}).
 \item Newton-CG è penalizzato sui problemi mal condizionati
   (su $\kappa\approx20$ e $\kappa\approx100$ peggiora su tutti e 5 i seed con
   $M=\infty$), mentre il riuso lo aiuta sul problema ben condizionato
-  (4 seed su 5 con $M=\infty$) e sul termine incrociato con $M=\infty$.
+  (4 seed su 5 con $M=\infty$) e sul termine incrociato con $M=\infty$ (Tabella~\ref{tab:riuso_robustezza}).
 \item Newton-CG $L_1$ ha comportamento intermedio, senza una
   tendenza netta.
 \item La modalità \emph{Indipendente da $S_k$} (colonna $M{=}10$, H ind.
@@ -3350,7 +3350,7 @@ emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
   peggiora Newton-CG sui problemi mal condizionati ($\kappa\approx20$:
   $1.15\times10^{0}$ contro $9.49\times10^{-1}$; $\kappa\approx100$:
   $1.16\times10^{0}$ contro $6.44\times10^{-1}$), dove la direzione resta più
-  a lungo ancorata alla Hessiana del campione iniziale.
+  a lungo ancorata alla Hessiana del campione iniziale (Tabelle~\ref{tab:riuso_bencond_ncg}, \ref{tab:riuso_malcond_ncg}, \ref{tab:riuso_veryill_ncg} e~\ref{tab:riuso_offdiag_l1}).
 \end{itemize}
 
 Vale la pena notare che le curve di errore con il riuso non sono monotone
