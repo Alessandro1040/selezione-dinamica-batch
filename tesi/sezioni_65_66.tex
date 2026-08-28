@@ -939,7 +939,9 @@ Il notebook \texttt{nsynth\_net\_riproduzione}, disponibile nella cartella
 \texttt{tesi/nsynth/} del repository, implementa fedelmente le funzioni qui
 descritte: la cella di validazione interna verifica numericamente, su un
 piccolo batch, che le funzioni batch coincidano con le versioni per-esempio
-(errori $< 10^{-8}$), garantendo che l'uso delle versioni vettorizzate non
+(errori inferiori a $10^{-8}$ sul gradiente, sulla loss e sulla
+varianza CCV, e inferiori a $10^{-6}$ sul prodotto
+Hessiano--vettore), garantendo che l'uso delle versioni vettorizzate non
 altera i risultati degli algoritmi.
 
 \textbf{Risultati dell'esperimento.}
@@ -1002,6 +1004,30 @@ e le predizioni dei quattro metodi --- ad esempio la clip
 permette inoltre di caricare un proprio file audio e di ascoltare le clip.
 L'intero repository, con script, figure e note operative, è disponibile su
 \url{https://github.com/Alessandro1040/selezione-dinamica-batch}.
+
+\textbf{Riproducibilità.} Tutti gli esperimenti di questa sezione (estrazione
+delle features, addestramento dei quattro metodi, figure e tabelle) sono
+riproducibili eseguendo dall'inizio il notebook Colab
+\texttt{nsynth\_net\_riproduzione} indicato sopra: le celle successive al
+download di NSynth (split validation e test) estraggono le features, eseguono i
+quattro metodi con i parametri dichiarati in questa sezione e generano le
+figure e la tabella in formato LaTeX con gli stessi valori qui riportati; la
+cella di validazione interna garantisce che le versioni vettorizzate delle
+funzioni non alterino i risultati rispetto alle versioni per-esempio dei codici
+B.1--B.4.
+
+\textbf{Precisione sui valori numerici.} I dati riportati in questa sezione
+(accuratezze, norme del gradiente, dimensioni del batch e tempi) si riferiscono
+alla run di riferimento eseguita sul computer dell'autore, non a un'esecuzione
+in Colab. Il notebook Colab riproduce lo stesso codice con lo stesso seme
+casuale (seed 42), ma la riproducibilità non è esatta: gli algoritmi sono
+stocastici e i calcoli in virgola mobile dipendono dall'ambiente di esecuzione
+(versione di NumPy e libreria BLAS sottostante, OpenBLAS in Colab contro
+Accelerate su macOS), per cui piccole differenze di arrotondamento, accumulate
+sulle 200 iterazioni, producono valori finali leggermente diversi. Le
+differenze sono dell'ordine di qualche decimo di punto percentuale e non
+cambiano le conclusioni; i tempi di esecuzione in Colab sono invece molto più
+lunghi (decine di minuti, contro i pochi minuti della macchina locale).
 
 
 

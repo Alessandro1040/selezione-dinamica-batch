@@ -273,6 +273,29 @@ Da tenere presente nelle sessioni di lavoro successive:
   esatta. Ricompilati tesi.pdf e tesi_finale.pdf (131 pp, 0 errori, 0
   undefined, overfull invariati). Sincronizzati nella repo tesi.tex/tesi.pdf/
   tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+- **Ultimo intervento (28/08/2026, follow-up 7).** **Sezioni 6.5/6.6
+  (estratto `tesi/sezioni_65_66.tex`): riproducibilità verificata e completata
+  per la Sez. 6.6.** Verificata la riproducibilità dichiarata delle Sez. 6.5
+  (nota) e 6.6 (rete): link GitHub/Colab corrispondenti ai notebook presenti in
+  `tesi/nsynth/` (repo `Alessandro1040/selezione-dinamica-batch`, branch
+  `main`), valori di `tab:nsynth_nota` e `tab:nsynth_net` coincidenti 1:1 con
+  `colab_risorse/figure/nota/results.json` e
+  `colab_risorse/figure/net/results_net.json`, parametri dichiarati nel testo
+  uguali a quelli dei notebook, documento compilato senza errori né riferimenti
+  indefiniti. Correzioni in `sezioni_65_66.tex`: (1) la soglia della
+  validazione interna del notebook rete ora riporta i valori esatti (errori <
+  1e-8 su gradiente/loss/varianza CCV e < 1e-6 sul prodotto Hessiano--vettore,
+  non "errori < 10^{-8}"); (2) aggiunti in coda alla Sez. 6.6 i paragrafi
+  "Riproducibilità" (eseguendo dall'inizio `nsynth_net_riproduzione` si
+  riproducono estrazione features, addestramento, figure e tabella) e
+  "Precisione sui valori numerici" (valori/tempi della run dell'autore, non
+  Colab; riproducibilità non esatta per stocasticità e arrotondamenti; in Colab
+  tempi di decine di minuti), simmetrici a quelli della Sez. 6.5. Ricompilato
+  `sezioni_65_66.pdf` (15 pp, 0 errori, 0 undefined, 0 overfull nuovi).
+  Sincronizzati nella repo tesi/sezioni_65_66.tex e tesi/sezioni_65_66.pdf
+  (md5 verificati). `tesi.tex` non toccata (le Sez. 6.5/6.6 in tesi.tex restano
+  placeholder in attesa del merge); `bozza.tex` non toccata.
+
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
