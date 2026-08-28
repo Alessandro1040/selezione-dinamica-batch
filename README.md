@@ -258,6 +258,21 @@ Da tenere presente nelle sessioni di lavoro successive:
   κ≈20/κ≈100 con `desc base` è quindi quasi certamente una cache del browser
   o uno storico (localStorage) ricalcolato con una versione precedente del
   file. README aggiornato. Nessun PDF coinvolto.
+- **Ultimo intervento (28/08/2026, follow-up 6).** **Tesi Sez. 6.2.1 (Setup
+  Sperimentale): nota su riproducibilità con il Test batch e differenze WASM di
+  Pyodide.** Dopo il paragrafo sulla riproducibilità del pannello "Analisi"
+  aggiunto un paragrafo che spiega che gli esperimenti della Sez. 6.7 possono
+  essere riprodotti anche con lo strumento *Test batch* dell'app (che genera
+  le tabelle e30 in LaTeX nel browser), con la precisazione che i valori
+  possono differire di qualche punto percentuale sui problemi mal condizionati
+  (κ≈20 e κ≈100) per le colonne che ricampionano (`base`, `desc`), mentre le
+  celle ben condizionate e `M=∞` coincidono: la causa è il build WASM di
+  Pyodide (arrotondamenti in virgola mobile diversi dal NumPy di sistema), che
+  si amplificano sui problemi mal condizionati; gli script di generazione del
+  repository (NumPy di sistema) restano il riferimento per la riproduzione
+  esatta. Ricompilati tesi.pdf e tesi_finale.pdf (131 pp, 0 errori, 0
+  undefined, overfull invariati). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG

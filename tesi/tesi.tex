@@ -2467,6 +2467,25 @@ Tutti i valori riportati in questo capitolo sono quelli mostrati dal pannello
 parametri sopra indicati e premendo il pulsante ``Ricalcola'' e poi
 ``Analisi'', i risultati sono riproducibili esattamente a parità di seed.
 
+Inoltre, gli esperimenti della Sezione~\ref{app:riuso} possono essere
+riprodotti anche direttamente nell'applicazione con lo strumento
+\emph{Test batch} (Sezione~\ref{sec:visualizzazione}), che esegue nel browser
+il prodotto cartesiano delle configurazioni e genera le tabelle
+$e_{30}$ (matrice di confronto e robustezza su più seed) in formato LaTeX.
+I valori coincidono con quelli qui riportati a meno di differenze dell'ordine
+di qualche punto percentuale, che possono comparire sui problemi mal
+condizionati ($\kappa \approx 20$ e $\kappa \approx 100$) e limitatamente alle
+colonne che ricampionano a ogni iterazione (\emph{base}) o con criterio
+adattivo (\emph{desc}); le celle ben condizionate ($\kappa \approx 1.1$ e
+termine incrociato) e la colonna $M{=}\infty$ coincidono. La ragione è che
+l'applicazione esegue Python nel browser tramite Pyodide: il build WASM di
+Pyodide può introdurre differenze di arrotondamento in virgola mobile rispetto
+al NumPy di sistema con cui sono stati generati i valori riportati in questa
+tesi, e sui problemi mal condizionati tali differenze si amplificano fino a
+spostare l'errore finale di pochi punti percentuali. Gli script di generazione
+del repository (eseguiti con il NumPy di sistema) restano quindi il
+riferimento per la riproduzione esatta delle tabelle.
+
 \subsection{Architettura Software}\label{sec:architettura}
 
 Per rendere concreti i concetti teorici esposti nel
