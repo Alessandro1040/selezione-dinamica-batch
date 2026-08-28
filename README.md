@@ -243,6 +243,21 @@ Da tenere presente nelle sessioni di lavoro successive:
   κ≈100 4.116e-1, incr. 8.142e-2), M=∞ 3.640e-1 (8/16), def. 2.034e-1 (10/16),
   τ=1e-3 2.034e-1 (10/16 vs 11/16, cella borderline), τ=1e-5 2.034e-1 (10/16).
   Tutti i test JS passano. README aggiornato. Nessun PDF coinvolto.
+- **Ultimo intervento (28/08/2026, follow-up 5).** **Test batch: pulsante
+  "🔍 Codice 1ª run" per il debug.** In formato Matrice e Robustezza, accanto
+  a Copia LaTeX / Scarica JSON, il pulsante mostra il codice Python generato
+  per la prima combinazione della griglia (guard di ricampionamento e line
+  search per-algoritmo), utile per verificare che `desc base`/`val base`
+  abbiano davvero il guard `if True:` e che la line search sia quella attesa.
+  Diagnosi del caso 6.27 (base 2.16e-1 invece di 2.12e-1): verificato che il
+  file genera il codice corretto (cella per cella, 4 algoritmi, e30 identici
+  alla validazione), che il round-trip JSON `_batch_run(JSON.stringify(code))`
+  dell'app è lossless, che numpy 1.26.4 (Pyodide) e 2.4.6 danno sequenze RNG
+  identiche, e che il run precedente con `base` standard coincideva esattamente
+  con la validazione (κ≈20 1.59e-1, κ≈100 4.33e-1): la discrepanza residua su
+  κ≈20/κ≈100 con `desc base` è quindi quasi certamente una cache del browser
+  o uno storico (localStorage) ricalcolato con una versione precedente del
+  file. README aggiornato. Nessun PDF coinvolto.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG

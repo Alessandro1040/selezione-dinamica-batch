@@ -6540,6 +6540,7 @@ async function batchRunAll(){
     const cfg = cfgs[i];
     try{
       const fullCode = batchBuildFullCode(cfg);
+      if(i===0) batchLastCode = fullCode;
       const out = pyodide.runPython('_batch_run('+JSON.stringify(fullCode)+')');
       results.push({cfg, metrics: JSON.parse(out)});
     }catch(e){
@@ -6559,6 +6560,7 @@ async function batchRunAll(){
 }
 
 let batchLast = null;
+let batchLastCode = '';
 
 let batchShowRes = true;
 
@@ -6713,12 +6715,32 @@ function batchRenderResults(dims, results){
   html += '<div class="batch-tools">';
   html += '<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>';
   html += '<button class="btn-icon-sm" id="batchDlJsonBtn">💾 Scarica JSON</button>';
+  html += '<button class="btn-icon-sm" id="batchCodeBtn">🔍 Codice 1ª run</button>';
   html += '<label class="batch-media" style="margin-left:auto"><input type="checkbox" id="batchShowRes" '+(batchShowRes?'checked':'')+'><span>ricampionamenti in parentesi</span></label>';
   html += '</div></div>';
   el.innerHTML = html;
   document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexExport(t)));
   document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
   document.getElementById('batchShowRes').addEventListener('change', e=>{ batchShowRes=e.target.checked; batchRenderResults(dims, results); });
+}
+
+function batchShowFirstCode(){
+  const el = document.getElementById('batchResults');
+  const old = document.getElementById('batchFirstCode');
+  if (old) old.remove();
+  if (!batchLastCode){ alert('Esegui prima una run.'); return; }
+  const div = document.createElement('div');
+  div.id = 'batchFirstCode';
+  div.className = 'batch-result-card';
+  div.style.marginTop = '10px';
+  div.innerHTML = '<div class="cap"><strong>Codice Python della 1ª run</strong> — verifica il guard di ricampionamento (<code>if True:</code> per <code>desc base</code>/<code>val base</code>) e la line search per-algoritmo.</div>';
+  const pre = document.createElement('pre');
+  pre.style.cssText = 'max-height:280px;overflow:auto;background:#0A0F1A;border:1px solid var(--border);border-radius:4px;padding:8px;font-family:var(--font-mono);font-size:9.5px;line-height:1.5;color:#C8D8F0;white-space:pre-wrap;margin:0';
+  pre.textContent = batchLastCode;
+  div.appendChild(pre);
+  el.appendChild(div);
+  div.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
 /* ── Formato "Robustezza" (sintesi, stile Tabella 6.27/6.24/6.21) ──
@@ -6784,10 +6806,12 @@ function batchRenderRobustezza(dims, results){
   html += '<div class="batch-tools">';
   html += '<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>';
   html += '<button class="btn-icon-sm" id="batchDlJsonBtn">💾 Scarica JSON</button>';
+  html += '<button class="btn-icon-sm" id="batchCodeBtn">🔍 Codice 1ª run</button>';
   html += '</div></div>';
   el.innerHTML = html;
   document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexExportRobustezza(r)));
   document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
 }
 
 function batchLatexExportRobustezza(r){
