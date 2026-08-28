@@ -1450,6 +1450,12 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
       <div class="batch-dims" id="batchDims"></div>
       <div class="batch-runinfo">
         <span id="batchRunCount">Run: —</span>
+        <label class="batch-media">Formato:
+          <select id="batchTableFormat" style="width:auto;padding:3px 24px 3px 8px;font-size:10.5px">
+            <option value="matrice">Matrice (confronto)</option>
+            <option value="robustezza">Robustezza (sintesi)</option>
+          </select>
+        </label>
         <span class="batch-media-note" id="batchMediaNote"></span>
       </div>
       <div class="batch-progress hidden" id="batchProgress">
@@ -6519,9 +6525,12 @@ async function batchRunAll(){
     }
   }
   batchProgressVal.textContent = 'Completato: '+(total-errCount)+' ok'+(errCount?', '+errCount+' errori':'');
+  batchLast = {dims, results};
   batchRenderResults(dims, results);
   batchSaveHistory(dims, results);
 }
+
+let batchLast = null;
 
 let batchShowRes = true;
 
@@ -6601,7 +6610,7 @@ function batchBuildTable(dims, results){
     }
     cells.push(row);
   }
-  return {dims, mediaDims, nonMedia, columnsDim, rowDims, colValues, colLabels, colLatex, rowLabels, rowLatex, cells, baseCol, gmin, gmax, total:results.length};
+  return {dims, mediaDims, nonMedia, columnsDim, rowDims, rowCombos, colValues, colLabels, colLatex, rowLabels, rowLatex, cells, baseCol, gmin, gmax, total:results.length};
 }
 
 function batchFmt3(x){
@@ -6636,6 +6645,8 @@ function batchCellMarker(t, r, c){
 }
 
 function batchRenderResults(dims, results){
+  const fmtEl = document.getElementById('batchTableFormat');
+  if (fmtEl && fmtEl.value === 'robustezza') { batchRenderRobustezza(dims, results); return; }
   const t = batchBuildTable(dims, results);
   const el = document.getElementById('batchResults');
   const capParts=[];
@@ -6677,6 +6688,108 @@ function batchRenderResults(dims, results){
   document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexExport(t)));
   document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
   document.getElementById('batchShowRes').addEventListener('change', e=>{ batchShowRes=e.target.checked; batchRenderResults(dims, results); });
+}
+
+/* ── Formato "Robustezza" (sintesi, stile Tabella 6.27/6.24/6.21) ──
+   Quando seed è su media, per ogni configurazione (colonna della matrice)
+   calcola: ē30 = media di e30 su tutte le caselle (problema×algoritmo),
+   vitt. = numero di caselle in cui la media è minore di quella di base,
+   e la media per problema (sul primo attributo delle righe, tipicamente
+   la loss). */
+function batchRobustezzaTable(t){
+  const hasLoss = t.rowDims.some(d=>d.key==='loss');
+  const lossIdx = hasLoss ? t.rowDims.findIndex(d=>d.key==='loss') : -1;
+  const lossValues = hasLoss ? t.rowDims[lossIdx].values : [];
+  const nCells = t.rowCombos.length;
+  const rows = [];
+  for(let c=0;c<t.colValues.length;c++){
+    const e30s = t.cells.map(row=>row[c].e30).filter(v=>v!==null && !isNaN(v));
+    const meanE30 = e30s.length ? e30s.reduce((a,b)=>a+b,0)/e30s.length : null;
+    let vitt = 0;
+    if(t.baseCol>=0 && t.baseCol!==c){
+      for(let r=0;r<t.cells.length;r++){
+        const a=t.cells[r][c].e30, b=t.cells[r][t.baseCol].e30;
+        if(a!==null && b!==null && a < b - 1e-12) vitt++;
+      }
+    }
+    const perProb = {};
+    if(hasLoss){
+      for(const lv of lossValues){
+        const vals=[];
+        for(let r=0;r<t.cells.length;r++){
+          if(t.rowCombos[r][lossIdx].value===lv && t.cells[r][c].e30!==null) vals.push(t.cells[r][c].e30);
+        }
+        perProb[lv] = vals.length ? vals.reduce((a,b)=>a+b,0)/vals.length : null;
+      }
+    }
+    rows.push({colLabel:t.colLabels[c], colLatex:t.colLatex[c], meanE30, vitt, perProb});
+  }
+  return {t, rows, hasLoss, lossValues, nCells};
+}
+
+function batchRenderRobustezza(dims, results){
+  const t = batchBuildTable(dims, results);
+  const r = batchRobustezzaTable(t);
+  const el = document.getElementById('batchResults');
+  const capParts=[];
+  capParts.push(t.total.toLocaleString('it-IT')+' run · '+r.nCells+' caselle');
+  capParts.push('colonne = '+(t.columnsDim ? t.columnsDim.label : '—'));
+  if(t.mediaDims.length) capParts.push('media su: '+t.mediaDims.map(d=>d.label+' ∈ {'+d.values.join(', ')+'}').join('; '));
+  let html = '<div class="batch-result-card">';
+  html += '<div class="cap"><strong>Tabella robustezza (sintesi)</strong> — '+batchEsc(capParts.join(' · '))+'</div>';
+  html += '<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Configurazione</th><th>ē₃₀</th><th>vitt.</th>';
+  for(const lv of r.lossValues) html += '<th>'+batchEsc(batchValueLabel('loss', lv))+'</th>';
+  html += '</tr></thead><tbody>';
+  for(let i=0;i<r.rows.length;i++){
+    const row = r.rows[i];
+    const isBase = (r.t.baseCol>=0 && i===r.t.baseCol);
+    html += '<tr><td class="rowlab">'+(isBase?'<em>':'')+batchEsc(row.colLabel)+(isBase?'</em>':'')+'</td>';
+    html += '<td>'+batchFmt3(row.meanE30)+'</td>';
+    html += '<td>'+(r.t.baseCol>=0 && i!==r.t.baseCol ? row.vitt+'/'+r.nCells : '0/'+r.nCells)+'</td>';
+    for(const lv of r.lossValues) html += '<td>'+batchFmt3(row.perProb[lv])+'</td>';
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="batch-tools">';
+  html += '<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>';
+  html += '<button class="btn-icon-sm" id="batchDlJsonBtn">💾 Scarica JSON</button>';
+  html += '</div></div>';
+  el.innerHTML = html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexExportRobustezza(r)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+}
+
+function batchLatexExportRobustezza(r){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch, formato robustezza) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\footnotesize');
+  L.push('\\renewcommand{\\arraystretch}{1.1}');
+  L.push('\\setlength{\\tabcolsep}{3.5pt}');
+  const cap='Robustezza su seed indipendenti del riuso. Per ogni configurazione: $\\overline{e}_{30}$ = media di $e_{30}$ su '+r.nCells+' caselle; \\emph{vitt.} = numero di caselle (su '+r.nCells+') in cui la media è minore di quella di \\emph{base}; le ultime colonne riportano la media per problema (mediata sugli altri criteri).';
+  L.push('\\caption{'+cap+'}');
+  L.push('\\label{tab:batch_test_rob}');
+  L.push('\\begin{tabular}{@{}l'+'r'.repeat(2+r.lossValues.length)+'@{}}');
+  L.push('\\toprule');
+  const hdr=['Configurazione','$\\overline{e}_{30}$','\\emph{vitt.}'].concat(r.lossValues.map(lv=>batchLatexValueLabel('loss', lv)));
+  L.push(hdr.join(' & ')+'\\\\');
+  L.push('\\midrule');
+  for(let i=0;i<r.rows.length;i++){
+    const row=r.rows[i];
+    const isBase=(r.t.baseCol>=0 && i===r.t.baseCol);
+    const name = isBase ? '\\emph{base}' : row.colLatex;
+    const cells=[name, batchFmt3Latex(row.meanE30), (r.t.baseCol>=0 && i!==r.t.baseCol ? row.vitt+'/'+r.nCells : '0/'+r.nCells)];
+    for(const lv of r.lossValues) cells.push(batchFmt3Latex(row.perProb[lv]));
+    L.push(cells.join(' & ')+'\\\\');
+    if(isBase) L.push('\\midrule');
+  }
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
 }
 
 function batchLatexExport(t){
@@ -6831,6 +6944,8 @@ document.getElementById('batchCloseBtn').addEventListener('click', ()=>batchModa
 batchModal.addEventListener('click', e=>{ if(e.target===batchModal) batchModal.classList.add('hidden'); });
 document.getElementById('batchRunBtn').addEventListener('click', batchRunAll);
 document.getElementById('batchResetBtn').addEventListener('click', batchResetDims);
+const batchTableFormatEl = document.getElementById('batchTableFormat');
+if (batchTableFormatEl) batchTableFormatEl.addEventListener('change', ()=>{ if (batchLast) batchRenderResults(batchLast.dims, batchLast.results); });
 buildBatchDims();
 
 window.addEventListener('load', async () => {

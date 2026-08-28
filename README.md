@@ -186,6 +186,25 @@ Da tenere presente nelle sessioni di lavoro successive:
   L1 M=5 1.00e-1), conteggio ricampionamenti coerente (base = numero di
   iterazioni, val/desc da `m_actual`, riuso manuale = `resample_pts` +
   `resize_points`). `bozza.tex` non toccata.
+- **Ultimo intervento (28/08/2026, follow-up).** **Test batch: nuovo formato
+  di tabella «Robustezza (sintesi)» in stile Tabella 6.27/6.24/6.21.** In
+  `visualizzazione.html` aggiunto nella modale il selettore **Formato**
+  (Matrice / Robustezza). In formato Robustezza (da usare con `seed` su
+  `media` e una colonna `base`) la tabella ha una riga per configurazione e
+  colonne `ē₃₀` (media di e30 su tutte le caselle), `vitt.` (numero di caselle
+  su 16 in cui la media è minore di quella di `base`) e le medie per problema
+  (prima attributo delle righe, tipicamente la loss), sia in HTML sia in
+  LaTeX (`\begin{table}...\end{table}` con `\midrule` dopo la riga base).
+  Validazione end-to-end su Python reale dei 400 codici della 6.27
+  (4 problemi × 4 algoritmi × 5 strategie × 5 seed): `M=∞` esatto
+  (3.640e-1), configurazioni del criterio di discesa identiche a 3 cifre
+  significative (2.03e-1, vitt. 10/16), riga `base` 2.17e-1 vs 2.12e-1 della
+  tesi (la tesi calcola la base come codice del criterio di discesa con
+  ricampionamento forzato `if True:`, il tool come codice standard non-riuso;
+  ~2%, percorso RNG diverso). Con line search per-algoritmo (BB=armijo,
+  altri=wolfe, come nella tesi) le colonne del criterio sono allineate. Tutti
+  i test JS (deno lint, smoke test DOM fittizio, funzionali, render, LaTeX)
+  passano. `bozza.tex` non toccata.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
