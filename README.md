@@ -307,9 +307,18 @@ Da tenere presente nelle sessioni di lavoro successive:
   la nuova spiegazione di come si identificano le variabili nulle all'ottimo
   (confronto di $\partial J/\partial w_i$ con $\pm\nu$ tramite il gradiente
   generalizzato, in linea con l'Eq. 5.44 della Sez. 5.3). (3) Ringraziamenti:
-  inserito il segnaposto `[PLACEHOLDER] Inserire qui i ringraziamenti.` (4) Sez.
+  inserito il segnaposto `(placeholder)` in corsivo (font `\emph`, poi
+  semplificato nel follow-up 9). (4) Sez.
   7.1 (Limiti dello studio): rimossa la parentesi "(ad esempio la perdita
   logistica non lo è)". Ricompilati `tesi.pdf` e `tesi_finale.pdf` (131 pp, 0
+  errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+
+- **Ultimo intervento (28/08/2026, follow-up 9).** **Ringraziamenti:
+  placeholder semplificato.** Il segnaposto dei ringraziamenti è ora solo
+  `\emph{(placeholder)}` (testo `(placeholder)` con il font originale in
+  corsivo, come la frase che c'era prima); rimosso `[PLACEHOLDER] Inserire qui
+  i ringraziamenti.` Ricompilati `tesi.pdf` e `tesi_finale.pdf` (131 pp, 0
   errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
   tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 
