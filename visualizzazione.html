@@ -6196,7 +6196,7 @@ const BATCH_DIM_DEFS = [
   { key:'w0', label:'w0 (x,y)', values:'2.0,-3.0', media:false, type:'pair',
     hint:'Coppia x,y separata da virgola (un solo valore per le loss 1D).' },
   { key:'lineSearch', label:'Line search', values:'wolfe', media:false, type:'choice',
-    hint:'wolfe (default) o armijo. Ignorata da Newton-L1.', sugg:['wolfe','armijo'] },
+    hint:'wolfe o armijo per tutti, oppure per-algoritmo: gd=wolfe;bb=armijo;newton_cg=wolfe (come nella tesi: BB usa Armijo). Ignorata da Newton-L1.', sugg:['wolfe','armijo','gd=wolfe;bb=armijo;newton_cg=wolfe','gd=armijo;bb=armijo;newton_cg=armijo'] },
   { key:'dynBatch', label:'Batch dinamico CCV', values:'dynamic', media:false, type:'choice',
     hint:'dynamic (default) o fixed.', sugg:['dynamic','fixed'] },
   { key:'hkSubset', label:'Sottocamp. Hessiana', values:'subset', media:false, type:'choice',
@@ -6371,6 +6371,20 @@ function fmtNumLatex(x){
   return '10^{'+e+'}';
 }
 
+function batchResolveLineSearch(str, algo){
+  const s = String(str||'').trim();
+  if (!s) return 'wolfe';
+  if (!s.includes('=')) return s;
+  // sintassi per-algoritmo: "gd=wolfe;bb=armijo;newton_cg=wolfe"
+  const map = {};
+  for (const part of s.split(';')){
+    const m = part.trim().match(/^([a-z_]+)\s*=\s*(.+)$/i);
+    if (m) map[m[1].toLowerCase()] = m[2].trim();
+  }
+  const a = String(algo).toLowerCase();
+  return map[a] || map['*'] || 'wolfe';
+}
+
 function batchLossCode(lossKey, N, seed){
   const key = String(lossKey).trim();
   if (key === 'custom') return lossCode.value;
@@ -6423,7 +6437,7 @@ function batchBuildFullCode(cfg){
   const s = batchParseStrategy(cfg.strategia);
   const opts = {
     hkSubset: cfg.hkSubset !== 'none',
-    lineSearch: cfg.lineSearch || 'wolfe',
+    lineSearch: batchResolveLineSearch(cfg.lineSearch, cfg.algo),
     dynamicBatch: cfg.dynBatch === 'dynamic',
     hessianFreeL1: cfg.hessianFree === 'free',
     reuseBatch: (s.kind === 'manual' || s.kind === 'hind'),

@@ -205,6 +205,18 @@ Da tenere presente nelle sessioni di lavoro successive:
   altri=wolfe, come nella tesi) le colonne del criterio sono allineate. Tutti
   i test JS (deno lint, smoke test DOM fittizio, funzionali, render, LaTeX)
   passano. `bozza.tex` non toccata.
+- **Ultimo intervento (28/08/2026, follow-up 2).** **Test batch: line search
+  per-algoritmo nel campo "Line search".** Il campo accetta ora anche la
+  sintassi `gd=wolfe;bb=armijo;newton_cg=wolfe` (coppie `algoritmo=wolfe|armijo`
+  separate da `;`; valore singolo senza `=` = per tutti, default `wolfe`),
+  necessaria per riprodurre fedelmente le tabelle della tesi dove BB-CCV usa
+  Armijo e GD/Newton-CG Wolfe. Implementata `batchResolveLineSearch` e usata
+  in `batchBuildFullCode`. Validazione: sweep reale dei 400 codici della 6.27
+  con la stringa composita: M=∞ esatto (3.640e-1), colonne `desc` identiche a
+  3 cifre significative (2.03e-1, vitt. 10/16), `base` 2.17e-1 (nota ~2% di
+  cui sopra); verificato che i codici generati contengano davvero Armijo per
+  BB e Wolfe per GD. Tutti i test JS passano. README aggiornato. Nessun PDF
+  coinvolto.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
