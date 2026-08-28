@@ -296,6 +296,23 @@ Da tenere presente nelle sessioni di lavoro successive:
   (md5 verificati). `tesi.tex` non toccata (le Sez. 6.5/6.6 in tesi.tex restano
   placeholder in attesa del merge); `bozza.tex` non toccata.
 
+- **Ultimo intervento (28/08/2026, follow-up 8).** **Tesi: 4 correzioni.** (1)
+  Sez. 5.1: corretto il posizionamento delle tre figure della sezione
+  (Fig. 5.1 schema a blocchi del Dynamic GD, Fig. 5.2 cono di discesa, Fig. 5.3
+  andamento del batch) cambiando la spec del float da `[h]` a `[H]`: con `[h]`
+  le figure non trovavano posto nella sezione e finivano in coda al documento
+  (pagg. 130-131); ora compaiono nella Sez. 5.1 (pagg. 15, 17, 20), mentre gli
+  schemi di Newton-CG/L1/BB-CCV erano già a posto. (2) Sez. 4.4: rimosso il
+  paragrafo sul *soft thresholding*; resta solo la strategia dell'active set con
+  la nuova spiegazione di come si identificano le variabili nulle all'ottimo
+  (confronto di $\partial J/\partial w_i$ con $\pm\nu$ tramite il gradiente
+  generalizzato, in linea con l'Eq. 5.44 della Sez. 5.3). (3) Ringraziamenti:
+  inserito il segnaposto `[PLACEHOLDER] Inserire qui i ringraziamenti.` (4) Sez.
+  7.1 (Limiti dello studio): rimossa la parentesi "(ad esempio la perdita
+  logistica non lo è)". Ricompilati `tesi.pdf` e `tesi_finale.pdf` (131 pp, 0
+  errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG

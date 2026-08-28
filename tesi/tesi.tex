@@ -205,7 +205,7 @@
 \newpage
 \begin{center}
   {\large\bfseries\color{coverblue} Ringraziamenti}\\[0.6cm]
-  \emph{Ringrazio chiunque, in qualsiasi modo, mi abbia motivato a fare di più.}
+  \textbf{[PLACEHOLDER] Inserire qui i ringraziamenti.}
 \end{center}
 \newpage
 % ── ABSTRACT ────────────────────────────────────────────────────────────────
@@ -609,28 +609,25 @@ per l'interpretabilità dei modelli ad alta dimensionalità (è il principio all
 base del LASSO).
 
 La non differenziabilità della norma $L_1$ nei punti in cui un coefficiente si
-annulla richiede però di adattare i metodi classici del primo ordine. Un
-approccio diffuso è il \emph{soft thresholding}: ad ogni passo si applica alla
-soluzione l'operatore di soglia
-\[
-S_\nu(w_i) = \operatorname{sign}(w_i)\,\max\{|w_i| - \nu,\, 0\},
-\]
-che riduce in modulo ogni coefficiente di $\nu$ e lo azzera se scende sotto
-soglia. In questo modo la non differenziabilità della $L_1$ in $0$ viene
-aggirata senza mai derivare il termine non liscio: l'operatore $S_\nu(w_i)$ è
-la soluzione esatta in forma chiusa del problema $\min_z \tfrac{1}{2}(z-w_i)^2
-+ \nu|z|$, la cui condizione di ottimalità --- scritta con la sottoderivata
-della norma, che in $z=0$ vale $[-\nu,\nu]$ --- si risolve analiticamente: per
-$|w_i| \le \nu$ il minimizzatore è $z=0$ (il punto di non differenziabilità è
-un minimo stazionario), per $|w_i| > \nu$ è
-$\operatorname{sign}(w_i)(|w_i|-\nu)$. Il passo di discesa coinvolge quindi
-solo la parte liscia $J$; il termine $L_1$ non viene derivato né trascurato,
-ma minimizzato esattamente. In questa tesi si segue invece la strategia
-dell'\emph{active set} (o delle facce ortanti): si identifica l'insieme delle
-variabili che all'ottimo saranno nulle e si minimizza la funzione obiettivo
-solo sulle variabili libere, dove la $L_1$ è differenziabile, mantenendo le
-altre esattamente a zero tramite una ricerca lineare proiettata. È la strategia
-adottata dal metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
+annulla richiede però di adattare i metodi classici del primo ordine. In questa
+tesi si segue la strategia dell'\emph{active set} (o delle facce ortanti): si
+identifica l'insieme delle variabili che all'ottimo saranno nulle e si minimizza
+la funzione obiettivo solo sulle variabili libere, dove la $L_1$ è
+differenziabile, mantenendo le altre esattamente a zero tramite una ricerca
+lineare proiettata.
+
+Le variabili da tenere a zero sono individuate con il criterio del gradiente
+generalizzato (Sezione~\ref{sec:l1}): per ogni coordinata $i$ si confronta la
+derivata parziale della parte liscia, $\partial J(w)/\partial w_i$, con il costo
+$\nu$. Se $w_i = 0$ e $-\nu \le \partial J(w)/\partial w_i \le +\nu$, il
+subgradiente della norma in $0$ --- l'intervallo $[-\nu,+\nu]$ --- contiene la
+componente liscia e $w_i = 0$ è un punto stazionario per quella coordinata: la
+variabile resta ancorata a zero, contribuendo alla sparsità della soluzione. Se
+invece $\partial J(w)/\partial w_i < -\nu$ (o $> +\nu$), la parte liscia
+``vince'' sul costo $L_1$ e conviene liberare la variabile, assegnandole la
+faccia positiva (o negativa) dell'ortante, così che la minimizzazione possa
+spostarla da zero. È la strategia adottata dal metodo Newton-CG-$L_1$ descritto
+nel Capitolo~\ref{sec:algoritmi}.
 
 \section{Algoritmi Proposti}\label{sec:algoritmi}
 % ═══════════════════════════════════════════════════════════════════════════
@@ -638,7 +635,7 @@ adottata dal metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 \subsection{Metodo del Gradiente a Campione Dinamico}
 
 % Figura 5.1 - schema a blocchi dell'algoritmo Dynamic GD (versione migliorata)
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
@@ -740,7 +737,7 @@ Per ogni numero reale $x$ vale $x \ge -|x|$; quindi $e_k^T g_k \ge -|e_k^T g_k|$
 Affinch\'e $\nabla J(w_k)^T g_k > 0$ (cio\`e $-g_k$ sia di discesa) \`e sufficiente che $\|g_k\| - \|e_k\| > 0$, ovvero $\|e_k\| < \|g_k\|$. La condizione $\|e_k\| \le \theta \|g_k\|$ con $\theta < 1$ implica $\|e_k\| < \|g_k\|$, dunque garantisce la discesa.
 \newpage
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.68\textwidth]{conodiscesa2.jpeg}
 \caption{Rappresentazione geometrica della condizione di discesa: se il
@@ -847,7 +844,7 @@ Se la condizione CCV non \`e soddisfatta, si stima la nuova dimensione minima de
   Quando siamo lontani dal minimo, $\|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2$ \`e grande: la formula di aggiornamento del batch d\`a un $n$ piccolo, quindi il batch resta piccolo. Avvicinandoci al minimo, il gradiente si azzera e il denominatore diventa piccolo: la formula impone un batch grande. \underline{Il batch cresce automaticamente dove serve precisione.}
 \end{notebox}
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.78\textwidth]{figure_sim/batch_size_app.png}
 \caption{Andamento della dimensione del batch $n_k$ in funzione dell'iterazione
@@ -5569,7 +5566,7 @@ Lo studio presenta alcuni limiti che è importante esplicitare.
 \begin{enumerate}
   \item Ipotesi di convessità forte. L'analisi di convergenza richiede
   che $J$ sia $\lambda$-fortemente convessa, un'ipotesi non sempre verificata
-  nei problemi reali (ad esempio la perdita logistica non lo è). Come discusso
+  nei problemi reali. Come discusso
   nel Capitolo~\ref{sec:formulazione}, l'ipotesi può essere aggirata
   aggiungendo una regolarizzazione $\frac{\gamma}{2}\|w\|^2$, che induce
   convessità forte con $\lambda = \gamma$, ma introduce un bias nel problema.
