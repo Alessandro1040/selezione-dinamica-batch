@@ -4473,7 +4473,7 @@ una valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni su circa $pN$ esempi.
 \tiny
 \renewcommand{\arraystretch}{1.0}
 \setlength{\tabcolsep}{1.5pt}
-\caption{Stop adattivo con validation set: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default dello stop adattivo ($p=0.2$, $\tau=10^{-4}$, $P=3$, $f=1$, split fisso); $P{=}1,p{=}0.1$,dyn = pazienza 1, validation $10\%$ e split dinamico; $P{=}3,p{=}0.1$,dyn = pazienza 3, validation $10\%$ e split dinamico. Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dal solo training set ($p$ percentuale in validation): \emph{base} e $M{=}\infty$ si riferiscono al training set (senza criterio di validazione). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato.}
+\caption{Stop adattivo con validation set: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42) per i quattro problemi e i quattro algoritmi. Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default dello stop adattivo ($p=0.2$, $\tau=10^{-4}$, $P=3$, $f=1$, split fisso); $P{=}1,p{=}0.1$,dyn = pazienza 1, validation $10\%$ e split dinamico; $P{=}3,p{=}0.1$,dyn = pazienza 3, validation $10\%$ e split dinamico. Tra parentesi il numero di ricampionamenti del mini-batch nelle 30 iterazioni. Tutte le colonne campionano dal solo training set ($p$ percentuale in validation): \emph{base} e $M{=}\infty$ si riferiscono al training set (senza criterio di validazione). Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato. L'ultima riga riporta la media aritmetica di $e_{30}$ sulle 16 combinazioni problema$\times$algoritmo.}
 \label{tab:riuso_valid_confronto}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
@@ -4499,6 +4499,7 @@ incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{9.56}{-3} (29) & \colorce
 incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.87}{-1} (29) & \colorcell{1.41}{0}$\blacktriangledown$ (0) & \colorcell{7.88}{-2}$\blacktriangle$ (5) & \colorcell{9.28}{-2}$\blacktriangle$ (11) & \colorcell{1.78}{-1}$\blacktriangle$ (8)\\
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{1.06}{-2} (29) & \colorcell{2.23}{-2}$\blacktriangledown$ (11) & \colorcell{2.23}{-2}$\blacktriangledown$ (11) & \colorcell{2.76}{-2}$\blacktriangledown$ (17) & \colorcell{2.78}{-2}$\blacktriangledown$ (14)\\
 \midrule
+Media (16 casi) & \colorcell{2.05}{-1} & \colorcell{4.60}{-1}$\blacktriangledown$ & \colorcell{2.53}{-1}$\blacktriangledown$ & \colorcell{2.11}{-1}$\blacktriangledown$ & \colorcell{2.37}{-1}$\blacktriangledown$\\
 \bottomrule
 \end{tabular}
 \end{table}
