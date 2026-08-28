@@ -3227,8 +3227,8 @@ condizionamento $\kappa$ e dall'algoritmo:
   ($1.01\times10^{-1}$ contro $4.91\times10^{-2}$ della base); per
   $\kappa \approx 100$, sorprendentemente, il riuso torna ad aiutare
   ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$), perché la base converge
-  già così lentamente che il guadagno in coerenza prevale sul rischio
-  di deriva. BB-CCV fa eccezione: il passo di Barzilai--Borwein lo porta alla
+  già così lentamente che il beneficio di un obiettivo non più fluttuante
+  prevale sul costo del bias sistematico introdotto dal campione. BB-CCV fa eccezione: il passo di Barzilai--Borwein lo porta alla
   precisione macchina già senza riuso ($9.72\times10^{-5}$ su
   $\kappa\approx20$, $1.10\times10^{-14}$ su $\kappa\approx100$), quindi il
   riuso non ha margine su $\kappa\approx100$ e lo peggiora
@@ -3841,7 +3841,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \bottomrule
 \end{tabular}
 \end{table}
-\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx100$ (seed 42): a differenza dei problemi mal condizionati, il riuso con $M{=}\infty$ migliora l'errore finale ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base), perché la base converge già così lentamente che il guadagno in coerenza prevale sul rischio di deriva; su 5 seed migliora in 3 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
+\noindent\emph{Lettura.} Errore a ogni iterazione di Dynamic GD su $\kappa\approx100$ (seed 42): a differenza dei problemi mal condizionati, il riuso con $M{=}\infty$ migliora l'errore finale ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$ della base), perché la base converge già così lentamente che il beneficio di un obiettivo non più fluttuante prevale sul costo del bias sistematico introdotto dal campione; su 5 seed migliora in 3 casi su 5 (Tabella~\ref{tab:riuso_robustezza}).
 
 
 % Tabella E.10 - quad_very_ill, Newton-CG
