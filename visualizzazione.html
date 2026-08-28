@@ -6193,8 +6193,8 @@ const BATCH_DIM_DEFS = [
   { key:'theta', label:'θ (toll. CCV)', values:'0.5', media:false, type:'num', hint:'Soglia CCV della varianza.' },
   { key:'batch0', label:'batch0', values:'5', media:false, type:'num', hint:'Dimensione iniziale del mini-batch.' },
   { key:'totalN', label:'N (dataset)', values:'200', media:false, type:'num', hint:'Dimensione del dataset.' },
-  { key:'w0', label:'w0 (x,y)', values:'2.0,-3.0', media:false, type:'pair',
-    hint:'Coppia x,y separata da virgola (un solo valore per le loss 1D).' },
+  { key:'w0', label:'w0 (x,y)', values:'2.0,-3.0', media:false, type:'pair', sep:';',
+    hint:'Vettore x,y: la virgola fa parte del vettore. Più vettori separati da ; (es. 2.0,-3.0;1.0,1.0). Un solo valore per le loss 1D.' },
   { key:'lineSearch', label:'Line search', values:'wolfe', media:false, type:'choice',
     hint:'wolfe o armijo per tutti, oppure per-algoritmo: gd=wolfe;bb=armijo;newton_cg=wolfe (come nella tesi: BB usa Armijo). Ignorata da Newton-L1.', sugg:['wolfe','armijo','gd=wolfe;bb=armijo;newton_cg=wolfe','gd=armijo;bb=armijo;newton_cg=armijo'] },
   { key:'dynBatch', label:'Batch dinamico CCV', values:'dynamic', media:false, type:'choice',
@@ -6236,7 +6236,7 @@ _out = _json.dumps({
 `;
 
 function batchEsc(s){ return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function batchParseList(str){ return String(str||'').split(',').map(s=>s.trim()).filter(Boolean); }
+function batchParseList(str, sep){ return String(str||'').split(sep||',').map(s=>s.trim()).filter(Boolean); }
 function batchCartesian(sets){ let r=[[]]; for(const s of sets){ const n=[]; for(const x of r) for(const v of s) n.push(x.concat([v])); r=n; } return r; }
 
 function fmtNum(x){
@@ -6481,7 +6481,7 @@ function batchBuildFullCode(cfg){
 function batchReadDims(){
   return BATCH_DIM_DEFS.map(d=>({
     key:d.key, label:d.label, type:d.type||'',
-    values:batchParseList(document.getElementById('batchDim_'+d.key).value),
+    values:batchParseList(document.getElementById('batchDim_'+d.key).value, d.sep),
     media:document.getElementById('batchMedia_'+d.key).checked
   }));
 }
@@ -6932,7 +6932,7 @@ function buildBatchDims(){
   batchUpdateRunCount();
 }
 function batchUpdateRunCount(){
-  const lists=BATCH_DIM_DEFS.map(d=>batchParseList(document.getElementById('batchDim_'+d.key).value));
+  const lists=BATCH_DIM_DEFS.map(d=>batchParseList(document.getElementById('batchDim_'+d.key).value, d.sep));
   const total=lists.reduce((a,v)=>a*Math.max(1,v.length),1);
   document.getElementById('batchRunCount').textContent='Run: '+lists.map(v=>v.length).join(' × ')+' = '+total.toLocaleString('it-IT');
   const media=BATCH_DIM_DEFS.filter(d=>document.getElementById('batchMedia_'+d.key).checked);

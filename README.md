@@ -217,6 +217,16 @@ Da tenere presente nelle sessioni di lavoro successive:
   cui sopra); verificato che i codici generati contengano davvero Armijo per
   BB e Wolfe per GD. Tutti i test JS passano. README aggiornato. Nessun PDF
   coinvolto.
+- **Ultimo intervento (28/08/2026, follow-up 3).** **Test batch: fix del campo
+  `w0 (x,y)`.** Il valore `2.0,-3.0` è un VETTORE: la virgola interna non è un
+  separatore di lista, ma veniva interpretata come tale e raddoppiava le run
+  (es. la configurazione 6.27 passava da 400 a 800 run e da 16 a 32 caselle).
+  Ora la dimensione `w0` usa `;` come separatore tra più vettori
+  (es. `2.0,-3.0;1.0,1.0`), mentre `,` separa x e y dentro il vettore
+  (`batchParseList` accetta un separatore per-dimensione; `w0` ha `sep:';'`).
+  Hint della dimensione aggiornato. Verificato: `w0=2.0,-3.0` → 1 valore,
+  conteggio run della 6.27 = `4 × 4 × 5 × 5` = 400, grid reale di 400 config.
+  Tutti i test JS passano. README aggiornato. Nessun PDF coinvolto.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
