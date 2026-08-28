@@ -6184,8 +6184,8 @@ const BATCH_DIM_DEFS = [
   { key:'algo', label:'Algoritmo', values:'gd,bb,newton_cg,newton_l1', media:false,
     hint:'gd = Dynamic GD, bb = BB-CCV, newton_cg = Newton-CG, newton_l1 = Newton-CG L1.', sugg:['gd','bb','newton_cg','newton_l1'] },
   { key:'strategia', label:'Strategia di riuso (colonne)', values:'base,M=inf,M=10,M=5,M=2,H ind M_H=inf', media:false,
-    hint:'base · M=inf / M=k · H ind M_H=inf / H ind M_H=k · val (P=..; p=..; tau=..; f=..; strat=..; minabs=..) · desc (P=..; tau=..; f=..; minabs=..). Parametri separati da ;.',
-    sugg:['base','M=inf','M=2','M=5','M=10','H ind M_H=inf','H ind M_H=5','val','val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic','desc','desc P=1;tau=1e-3;f=1'] },
+    hint:'base (standard) · desc base / val base (base "alla tesi": codice del criterio con ricampionamento forzato) · M=inf / M=k · H ind M_H=inf / H ind M_H=k · val (P=..; p=..; tau=..; f=..; strat=..; minabs=..) · desc (P=..; tau=..; f=..; minabs=..). Parametri separati da ;.',
+    sugg:['base','desc base','val base','M=inf','M=2','M=5','M=10','H ind M_H=inf','H ind M_H=5','val','val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic','desc','desc P=1;tau=1e-3;f=1'] },
   { key:'seed', label:'Seed', values:'42', media:false, type:'num',
     hint:'Più seed con media = robustezza (es. 42,7,123,2024,999 come nella tesi).' },
   { key:'maxIter', label:'max_iter', values:'30', media:false, type:'num', hint:'e30 = errore all\'ultima iterazione.' },
@@ -6272,11 +6272,14 @@ function batchParseStrategy(value){
   };
   const firstTokens = (parts[0] || '').split(/\s+/).filter(Boolean);
   let mode = '';
+  let baseFlag = false;
   for (let i=0;i<firstTokens.length;i++){
     const tok = firstTokens[i];
     if (tok.toLowerCase()==='h' && firstTokens[i+1] && firstTokens[i+1].toLowerCase()==='ind'){ mode='h ind'; i++; continue; }
     if (parseKV(tok)) continue;
-    if (!mode) mode = tok.toLowerCase();
+    const tl = tok.toLowerCase();
+    if (tl === 'base'){ baseFlag = true; continue; }
+    if (!mode) mode = tl;
   }
   for (let i=1;i<parts.length;i++){
     for (const tok of parts[i].split(/\s+/)) parseKV(tok);
@@ -6295,7 +6298,8 @@ function batchParseStrategy(value){
     o.maxHessianReuse = (params.mh!==undefined) ? params.mh : null;
   }
   else if (mode === 'val') {
-    o.kind='val'; o.validation=true;
+    o.kind = baseFlag ? 'val_base' : 'val';
+    o.validation=true;
     o.valPatience = params.patience!==undefined ? params.patience : 3;
     o.valPct      = params.percent!==undefined ? params.percent : 0.2;
     o.valTol      = params.tol!==undefined ? params.tol : 1e-4;
@@ -6304,7 +6308,8 @@ function batchParseStrategy(value){
     o.valStrategy = params.strategy || 'fixed';
   }
   else if (mode === 'desc') {
-    o.kind='desc'; o.descentLoss=true;
+    o.kind = baseFlag ? 'desc_base' : 'desc';
+    o.descentLoss=true;
     o.descPatience = params.patience!==undefined ? params.patience : 1;
     o.descTol      = params.tol!==undefined ? params.tol : 1e-4;
     o.descFreq     = params.freq!==undefined ? params.freq : 1;
@@ -6319,6 +6324,8 @@ function batchStrategyLabel(s){
     case 'base': return 'base';
     case 'manual': return o.maxConsec===null ? 'M=∞' : 'M='+o.maxConsec;
     case 'hind':  return 'H ind. M_H=' + (o.maxHessianReuse===null?'∞':o.maxHessianReuse);
+    case 'desc_base': return 'base (discesa)';
+    case 'val_base':  return 'base (validation)';
     case 'val': {
       let l = 'val P='+o.valPatience+' p='+o.valPct+' τ='+fmtNum(o.valTol)+' f='+o.valFreq;
       if (o.valStrategy!=='fixed') l += ' dyn';
@@ -6340,6 +6347,8 @@ function batchStrategyHeaderLatex(s){
     case 'base': return '\\emph{base}';
     case 'manual': return o.maxConsec===null ? '$M{=}\\infty$' : '$M{=}'+o.maxConsec+'$';
     case 'hind': return '$H$ ind. $M_H{=}'+(o.maxHessianReuse===null?'\\infty':o.maxHessianReuse)+'$';
+    case 'desc_base': return '\\emph{base} (discesa)';
+    case 'val_base':  return '\\emph{base} (validazione)';
     case 'val': {
       const a=[];
       a.push('$P{=}'+o.valPatience+'$');
@@ -6475,7 +6484,12 @@ function batchBuildFullCode(cfg){
     'eta      = '+(parseFloat(cfg.eta)||0.5)
   ].join('\n');
   const algoPy = generateAlgoCode(cfg.algo, opts);
-  return preamble + '\n' + algoPy + '\n' + BATCH_EVAL_CODE;
+  const forced = (s.kind === 'desc_base' || s.kind === 'val_base');
+  return preamble + '\n' + (forced
+    ? algoPy
+        .replace('if need_resample or indices is None:', 'if True:  # base: ricampionamento a ogni iterazione')
+        .replace('if need_resample_S or indices_S is None:', 'if True:  # base: ricampionamento a ogni iterazione')
+    : algoPy) + '\n' + BATCH_EVAL_CODE;
 }
 
 function batchReadDims(){
@@ -6610,7 +6624,10 @@ function batchBuildTable(dims, results){
   });
   const colLabels = columnsDim ? (columnsDim.key==='strategia' ? colValues.map(batchStrategyLabel) : colValues.map(v=>batchValueLabel(columnsDim.key,v))) : ['media su tutto'];
   const colLatex = columnsDim ? (columnsDim.key==='strategia' ? colValues.map(batchStrategyHeaderLatex) : colValues.map(v=>batchLatexValueLabel(columnsDim.key,v))) : ['media su tutto'];
-  const baseCol = (columnsDim && columnsDim.key==='strategia') ? colValues.indexOf('base') : -1;
+  const baseCandidates = ['base', 'desc base', 'val base'];
+  const baseCol = (columnsDim && columnsDim.key==='strategia')
+    ? colValues.findIndex(v=>baseCandidates.includes(String(v).trim().toLowerCase()))
+    : -1;
   const cells=[];
   let gmin=Infinity, gmax=-Infinity;
   for(let r=0;r<rowCombos.length;r++){

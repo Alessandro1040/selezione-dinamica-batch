@@ -227,6 +227,22 @@ Da tenere presente nelle sessioni di lavoro successive:
   Hint della dimensione aggiornato. Verificato: `w0=2.0,-3.0` → 1 valore,
   conteggio run della 6.27 = `4 × 4 × 5 × 5` = 400, grid reale di 400 config.
   Tutti i test JS passano. README aggiornato. Nessun PDF coinvolto.
+- **Ultimo intervento (28/08/2026, follow-up 4).** **Test batch: strategie
+  `desc base` e `val base` per riprodurre la colonna `base` della tesi.**
+  La tesi calcola la colonna `base` delle tabelle del riuso per discesa (e
+  validation) come *codice del criterio con ricampionamento forzato a ogni
+  iterazione* (guard `if True:`), NON come codice standard non-riuso: da qui la
+  differenza `2.17e-1` vs `2.12e-1` della 6.27. Ora le strategie `desc base` /
+  `val base` generano la variante del criterio e sostituiscono il guard di
+  campionamento con `if True:` (come `gen_tabelle_riuso_descesa.py` /
+  `gen_tabelle_riuso_validation.py`), etichettate `base (discesa)` /
+  `base (validazione)`; il riconoscimento della colonna base per i marcatori
+  accetta anche `desc base`/`val base`. Validazione end-to-end (sweep reale dei
+  400 codici con `desc base` al posto di `base`): base ē₃₀ = **2.121e-1** con
+  medie per problema identiche alla 6.27 (κ≈1.1 1.793e-1, κ≈20 1.759e-1,
+  κ≈100 4.116e-1, incr. 8.142e-2), M=∞ 3.640e-1 (8/16), def. 2.034e-1 (10/16),
+  τ=1e-3 2.034e-1 (10/16 vs 11/16, cella borderline), τ=1e-5 2.034e-1 (10/16).
+  Tutti i test JS passano. README aggiornato. Nessun PDF coinvolto.
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG
