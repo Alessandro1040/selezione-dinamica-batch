@@ -103,7 +103,7 @@ bozza. `tesi_sapthesis.tex`/`tesi_sapthesis.pdf` (il periodo in cui il PDF
 definitivo era un documento unico in classe `sapthesis`) sono spostati in
 `altro/` come riferimento storico.
 
-## Note operative e stato corrente (28/08/2026)
+## Note operative e stato corrente (29/08/2026)
 
 Da tenere presente nelle sessioni di lavoro successive:
 
@@ -157,6 +157,39 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (29/08/2026).** **App web: vista dell'obiettivo
+  regolarizzato $F(w)=J(w)+\nu\|w\|_1$ per il metodo Newton-CG-$L_1$.** In
+  `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) aggiunto
+  nel pannello del metodo Newton-CG-L1 la checkbox **"Mostra anche
+  F(w) = J(w) + ν‖w‖₁ (obiettivo regolarizzato)"** (default attiva). Con la
+  checkbox attiva e metodo $L_1$ selezionato: (1) nel **plot principale 2D**
+  oltre alla superficie di $J$ (blu) viene disegnata la **superficie di $F$
+  (oro, semi-trasparente)** con il kink della norma lungo gli assi e la
+  **traiettoria proiettata su $F$** (linea oro tratteggiata, monotona perché
+  l'Armijo è su $F$), titolo con `J` e `F` correnti e asse `J(w) / F(w)`;
+  (2) nel **plot 1D** la curva di $F$ tratteggiata in oro accanto a $J$;
+  (3) nella **vista Colab (curve di livello)** i contorni di $F$ in oro
+  tratteggiati con **livelli geometrici propri** (`_levelsF`, calcolati come
+  quelli di $J$ ma sul range di $F$); (4) la **caption** della galleria e la
+  riga di stato riportano `mostra anche F=J+ν‖w‖₁` / `vista F=J+ν‖w‖₁
+  attiva`. Con checkbox spenta o metodo diverso da $L_1$ tutto resta identico
+  a prima (superficie di $J$, `surfF` vuoto, nessuna traccia $F$). Motivo:
+  il metodo minimizza $F$, non $J$: senza vedere $F$ la traiettoria $L_1$
+  sembra fermarsi lontano dal minimo di $J$ (in realtà converge al minimo di
+  $F$, che per $\nu$ sufficiente sta sull'asse) e $J$ può anche salire da
+  un'iterazione all'altra. Coerente con la Sez. 4.4/5.3 della tesi e con
+  l'animazione Manim (che già disegna $F$). Validazione: harness deno con DOM
+  fittizio + codice Python generato eseguito con numpy reale — scenari
+  newton_l1 2D toggle on (9/9 controlli: `surfF.z` 100×100, `pts_F =
+  J+ν‖w‖₁` esatto, `levelsF` 10 livelli crescenti, traccia $F$ nel plot
+  principale, contorno $F$ presente, caption cita $F$), 2D toggle off (8/8:
+  `surfF` vuoto, nessuna traccia $F$, caption senza $F$), 1D toggle on (9/9:
+  curva $F$ nel plot principale), più GD/Newton-CG/BB toggle off (8/8);
+  verificato anche il **regrid** della vista Colab (`_grid2d` ora restituisce
+  6 valori: `zF=log10 F`, `JF=F`, `levelsF` corretti). Nota: i preset 1D non
+  definiscono `N` nel codice (limitazione preesistente): per provare i metodi
+  di Newton sul 1D serve la modalità "Autodiff numerica". `bozza.tex` non
+  toccata.
 - **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
   per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
   (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,

@@ -369,6 +369,10 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           <div class="param-item"><span class="param-label">σ (Armijo)</span><input type="number" id="sigma" value="0.1" step="0.01" min="0.001" max="0.5"></div>
           <div class="param-item"><span class="param-label">η (toll. CG)</span><input type="number" id="eta" value="0.5" step="0.05" min="0.01" max="0.99"></div>
         </div>
+        <div class="checkbox-row" style="margin-top:8px">
+          <input type="checkbox" id="showRegChk" checked>
+          <label for="showRegChk">Mostra anche F(w) = J(w) + ν‖w‖₁ (obiettivo regolarizzato)</label>
+        </div>
       </div>
     </div>
 
@@ -4898,7 +4902,12 @@ async function runAlgorithm() {
     eta:      parseFloat(etaEl.value)    || 0.5,
   };
 
+  // Mostra anche l'obiettivo regolarizzato F = J + nu*||w||_1 nel pannello L1.
+  const showRegChkEl = document.getElementById('showRegChk');
+  const showReg = (algoSelect.value === 'newton_l1') && !!(showRegChkEl && showRegChkEl.checked);
+
   const gridCode = dim === 1 ? `
+_showReg = ${showReg ? 'True' : 'False'}
 _w_hist = np.array(history)
 _w_min  = min(XMIN, np.min(_w_hist[:, 0]) - 0.5)
 _w_max  = max(XMAX, np.max(_w_hist[:, 0]) + 0.5)
@@ -4909,7 +4918,13 @@ surf_y  = [float(J(np.array([x, 0.0]))) for x in _xs]
 surf_z  = []
 surf_colab_z = []
 surf_colab_J = []
+surfF_x  = _xs.tolist()
+surfF_y  = [float(J(np.array([x, 0.0])) + nu * np.abs(x)) for x in _xs] if _showReg else []
+surfF_z  = []
+surfF_log = []
+_levelsF = []
 ` : `
+_showReg = ${showReg ? 'True' : 'False'}
 _w_hist = np.array(history)
 _w1_min = min(XMIN, np.min(_w_hist[:, 0]) - 0.5)
 _w1_max = max(XMAX, np.max(_w_hist[:, 0]) + 0.5)
@@ -4928,28 +4943,47 @@ def _grid2d(w1_min, w1_max, w2_min, w2_max, n=120):
     _gy = np.linspace(w2_min, w2_max, n)
     _gz = np.array([[float(J(np.array([x, y]))) for x in _gx] for y in _gy])
     _zlog = np.log10(np.maximum(_gz, 1e-30)).tolist()
-    return _gx.tolist(), _gy.tolist(), _zlog, _gz.tolist()
-_gx, _gy, _gz_log, _gz = _grid2d(_w1_min, _w1_max, _w2_min, _w2_max, _N)
+    # Obiettivo regolarizzato F(w) = J(w) + nu*||w||_1 sulla stessa griglia
+    # (aggiunto solo a scopo di visualizzazione per il metodo Newton-CG-L1).
+    _gf = _gz + nu * (np.abs(_gx)[None, :] + np.abs(_gy)[:, None])
+    _flog = np.log10(np.maximum(_gf, 1e-30)).tolist()
+    return _gx.tolist(), _gy.tolist(), _zlog, _gz.tolist(), _flog, _gf.tolist()
+_gx, _gy, _gz_log, _gz, _gzF_log, _gzF = _grid2d(_w1_min, _w1_max, _w2_min, _w2_max, _N)
 if 'history' in globals():
     _js = [float(J(np.array(w))) for w in history]
     _jtraj_min, _jtraj_max = float(min(_js)), float(max(_js))
+    _fpts = [float(J(np.array(w)) + nu * np.sum(np.abs(w))) for w in history]
+    _ftraj_min, _ftraj_max = float(min(_fpts)), float(max(_fpts))
 else:
     _jtraj_min, _jtraj_max = 1.0, 1.0
+    _ftraj_min, _ftraj_max = 1.0, 1.0
 _jref = float(max(_jtraj_max, max(max(r) for r in _gz)))
 _jlo  = max(1e-12, _jtraj_min * 1e-3)
 _jhi  = max(2.0 * _jref, _jlo * 1e3)
 _levels = [float(v) for v in np.linspace(np.log10(_jlo), np.log10(_jhi), 12)[1:-1]]
+if _showReg:
+    _fref = float(max(_ftraj_max, max(max(r) for r in _gzF)))
+    _flo  = max(1e-12, _ftraj_min * 1e-3)
+    _fhi  = max(2.0 * _fref, _flo * 1e3)
+    _levelsF = [float(v) for v in np.linspace(np.log10(_flo), np.log10(_fhi), 12)[1:-1]]
+else:
+    _levelsF = []
 surf_x = _gx
 surf_y = _gy
 surf_z = _gz            # J originale (usata anche dal plot 3D principale)
 surf_colab_z = _gz_log  # log10(J) per le curve di livello 2D (livelli uniformi)
 surf_colab_J = _gz      # J originale per l'hover delle curve di livello
+surfF_x = _gx if _showReg else []
+surfF_y = _gy if _showReg else []
+surfF_z = _gzF if _showReg else []
+surfF_log = _gzF_log if _showReg else []
 `;
 
   const evalCode = `
 import json as _json
 _pts_J  = [float(J(np.array(w))) for w in history]
 _pts_gN = [float(np.linalg.norm(gradJ(np.array(w)))) for w in history]
+_pts_F  = [float(J(np.array(w)) + nu * np.sum(np.abs(w))) for w in history] if _showReg else []
 _w_star = W_STAR.tolist()
 _J_star = float(J(W_STAR))
 _errs   = [float(np.linalg.norm(np.array(w) - W_STAR)) for w in history]
@@ -4984,6 +5018,12 @@ _out = _json.dumps({
   "surf_z":      surf_z,
   "surf_colab_z": surf_colab_z,
   "surf_colab_J": surf_colab_J,
+  "pts_F":       _pts_F,
+  "surfF_x":     surfF_x,
+  "surfF_y":     surfF_y,
+  "surfF_z":     surfF_z,
+  "surfF_log":   surfF_log,
+  "levelsF":     _levelsF,
 })
 `;
 
@@ -5069,6 +5109,7 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const w_star      = out.w_star;
     const J_star      = out.J_star;
     const surf        = { x: out.surf_x, y: out.surf_y, z: out.surf_z };
+    const surfF       = { x: out.surfF_x || [], y: out.surfF_y || [], z: out.surfF_z || [], zlog: out.surfF_log || [] };
     const m_actual    = out.m_actual || [];
     const val_hist    = out.val_hist || [];
     const desc_hist   = out.desc_hist || [];
@@ -5077,6 +5118,7 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
                     colabZ: out.surf_colab_z || [], colabJ: out.surf_colab_J || [],
                     resize_pts: out.resize_pts || [], resample_pts: out.resample_pts || [],
                     levels: out.levels || [], w0,
+                    surfF, pts_F: out.pts_F || [], levelsF: out.levelsF || [],
                     m_actual, val_hist, valFreq: parseInt(valFreqEl.value, 10) || 1,
                     desc_hist, descFreq: parseInt(descFreqEl.value, 10) || 1 };
 
@@ -5091,7 +5133,8 @@ def hessvec_i(w, i, v): return hess_i(w, i) @ v
     const descInfo = (desc_hist.length > 0)
       ? ` · M_actual finale: ${m_actual[m_actual.length-1] ?? '—'} · eval J_batch: ${desc_hist.length}`
       : '';
-    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}${valInfo}${descInfo}`;
+    const fInfo = (surfF.z && surfF.z.length) ? ' · vista F=J+ν‖w‖₁ attiva' : '';
+    debugInfo.textContent = `Completato: ${history.length} iter · batch finale: ${batch_sizes[maxIdx] ?? '—'}${valInfo}${descInfo}${fInfo}`;
 
     renderPlot(0);
     updateInfo(0);
@@ -5120,11 +5163,18 @@ function renderPlot(iter) {
   const currentW = history[idx];
   const currentJ = pts_J[idx];
   const showPath = showPathChk.checked;
+  // Obiettivo regolarizzato F = J + nu*||w||_1 (solo metodo Newton-CG-L1 con toggle attivo)
+  const surfF = currentData.surfF || { x: [], y: [], z: [], zlog: [] };
+  const ptsF  = currentData.pts_F || [];
+  const showF = ptsF.length > 0 &&
+    ((surfF.z && surfF.z.length > 0) || (surfF.y && surfF.y.length > 0));
 
   if (dim === 1) {
     const traces = [
       { x: surf.x, y: surf.y, type: 'scatter', mode: 'lines', name: 'J(w)',
         line: { color: '#4A9EFF', width: 2.5 } },
+      showF && { x: surfF.x, y: surfF.y, type: 'scatter', mode: 'lines', name: 'F(w) = J + ν‖w‖₁',
+        line: { color: '#E8B54A', width: 2, dash: 'dash' } },
       showPath && { x: history.map(p=>p[0]), y: pts_J,
         type: 'scatter', mode: 'lines+markers', name: 'Percorso',
         line: { color: '#3EC97A', width: 1.5, dash: 'dot' },
@@ -5139,11 +5189,11 @@ function renderPlot(iter) {
 
     Plotly.react(plotDiv, traces, {
       ...BASE,
-      title: { text: `iter ${idx} · w = ${currentW[0].toFixed(5)} · J(w) = ${currentJ.toFixed(6)}`,
+      title: { text: `iter ${idx} · w = ${currentW[0].toFixed(5)} · J(w) = ${currentJ.toFixed(6)}${showF ? ` · F(w) = ${ptsF[idx].toFixed(6)}` : ''}`,
                font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
       xaxis: { title: 'w', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090',
                range: [surf.x[0], surf.x[surf.x.length-1]] },
-      yaxis: { title: 'J(w)', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
+      yaxis: { title: showF ? 'J(w) / F(w)' : 'J(w)', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
       legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
       margin: { l: 60, r: 20, t: 50, b: 50 },
     }, CFG);
@@ -5159,11 +5209,23 @@ function renderPlot(iter) {
                     tickfont: { color: '#607090', size: 9 }, len: 0.6, thickness: 12 },
         contours: { z: { show: true, usecolormap: true, project: { z: true }, width: 1 } },
         hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>J=%{z:.5f}<extra></extra>' },
+      showF && { type: 'surface',
+        x: surfF.x, y: surfF.y, z: surfF.z,
+        colorscale: [[0,'#3A2A05'],[0.4,'#7A5A12'],[0.8,'#C8A96E'],[1,'#F5E6C4']],
+        opacity: 0.45, showscale: false,
+        contours: { z: { show: true, usecolormap: true, project: { z: true }, width: 1 } },
+        hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>F=%{z:.5f}<extra></extra>',
+        name: 'F(w) = J + ν‖w‖₁' },
       showPath && { type: 'scatter3d', mode: 'lines+markers',
         x: history.map(p=>p[0]), y: history.map(p=>p[1]), z: pts_J,
         line: { color: '#4A9EFF', width: 5 },
         marker: { color: pts_J, colorscale: 'Viridis', size: 4, opacity: 0.8 },
         name: 'Percorso' },
+      showF && showPath && { type: 'scatter3d', mode: 'lines+markers',
+        x: history.map(p=>p[0]), y: history.map(p=>p[1]), z: ptsF,
+        line: { color: '#E8B54A', width: 3, dash: 'dash' },
+        marker: { color: '#E8B54A', size: 3, opacity: 0.7 },
+        name: 'Percorso su F' },
       { type: 'scatter3d', mode: 'markers',
         x: [history[0][0]], y: [history[0][1]], z: [pts_J[0]],
         marker: { color: '#3EC97A', size: 7 }, name: 'w₀' },
@@ -5179,14 +5241,14 @@ function renderPlot(iter) {
 
     Plotly.react(plotDiv, traces, {
       ...BASE,
-      title: { text: `iter ${idx} · w=(${currentW[0].toFixed(3)},${currentW[1].toFixed(3)}) · J=${currentJ.toFixed(5)}`,
+      title: { text: `iter ${idx} · w=(${currentW[0].toFixed(3)},${currentW[1].toFixed(3)}) · J=${currentJ.toFixed(5)}${showF ? ` · F=${ptsF[idx].toFixed(5)}` : ''}`,
                font: { color: '#C8A96E', size: 12, family: "'JetBrains Mono',monospace" }, x: 0.01 },
       scene: {
         xaxis: { title: 'w₁', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.8)',
                  range: [surf.x[0], surf.x[surf.x.length-1]] },
         yaxis: { title: 'w₂', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.8)',
                  range: [surf.y[0], surf.y[surf.y.length-1]] },
-        zaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.7)' },
+        zaxis: { title: showF ? 'J(w) / F(w)' : 'J(w)', gridcolor: '#1C2A42', color: '#607090', backgroundcolor: 'rgba(10,15,26,.7)' },
         bgcolor: 'rgba(0,0,0,0)',
         camera: savedCamera || { eye: { x: 1.7, y: -1.9, z: 1.1 } }
       },
@@ -5746,7 +5808,11 @@ function buildColabCaption() {
   }
   if (algo === 'newton_cg' || algo === 'newton_l1') {
     parts.push('R=' + REl.value, 'maxcg=' + maxcgEl.value);
-    if (algo === 'newton_l1') parts.push('ν=' + nuEl.value, 'σ=' + sigmaEl.value, 'η=' + etaEl.value);
+    if (algo === 'newton_l1') {
+      parts.push('ν=' + nuEl.value, 'σ=' + sigmaEl.value, 'η=' + etaEl.value);
+      const sr = document.getElementById('showRegChk');
+      if (sr && sr.checked) parts.push('mostra anche F=J+ν‖w‖₁');
+    }
     if (rb) parts.push('riuso Hessiana: ' + hr + ' (' + mh + ')');
   }
   if (currentData) {
@@ -5804,6 +5870,25 @@ function currentColabContourTrace() {
   };
 }
 
+// Curve di livello dell'obiettivo regolarizzato F = J + nu*||w||_1 (solo se il
+// toggle "Mostra anche F" è attivo nel pannello L1: la griglia porta zF/JF).
+function currentColabContourF() {
+  if (!colabGrid || !colabGrid.zF || !colabGrid.zF.length) return null;
+  const levs = (colabGrid.levelsF && colabGrid.levelsF.length >= 2) ? colabGrid.levelsF : null;
+  if (!levs) return null;
+  return {
+    type: 'contour', x: colabGrid.x, y: colabGrid.y, z: colabGrid.zF,  // zF = log10(F)
+    customdata: colabGrid.JF || colabGrid.zF,                          // F originale (hover)
+    colorscale: [[0, '#C8A96E'], [1, '#C8A96E']],
+    contours: { coloring: 'lines', showlines: true, showlabels: false,
+                start: levs[0], end: levs[levs.length - 1], size: levs[1] - levs[0],
+                labelfont: { color: '#C8A96E', size: 9 } },
+    line: { color: '#C8A96E', width: 1.3, dash: 'dot' }, showscale: false,
+    hovertemplate: 'w₁=%{x:.3f}<br>w₂=%{y:.3f}<br>F=%{customdata:.4f}<extra></extra>',
+    name: 'Curve di livello F(w) = J + ν‖w‖₁'
+  };
+}
+
 function gridDataDomain(g) {
   if (!g || !g.x || !g.y || !g.x.length || !g.y.length) return null;
   return { x0: g.x[0], x1: g.x[g.x.length - 1], y0: g.y[0], y1: g.y[g.y.length - 1] };
@@ -5855,12 +5940,12 @@ async function doColabRegrid() {
   const f = (v) => (Number.isFinite(v) ? String(v) : '0');
   const code = 'import json as _json\n' +
     `_x = _grid2d(${f(x1)}, ${f(x2)}, ${f(y1)}, ${f(y2)}, ${n})\n` +
-    '_out = _json.dumps({"x": _x[0], "y": _x[1], "z": _x[2], "J": _x[3], "levels": _levels})\n';
+    '_out = _json.dumps({"x": _x[0], "y": _x[1], "z": _x[2], "J": _x[3], "zF": _x[4], "JF": _x[5], "levels": _levels, "levelsF": _levelsF})\n';
   try {
     pyodide.runPython(code);
     const g = JSON.parse(pyodide.runPython('_out'));
     if (seq !== colabRegridSeq) return;      // superato da una vista più recente
-    colabZoomGrid = { x: g.x, y: g.y, z: g.z, J: g.J, levels: g.levels };
+    colabZoomGrid = { x: g.x, y: g.y, z: g.z, J: g.J, levels: g.levels, zF: g.zF, JF: g.JF, levelsF: g.levelsF };
     const best = pickColabGrid();
     if (best && best !== colabGrid) colabGrid = best;
     updateColabView();
@@ -5884,12 +5969,12 @@ function startColabWideGrid() {
   const f = (v) => (Number.isFinite(v) ? String(v) : '0');
   const code = 'import json as _json\n' +
     `_x = _grid2d(${f(cx - wx)}, ${f(cx + wx)}, ${f(cy - wy)}, ${f(cy + wy)}, 180)\n` +
-    '_out = _json.dumps({"x": _x[0], "y": _x[1], "z": _x[2], "J": _x[3], "levels": _levels})\n';
+    '_out = _json.dumps({"x": _x[0], "y": _x[1], "z": _x[2], "J": _x[3], "zF": _x[4], "JF": _x[5], "levels": _levels, "levelsF": _levelsF})\n';
   try {
     debugInfo.textContent = 'Calcolo curve di livello (zoom-out)…';
     pyodide.runPython(code);
     const g = JSON.parse(pyodide.runPython('_out'));
-    colabWideGrid = { x: g.x, y: g.y, z: g.z, J: g.J, levels: g.levels };
+    colabWideGrid = { x: g.x, y: g.y, z: g.z, J: g.J, levels: g.levels, zF: g.zF, JF: g.JF, levelsF: g.levelsF };
     colabWidePending = false;
     const best = pickColabGrid();
     if (best && best !== colabGrid) { colabGrid = best; updateColabView(); }
@@ -5930,6 +6015,8 @@ function renderColabPlot() {
     return;
   }
   const { history, pts_J, w_star, J_star, dim, surf, resize_pts, resample_pts, levels } = currentData;
+  const surfF = currentData.surfF || {};
+  const showF = !!((surfF.z && surfF.z.length) || (surfF.y && surfF.y.length));
 
   // Nuova run: azzera vista e griglie, cancella eventuali regrid in volo.
   if (colabLastDataRef !== currentData) {
@@ -5939,7 +6026,10 @@ function renderColabPlot() {
     colabWideGrid = null; colabWidePending = false; colabZoomGrid = null;
     colabInitialGrid = (dim === 2 && surf.z && surf.z.length)
       ? { x: surf.x, y: surf.y, z: currentData.colabZ || surf.z,
-          J: currentData.colabJ || surf.z, levels: levels || [] } : null;
+          J: currentData.colabJ || surf.z, levels: levels || [],
+          zF: currentData.surfF ? (currentData.surfF.zlog || []) : [],
+          JF: currentData.surfF ? (currentData.surfF.z || []) : [],
+          levelsF: currentData.levelsF || [] } : null;
     colabGrid = colabInitialGrid;
     const hasSx = surf.x && surf.x.length > 1;
     const hasSy = dim === 2 && surf.y && surf.y.length > 1;
@@ -5962,8 +6052,9 @@ function renderColabPlot() {
   let traces, layout;
 
   if (dim === 2 && surf.z && surf.z.length) {
-    const contour = currentColabContourTrace() ? [currentColabContourTrace()] : [];
-    traces = [...contour,
+    const contour  = currentColabContourTrace() ? [currentColabContourTrace()] : [];
+    const contourF = currentColabContourF() ? [currentColabContourF()] : [];
+    traces = [...contour, ...contourF,
       { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>history[i][1]),
         type: 'scatter', mode: 'lines+markers', name: 'Traiettoria',
         line: { color: '#4A9EFF', width: 2 }, marker: { color: '#4A9EFF', size: 4 }, opacity: 0.9 },
@@ -5991,6 +6082,8 @@ function renderColabPlot() {
     traces = [
       { x: surf.x, y: surf.y, type: 'scatter', mode: 'lines', name: 'J(w)',
         line: { color: '#7C93B8', width: 2 } },
+      showF && { x: surfF.x, y: surfF.y, type: 'scatter', mode: 'lines', name: 'F(w) = J + ν‖w‖₁',
+        line: { color: '#C8A96E', width: 2, dash: 'dot' } },
       { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>pts_J[i]), type: 'scatter', mode: 'lines+markers',
         name: 'Traiettoria', line: { color: '#4A9EFF', width: 2, dash: 'dot' },
         marker: { color: '#4A9EFF', size: 4 } },
