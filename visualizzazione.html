@@ -5179,9 +5179,20 @@ function renderPlot(iter) {
         type: 'scatter', mode: 'lines+markers', name: 'Percorso',
         line: { color: '#3EC97A', width: 1.5, dash: 'dot' },
         marker: { color: '#3EC97A', size: 4 } },
+      showF && showPath && { x: history.map(p=>p[0]), y: ptsF,
+        type: 'scatter', mode: 'lines+markers', name: 'Percorso su F',
+        line: { color: '#E8B54A', width: 1.5, dash: 'dot' },
+        marker: { color: '#E8B54A', size: 3 } },
       { x: [currentW[0]], y: [currentJ], type: 'scatter', mode: 'markers',
         name: `w\u2096`, marker: { color: '#FFFFFF', size: 13, symbol: 'circle',
         line: { color: '#0B1222', width: 2 } } },
+      showF && { x: [currentW[0]], y: [ptsF[idx]], type: 'scatter', mode: 'markers',
+        name: `w\u2096 su F`, marker: { color: '#E8B54A', size: 9, symbol: 'diamond',
+        line: { color: '#0B1222', width: 1 } } },
+      showF && (() => { const im = surfF.y.indexOf(Math.min(...surfF.y));
+        return { x: [surfF.x[im]], y: [surfF.y[im]], type: 'scatter', mode: 'markers',
+          name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
+          line: { color: '#0B1222', width: 1 } } }; })(),
       { x: [w_star[0]], y: [J_star], type: 'scatter', mode: 'markers',
         name: 'w\u002A', marker: { color: '#F5A623', size: 13, symbol: 'star',
         line: { color: '#0B1222', width: 1 } } },
@@ -6016,6 +6027,7 @@ function renderColabPlot() {
   }
   const { history, pts_J, w_star, J_star, dim, surf, resize_pts, resample_pts, levels } = currentData;
   const surfF = currentData.surfF || {};
+  const ptsF  = currentData.pts_F || [];
   const showF = !!((surfF.z && surfF.z.length) || (surfF.y && surfF.y.length));
 
   // Nuova run: azzera vista e griglie, cancella eventuali regrid in volo.
@@ -6087,6 +6099,13 @@ function renderColabPlot() {
       { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>pts_J[i]), type: 'scatter', mode: 'lines+markers',
         name: 'Traiettoria', line: { color: '#4A9EFF', width: 2, dash: 'dot' },
         marker: { color: '#4A9EFF', size: 4 } },
+      showF && { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>ptsF[i]), type: 'scatter', mode: 'lines+markers',
+        name: 'Traiettoria su F', line: { color: '#C8A96E', width: 1.5, dash: 'dot' },
+        marker: { color: '#C8A96E', size: 3 } },
+      showF && (() => { const im = surfF.y.indexOf(Math.min(...surfF.y));
+        return { x: [surfF.x[im]], y: [surfF.y[im]], type: 'scatter', mode: 'markers',
+          name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
+          line: { color: '#0B1222', width: 1 } } }; })(),
       ...(resizePts.length ? [{
         x: resizePts.map(p=>p[0]), y: resizePts.map(p=>p[1]),
         type: 'scatter', mode: 'markers', name: 'CCV violata (batch aumentato)',

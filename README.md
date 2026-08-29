@@ -190,6 +190,30 @@ Da tenere presente nelle sessioni di lavoro successive:
   definiscono `N` nel codice (limitazione preesistente): per provare i metodi
   di Newton sul 1D serve la modalità "Autodiff numerica". `bozza.tex` non
   toccata.
+- **Ultimo intervento (29/08/2026, follow-up).** **App web: vista $F$ completata
+  per il plot 1D — traiettoria su $F$, punto corrente su $F$ e stella sul minimo
+  di $F$.** Nel plot principale 1D (e nella vista Colab 1D) con la checkbox
+  "Mostra anche F" attiva ora vengono disegnati anche: la **traiettoria su $F$**
+  (linea oro, che per il metodo $L_1$ è monotona perché l'Armijo è su $F$), il
+  **marker del punto corrente su $F$** (rombo oro) e una **stella sul minimo di
+  $F$** (dal minimo della griglia). Motivo: in 1D la valle di $F$ può essere
+  invisibile rispetto al range dell'asse y (es. preset `1d_exp` con
+  $\nu=0.991$: il minimo di $F$ è a $w\approx0.251$ con $F=0.5725$, ma $F(0)
+  =0.6487$ e la curva $F$ sul plot arriva a $\sim9$: la differenza di $0.08$
+  non si vede), e prima la traiettoria era disegnata solo su $J$: sembrava che
+  l'algoritmo si fermasse "prima" del minimo di $F$. Ora la traiettoria su $F$
+  finisce esattamente sulla stella del minimo di $F$. Verificato con harness
+  deno + numpy reale su `1d_exp` $\nu=0.991$, w₀=2: la traiettoria converge a
+  $w=0.25125$ = minimo globale di $F$ (subgradiente di $F$ $\approx1.6\times
+  10^{-10}$), che coincide con i valori della tabella di convergenza dell'app
+  (errs $0.74875$, $J=0.32354$). Il minimo a $w=1$ è quello di $J$ (curva
+  blu), non di $F$: $F(1)=0.991 > F(0.251)=0.5725$ perché la penale $\nu=0.991$
+  sposta il minimo di $F$ verso lo zero. **Nota diagnostica:** la tabella di
+  convergenza e la metrica `errs = ‖w−w*‖` usano $w^*=$ minimo di $J$; per il
+  metodo $L_1$ il punto stazionario corretto è il minimo di $F$, quindi `errs`
+  non va a 0 a convergenza (è la distanza dal minimo di $J$, non di $F$). La
+  metrica corretta per $L_1$ è la norma del subgradiente di $F$ (qui $\sim
+  10^{-10}$) o il gap $F(w)-F^*$. Nessun PDF coinvolto; `bozza.tex` non toccata.
 - **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
   per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
   (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,
