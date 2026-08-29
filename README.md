@@ -214,6 +214,20 @@ Da tenere presente nelle sessioni di lavoro successive:
   non va a 0 a convergenza (è la distanza dal minimo di $J$, non di $F$). La
   metrica corretta per $L_1$ è la norma del subgradiente di $F$ (qui $\sim
   10^{-10}$) o il gap $F(w)-F^*$. Nessun PDF coinvolto; `bozza.tex` non toccata.
+- **Ultimo intervento (29/08/2026, follow-up 2).** **App web: guida verticale
+  sul minimo di $F$ nel plot 1D.** Nella vista $F$ (checkbox "Mostra anche F")
+  del plot 1D (principale e Colab) aggiunta una **linea verticale tratteggiata
+  dorata** in corrispondenza del minimo della curva $F$ (dal minimo della
+  griglia), oltre alla stella "min F(w)", alla traiettoria su $F$ e al marker
+  del punto corrente su $F$. Verifica numerica (preset `1d_exp`, $\nu=0.991$,
+  w₀=2): la linea $F$ è esattamente $F(w)=J(w)+\nu|w|$ (formula verificata sui
+  dati del plot) e il suo minimo è a $w=0.25125$, che coincide con la
+  convergenza di Newton-L1 (subgradiente di $F\approx1.6\times10^{-10}$).
+  Nota: con le 30 iterazioni di default la traiettoria può fermarsi prima del
+  minimo (es. $w\approx0.31$ vs $0.251$ sul preset `1d_exp`): non è la linea a
+  essere sbagliata, è l'algoritmo non ancora convergente (aumentando le
+  iterazioni raggiunge il minimo della linea). Nessun PDF coinvolto;
+  `bozza.tex` non toccata.
 - **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
   per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
   (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,

@@ -5168,6 +5168,11 @@ function renderPlot(iter) {
   const ptsF  = currentData.pts_F || [];
   const showF = ptsF.length > 0 &&
     ((surfF.z && surfF.z.length > 0) || (surfF.y && surfF.y.length > 0));
+  // Minimo della curva F (dal minimo della griglia): usato per la stella e per
+  // la guida verticale che segna la posizione del minimo di F.
+  const fminPt = showF && surfF.y.length
+    ? (() => { const im = surfF.y.indexOf(Math.min(...surfF.y)); return { x: surfF.x[im], y: surfF.y[im] }; })()
+    : null;
 
   if (dim === 1) {
     const traces = [
@@ -5189,10 +5194,9 @@ function renderPlot(iter) {
       showF && { x: [currentW[0]], y: [ptsF[idx]], type: 'scatter', mode: 'markers',
         name: `w\u2096 su F`, marker: { color: '#E8B54A', size: 9, symbol: 'diamond',
         line: { color: '#0B1222', width: 1 } } },
-      showF && (() => { const im = surfF.y.indexOf(Math.min(...surfF.y));
-        return { x: [surfF.x[im]], y: [surfF.y[im]], type: 'scatter', mode: 'markers',
-          name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
-          line: { color: '#0B1222', width: 1 } } }; })(),
+      fminPt && { x: [fminPt.x], y: [fminPt.y], type: 'scatter', mode: 'markers',
+        name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
+        line: { color: '#0B1222', width: 1 } } },
       { x: [w_star[0]], y: [J_star], type: 'scatter', mode: 'markers',
         name: 'w\u002A', marker: { color: '#F5A623', size: 13, symbol: 'star',
         line: { color: '#0B1222', width: 1 } } },
@@ -5207,6 +5211,9 @@ function renderPlot(iter) {
       yaxis: { title: showF ? 'J(w) / F(w)' : 'J(w)', gridcolor: '#1C2A42', zerolinecolor: '#243354', color: '#607090' },
       legend: { bgcolor: 'rgba(10,15,26,.85)', bordercolor: '#243354', borderwidth: 1, font: { size: 10 } },
       margin: { l: 60, r: 20, t: 50, b: 50 },
+      shapes: fminPt ? [{ type: 'line', xref: 'x', x0: fminPt.x, x1: fminPt.x,
+                          yref: 'paper', y0: 0, y1: 1,
+                          line: { color: 'rgba(245,166,35,0.55)', width: 1, dash: 'dash' } }] : [],
     }, CFG);
 
   } else {
@@ -6029,6 +6036,9 @@ function renderColabPlot() {
   const surfF = currentData.surfF || {};
   const ptsF  = currentData.pts_F || [];
   const showF = !!((surfF.z && surfF.z.length) || (surfF.y && surfF.y.length));
+  const fminPt = showF && surfF.y && surfF.y.length
+    ? (() => { const im = surfF.y.indexOf(Math.min(...surfF.y)); return { x: surfF.x[im], y: surfF.y[im] }; })()
+    : null;
 
   // Nuova run: azzera vista e griglie, cancella eventuali regrid in volo.
   if (colabLastDataRef !== currentData) {
@@ -6102,10 +6112,9 @@ function renderColabPlot() {
       showF && { x: pIdx.map(i=>history[i][0]), y: pIdx.map(i=>ptsF[i]), type: 'scatter', mode: 'lines+markers',
         name: 'Traiettoria su F', line: { color: '#C8A96E', width: 1.5, dash: 'dot' },
         marker: { color: '#C8A96E', size: 3 } },
-      showF && (() => { const im = surfF.y.indexOf(Math.min(...surfF.y));
-        return { x: [surfF.x[im]], y: [surfF.y[im]], type: 'scatter', mode: 'markers',
-          name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
-          line: { color: '#0B1222', width: 1 } } }; })(),
+      fminPt && { x: [fminPt.x], y: [fminPt.y], type: 'scatter', mode: 'markers',
+        name: 'min F(w)', marker: { color: '#F5A623', size: 12, symbol: 'star',
+        line: { color: '#0B1222', width: 1 } } },
       ...(resizePts.length ? [{
         x: resizePts.map(p=>p[0]), y: resizePts.map(p=>p[1]),
         type: 'scatter', mode: 'markers', name: 'CCV violata (batch aumentato)',
@@ -6117,7 +6126,10 @@ function renderColabPlot() {
     ];
     layout = { ...colabLayoutCommon(), height: 470,
       xaxis: { title: 'w', gridcolor: '#1C2A42', color: '#607090' },
-      yaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090' } };
+      yaxis: { title: 'J(w)', gridcolor: '#1C2A42', color: '#607090' },
+      shapes: fminPt ? [{ type: 'line', xref: 'x', x0: fminPt.x, x1: fminPt.x,
+                          yref: 'paper', y0: 0, y1: 1,
+                          line: { color: 'rgba(245,166,35,0.55)', width: 1, dash: 'dash' } }] : [] };
   }
 
   // Vista (pan/zoom): i range correnti vengono applicati alla griglia appena
