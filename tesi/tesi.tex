@@ -6915,49 +6915,32 @@ pip install numpy matplotlib plotly
 
 \subsection{Esecuzione degli esperimenti numerici}
 
-Gli esperimenti del Capitolo~\ref{sec:esperimenti} sono condotti con
-l'applicazione web interattiva descritta nella Sezione~\ref{sec:architettura}:
-i valori riportati nel capitolo (tabelle e figure) sono quelli mostrati dal
-pannello \emph{Analisi} dell'applicazione, con i preset, i parametri e il
-seme descritti nella Sezione~\ref{sec:setup}. Aprendo
-\texttt{visualizzazione.html} in un browser e selezionando il preset,
-l'algoritmo e i parametri indicati, i risultati sono riproducibili a parità
-di seed.
-
-Per eseguire i metodi anche senza browser, lo script \texttt{sim\_exp.py}
-implementa in forma standalone il gradiente a campione dinamico e Newton-CG
-su problemi test sintetici (tra cui la regressione lineare), generando figure
-in formato PDF/PNG e tabelle dei risultati in formato LaTeX:
-
-\begin{verbatim}
-python3 sim_exp.py
-\end{verbatim}
-
-Lo script stampa a video, per ogni problema test, il numero di iterazioni, il
-tempo di esecuzione, l'errore finale $\|w_k - w^*\|$ e la dimensione massima
-del batch raggiunta.
+Gli esperimenti del Capitolo~\ref{sec:esperimenti} sono stati eseguiti sul
+computer dell'autore con le implementazioni Python dell'Appendice~\ref{app:codici}
+e con il generatore di numeri casuali inizializzato con seme fisso (seed 42):
+i valori riportati nel capitolo (tabelle e figure) sono quelli ottenuti da
+questa esecuzione locale (Sezione~\ref{sec:setup}). L'applicazione web
+interattiva (Sezione~\ref{sec:visualizzazione}) permette di ripetere gli
+esperimenti nel browser selezionando il preset, l'algoritmo e i parametri
+indicati: i risultati coincidono con quelli qui riportati a meno di differenze
+dell'ordine di qualche punto percentuale, che possono comparire sui problemi
+mal condizionati, perché il runtime Pyodide (build WASM) usa un'aritmetica in
+virgola mobile leggermente diversa dal NumPy di sistema con cui sono state
+generate le tabelle (Sezione~\ref{sec:setup}).
 
 \subsection{Esecuzione dei singoli algoritmi}
 
 I codici dell'Appendice~\ref{app:codici} possono essere eseguiti anche in
 modo isolato, previa definizione delle funzioni ausiliarie
 \texttt{loss\_i}, \texttt{grad\_i}, \texttt{hessvec\_i}, \texttt{grad\_full}
-e della costante $N$, che dipendono dal dataset. Un esempio completo per la
-regressione lineare è incluso nello script \texttt{sim\_exp.py}.
+e della costante $N$, che dipendono dal dataset.
 
 \subsection{Avvio dell'applicazione web}
 
 L'applicazione web interattiva è un'applicazione a pagina singola (HTML +
 JavaScript) che esegue il codice Python nel browser tramite Pyodide: non è
 necessario un server dedicato. È sufficiente aprire il file HTML in un
-browser moderno (Chrome, Firefox, Safari, Edge). Per lo sviluppo locale si può
-utilizzare un semplice server HTTP statico:
-
-\begin{verbatim}
-python3 -m http.server 8000
-\end{verbatim}
-
-e quindi visitare \texttt{http://localhost:8000}.
+browser moderno (Chrome, Firefox, Safari, Edge).
 
 \subsection{Requisiti di sistema}
 

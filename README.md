@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (29/08/2026, follow-up).** **Tesi Appendice C: corretta
+  l'incoerenza sull'esecuzione degli esperimenti e rimosso ogni riferimento a
+  `sim_exp.py`.** (1) C.3 (Esecuzione degli esperimenti numerici): riscritto il
+  paragrafo -- gli esperimenti del Capitolo 6 sono stati eseguiti sul computer
+  dell'autore con le implementazioni Python dell'Appendice B e seed 42;
+  l'applicazione web permette di ripeterli nel browser ma il runtime Pyodide
+  (build WASM) può introdurre differenze dell'ordine di qualche punto
+  percentuale sui problemi mal condizionati rispetto al NumPy di sistema
+  (coerente con la Sez. 6.2.1). Rimosso lo script `sim_exp.py`, non più
+  presente nel repository. (2) C.4 (Esecuzione dei singoli algoritmi): rimossa
+  la frase sull'esempio di regressione lineare incluso in `sim_exp.py`.
+  (3) C.5 (Avvio dell'applicazione web): rimossa la frase sul server HTTP
+  statico (`python3 -m http.server 8000` e `http://localhost:8000`); l'app è un
+  singolo file HTML apribile direttamente nel browser. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (131 pp, 0 errori, 0 undefined; 13 overfull, invariati).
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
+
+
 - **Ultimo intervento (29/08/2026).** **Tesi: Appendice B.3 ampliata (caso m=1 di
   Newton-L1), paragrafo BB-CCV in B.4 aggiornato con riferimento alla Sez. 5.4.1,
   nuova dimostrazione in Appendice A (`app:rayleigh`), rimossa la tabella
