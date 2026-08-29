@@ -246,6 +246,27 @@ Da tenere presente nelle sessioni di lavoro successive:
   valori coerenti ($1d\_exp$ $\nu=0.991$: $\|\partial F\|$ da $2.64$ a $0.115$
   a 30 iterazioni, → ~$10^{-10}$ a convergenza). Nessun PDF coinvolto;
   `bozza.tex` non toccata.
+- **Ultimo intervento (29/08/2026, follow-up 4).** **App web: preset 1D resi
+  stocastici (target per campione), così la dinamica del batch (CCV) è visibile
+  anche in 1D.** Prima i preset 1D (`1d_quad`, `1d_quartic`, `1d_sin`,
+  `1d_exp`) avevano `loss_i(w,i) = J(w)` (identica per ogni campione):
+  varianza zero → la CCV non scattava mai e `n_k` restava fisso a `batch₀`
+  (corretto ma non rappresentativo degli algoritmi stocastici della tesi). Ora
+  ogni preset genera un dataset con **target $a_i$ per campione** (`raw_a = 1 +
+  0.2*randn(N)`, centrati così `mean(a_i)=1`), `loss_i`/`grad_i`/`hess_i`
+  dipendono da `i` e la **$J$ mostrata è la media full-batch**
+  (`mean_i loss_i(w,i)`); **`W_STAR` è ricalcolato a runtime** (Newton su $J$
+  full-batch con differenze finite) così è coerente col minimo empirico
+  (verificato: $1.0000$, $1.0055$, $0.9999$, $1.0004$ per i 4 preset).
+  Effetto: varianza del gradiente $>0$ anche in 1D → **la CCV fa crescere
+  `n_k`** (es. `1d_quad`/`1d_exp`: batch $5 \to 200$ in 30 iterazioni), come
+  sui preset 2D. Bonus: la modalità **"Formule chiuse" (`diffMode=preset`) ora
+  funziona anche sui preset 1D** (prima falliva con `NameError: N`, perché i
+  preset non definivano `N`; ora lo definiscono). Validazione: harness deno +
+  numpy reale — 4 preset 1D in modalità preset e autodiff (batch crescente,
+  $W\_STAR$ coerente, vista $F$ e metrica $\|\partial F\|$ invariate), 2D e
+  GD/Newton-CG/BB non toccati (regressione 13/13, 11/11, 10/10). Nessun PDF
+  coinvolto; `bozza.tex` non toccata.
 - **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
   per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
   (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,
