@@ -228,6 +228,24 @@ Da tenere presente nelle sessioni di lavoro successive:
   essere sbagliata, è l'algoritmo non ancora convergente (aumentando le
   iterazioni raggiunge il minimo della linea). Nessun PDF coinvolto;
   `bozza.tex` non toccata.
+- **Ultimo intervento (29/08/2026, follow-up 3).** **App web: metrica di
+  stazionarieta' corretta per Newton-CG-$L_1$: norma del subgradiente di
+  $F=J+\nu\|w\|_1$.** (1) Nuova **metric-card "‖∂F‖ (subgrad. L1)"** nella
+  scheda info, visibile solo quando il metodo è $L_1$: mostra
+  $\|\partial F(w_k)\|$ (subgradiente di $F$), che è la misura di
+  stazionarietà corretta per il problema regolarizzato. (2) Nella **tabella di
+  convergenza** aggiunta la colonna "‖∂F‖" per $L_1$ e il verdetto finale ora
+  si basa su $\|\partial F\|$ (soglia $10^{-4}$ → "Convergenza raggiunta")
+  invece che su $\|w-w^*\|$, che è riferito al minimo di $J$ e per $L_1$ non
+  va a 0 nemmeno a convergenza (era la causa della falsa impressione di
+  "blocco" sul preset `1d_exp` $\nu=0.991$: $\|w-w^*\|=0.7487$ pur essendo
+  convergente, con $\|\partial F\|\approx1.6\times10^{-10}$). (3) Nel **plot
+  2D** aggiunta la stella sul minimo della superficie $F$ (dalla griglia).
+  Validazione: harness deno + numpy reale — `pts_sgF` popolato solo per
+  newton_l1 (per GD/Newton-CG/BB vuoto e tabella senza colonna "‖∂F‖"),
+  valori coerenti ($1d\_exp$ $\nu=0.991$: $\|\partial F\|$ da $2.64$ a $0.115$
+  a 30 iterazioni, → ~$10^{-10}$ a convergenza). Nessun PDF coinvolto;
+  `bozza.tex` non toccata.
 - **Ultimo intervento (28/08/2026).** **App web: nuovo strumento "Test batch"
   per esperimenti e tabelle in stile Sez. 6.7.** In `visualizzazione.html`
   (file solo nella repo, nessun PDF coinvolto) aggiunto in fondo alla sidebar,
