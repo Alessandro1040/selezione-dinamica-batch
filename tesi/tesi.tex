@@ -2290,29 +2290,6 @@ Hessiana singolare), e la presenza di derivate terze rende il passo non più
 ottimale. BB-CCV gestisce queste difficoltà con la salvaguardia e la line
 search di Armijo.
 
-\begin{table}[H]
-\centering
-\footnotesize
-\renewcommand{\arraystretch}{1.35}
-\begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.7cm}
-                >{\raggedright\arraybackslash}p{5.6cm}
-                >{\raggedright\arraybackslash}p{5.6cm}@{}}
-\toprule
-Caratteristica & Funzione quadratica & Funzione generale \\
-\midrule
-Hessiana & costante, $\nabla^2 J = A$ & varia nel tempo, $\nabla^2 J(w)$ \\
-Relazione fondamentale & $y = A s$, esatta e globale & approssimata: media della Hessiana lungo il percorso \\
-Passo calcolato & inverso della curvatura media lungo $s$ (ottimale) & media degli ultimi passi, obsoleta al passo successivo \\
-Denominatore $s^\top y$ & sempre positivo, stabile & può essere $\le 0$ o $\approx 0$: serve la salvaguardia \\
-Convergenza & superlineare (in due dimensioni bastano 2--3 passi) & lineare lenta, o divergente senza salvaguardia \\
-\bottomrule
-\end{tabular}
-\caption{Il passo di Barzilai--Borwein sulle funzioni quadratiche e generali.}
-\label{tab:bb_confronto}
-\end{table}
-\noindent\emph{Lettura.} Spiega perché il passo di Barzilai--Borwein è esatto e ottimale sul quadratico ma richiede una salvaguardia sui problemi generali (il denominatore $s^\top y$ può essere $\le0$ o $\approx0$): nella pratica la salvaguardia di BB-CCV è sufficiente a renderlo il metodo più veloce tra quelli testati.
-
-
 Nella pratica, sui problemi della Sezione~\ref{sec:risultati} la salvaguardia
 di BB-CCV è sufficiente: il metodo risulta il più veloce tra quelli testati e
 raggiunge la precisione macchina sui problemi mal condizionati.
@@ -6100,6 +6077,60 @@ g'(\alpha) \ge c_2 \, g'(0), \qquad c_2 \in (c_1,1),
 dove $g'(0)=\nabla f(x_k)^Tp<0$. Poiché $c_2<1$, $c_2g'(0)$ è meno negativo di $g'(0)$: la condizione è un lower bound sulla derivata, che scarta i passi troppo piccoli (per $\alpha\to0^+$, $g'(\alpha)\to g'(0)$, che non soddisfa la disuguaglianza).
 
 La condizione $0<c_1<c_2<1$ garantisce che le due disuguaglianze siano compatibili: Armijo (limite superiore su $f$) e Wolfe (limite inferiore su $g'$) definiscono un intervallo non vuoto di $\alpha$ accettabili. Se $c_1\ge c_2$, le due condizioni possono diventare contraddittorie. In sintesi, Armijo impedisce passi troppo grandi, Wolfe impedisce passi troppo piccoli
+
+\subsection{Il rapporto $s^\top H s / s^\top s$ come media pesata delle curvature}\label{app:rayleigh}
+
+Sia $H \in \mathbb{R}^{m \times m}$ una matrice simmetrica; l'Hessiana
+$\nabla^2 J(w)$ lo è sempre per il teorema di Schwarz. Siano
+$\lambda_1 \le \lambda_2 \le \dots \le \lambda_m$ gli autovalori di $H$ e
+$u_1,\dots,u_m$ i corrispondenti autovettori ortonormali (la cui esistenza è
+garantita dal teorema spettrale). Ogni vettore $s \neq 0$ si scrive nella base
+ortonormale come
+\[
+s = \sum_{i=1}^{m} c_i\, u_i, \qquad c_i = u_i^\top s,
+\]
+per cui, per l'ortonormalità degli autovettori,
+\[
+\|s\|^2 = s^\top s = \sum_{i=1}^{m} c_i^2,
+\qquad
+H s = \sum_{i=1}^{m} c_i \lambda_i\, u_i.
+\]
+Moltiplicando scalarmente per $s$ si ottiene
+\[
+s^\top H s = \sum_{i=1}^{m} \lambda_i\, c_i^2.
+\]
+Dividendo per $\|s\|^2 = \sum_{j=1}^{m} c_j^2$ si ha
+\[
+\frac{s^\top H s}{s^\top s}
+= \sum_{i=1}^{m} \lambda_i\, \frac{c_i^2}{\sum_{j=1}^{m} c_j^2}
+= \sum_{i=1}^{m} \omega_i\, \lambda_i,
+\qquad
+\omega_i := \frac{c_i^2}{\sum_{j=1}^{m} c_j^2}.
+\]
+I coefficienti $\omega_i \ge 0$ e la loro somma è
+\[
+\sum_{i=1}^{m} \omega_i
+= \frac{\sum_{i=1}^{m} c_i^2}{\sum_{j=1}^{m} c_j^2} = 1.
+\]
+Quindi $s^\top H s / s^\top s$ è una combinazione convessa (media pesata) degli
+autovalori di $H$: il peso dell'autovalore $\lambda_i$ è proporzionale al
+quadrato della proiezione di $s$ sull'autovettore $u_i$. Essendo una media
+pesata, il quoziente sta tra il minimo e il massimo degli autovalori,
+\[
+\lambda_{\min}(H) = \lambda_1 \;\le\; \frac{s^\top H s}{s^\top s} \;\le\;
+\lambda_m = \lambda_{\max}(H),
+\]
+con uguaglianza se e solo se $s$ è un autovettore di $H$ (rispettivamente di
+$\lambda_{\min}$ o di $\lambda_{\max}$).
+
+Nel contesto del passo di Barzilai--Borwein
+(Sezione~\ref{sec:bb} e Appendice~\ref{app:codici}), $H = \nabla^2 J$ e
+$s = s_k$: il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è la
+curvatura media di $\nabla^2 J$ lungo la direzione percorsa, e
+$\alpha_k^{\mathrm{BB}} = \frac{s_k^\top s_k}{s_k^\top \nabla^2 J\, s_k}$ è
+l'inverso di tale media, ovvero un passo di Newton scalare: un solo scalare che
+approssima l'inverso della curvatura media di $\nabla^2 J$ lungo $s_k$.
+
 % ═══════════════════════════════════════════════════════════════════════════
 % Bibliografia
 % ═══════════════════════════════════════════════════════════════════════════
@@ -6400,6 +6431,12 @@ Infine, si controlla la norma del gradiente esatto (calcolato su tutto il datase
 
  \underline{discesa è quella di Newton anziche l'antigradiente}
 \subsection{Newton-CG per problemi $L_1$-regolarizzati}
+
+In questa sezione illustriamo il funzionamento del codice dell'algoritmo Newton-CG
+per problemi con regolarizzazione $L_1$. Per facilitare la comprensione, supponiamo
+che il vettore dei parametri abbia dimensione $m$: $w \in \mathbb{R}^m$. Nel nostro
+caso specifico, $m = 1$.
+
 \begin{pythoncode}[title= Newton-L1]
 
 import numpy as np
@@ -6411,6 +6448,23 @@ def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
     batch_sizes = [n]
 \end{pythoncode}
 La funzione principale \texttt{newton\_l1} implementa il metodo Newton-CG con campionamento dinamico per problemi con regolarizzazione $L_1$. Riceve il punto iniziale $w_0$, la tolleranza $\theta$ per il controllo della varianza, il numero massimo di iterazioni esterne \texttt{max\_iter}, il passo iniziale \texttt{alpha} per la ricerca lineare, la dimensione del batch iniziale \texttt{batch0}, il parametro di penalità $\nu > 0$, la costante $\sigma \in (0,1)$ per la condizione di Armijo, il numero massimo di iterazioni del gradiente coniugato \texttt{maxcg} e il fattore di tolleranza $\eta \in (0,1)$ per il criterio di arresto del CG. Il vettore dei pesi $w$ viene convertito in array NumPy in doppia precisione, la dimensione del batch è forzata ad almeno $2$ (per garantire che la varianza campionaria sia definita) e si inizializzano le liste \texttt{history} e \texttt{batch\_sizes} che registreranno la traiettoria dei pesi e le dimensioni del batch a ogni iterazione.
+
+Nel nostro caso: $m=1$, $w_0 = 0$, $\nu = 1$, $\alpha = 0.1$, $\sigma = 0.5$,
+$\theta = 0.5$, $N$ è la dimensione del dataset (generica). La loss individuale
+sull'esempio $i$-esimo è
+\[
+\ell(x; i) = (x - a_i)^2, \qquad a_i = 1 + \varepsilon_i,
+\]
+dove $\varepsilon_i$ è una perturbazione casuale con $\mathbb{E}[\varepsilon_i] = 0$
+e $\operatorname{Var}(\varepsilon_i) = \sigma_\varepsilon^2$. La loss empirica
+completa è quindi
+\[
+J_N(x) = \frac{1}{N}\sum_{i=1}^{N} (x - a_i)^2,
+\]
+e il suo minimo (per $N$ finito) è $\bar a = \frac{1}{N}\sum_i a_i$, che tende a $1$
+per $N \to \infty$ ma per $N$ finito ha un bias casuale di ordine
+$\sigma_\varepsilon/\sqrt{N}$. Il batch ha dimensione iniziale $n_0 = 2$.
+
 \begin{pythoncode}[title= Newton-L1]
 
 #
@@ -6448,6 +6502,26 @@ F_{\mathcal{S}}(v) \;=\; J_{\mathcal{S}}(v) + \nu\|v\|_1
 \]
 in accordo con la formulazione (5.42). \texttt{subgrad\_batch} implementa il gradiente generalizzato $\widetilde{\nabla} F_{\mathcal{S}}(v)$ componente per componente, seguendo la regola (5.43): se $v_i\neq 0$ si somma $\nu\,\operatorname{sign}(v_i)$; se invece $v_i=0$, si sceglie il subgradiente in $[-\nu,+\nu]$ che rende nullo (quando possibile) la componente del gradiente generalizzato, realizzando la proiezione $g_i = \arg\min_{g\in[-\nu,\nu]} |(\nabla J_{\mathcal{S}})_i + g|$. \texttt{project\_orthant} implementa la proiezione $P(\cdot)$ sulla faccia ortante $\Omega_k$ definita in (5.45): azzera ogni componente il cui segno non coincide con quello prescritto dal vettore $z$.
 
+Nel nostro caso: $\ell(x; i) = (x - a_i)^2$, quindi $\nabla \ell(x; i) = 2(x - a_i)$
+e sul batch $\mathcal{S}$ si ha
+\[
+J_{\mathcal{S}}(x) = \frac{1}{n}\sum_{i\in\mathcal{S}} (x - a_i)^2,
+\qquad
+\nabla J_{\mathcal{S}}(x) = 2\left(x - \frac{1}{n}\sum_{i\in\mathcal{S}} a_i\right).
+\]
+La funzione \texttt{subgrad\_batch} restituisce quindi:
+\begin{itemize}
+    \item se $x > 0$: $\widetilde{\nabla}F_{\mathcal{S}}(x) = 2\left(x - \bar a_{\mathcal{S}}\right) + 1$,
+    \item se $x < 0$: $\widetilde{\nabla}F_{\mathcal{S}}(x) = 2\left(x - \bar a_{\mathcal{S}}\right) - 1$,
+    \item se $x = 0$: il subgradiente è l'intervallo
+    \[
+    \left[2\left(0 - \bar a_{\mathcal{S}}\right) - 1,\; 2\left(0 - \bar a_{\mathcal{S}}\right) + 1\right],
+    \]
+    e il codice sceglie il valore più vicino a zero.
+\end{itemize}
+La proiezione \texttt{project\_orthant} azzera $x$ se il suo segno non coincide
+con quello prescritto da $z$.
+
 \begin{pythoncode}[title= Newton-L1]
 
 #
@@ -6465,6 +6539,21 @@ Ad ogni iterazione esterna $k$, si estrae un campione casuale $\mathcal{S}_k$ di
 g_k \;=\; \nabla J_{\mathcal{S}_k}(w_k) \;=\; \frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell(w_k;i),
 \]
 che costituisce la stima stocastica del gradiente esatto $\nabla J(w_k)$. Quindi si determina il vettore $z_k\in\{-1,0,+1\}^m$ che caratterizza la faccia ortante secondo la (5.44): $z_k^i=\operatorname{sign}(w_k^i)$ se $w_k^i\neq 0$; se invece $w_k^i=0$, la componente viene posta a $\pm 1$ quando il gradiente della parte liscia supera in valore assoluto la soglia $\nu$ (indicando che conviene ``liberare'' la variabile), e a $0$ altrimenti (la variabile resta bloccata nell'active set).
+
+Nel nostro caso: il gradiente della parte liscia sul batch è
+$g_{\text{batch}} = 2(w - \bar a_{\mathcal{S}_k})$, dove
+$\bar a_{\mathcal{S}_k} = \frac{1}{n_k}\sum_{i\in\mathcal{S}_k} a_i$ è la media
+campionaria delle perturbazioni. Con $w_0 = 0$ e $\nu = 1$, il vettore $z$
+diventa:
+\begin{itemize}
+    \item se $w > 0$: $z = 1$ (variabile già positiva);
+    \item se $w < 0$: $z = -1$ (variabile già negativa);
+    \item se $w = 0$: si confronta $g_{\text{batch}} = -2\bar a_{\mathcal{S}_k}$
+    con $\nu = 1$; se $\bar a_{\mathcal{S}_k} > 0.5$ allora $g_{\text{batch}} < -1$
+    e $z = 1$ (si libera verso destra); se $\bar a_{\mathcal{S}_k} < -0.5$ allora
+    $g_{\text{batch}} > 1$ e $z = -1$ (si libera verso sinistra); altrimenti
+    $z = 0$ (la variabile resta bloccata a zero).
+\end{itemize}
 
 \begin{pythoncode}[title= Newton-L1]
 
@@ -6526,6 +6615,20 @@ dove $Y_k$ è la matrice dei versori delle coordinate libere, mediante il metodo
 \]
 o quando incontra curvatura non positiva (\texttt{pHp} $\le 10^{-14}$), nel qual caso si effettua il fallback sulla direzione dell'antigradiente ridotto $-g_{\text{free}}$.
 
+Nel nostro caso: $R$ è il rapporto tra la dimensione del campione per l'Hessiana
+e quella per il gradiente. Poiché $N$ è generico, $n_h = \lceil R n_k\rceil$,
+con $R \in (0,1)$. La Hessiana della parte liscia è $\nabla^2 J_{\mathcal{H}_k}(x) = 2$
+(indipendente da $x$ e dal campione, perché la loss è quadratica). Essendo in
+1D, il CG si riduce a una semplice divisione. Se $z = 1$ (variabile libera sul
+semiasse positivo), si ha
+$g_{\text{free}} = \widetilde{\nabla}F_{\mathcal{S}_k}(x) = 2(x - \bar a_{\mathcal{S}_k}) + 1$.
+La direzione di Newton risolve $2\,d = -g_{\text{free}}$, quindi
+$d = -\frac{1}{2}g_{\text{free}} = \bar a_{\mathcal{S}_k} - x - 0.5$.
+Partendo da $x=0$, si ha $d = \bar a_{\mathcal{S}_k} - 0.5$: la direzione punta
+verso il minimo del batch $\bar a_{\mathcal{S}_k}$, corretto dal termine $L_1$
+che sposta il minimo di $0.5$ verso sinistra (perché la penalità $L_1$ spinge
+i coefficienti verso zero).
+
 \begin{pythoncode}[title= Newton-L1]
 
 #
@@ -6552,6 +6655,22 @@ Si inizializza la ricerca lineare proiettata con passo \texttt{step} = \texttt{a
 F_{\mathcal{S}_k}\bigl(P[w_k+\alpha_k d]\bigr) \;\le\; F_{\mathcal{S}_k}(w_k) + \sigma\,\alpha_k\,\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)^T\bigl(P[w_k+\alpha_k d]-w_k\bigr),
 \]
 dove $P$ è la proiezione \texttt{project\_orthant}. Questo corrisponde alla condizione (5.50). Se lo step diventa troppo piccolo ($<10^{-12}$) si rifiuta l'aggiornamento e si mantiene il punto corrente.
+
+Nel nostro caso: partendo da $x=0$, $z=1$, $\bar a_{\mathcal{S}_k} > 0.5$,
+$d = \bar a_{\mathcal{S}_k} - 0.5 > 0$, $\widetilde{\nabla}F_{\mathcal{S}}(0) < 0$.
+La derivata direzionale è $\texttt{sg\_d} = \widetilde{\nabla}F(0) \cdot d < 0$,
+quindi la direzione è di discesa. La ricerca lineare prova $\alpha = 0.1$:
+$x_{\text{trial}} = \text{project\_orthant}(0 + 0.1 d, 1) = 0.1d$ (il segno è
+positivo, coincide con $z=1$, quindi la proiezione lascia invariato).
+La condizione di Armijo viene verificata e, se soddisfatta, il passo è accettato.
+L'iterato si muove verso il minimo del batch $\bar a_{\mathcal{S}_k}$,
+corretto dal termine $L_1$ che lo sposta verso sinistra di $0.5$.
+
+Se la direzione $d$ avesse portato a un valore con segno diverso da $z$, la
+proiezione avrebbe azzerato il valore a $0$, impedendo alla variabile di
+attraversare lo zero. Ad esempio, se $x$ fosse negativo con $z=-1$ e la
+direzione $d$ positiva, $x + \alpha d$ diventerebbe positivo, e la proiezione lo
+azzererebbe, mantenendo la coerenza con la faccia ortante.
 
 \begin{pythoncode}[title= Newton-L1]
 
@@ -6586,6 +6705,25 @@ dove $g_{k+1}$ è il gradiente della parte liscia sul nuovo campione. Se la cond
 n \;\leftarrow\; \min\!\left\{N,\;\left\lceil\frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_{k+1}\|_2^2}\right\rceil+1\right\}.
 \]
 Questa è un'estensione dinamica rispetto al paper originale, dove il campione per il caso $L_1$ era mantenuto fisso. Si registrano il nuovo punto $w_{k+1}$ e la dimensione del batch, quindi si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se $\|\nabla J(w_{k+1})\|_2 < 10^{-6}$ si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
+
+Nel nostro caso: la varianza campionaria dei gradienti individuali sul batch è
+\[
+\widehat{\mathcal{V}} = \operatorname{Var}_{i\in\mathcal{S}_{k+1}}\bigl(2(x - a_i)\bigr)
+= 4 \operatorname{Var}_{i\in\mathcal{S}_{k+1}}(a_i)
+= 4 \cdot \frac{1}{n-1}\sum_{i\in\mathcal{S}_{k+1}} (a_i - \bar a_{\mathcal{S}_{k+1}})^2.
+\]
+La sua norma $L_1$ è $V_{\text{norm1}} = \|\widehat{\mathcal{V}}\|_1 = 4\,\sigma_{\text{bat}}^2$,
+dove $\sigma_{\text{bat}}^2$ è la varianza campionaria delle $a_i$ nel batch.
+Il gradiente della parte liscia sul nuovo batch è
+$g_{k+1} = 2(w - \bar a_{\mathcal{S}_{k+1}})$. La CCV richiede quindi
+\[
+\frac{4\sigma_{\text{bat}}^2}{n} \;\le\; \theta^2 \cdot 4(w - \bar a_{\mathcal{S}_{k+1}})^2.
+\]
+Se il batch è troppo rumoroso ($\sigma_{\text{bat}}^2$ grande) o se siamo vicini
+al minimo ($(w - \bar a_{\mathcal{S}_{k+1}})^2$ piccolo), la CCV è violata e
+$n$ cresce. Questo avviene automaticamente quando ci si avvicina al minimo del
+batch, garantendo che la stima del gradiente sia sufficientemente accurata per
+la convergenza della soluzione sparsa.
 \subsection{Barzilai--Borwein con campionamento dinamico}
 
 Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
@@ -6652,13 +6790,15 @@ percorsa usando le differenze tra iterazioni consecutive:
 s_k = w_k - w_{k-1}, \qquad y_k = g_k - g_{k-1}, \qquad
 \alpha_k^{\mathrm{BB}} = \frac{s_k^{\top} s_k}{s_k^{\top} y_k}.
 \]
-Per una quadratica vale $y_k = \nabla^2 J\, s_k$; quindi
+Per una quadratica vale $y_k = \nabla^2 J\, s_k$, come dedotto in
+Sezione~\ref{sec:bb} (relazione fondamentale, Eq.~(5.54)); quindi
 $\alpha_k^{\mathrm{BB}} = \frac{s_k^\top s_k}{s_k^\top \nabla^2 J\, s_k}$
 coincide con l'inverso della curvatura media di $\nabla^2 J$ lungo la direzione
-$s_k$ --- il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è una
-media pesata delle curvature della Hessiana --- cioè un passo di Newton scalare
-a costo nullo, poiché $s_k$ e $y_k$ sono quantità già disponibili. Per
-robustezza sui problemi
+$s_k$, il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è una
+media pesata delle curvature della Hessiana (per una matrice simmetrica sta tra
+$\lambda_{\min}$ e $\lambda_{\max}$, come dimostrato nell'Appendice~\ref{app:rayleigh}),
+cioè un passo di Newton scalare a costo nullo, poiché $s_k$ e $y_k$ sono quantità
+già disponibili. Per robustezza sui problemi
 non quadratici il passo è salvaguardato nell'intervallo $[\alpha/20,\,5\alpha]$
 tramite \texttt{np.clip}; se $s_k^{\top}y_k$ è numericamente nullo si torna al
 passo base $\alpha$. Alla prima iterazione ($k=0$) la coppia $(s,y)$ non esiste

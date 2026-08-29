@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (29/08/2026).** **Tesi: Appendice B.3 ampliata (caso m=1 di
+  Newton-L1), paragrafo BB-CCV in B.4 aggiornato con riferimento alla Sez. 5.4.1,
+  nuova dimostrazione in Appendice A (`app:rayleigh`), rimossa la tabella
+  `tab:bb_confronto`.** (1) Appendice B.3 (`newton_l1`): aggiunta la presentazione
+  del caso specifico $m=1$ con loss $\ell(x;i)=(x-a_i)^2$, $a_i=1+\varepsilon_i$, e
+  dopo ogni blocco di codice un paragrafo ``Nel nostro caso:'' che concretizza
+  subgradiente, vettore $z$ (faccia ortante), direzione di Newton, ricerca lineare
+  proiettata e CCV in 1D. (2) Sez. 5.4.1: rimossa la tabella ``Il passo di
+  Barzilai--Borwein sulle funzioni quadratiche e generali'' (`tab:bb_confronto`),
+  ridondante con la prosa. (3) Appendice B.4: il paragrafo sul passo BB ora rimanda
+  alla Sez. 5.4.1 (relazione fondamentale, Eq. (5.54)) e precisa che
+  $s^\top H s/s^\top s$ per matrice simmetrica sta tra $\lambda_{\min}$ e
+  $\lambda_{\max}$, con collegamento ipertestuale alla nuova dimostrazione.
+  (4) Nuova sottosezione in Appendice A (`app:rayleigh`): dimostrazione che
+  $s^\top H s/s^\top s$ è una media pesata (combinazione convessa) degli autovalori
+  di $H$, con pesi $c_i^2/\sum_j c_j^2$, quindi sempre tra $\lambda_{\min}$ e
+  $\lambda_{\max}$; chiusura sul passo BB. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (131 pp, 0 errori, 0 undefined; 13 overfull, nessuno nelle
+  nuove sezioni). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5
+  verificati). `bozza.tex` non toccata.
+
+
 - **Ultimo intervento (29/08/2026).** **App web: vista dell'obiettivo
   regolarizzato $F(w)=J(w)+\nu\|w\|_1$ per il metodo Newton-CG-$L_1$.** In
   `visualizzazione.html` (file solo nella repo, nessun PDF coinvolto) aggiunto
