@@ -432,6 +432,20 @@ Da tenere presente nelle sessioni di lavoro successive:
   errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
   tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 
+- **Ultimo intervento (28/08/2026).** **Tesi Sez. 4.3: riscritto il passo
+  sull'identificazione delle variabili da tenere a zero nel metodo
+  Newton-CG-$L_1$.** Prima: confronto di $\partial J(w)/\partial w_i$ con
+  $\pm\nu$ (se $w_i=0$ e $-\nu \le \partial J(w)/\partial w_i \le +\nu$ la
+  variabile resta ancorata a zero). Ora: quando $w_i=0$, tra tutti i
+  subgradienti possibili in $[-\nu,+\nu]$ viene selezionato quello che rende
+  minima la componente del gradiente generalizzato (zero se possibile), cosi'
+  $w_i=0$ viene riconosciuto come un vero minimo del problema ogni volta che
+  lo e', e l'algoritmo non rischia di allontanarsene. Allineata alla
+  spiegazione in corsivo della Sez. 5.3.3 (identificazione dell'active set).
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf`; sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
+
 - **Ultimo intervento (27/08/2026, follow-up).** **Verifica di coerenza della
   Sez. 6.7 e dell'app dopo il fix BB-CCV.** Riesaminati `visualizzazione.html`
   (tutti i generatori: BB/validation/descesa usano il passo BB; GD, Newton-CG

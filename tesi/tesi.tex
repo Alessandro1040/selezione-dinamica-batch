@@ -616,18 +616,13 @@ la funzione obiettivo solo sulle variabili libere, dove la $L_1$ è
 differenziabile, mantenendo le altre esattamente a zero tramite una ricerca
 lineare proiettata.
 
-Le variabili da tenere a zero sono individuate con il criterio del gradiente
-generalizzato (Sezione~\ref{sec:l1}): per ogni coordinata $i$ si confronta la
-derivata parziale della parte liscia, $\partial J(w)/\partial w_i$, con il costo
-$\nu$. Se $w_i = 0$ e $-\nu \le \partial J(w)/\partial w_i \le +\nu$, il
-subgradiente della norma in $0$ --- l'intervallo $[-\nu,+\nu]$ --- contiene la
-componente liscia e $w_i = 0$ è un punto stazionario per quella coordinata: la
-variabile resta ancorata a zero, contribuendo alla sparsità della soluzione. Se
-invece $\partial J(w)/\partial w_i < -\nu$ (o $> +\nu$), la parte liscia
-``vince'' sul costo $L_1$ e conviene liberare la variabile, assegnandole la
-faccia positiva (o negativa) dell'ortante, così che la minimizzazione possa
-spostarla da zero. È la strategia adottata dal metodo Newton-CG-$L_1$ descritto
-nel Capitolo~\ref{sec:algoritmi}.
+Le variabili da tenere a zero sono individuate tramite il gradiente
+generalizzato (Sezione~\ref{sec:l1}): quando $w_i = 0$, tra tutti i
+subgradienti possibili in $[-\nu,+\nu]$ viene selezionato quello che rende
+minima la componente del gradiente generalizzato, zero se possibile. Così
+$w_i = 0$ viene riconosciuto come un vero minimo del problema ogni volta che lo
+è, e l'algoritmo non rischia di allontanarsene. È la strategia adottata dal
+metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 
 \section{Algoritmi Proposti}\label{sec:algoritmi}
 % ═══════════════════════════════════════════════════════════════════════════
