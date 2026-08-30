@@ -177,6 +177,33 @@ Da tenere presente nelle sessioni di lavoro successive:
   Davide Torlo. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (131 pp, 0 errori,
   0 undefined; 13 overfull, invariati). Sincronizzati nella repo
   tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+- **Ultimo intervento (30/08/2026).** **Nuovo script unico
+  `altro/script/riproduci_tutte_le_tabelle.py` che riproduce TUTTE le tabelle
+  numeriche della Sezione 6 (6.1–6.40) in formato LaTeX; tesi Sez. 6.2.1
+  aggiornata; trovata e segnalata un'incoerenza preesistente nella Tabella 6.2.**
+  Lo script (solo numpy) incorpora i preset (`LOSS_PRESETS` dell'app) e i
+  quattro algoritmi in tutte le varianti: base/riuso $M$ (inclusa H
+  indipendente da $S_k$), stop adattivo con validation set e riuso per discesa,
+  come codice esatto generato da `visualizzazione.html` (consolidato da
+  `gen_tabelle_riuso*.py` e dai codici estratti in `validation_codice_generato/`
+  e `descent_codice_generato/`). Modalità: `--tex` (stampa tutte le tabelle
+  LaTeX), `--verify tesi/tesi.tex` (confronta i valori con la tesi),
+  `--summary`, `--json`. **Validazione**: `--verify` riproduce esattamente
+  tutte le tabelle 6.1–6.40 (test, 16 riuso, sintesi, robustezza, validation,
+  discesa, confronto finale, consigliati). Unica eccezione: la Tabella 6.2
+  (`tab:test_malcond`, κ≈20) contiene nella tesi, per TUTTI i metodi, i valori
+  del problema molto mal condizionato (κ≈100) — incoerenza preesistente, non
+  riprodotta dallo script (che genera i valori corretti, coerenti con le
+  Tabelle 6.4–6.20). Lo script sostituisce `riproduci_tabelle.py`,
+  `gen_tabelle_riuso.py`, `gen_tabelle_riuso_validation.py` e
+  `gen_tabelle_riuso_descesa.py` (conservati come riferimento storico).
+  Aggiornata la Sez. 6.2.1 della tesi: gli "script di generazione del
+  repository" sono ora citati per nome (`riproduci_tutte_le_tabelle.py`).
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**131 pp**, 0 errori, 0
+  undefined; 13 overfull, invariati). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf + `altro/script/riproduci_tutte_le_tabelle.py`
+  (md5 verificati). `bozza.tex` non toccata.
+
 
 
 - **Ultimo intervento (29/08/2026, follow-up 2).** **Tesi: Ringraziamenti

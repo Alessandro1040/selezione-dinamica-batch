@@ -2465,9 +2465,12 @@ l'applicazione esegue Python nel browser tramite Pyodide: il build WASM di
 Pyodide può introdurre differenze di arrotondamento in virgola mobile rispetto
 al NumPy di sistema con cui sono stati generati i valori riportati in questa
 tesi, e sui problemi mal condizionati tali differenze si amplificano fino a
-spostare l'errore finale di pochi punti percentuali. Gli script di generazione
-del repository (eseguiti con il NumPy di sistema) restano quindi il
-riferimento per la riproduzione esatta delle tabelle.
+spostare l'errore finale di pochi punti percentuali. Lo script unico di
+riproduzione \texttt{riproduci\_tutte\_le\_tabelle.py} (in
+\texttt{altro/script/} del repository, eseguito con il NumPy di sistema), che
+implementa preset e algoritmi con il codice esatto dell'applicazione e
+rigenera tutte le tabelle della Sezione~\ref{sec:risultati} in formato LaTeX,
+resta quindi il riferimento per la riproduzione esatta delle tabelle.
 
 \subsection{Architettura Software}\label{sec:architettura}
 
