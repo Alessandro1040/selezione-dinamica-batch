@@ -200,42 +200,32 @@ ALGO_LATEX = {
 }
 
 # ============================================================================
-# 3. ALGORITMI
-# Tutte le funzioni hanno firma (p, w0, ...) con p = preset; usano le funzioni
-# dataset p["loss_i"], p["grad_i"], p["hess_i"], p["hessvec_i"], p["grad_full"].
+# 3. CODICE ESATTO GENERATO DA visualizzazione.html
+# ============================================================================
+# Le stringhe seguenti sono la copia letterale dei file in
+# altro/script/codice_generato/, estratti da visualizzazione.html con
+# altro/script/estrae_codice_tutte.mjs (deno run --allow-read --allow-write
+# estrae_codice_tutte.mjs). Lo script le esegue con exec() in un namespace
+# pulito, ESATTAMENTE come l'helper `_batch_run` dell'app: le righe Python
+# eseguite sono quindi IDENTICHE a quelle generate dall'applicazione.
+# Le righe dei parametri in coda (max_consec, val_*, desc_*) vengono
+# sostituite per le diverse configurazioni, con lo stesso formato che
+# l'app usa (String(...) in JavaScript). NON modificare a mano.
 # ============================================================================
 
-# ----------------------------------------------------------------------------
-# 3.1 Dynamic GD (codice generato da generateGD; line search di Wolfe)
-#     max_consec=None  -> ricampionamento a ogni iterazione (base)
-#     max_consec=M     -> riuso dello stesso batch per M iterazioni
-# ----------------------------------------------------------------------------
-def dynamic_gd(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
-               reuse=False):
-    N = p["N"]
+GEN_GD_BASE = r'''import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    history = [w.copy().tolist()]
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
-    resample_pts = [] if reuse else None
-    indices = None
-    used = 0
-    need_resample = True
     for k in range(max_iter):
-        if reuse:
-            if need_resample or indices is None or (max_consec is not None
-                                                    and used >= max_consec):
-                if not need_resample and indices is not None:
-                    resample_pts.append(w.copy().tolist())
-                indices = np.random.choice(N, size=n, replace=False)
-                used = 0
-                need_resample = False
-        else:
-            indices = np.random.choice(N, size=n, replace=False)
+        indices = np.random.choice(N, size=n, replace=False)
         grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
+
         if n > 1:
             var_vec = np.var(grads, axis=0, ddof=1)
         else:
@@ -247,10 +237,9 @@ def dynamic_gd(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
                 resize_points.append(w.copy().tolist())
-                if reuse:
-                    need_resample = True
         def J_batch(w_curr):
             return np.mean([loss_i(w_curr, i) for i in indices])
+
         # Line search Wolfe
         c1, c2 = 1e-4, 0.9
         step = alpha
@@ -269,47 +258,29 @@ def dynamic_gd(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
             else:
                 step = 0.0
         w = w + step * d
-        if reuse:
-            used += 1
         if np.linalg.norm(grad_full(w)) < 1e-6:
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points, resample_pts
+    return history, batch_sizes, resize_points
 
+history, batch_sizes, resize_points = dynamic_gd(w0, theta, max_iter, alpha, batch0)
+'''
 
-# ----------------------------------------------------------------------------
-# 3.2 BB-CCV (codice generato da generateBB; passo Barzilai-Borwein
-#     salvaguardato + line search di Armijo). CCV dopo l'aggiornamento.
-# ----------------------------------------------------------------------------
-def bb_ccv(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
-           reuse=False):
-    N = p["N"]
+GEN_BB_BASE = r'''import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
-    resample_pts = [] if reuse else None
     w_prev = w.copy()
     g_prev = None
-    indices = None
-    used = 0
-    need_resample = True
     for k in range(max_iter):
-        if reuse:
-            if need_resample or indices is None or (max_consec is not None
-                                                    and used >= max_consec):
-                if not need_resample and indices is not None:
-                    resample_pts.append(w.copy().tolist())
-                indices = np.random.choice(N, size=n, replace=False)
-                used = 0
-                need_resample = False
-        else:
-            indices = np.random.choice(N, size=n, replace=False)
+        indices = np.random.choice(N, size=n, replace=False)
         grads = np.array([grad_i(w, i) for i in indices])
         g = np.mean(grads, axis=0)
         if k > 0 and g_prev is not None:
@@ -327,6 +298,7 @@ def bb_ccv(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
         g_prev = g.copy()
         def J_batch(w_curr):
             return np.mean([loss_i(w_curr, i) for i in indices])
+
         # Line search Armijo
         c1 = 1e-4
         J_curr = J_batch(w)
@@ -340,13 +312,11 @@ def bb_ccv(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
             else:
                 step = 0.0
         w = w - step * g
-        if reuse:
-            used += 1
         if np.linalg.norm(grad_full(w)) < 1e-6:
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
-        # CCV
+
         if n > 1:
             var_vec = np.var(grads, axis=0, ddof=1)
         else:
@@ -358,105 +328,47 @@ def bb_ccv(p, w0, theta, max_iter, alpha, batch0, max_consec=None,
                 n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
                 n = min(n_new, N)
                 resize_points.append(w.copy().tolist())
-                if reuse:
-                    need_resample = True
-                    used = 0
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points, resample_pts
+    return history, batch_sizes, resize_points
 
-# ----------------------------------------------------------------------------
-# 3.3 Newton-CG (codice generato da generateNewtonCG; H sottocampionata,
-#     subset=True: H_k sottoinsieme di S_k, come default dell'app)
-# ----------------------------------------------------------------------------
-def _draw_H_indices(p, indices_S, n_h, subset=True):
-    N = p["N"]
-    if subset:
-        return np.random.choice(indices_S, size=n_h, replace=False)
-    return np.random.choice(N, size=n_h, replace=False)
+history, batch_sizes, resize_points = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0)
+'''
 
+GEN_NCG_BASE = r'''import numpy as np
 
-def newton_cg(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
-              max_consec=None, reuse=False, reuse_hessian=True,
-              max_hessian_reuse=None, subset=True):
-    N = p["N"]
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
-    loss_i, grad_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                            p["hessvec_i"], p["grad_full"])
-
-    def cg(A, b, gamma, maxcg):
-        x = np.zeros_like(b)
-        r = b - A(x)
-        pv = r.copy()
-        rr = np.dot(r, r)
-        for _ in range(maxcg):
-            Ap = A(pv)
-            pHp = np.dot(pv, Ap)
-            if pHp <= 1e-14:
-                break
-            alpha = rr / pHp
-            x = x + alpha * pv
-            r_new = r - alpha * Ap
-            rr_new = np.dot(r_new, r_new)
-            if rr_new <= gamma * np.dot(x, x) + 1e-16:
-                return x
-            beta = rr_new / rr
-            pv = r_new + beta * pv
-            r = r_new
-            rr = rr_new
-        return x
-
-    if reuse:
-        indices_S = None
-        indices_H = None
-        used_S = 0
-        used_H = 0
-        need_resample_S = True
-        need_resample_H = True
-
+    resize_points = []
     for k in range(max_iter):
-        if reuse:
-            if (need_resample_S or indices_S is None or
-                    (max_consec is not None and used_S >= max_consec)):
-                indices_S = np.random.choice(N, size=n, replace=False)
-                n_h = min(max(1, int(round(R * n))), N)
-                used_S = 0
-                need_resample_S = False
-                if reuse_hessian:
-                    indices_H = _draw_H_indices(p, indices_S, n_h, subset)
-                    used_H = 0
-                    need_resample_H = False
-            grads_arr = np.array([grad_i(w, i) for i in indices_S])
-            g = np.mean(grads_arr, axis=0)
-        else:
-            indices_S = np.random.choice(N, size=n, replace=False)
-            g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
-            n_h = min(max(1, int(round(R * n))), N)
-            indices_H = _draw_H_indices(p, indices_S, n_h, subset)
-        if reuse and not reuse_hessian:
-            # H_k indipendente da S_k: ricampionata secondo max_hessian_reuse
-            if (need_resample_H or indices_H is None or
-                    (max_hessian_reuse is not None and used_H >= max_hessian_reuse)):
-                n_h = min(max(1, int(round(R * n))), N)
-                indices_H = _draw_H_indices(p, indices_S, n_h, subset)
-                used_H = 0
-                need_resample_H = False
-        if reuse:
-            # CCV sul campione RIUSATO al punto corrente
-            if n > 1:
-                var_vec = np.var(grads_arr, axis=0, ddof=1)
-            else:
-                var_vec = np.zeros_like(g)
-            V_norm1 = np.sum(var_vec)
-            gg = np.dot(g, g)
-            if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
-                n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
-                need_resample_S = True
-                used_S = 0
-                need_resample_H = True
-                used_H = 0
+        indices_S = np.random.choice(N, size=n, replace=False)
+        g = np.mean([grad_i(w, i) for i in indices_S], axis=0)
+        n_h = min(max(1, int(round(R * n))), N)
+        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
         Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
         p0 = -g
         p0_norm2 = np.dot(p0, p0)
@@ -466,6 +378,7 @@ def newton_cg(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
             gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
         d = cg(Hv, -g, gamma, maxcg)
         J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+
         c1, c2 = 1e-4, 0.9
         step, J_w = alpha, J_batch(w)
         gd = np.dot(g, d)
@@ -482,44 +395,34 @@ def newton_cg(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
         else:
             step = 0.0
         w = w + step * d
-        if reuse:
-            used_S += 1
-            if not reuse_hessian:
-                used_H += 1
-        else:
-            # Batch dinamico (CCV su un nuovo campione, solo se non reuse)
-            indices_new = np.random.choice(N, size=n, replace=False)
-            g_new = np.mean([grad_i(w, i) for i in indices_new], axis=0)
-            var_vec = np.var([grad_i(w, i) for i in indices_new],
-                             axis=0, ddof=1) if n > 1 else np.zeros_like(g_new)
-            V_norm1, gg_new = np.sum(var_vec), np.dot(g_new, g_new)
-            if gg_new > 1e-16 and V_norm1 / n > theta**2 * gg_new:
-                n = min(int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1, N)
         history.append(w.copy().tolist())
         batch_sizes.append(n)
+
+        indices_new = np.random.choice(N, size=n, replace=False)
+        g_new = np.mean([grad_i(w, i) for i in indices_new], axis=0)
+        var_vec = np.var([grad_i(w, i) for i in indices_new], axis=0, ddof=1) if n > 1 else np.zeros_like(g_new)
+        V_norm1, gg_new = np.sum(var_vec), np.dot(g_new, g_new)
+        if gg_new > 1e-16 and V_norm1 / n > theta**2 * gg_new:
+            resize_points.append(w.copy().tolist())
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1, N)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
-# ----------------------------------------------------------------------------
-# 3.4 Newton-CG L1 (codice generato da generateNewtonL1; proiezione ortante)
-# ----------------------------------------------------------------------------
-def newton_l1(p, w0, theta, max_iter, alpha, batch0, nu, sigma, R, maxcg,
-              eta=0.5, max_consec=None, reuse=False, reuse_hessian=True,
-              max_hessian_reuse=None, subset=True):
-    N = p["N"]
+history, batch_sizes, resize_points = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
+'''
+
+GEN_L1_BASE = r'''import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    history = [w.copy().tolist()]
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
-    loss_i, grad_i, hess_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                                    p["hess_i"], p["hessvec_i"],
-                                                    p["grad_full"])
-
+    resize_points = []
     def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
-
     def subgrad_batch(v, indices):
         grads = np.array([grad_i(v, i) for i in indices])
         gJ = np.mean(grads, axis=0)
@@ -537,64 +440,16 @@ def newton_l1(p, w0, theta, max_iter, alpha, batch0, nu, sigma, R, maxcg,
                 else:
                     g[i] = 0.0
         return g
-
     def project_orthant(v, z):
         res = v.copy()
         for i in range(len(v)):
             if z[i] != 0 and np.sign(res[i]) != z[i]:
                 res[i] = 0.0
         return res
-
-    if reuse:
-        indices_S = None
-        indices_H = None
-        used_S = 0
-        used_H = 0
-        need_resample_S = True
-        need_resample_H = True
-
     for k in range(max_iter):
-        if reuse:
-            if (need_resample_S or indices_S is None or
-                    (max_consec is not None and used_S >= max_consec)):
-                indices_S = np.random.choice(N, size=n, replace=False)
-                n_h = max(1, int(round(R * n)))
-                n_h = min(n_h, N)
-                used_S = 0
-                need_resample_S = False
-                if reuse_hessian:
-                    indices_H = _draw_H_indices(p, indices_S, n_h, subset)
-                    used_H = 0
-                    need_resample_H = False
-        else:
-            indices_S = np.random.choice(N, size=n, replace=False)
+        indices_S = np.random.choice(N, size=n, replace=False)
         grads = np.array([grad_i(w, i) for i in indices_S])
         g_batch = np.mean(grads, axis=0)
-        if reuse and not reuse_hessian:
-            # H_k indipendente da S_k
-            if (need_resample_H or indices_H is None or
-                    (max_hessian_reuse is not None and used_H >= max_hessian_reuse)):
-                n_h = max(1, int(round(R * n)))
-                n_h = min(n_h, N)
-                indices_H = _draw_H_indices(p, indices_S, n_h, subset)
-                used_H = 0
-                need_resample_H = False
-        if reuse:
-            # CCV sul campione RIUSATO al punto corrente
-            if n > 1:
-                var_vec = np.var(grads, axis=0, ddof=1)
-            else:
-                var_vec = np.zeros_like(g_batch)
-            V_norm1 = np.sum(var_vec)
-            gg = np.dot(g_batch, g_batch)
-            if gg > 1e-16:
-                if V_norm1 / n > theta**2 * gg:
-                    n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
-                    n = min(n_new, N)
-                    need_resample_S = True
-                    used_S = 0
-                    need_resample_H = True
-                    used_H = 0
         z = np.where(w > 0, 1,
             np.where(w < 0, -1,
                 np.where(g_batch < -nu, 1,
@@ -605,35 +460,32 @@ def newton_l1(p, w0, theta, max_iter, alpha, batch0, nu, sigma, R, maxcg,
             history.append(w.copy().tolist())
             batch_sizes.append(n)
             break
-        if not reuse:
-            n_h = max(1, int(round(R * n)))
-            n_h = min(n_h, N)
-            indices_H = _draw_H_indices(p, indices_S, n_h, subset)
+        n_h = max(1, int(round(R * n)))
+        n_h = min(n_h, N)
+        indices_H = np.random.choice(indices_S, size=n_h, replace=False)
         free = (z != 0)
         d = np.zeros_like(w)
         if np.any(free):
             g_free = sg[free]
-            def Hv(v_full):
-                return np.mean([hessvec_i(w, i, v_full) for i in indices_H], axis=0)
-            def Hv_free(v_free):
-                v_full = np.zeros_like(w)
-                v_full[free] = v_free
-                Hv_full = Hv(v_full)
-                return Hv_full[free]
+
+            # Hessiana esplicita (versione precedente)
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
             tol_cg = eta * np.linalg.norm(g_free)
             d_free = np.zeros(np.sum(free))
             r = -g_free.copy()
-            pv = r.copy()
+            p = r.copy()
             rr = np.dot(r, r)
             for _ in range(maxcg):
-                Hp = Hv_free(pv)
-                pHp = np.dot(pv, Hp)
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
                 if pHp <= 1e-14:
                     if np.linalg.norm(d_free) < 1e-14:
                         d_free = -g_free.copy()
                     break
                 alpha_cg = rr / pHp
-                d_free = d_free + alpha_cg * pv
+                d_free = d_free + alpha_cg * p
                 r_new = r - alpha_cg * Hp
                 rr_new = np.dot(r_new, r_new)
                 if np.sqrt(rr_new) <= tol_cg:
@@ -641,10 +493,11 @@ def newton_l1(p, w0, theta, max_iter, alpha, batch0, nu, sigma, R, maxcg,
                     rr = rr_new
                     break
                 beta = rr_new / rr
-                pv = r_new + beta * pv
+                p = r_new + beta * p
                 r = r_new
                 rr = rr_new
             d[free] = d_free
+
         step = alpha
         F_w = F_batch(w, indices_S)
         sg_d = np.dot(sg, d)
@@ -662,46 +515,703 @@ def newton_l1(p, w0, theta, max_iter, alpha, batch0, nu, sigma, R, maxcg,
                 w_new = w.copy()
                 break
         w = w_new
-        if reuse:
-            used_S += 1
-            if not reuse_hessian:
-                used_H += 1
+
+        indices_new = np.random.choice(N, size=n, replace=False)
+        grads_new = np.array([grad_i(w, i) for i in indices_new])
+        g_new = np.mean(grads_new, axis=0)
+        if n > 1:
+            var_vec = np.var(grads_new, axis=0, ddof=1)
         else:
-            # Batch dinamico (CCV su un nuovo campione, solo se non reuse)
-            indices_new = np.random.choice(N, size=n, replace=False)
-            grads_new = np.array([grad_i(w, i) for i in indices_new])
-            g_new = np.mean(grads_new, axis=0)
-            if n > 1:
-                var_vec = np.var(grads_new, axis=0, ddof=1)
-            else:
-                var_vec = np.zeros_like(g_new)
-            V_norm1 = np.sum(var_vec)
-            gg_new = np.dot(g_new, g_new)
-            if gg_new > 1e-16:
-                if V_norm1 / n > theta**2 * gg_new:
-                    n_new = int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1
-                    n = min(n_new, N)
+            var_vec = np.zeros_like(g_new)
+        V_norm1 = np.sum(var_vec)
+        gg_new = np.dot(g_new, g_new)
+        if gg_new > 1e-16:
+            if V_norm1 / n > theta**2 * gg_new:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg_new))) + 1
+                n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
         history.append(w.copy().tolist())
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes
+    return history, batch_sizes, resize_points
 
-# ----------------------------------------------------------------------------
-# 3.5 Varianti con stop adattivo (validation set) — codice esatto delle
-#     varianti *Validation dell'app (validation_codice_generato/).
-#     Ritornano (history, batch_sizes, resize_points, m_actual, val_hist).
-# ----------------------------------------------------------------------------
-def dynamic_gd_val(p, w0, theta, max_iter, alpha, batch0,
-                   val_pct, val_tol, val_patience, val_freq, val_min_abs,
-                   val_strategy, force_resample=False):
-    N = p["N"]
+history, batch_sizes, resize_points = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta)
+'''
+
+GEN_GD_REUSE = r'''import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+    indices = None
+    used = 0
+    need_resample = True
+    for k in range(max_iter):
+        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            if not need_resample and indices is not None:
+                resample_pts.append(w.copy().tolist())
+            indices = np.random.choice(N, size=n, replace=False)
+            used = 0
+            need_resample = False
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
+                need_resample = True
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        # Line search Wolfe
+        c1, c2 = 1e-4, 0.9
+        step = alpha
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        d = -g
+        gd = -g_norm2
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w + step * d
+                if J_batch(w_new) <= J_curr + c1 * step * gd:
+                    g_new = np.mean([grad_i(w_new, i) for i in indices], axis=0)
+                    if np.dot(g_new, d) >= c2 * gd:
+                        break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w + step * d
+        used += 1
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = None  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+'''
+
+GEN_BB_REUSE = r'''import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
+    resample_pts = []
+    w_prev = w.copy()
+    g_prev = None
+    indices = None
+    used = 0
+    need_resample = True
+    for k in range(max_iter):
+        if need_resample or indices is None or (max_consec is not None and used >= max_consec):
+            if not need_resample and indices is not None:
+                resample_pts.append(w.copy().tolist())
+            indices = np.random.choice(N, size=n, replace=False)
+            used = 0
+            need_resample = False
+        grads = np.array([grad_i(w, i) for i in indices])
+        g = np.mean(grads, axis=0)
+        if k > 0 and g_prev is not None:
+            s = w - w_prev
+            y = g - g_prev
+            sy = np.dot(s, y)
+            if abs(sy) > 1e-14:
+                step_bb = np.dot(s, s) / sy
+                step = np.clip(step_bb, alpha / 20.0, alpha * 5.0)
+            else:
+                step = alpha
+        else:
+            step = alpha
+        w_prev = w.copy()
+        g_prev = g.copy()
+        def J_batch(w_curr):
+            return np.mean([loss_i(w_curr, i) for i in indices])
+
+        # Line search Armijo
+        c1 = 1e-4
+        J_curr = J_batch(w)
+        g_norm2 = np.dot(g, g)
+        if g_norm2 > 1e-16:
+            for _ in range(30):
+                w_new = w - step * g
+                if J_batch(w_new) <= J_curr - c1 * step * g_norm2:
+                    break
+                step *= 0.5
+            else:
+                step = 0.0
+        w = w - step * g
+        used += 1
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                resize_points.append(w.copy().tolist())
+                need_resample = True
+                used = 0
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = None  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, max_consec)
+'''
+
+GEN_NCG_REUSE = r'''import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec=None, reuse_hessian=True, max_hessian_reuse=None):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history, batch_sizes = [w.copy().tolist()], [n]
+    resize_points = []
+    resample_pts = []
+    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    for k in range(max_iter):
+        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), N)
+            used_S = 0
+            need_resample_S = False
+            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+            used_H = 0
+            need_resample_H = False
+        grads_arr = np.array([grad_i(w, i) for i in indices_S])
+        g = np.mean(grads_arr, axis=0)
+
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads_arr, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
+            resize_points.append(w.copy().tolist())
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
+            need_resample_S = True
+            used_S = 0
+            need_resample_H = True
+            used_H = 0
+        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
+        p0 = -g
+        p0_norm2 = np.dot(p0, p0)
+        gamma = 0.0
+        if p0_norm2 > 1e-16 and n_h > 1:
+            Hp0 = np.array([hessvec_i(w, i, p0) for i in indices_H])
+            gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
+        d = cg(Hv, -g, gamma, maxcg)
+        J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+
+        c1, c2 = 1e-4, 0.9
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                g_new = np.mean([grad_i(w_new, i) for i in indices_S], axis=0)
+                if np.dot(g_new, d) >= c2 * gd:
+                    break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+        used_S += 1
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = None  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = True  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = None  # max riusi consecutivi di H_k (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
+'''
+
+GEN_L1_REUSE = r'''import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5, max_consec=None, reuse_hessian=True, max_hessian_reuse=None):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+    def F_batch(v, indices):
+        Jb = np.mean([loss_i(v, i) for i in indices])
+        return Jb + nu * np.sum(np.abs(v))
+    def subgrad_batch(v, indices):
+        grads = np.array([grad_i(v, i) for i in indices])
+        gJ = np.mean(grads, axis=0)
+        g = np.zeros_like(v)
+        for i in range(len(v)):
+            if v[i] > 0:
+                g[i] = gJ[i] + nu
+            elif v[i] < 0:
+                g[i] = gJ[i] - nu
+            else:
+                if gJ[i] < -nu:
+                    g[i] = gJ[i] + nu
+                elif gJ[i] > nu:
+                    g[i] = gJ[i] - nu
+                else:
+                    g[i] = 0.0
+        return g
+    def project_orthant(v, z):
+        res = v.copy()
+        for i in range(len(v)):
+            if z[i] != 0 and np.sign(res[i]) != z[i]:
+                res[i] = 0.0
+        return res
+    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    for k in range(max_iter):
+        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = max(1, int(round(R * n)))
+            n_h = min(n_h, N)
+            used_S = 0
+            need_resample_S = False
+            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+            used_H = 0
+            need_resample_H = False
+        grads = np.array([grad_i(w, i) for i in indices_S])
+        g_batch = np.mean(grads, axis=0)
+
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_batch)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g_batch, g_batch)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                resize_points.append(w.copy().tolist())
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                need_resample_S = True
+                used_S = 0
+                need_resample_H = True
+                used_H = 0
+        z = np.where(w > 0, 1,
+            np.where(w < 0, -1,
+                np.where(g_batch < -nu, 1,
+                    np.where(g_batch > nu, -1, 0))))
+        sg = subgrad_batch(w, indices_S)
+        sgn = np.linalg.norm(sg)
+        if sgn < 1e-10:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        free = (z != 0)
+        d = np.zeros_like(w)
+        if np.any(free):
+            g_free = sg[free]
+
+            # Hessiana esplicita (versione precedente)
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+
+        step = alpha
+        F_w = F_batch(w, indices_S)
+        sg_d = np.dot(sg, d)
+        if sg_d >= 0:
+            d = -sg
+            sg_d = -np.dot(sg, sg)
+        w_new = w.copy()
+        for _ in range(20):
+            w_trial = project_orthant(w + step * d, z)
+            if F_batch(w_trial, indices_S) <= F_w + sigma * step * sg_d:
+                w_new = w_trial
+                break
+            step *= 0.5
+            if step < 1e-12:
+                w_new = w.copy()
+                break
+        w = w_new
+        used_S += 1
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = None  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = True  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = None  # max riusi consecutivi di H_k (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
+'''
+
+GEN_NCG_HIND = r'''import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec=None, reuse_hessian=True, max_hessian_reuse=None):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history, batch_sizes = [w.copy().tolist()], [n]
+    resize_points = []
+    resample_pts = []
+    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    for k in range(max_iter):
+        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = min(max(1, int(round(R * n))), N)
+            used_S = 0
+            need_resample_S = False
+        grads_arr = np.array([grad_i(w, i) for i in indices_S])
+        g = np.mean(grads_arr, axis=0)
+
+        # H_k indipendente da S_k: si ricampiona secondo max_hessian_reuse
+        if need_resample_H or indices_H is None or (max_hessian_reuse is not None and used_H >= max_hessian_reuse):
+            n_h = min(max(1, int(round(R * n))), N)
+            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+            used_H = 0
+            need_resample_H = False
+
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads_arr, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g, g)
+        if gg > 1e-16 and V_norm1 / n > theta**2 * gg:
+            resize_points.append(w.copy().tolist())
+            n = min(int(np.ceil(V_norm1 / (theta**2 * gg))) + 1, N)
+            need_resample_S = True
+            used_S = 0
+            need_resample_H = True
+            used_H = 0
+        Hv = lambda v: np.mean([hessvec_i(w, i, v) for i in indices_H], axis=0)
+        p0 = -g
+        p0_norm2 = np.dot(p0, p0)
+        gamma = 0.0
+        if p0_norm2 > 1e-16 and n_h > 1:
+            Hp0 = np.array([hessvec_i(w, i, p0) for i in indices_H])
+            gamma = np.sum(np.var(Hp0, axis=0, ddof=1)) / (n_h * p0_norm2)
+        d = cg(Hv, -g, gamma, maxcg)
+        J_batch = lambda wc: np.mean([loss_i(wc, i) for i in indices_S])
+
+        c1, c2 = 1e-4, 0.9
+        step, J_w = alpha, J_batch(w)
+        gd = np.dot(g, d)
+        if gd >= 0:
+            d = -g
+            gd = -np.dot(g, g)
+        for _ in range(30):
+            w_new = w + step * d
+            if J_batch(w_new) <= J_w + c1 * step * gd:
+                g_new = np.mean([grad_i(w_new, i) for i in indices_S], axis=0)
+                if np.dot(g_new, d) >= c2 * gd:
+                    break
+            step *= 0.5
+        else:
+            step = 0.0
+        w = w + step * d
+        used_S += 1
+        used_H += 1
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = 10  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = False  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = None  # max riusi consecutivi di H_k (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, max_consec, reuse_hessian, max_hessian_reuse)
+'''
+
+GEN_L1_HIND = r'''import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta=0.5, max_consec=None, reuse_hessian=True, max_hessian_reuse=None):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
+    def F_batch(v, indices):
+        Jb = np.mean([loss_i(v, i) for i in indices])
+        return Jb + nu * np.sum(np.abs(v))
+    def subgrad_batch(v, indices):
+        grads = np.array([grad_i(v, i) for i in indices])
+        gJ = np.mean(grads, axis=0)
+        g = np.zeros_like(v)
+        for i in range(len(v)):
+            if v[i] > 0:
+                g[i] = gJ[i] + nu
+            elif v[i] < 0:
+                g[i] = gJ[i] - nu
+            else:
+                if gJ[i] < -nu:
+                    g[i] = gJ[i] + nu
+                elif gJ[i] > nu:
+                    g[i] = gJ[i] - nu
+                else:
+                    g[i] = 0.0
+        return g
+    def project_orthant(v, z):
+        res = v.copy()
+        for i in range(len(v)):
+            if z[i] != 0 and np.sign(res[i]) != z[i]:
+                res[i] = 0.0
+        return res
+    indices_S = None
+    indices_H = None
+    used_S = 0
+    used_H = 0
+    need_resample_S = True
+    need_resample_H = True
+    for k in range(max_iter):
+        if need_resample_S or indices_S is None or (max_consec is not None and used_S >= max_consec):
+            if not need_resample_S and indices_S is not None:
+                resample_pts.append(w.copy().tolist())
+            indices_S = np.random.choice(N, size=n, replace=False)
+            n_h = max(1, int(round(R * n)))
+            n_h = min(n_h, N)
+            used_S = 0
+            need_resample_S = False
+        grads = np.array([grad_i(w, i) for i in indices_S])
+        g_batch = np.mean(grads, axis=0)
+
+        # H_k indipendente da S_k: si ricampiona secondo max_hessian_reuse
+        if need_resample_H or indices_H is None or (max_hessian_reuse is not None and used_H >= max_hessian_reuse):
+            n_h = max(1, int(round(R * n)))
+            n_h = min(n_h, N)
+            indices_H = np.random.choice(indices_S, size=n_h, replace=False)
+            used_H = 0
+            need_resample_H = False
+
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
+        if n > 1:
+            var_vec = np.var(grads, axis=0, ddof=1)
+        else:
+            var_vec = np.zeros_like(g_batch)
+        V_norm1 = np.sum(var_vec)
+        gg = np.dot(g_batch, g_batch)
+        if gg > 1e-16:
+            if V_norm1 / n > theta**2 * gg:
+                resize_points.append(w.copy().tolist())
+                n_new = int(np.ceil(V_norm1 / (theta**2 * gg))) + 1
+                n = min(n_new, N)
+                need_resample_S = True
+                used_S = 0
+                need_resample_H = True
+                used_H = 0
+        z = np.where(w > 0, 1,
+            np.where(w < 0, -1,
+                np.where(g_batch < -nu, 1,
+                    np.where(g_batch > nu, -1, 0))))
+        sg = subgrad_batch(w, indices_S)
+        sgn = np.linalg.norm(sg)
+        if sgn < 1e-10:
+            history.append(w.copy().tolist())
+            batch_sizes.append(n)
+            break
+        free = (z != 0)
+        d = np.zeros_like(w)
+        if np.any(free):
+            g_free = sg[free]
+
+            # Hessiana esplicita (versione precedente)
+            hessians = np.array([hess_i(w, i) for i in indices_H])
+            H = np.mean(hessians, axis=0)
+            H_free = H[np.ix_(free, free)]
+            tol_cg = eta * np.linalg.norm(g_free)
+            d_free = np.zeros(np.sum(free))
+            r = -g_free.copy()
+            p = r.copy()
+            rr = np.dot(r, r)
+            for _ in range(maxcg):
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
+                if pHp <= 1e-14:
+                    if np.linalg.norm(d_free) < 1e-14:
+                        d_free = -g_free.copy()
+                    break
+                alpha_cg = rr / pHp
+                d_free = d_free + alpha_cg * p
+                r_new = r - alpha_cg * Hp
+                rr_new = np.dot(r_new, r_new)
+                if np.sqrt(rr_new) <= tol_cg:
+                    r = r_new
+                    rr = rr_new
+                    break
+                beta = rr_new / rr
+                p = r_new + beta * p
+                r = r_new
+                rr = rr_new
+            d[free] = d_free
+
+        step = alpha
+        F_w = F_batch(w, indices_S)
+        sg_d = np.dot(sg, d)
+        if sg_d >= 0:
+            d = -sg
+            sg_d = -np.dot(sg, sg)
+        w_new = w.copy()
+        for _ in range(20):
+            w_trial = project_orthant(w + step * d, z)
+            if F_batch(w_trial, indices_S) <= F_w + sigma * step * sg_d:
+                w_new = w_trial
+                break
+            step *= 0.5
+            if step < 1e-12:
+                w_new = w.copy()
+                break
+        w = w_new
+        used_S += 1
+        used_H += 1
+        history.append(w.copy().tolist())
+        batch_sizes.append(n)
+        if np.linalg.norm(grad_full(w)) < 1e-6:
+            break
+    return history, batch_sizes, resize_points, resample_pts
+
+max_consec = 10  # k = max iterazioni consecutive sullo stesso mini-batch (None = illimitato)
+reuse_hessian = False  # True: H_k legato a S_k; False: H_k indipendente da S_k
+max_hessian_reuse = None  # max riusi consecutivi di H_k (None = illimitato)
+
+history, batch_sizes, resize_points, resample_pts = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, max_consec, reuse_hessian, max_hessian_reuse)
+'''
+
+GEN_GD_VAL = r'''import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy):
+    w = np.array(w0, dtype=float)
+    n = max(batch0, 2)
+    history     = [w.copy().tolist()]
+    batch_sizes = [n]
+    resize_points = []
+    resample_pts = []
     indices = None
     used = 0
     need_resample = True
@@ -713,8 +1223,12 @@ def dynamic_gd_val(p, w0, theta, max_iter, alpha, batch0,
     patience = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample or indices is None:
+        if need_resample or indices is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
@@ -769,6 +1283,8 @@ def dynamic_gd_val(p, w0, theta, max_iter, alpha, batch0,
             else:
                 patience += 1
                 if patience >= val_patience:
+                    if not need_resample:
+                        val_resample = True
                     need_resample = True
                     patience = 0
         if np.linalg.norm(grad_full(w)) < 1e-6:
@@ -777,18 +1293,26 @@ def dynamic_gd_val(p, w0, theta, max_iter, alpha, batch0,
             break
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points, m_actual, val_hist
+    return history, batch_sizes, resize_points, resample_pts, m_actual, val_hist
 
-def bb_ccv_val(p, w0, theta, max_iter, alpha, batch0,
-               val_pct, val_tol, val_patience, val_freq, val_min_abs,
-               val_strategy, force_resample=False):
-    N = p["N"]
+val_pct = 0.2
+val_tol = 0.0001
+val_patience = 3
+val_freq = 1
+val_min_abs = 0
+val_strategy = 'fixed'
+history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+'''
+
+GEN_BB_VAL = r'''import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
+    resample_pts = []
     w_prev = w.copy()
     g_prev = None
     indices = None
@@ -802,8 +1326,12 @@ def bb_ccv_val(p, w0, theta, max_iter, alpha, batch0,
     patience = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample or indices is None:
+        if need_resample or indices is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
@@ -854,6 +1382,8 @@ def bb_ccv_val(p, w0, theta, max_iter, alpha, batch0,
             else:
                 patience += 1
                 if patience >= val_patience:
+                    if not need_resample:
+                        val_resample = True
                     need_resample = True
                     patience = 0
         if np.linalg.norm(grad_full(w)) < 1e-6:
@@ -874,41 +1404,47 @@ def bb_ccv_val(p, w0, theta, max_iter, alpha, batch0,
                 need_resample = True
         history.append(w.copy().tolist())
         batch_sizes.append(n)
-    return history, batch_sizes, resize_points, m_actual, val_hist
+    return history, batch_sizes, resize_points, resample_pts, m_actual, val_hist
 
-def newton_cg_val(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
-                  val_pct, val_tol, val_patience, val_freq, val_min_abs,
-                  val_strategy, force_resample=False):
-    N = p["N"]
+val_pct = 0.2
+val_tol = 0.0001
+val_patience = 3
+val_freq = 1
+val_min_abs = 0
+val_strategy = 'fixed'
+history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+'''
+
+GEN_NCG_VAL = r'''import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
     resize_points = []
-    loss_i, grad_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                            p["hessvec_i"], p["grad_full"])
-
-    def cg(A, b, gamma, maxcg):
-        x = np.zeros_like(b)
-        r = b - A(x)
-        p = r.copy()
-        rr = np.dot(r, r)
-        for _ in range(maxcg):
-            Ap = A(p)
-            pHp = np.dot(p, Ap)
-            if pHp <= 1e-14:
-                break
-            alpha = rr / pHp
-            x = x + alpha * p
-            r_new = r - alpha * Ap
-            rr_new = np.dot(r_new, r_new)
-            if rr_new <= gamma * np.dot(x, x) + 1e-16:
-                return x
-            beta = rr_new / rr
-            p = r_new + beta * p
-            r = r_new
-            rr = rr_new
-        return x
-
+    resample_pts = []
     indices_S = None
     indices_H = None
     used_S = 0
@@ -924,8 +1460,12 @@ def newton_cg_val(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
     patience_H = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample_S or indices_S is None:
+        if need_resample_S or indices_S is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
@@ -942,7 +1482,7 @@ def newton_cg_val(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
         m_actual.append(used_S)
         grads_arr = np.array([grad_i(w, i) for i in indices_S])
         g = np.mean(grads_arr, axis=0)
-        # CCV sul campione RIUSATO al punto corrente
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads_arr, axis=0, ddof=1)
         else:
@@ -993,6 +1533,8 @@ def newton_cg_val(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
                 patience_S += 1
                 patience_H += 1
                 if patience_S >= val_patience or patience_H >= val_patience:
+                    if not need_resample_S:
+                        val_resample = True
                     need_resample_S = True
                     patience_S = 0
                     need_resample_H = True
@@ -1001,25 +1543,29 @@ def newton_cg_val(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes, resize_points, m_actual, val_hist
+    return history, batch_sizes, resize_points, resample_pts, m_actual, val_hist
 
-def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
-                  eta, val_pct, val_tol, val_patience, val_freq, val_min_abs,
-                  val_strategy, force_resample=False):
-    N = p["N"]
+val_pct = 0.2
+val_tol = 0.0001
+val_patience = 3
+val_freq = 1
+val_min_abs = 0
+val_strategy = 'fixed'
+history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+'''
+
+GEN_L1_VAL = r'''import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    history = [w.copy().tolist()]
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
-    loss_i, grad_i, hess_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                                    p["hess_i"], p["hessvec_i"],
-                                                    p["grad_full"])
-
+    resample_pts = []
     def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
-
     def subgrad_batch(v, indices):
         grads = np.array([grad_i(v, i) for i in indices])
         gJ = np.mean(grads, axis=0)
@@ -1037,14 +1583,12 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
                 else:
                     g[i] = 0.0
         return g
-
     def project_orthant(v, z):
         res = v.copy()
         for i in range(len(v)):
             if z[i] != 0 and np.sign(res[i]) != z[i]:
                 res[i] = 0.0
         return res
-
     indices_S = None
     indices_H = None
     used_S = 0
@@ -1060,15 +1604,19 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
     patience_H = 0
     val_hist = []
     m_actual = [0]
+    val_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample_S or indices_S is None:
+        if need_resample_S or indices_S is None:
+            if val_resample:
+                resample_pts.append(w.copy().tolist())
+                val_resample = False
             if val_strategy == 'dynamic':
                 _perm = np.random.permutation(N)
                 val_idx = _perm[:n_val]
                 train_idx = _perm[n_val:]
             n = min(n, len(train_idx))
             indices_S = np.random.choice(train_idx, size=n, replace=False)
-            n_h = min(max(1, int(round(R_ * n))), len(train_idx))
+            n_h = min(max(1, int(round(R * n))), len(train_idx))
             used_S = 0
             need_resample_S = False
             indices_H = np.random.choice(indices_S, size=n_h, replace=False)
@@ -1078,7 +1626,7 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
         m_actual.append(used_S)
         grads = np.array([grad_i(w, i) for i in indices_S])
         g_batch = np.mean(grads, axis=0)
-        # CCV sul campione RIUSATO al punto corrente
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads, axis=0, ddof=1)
         else:
@@ -1106,23 +1654,24 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
         d = np.zeros_like(w)
         if np.any(free):
             g_free = sg[free]
+            # Hessiana esplicita
             hessians = np.array([hess_i(w, i) for i in indices_H])
             H = np.mean(hessians, axis=0)
             H_free = H[np.ix_(free, free)]
             tol_cg = eta * np.linalg.norm(g_free)
             d_free = np.zeros(np.sum(free))
             r = -g_free.copy()
-            pv = r.copy()
+            p = r.copy()
             rr = np.dot(r, r)
             for _ in range(maxcg):
-                Hp = H_free @ pv
-                pHp = np.dot(pv, Hp)
+                Hp = H_free @ p
+                pHp = np.dot(p, Hp)
                 if pHp <= 1e-14:
                     if np.linalg.norm(d_free) < 1e-14:
                         d_free = -g_free.copy()
                     break
                 alpha_cg = rr / pHp
-                d_free = d_free + alpha_cg * pv
+                d_free = d_free + alpha_cg * p
                 r_new = r - alpha_cg * Hp
                 rr_new = np.dot(r_new, r_new)
                 if np.sqrt(rr_new) <= tol_cg:
@@ -1130,7 +1679,7 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
                     rr = rr_new
                     break
                 beta = rr_new / rr
-                pv = r_new + beta * pv
+                p = r_new + beta * p
                 r = r_new
                 rr = rr_new
             d[free] = d_free
@@ -1163,6 +1712,8 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
                 patience_S += 1
                 patience_H += 1
                 if patience_S >= val_patience or patience_H >= val_patience:
+                    if not need_resample_S:
+                        val_resample = True
                     need_resample_S = True
                     patience_S = 0
                     need_resample_H = True
@@ -1171,25 +1722,26 @@ def newton_l1_val(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
         batch_sizes.append(n)
         if np.linalg.norm(grad_full(w)) < 1e-6:
             break
-    return history, batch_sizes, resize_points, m_actual, val_hist
+    return history, batch_sizes, resize_points, resample_pts, m_actual, val_hist
 
-# ----------------------------------------------------------------------------
-# 3.6 Varianti con riuso per discesa della loss sul batch — codice esatto delle
-#     varianti *Descent dell'app (descent_codice_generato/).
-#     Ritornano (history, batch_sizes, resize_points, resample_pts, m_actual,
-#     desc_hist).
-# ----------------------------------------------------------------------------
-def dynamic_gd_desc(p, w0, theta, max_iter, alpha, batch0,
-                    desc_tol, desc_min_abs, desc_patience, desc_freq,
-                    force_resample=False):
-    N = p["N"]
+val_pct = 0.2
+val_tol = 0.0001
+val_patience = 3
+val_freq = 1
+val_min_abs = 0
+val_strategy = 'fixed'
+history, batch_sizes, resize_points, resample_pts, m_actual, val_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, val_pct, val_tol, val_patience, val_freq, val_min_abs, val_strategy)
+'''
+
+GEN_GD_DESC = r'''import numpy as np
+
+def dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    history = [w.copy().tolist()]
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
     resample_pts = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
     indices = None
     used = 0
     need_resample = True
@@ -1199,7 +1751,7 @@ def dynamic_gd_desc(p, w0, theta, max_iter, alpha, batch0,
     m_actual = [0]
     desc_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample or indices is None:
+        if need_resample or indices is None:
             if desc_resample:
                 resample_pts.append(w.copy().tolist())
                 desc_resample = False
@@ -1267,17 +1819,22 @@ def dynamic_gd_desc(p, w0, theta, max_iter, alpha, batch0,
         batch_sizes.append(n)
     return history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist
 
-def bb_ccv_desc(p, w0, theta, max_iter, alpha, batch0,
-                desc_tol, desc_min_abs, desc_patience, desc_freq,
-                force_resample=False):
-    N = p["N"]
+desc_tol = 0.0001
+desc_min_abs = 0
+desc_patience = 1
+desc_freq = 1
+history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq)
+'''
+
+GEN_BB_DESC = r'''import numpy as np
+
+def bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
     resample_pts = []
-    loss_i, grad_i, grad_full = p["loss_i"], p["grad_i"], p["grad_full"]
     w_prev = w.copy()
     g_prev = None
     indices = None
@@ -1289,7 +1846,7 @@ def bb_ccv_desc(p, w0, theta, max_iter, alpha, batch0,
     m_actual = [0]
     desc_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample or indices is None:
+        if need_resample or indices is None:
             if desc_resample:
                 resample_pts.append(w.copy().tolist())
                 desc_resample = False
@@ -1365,40 +1922,43 @@ def bb_ccv_desc(p, w0, theta, max_iter, alpha, batch0,
         batch_sizes.append(n)
     return history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist
 
-def newton_cg_desc(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
-                   desc_tol, desc_min_abs, desc_patience, desc_freq,
-                   force_resample=False):
-    N = p["N"]
+desc_tol = 0.0001
+desc_min_abs = 0
+desc_patience = 1
+desc_freq = 1
+history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = bb_dynamic_gd(w0, theta, max_iter, alpha, batch0, desc_tol, desc_min_abs, desc_patience, desc_freq)
+'''
+
+GEN_NCG_DESC = r'''import numpy as np
+
+def cg(A, b, gamma, maxcg):
+    x = np.zeros_like(b)
+    r = b - A(x)
+    p = r.copy()
+    rr = np.dot(r, r)
+    for _ in range(maxcg):
+        Ap = A(p)
+        pHp = np.dot(p, Ap)
+        if pHp <= 1e-14:
+            break
+        alpha = rr / pHp
+        x = x + alpha * p
+        r_new = r - alpha * Ap
+        rr_new = np.dot(r_new, r_new)
+        if rr_new <= gamma * np.dot(x, x) + 1e-16:
+            return x
+        beta = rr_new / rr
+        p = r_new + beta * p
+        r = r_new
+        rr = rr_new
+    return x
+
+def newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, desc_tol, desc_min_abs, desc_patience, desc_freq):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
     history, batch_sizes = [w.copy().tolist()], [n]
     resize_points = []
     resample_pts = []
-    loss_i, grad_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                            p["hessvec_i"], p["grad_full"])
-
-    def cg(A, b, gamma, maxcg):
-        x = np.zeros_like(b)
-        r = b - A(x)
-        p = r.copy()
-        rr = np.dot(r, r)
-        for _ in range(maxcg):
-            Ap = A(p)
-            pHp = np.dot(p, Ap)
-            if pHp <= 1e-14:
-                break
-            alpha = rr / pHp
-            x = x + alpha * p
-            r_new = r - alpha * Ap
-            rr_new = np.dot(r_new, r_new)
-            if rr_new <= gamma * np.dot(x, x) + 1e-16:
-                return x
-            beta = rr_new / rr
-            p = r_new + beta * p
-            r = r_new
-            rr = rr_new
-        return x
-
     indices_S = None
     indices_H = None
     used_S = 0
@@ -1413,7 +1973,7 @@ def newton_cg_desc(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
     m_actual = [0]
     desc_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample_S or indices_S is None:
+        if need_resample_S or indices_S is None:
             if desc_resample:
                 resample_pts.append(w.copy().tolist())
                 desc_resample = False
@@ -1430,7 +1990,7 @@ def newton_cg_desc(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
         m_actual.append(used_S)
         grads_arr = np.array([grad_i(w, i) for i in indices_S])
         g = np.mean(grads_arr, axis=0)
-        # CCV sul campione RIUSATO al punto corrente
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads_arr, axis=0, ddof=1)
         else:
@@ -1494,24 +2054,25 @@ def newton_cg_desc(p, w0, theta, max_iter, alpha, batch0, R, maxcg,
             break
     return history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist
 
-def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
-                   eta, desc_tol, desc_min_abs, desc_patience, desc_freq,
-                   force_resample=False):
-    N = p["N"]
+desc_tol = 0.0001
+desc_min_abs = 0
+desc_patience = 1
+desc_freq = 1
+history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg, desc_tol, desc_min_abs, desc_patience, desc_freq)
+'''
+
+GEN_L1_DESC = r'''import numpy as np
+
+def newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, desc_tol, desc_min_abs, desc_patience, desc_freq):
     w = np.array(w0, dtype=float)
     n = max(batch0, 2)
-    history = [w.copy().tolist()]
+    history     = [w.copy().tolist()]
     batch_sizes = [n]
     resize_points = []
     resample_pts = []
-    loss_i, grad_i, hess_i, hessvec_i, grad_full = (p["loss_i"], p["grad_i"],
-                                                    p["hess_i"], p["hessvec_i"],
-                                                    p["grad_full"])
-
     def F_batch(v, indices):
         Jb = np.mean([loss_i(v, i) for i in indices])
         return Jb + nu * np.sum(np.abs(v))
-
     def subgrad_batch(v, indices):
         grads = np.array([grad_i(v, i) for i in indices])
         gJ = np.mean(grads, axis=0)
@@ -1529,14 +2090,12 @@ def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
                 else:
                     g[i] = 0.0
         return g
-
     def project_orthant(v, z):
         res = v.copy()
         for i in range(len(v)):
             if z[i] != 0 and np.sign(res[i]) != z[i]:
                 res[i] = 0.0
         return res
-
     indices_S = None
     indices_H = None
     used_S = 0
@@ -1551,13 +2110,13 @@ def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
     m_actual = [0]
     desc_resample = False
     for k in range(max_iter):
-        if force_resample or need_resample_S or indices_S is None:
+        if need_resample_S or indices_S is None:
             if desc_resample:
                 resample_pts.append(w.copy().tolist())
                 desc_resample = False
             n = min(n, N)
             indices_S = np.random.choice(N, size=n, replace=False)
-            n_h = min(max(1, int(round(R_ * n))), N)
+            n_h = min(max(1, int(round(R * n))), N)
             used_S = 0
             need_resample_S = False
             Jb_prev = None
@@ -1568,7 +2127,7 @@ def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
         m_actual.append(used_S)
         grads = np.array([grad_i(w, i) for i in indices_S])
         g_batch = np.mean(grads, axis=0)
-        # CCV sul campione RIUSATO al punto corrente
+        # CCV sul campione RIUSATO al punto corrente (gratis: usa i gradienti del passo)
         if n > 1:
             var_vec = np.var(grads, axis=0, ddof=1)
         else:
@@ -1596,6 +2155,7 @@ def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
         d = np.zeros_like(w)
         if np.any(free):
             g_free = sg[free]
+            # Hessiana esplicita
             hessians = np.array([hess_i(w, i) for i in indices_H])
             H = np.mean(hessians, axis=0)
             H_free = H[np.ix_(free, free)]
@@ -1666,9 +2226,54 @@ def newton_l1_desc(p, w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg,
             break
     return history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist
 
+desc_tol = 0.0001
+desc_min_abs = 0
+desc_patience = 1
+desc_freq = 1
+history, batch_sizes, resize_points, resample_pts, m_actual, desc_hist = newton_l1(w0, theta, max_iter, alpha, batch0, nu, sigma, maxcg, eta, desc_tol, desc_min_abs, desc_patience, desc_freq)
+'''
 # ============================================================================
-# 4. RUNNER
+# 4. ESECUZIONE DEL CODICE DELL'APP (helper come _batch_run di visualizzazione.html)
 # ============================================================================
+def _js_num(x):
+    """Formatta un numero come String(x) in JavaScript (usato dall'app nei
+    parametri del codice generato: 1e-5 -> 0.00001, 0.0 -> 0)."""
+    if x == int(x) and abs(x) < 1e16:
+        return str(int(x))
+    return ("%.10f" % x).rstrip("0").rstrip(".")
+
+
+def _exec_app_code(template, p, subs=None, guard_replace=None):
+    """Esegue il codice generato dall'app in un namespace pulito (come
+    _batch_run). subs = lista di (testo_da_sostituire, nuovo_testo);
+    guard_replace = (vecchio_guard, nuovo_guard) per il ricampionamento
+    forzato della colonna base di validation/descesa."""
+    code = template
+    if guard_replace:
+        old, new = guard_replace
+        assert old in code, f"guard non trovato: {old!r}"
+        code = code.replace(old, new, 1)
+    if subs:
+        for old, new in subs:
+            assert old in code, f"parametro non trovato: {old!r}"
+            code = code.replace(old, new, 1)
+    ns = {
+        "np": np,
+        "N": p["N"],
+        "loss_i": p["loss_i"],
+        "grad_i": p["grad_i"],
+        "hess_i": p["hess_i"],
+        "hessvec_i": p["hessvec_i"],
+        "grad_full": p["grad_full"],
+        # Preambolo dell'app (runAlgorithm): parametri globali a livello di modulo
+        "w0": W0, "alpha": ALPHA, "max_iter": MAX_ITER, "theta": THETA,
+        "batch0": BATCH0, "R": R_, "maxcg": MAXCG, "nu": NU, "sigma": SIGMA,
+        "eta": ETA,
+    }
+    exec(compile(code, "<visualizzazione.html>", "exec"), ns)
+    return ns
+
+
 def errs(hist, p):
     return [float(np.linalg.norm(np.array(w) - p["W_STAR"])) for w in hist]
 
@@ -1676,71 +2281,88 @@ def errs(hist, p):
 def run_base_reuse(p, algo, max_consec=None, reuse=False, reuse_hessian=True,
                    max_hessian_reuse=None, subset=True):
     """Esegue base (reuse=False) o riuso (reuse=True, max_consec=M oppure None
-    per il riuso illimitato M=inf). Ritorna (e_list, batch_sizes, resample_pts)."""
-    if algo == "gd":
-        hist, bs, rp, res_pts = dynamic_gd(p, W0, THETA, MAX_ITER, ALPHA, BATCH0,
-                                           max_consec, reuse)
-    elif algo == "bb":
-        hist, bs, rp, res_pts = bb_ccv(p, W0, THETA, MAX_ITER, ALPHA, BATCH0,
-                                       max_consec, reuse)
-    elif algo == "newton_cg":
-        hist, bs = newton_cg(p, W0, THETA, MAX_ITER, ALPHA, BATCH0, R_, MAXCG,
-                             max_consec=max_consec, reuse=reuse,
-                             reuse_hessian=reuse_hessian,
-                             max_hessian_reuse=max_hessian_reuse, subset=subset)
-        res_pts = None
-    elif algo == "newton_l1":
-        hist, bs = newton_l1(p, W0, THETA, MAX_ITER, ALPHA, BATCH0, NU, SIGMA,
-                             R_, MAXCG, eta=ETA, max_consec=max_consec,
-                             reuse=reuse, reuse_hessian=reuse_hessian,
-                             max_hessian_reuse=max_hessian_reuse, subset=subset)
+    per il riuso illimitato M=inf) usando il codice ESATTO dell'app.
+    Ritorna (e_list, batch_sizes, resample_pts)."""
+    mcon = "None" if max_consec is None else str(max_consec)
+    if not reuse:
+        template = {"gd": GEN_GD_BASE, "bb": GEN_BB_BASE,
+                    "newton_cg": GEN_NCG_BASE, "newton_l1": GEN_L1_BASE}[algo]
+        ns = _exec_app_code(template, p)
         res_pts = None
     else:
-        raise ValueError(algo)
+        if algo in ("newton_cg", "newton_l1"):
+            if not reuse_hessian:
+                template = (GEN_NCG_HIND if algo == "newton_cg" else GEN_L1_HIND)
+                mcon_old, rh_old = "max_consec = 10", "reuse_hessian = False"
+            else:
+                template = (GEN_NCG_REUSE if algo == "newton_cg" else GEN_L1_REUSE)
+                mcon_old, rh_old = "max_consec = None", "reuse_hessian = True"
+            subs = [
+                (mcon_old, f"max_consec = {mcon}"),
+                (rh_old, f"reuse_hessian = {'True' if reuse_hessian else 'False'}"),
+                ("max_hessian_reuse = None",
+                 "max_hessian_reuse = None" if max_hessian_reuse is None
+                 else f"max_hessian_reuse = {max_hessian_reuse}"),
+            ]
+            ns = _exec_app_code(template, p, subs=subs)
+        else:
+            template = GEN_GD_REUSE if algo == "gd" else GEN_BB_REUSE
+            ns = _exec_app_code(template, p, subs=[("max_consec = None",
+                                                    f"max_consec = {mcon}")])
+        res_pts = ns.get("resample_pts")
+    hist = ns["history"]
+    bs = ns["batch_sizes"]
     return errs(hist, p), bs, res_pts
 
-
 def run_validation(p, algo, hp, force_resample=False):
-    """Stop adattivo con validation set. Ritorna (e_list, resamples)."""
-    fns = {
-        "gd": dynamic_gd_val,
-        "bb": bb_ccv_val,
-        "newton_cg": newton_cg_val,
-        "newton_l1": newton_l1_val,
-    }
-    f = fns[algo]
-    args = [p, W0, THETA, MAX_ITER, ALPHA, BATCH0]
-    if algo == "newton_cg":
-        args += [R_, MAXCG]
-    elif algo == "newton_l1":
-        args += [NU, SIGMA, MAXCG, ETA]
-    args += [hp["val_pct"], hp["val_tol"], hp["val_patience"],
-             hp["val_freq"], hp["val_min_abs"], hp["val_strategy"],
-             force_resample]
-    hist, bs, resize_points, m_actual, val_hist = f(*args)
+    """Stop adattivo con validation set (codice esatto dell'app).
+    Ritorna (e_list, resamples)."""
+    template = {"gd": GEN_GD_VAL, "bb": GEN_BB_VAL,
+                "newton_cg": GEN_NCG_VAL, "newton_l1": GEN_L1_VAL}[algo]
+    subs = [
+        ("val_pct = 0.2", f"val_pct = {_js_num(hp['val_pct'])}"),
+        ("val_tol = 0.0001", f"val_tol = {_js_num(hp['val_tol'])}"),
+        ("val_patience = 3", f"val_patience = {int(hp['val_patience'])}"),
+        ("val_freq = 1", f"val_freq = {int(hp['val_freq'])}"),
+        ("val_min_abs = 0", f"val_min_abs = {_js_num(hp['val_min_abs'])}"),
+        ("val_strategy = 'fixed'", f"val_strategy = '{hp['val_strategy']}'"),
+    ]
+    guard = None
+    if force_resample:
+        old_guard = ("if need_resample or indices is None:"
+                     if algo in ("gd", "bb")
+                     else "if need_resample_S or indices_S is None:")
+        guard = (old_guard, "if True:  # base: ricampionamento a ogni iterazione")
+    ns = _exec_app_code(template, p, subs=subs, guard_replace=guard)
+    hist = ns["history"]
+    m_actual = ns["m_actual"]
     resamples = sum(1 for x in m_actual if x == 1) - 1
     return errs(hist, p), max(resamples, 0)
 
 
 def run_descent(p, algo, hp, force_resample=False):
-    """Riuso per discesa della loss sul batch. Ritorna (e_list, resamples)."""
-    fns = {
-        "gd": dynamic_gd_desc,
-        "bb": bb_ccv_desc,
-        "newton_cg": newton_cg_desc,
-        "newton_l1": newton_l1_desc,
-    }
-    f = fns[algo]
-    args = [p, W0, THETA, MAX_ITER, ALPHA, BATCH0]
-    if algo == "newton_cg":
-        args += [R_, MAXCG]
-    elif algo == "newton_l1":
-        args += [NU, SIGMA, MAXCG, ETA]
-    args += [hp["desc_tol"], hp["desc_min_abs"], hp["desc_patience"],
-             hp["desc_freq"], force_resample]
-    hist, bs, resize_points, resample_pts, m_actual, desc_hist = f(*args)
+    """Riuso per discesa della loss sul batch (codice esatto dell'app).
+    Ritorna (e_list, resamples)."""
+    template = {"gd": GEN_GD_DESC, "bb": GEN_BB_DESC,
+                "newton_cg": GEN_NCG_DESC, "newton_l1": GEN_L1_DESC}[algo]
+    subs = [
+        ("desc_tol = 0.0001", f"desc_tol = {_js_num(hp['desc_tol'])}"),
+        ("desc_min_abs = 0", f"desc_min_abs = {_js_num(hp['desc_min_abs'])}"),
+        ("desc_patience = 1", f"desc_patience = {int(hp['desc_patience'])}"),
+        ("desc_freq = 1", f"desc_freq = {int(hp['desc_freq'])}"),
+    ]
+    guard = None
+    if force_resample:
+        old_guard = ("if need_resample or indices is None:"
+                     if algo in ("gd", "bb")
+                     else "if need_resample_S or indices_S is None:")
+        guard = (old_guard, "if True:  # base: ricampionamento a ogni iterazione")
+    ns = _exec_app_code(template, p, subs=subs, guard_replace=guard)
+    hist = ns["history"]
+    m_actual = ns["m_actual"]
     resamples = sum(1 for x in m_actual if x == 1) - 1
     return errs(hist, p), max(resamples, 0)
+
 
 # ============================================================================
 # 5. FORMATTAZIONE LATEX (stile identico a tesi/tesi.tex)
@@ -2874,6 +3496,79 @@ def _check(label, blocks, vals, label_lookup=None):
     print(("[OK]   " if not nbad else f"[FAIL] ") + label +
           f": {len(vals)} celle, {nbad} fuori tolleranza ({len(got)} estratte)")
     return len(vals), nbad
+def _check_robustezza(blocks, rob):
+    """Tabella 6.21: confronta i conteggi Migl/Pegg/Uguale (interi)."""
+    lab = "tab:riuso_robustezza"
+    block = blocks.get(lab, "")
+    if not block:
+        print(f"[MISSING] {lab}")
+        return 0, 96
+    body = re.search(r"\\midrule(.*?)\\bottomrule", block, re.S).group(1)
+    got, n = [], 0
+    for line in body.splitlines():
+        line = line.strip()
+        if not line.endswith("\\\\"):
+            continue
+        cells = [c.strip() for c in line.strip("\\").split("&")]
+        ints = [c for c in cells if re.fullmatch(r"\d+", c)]
+        if len(ints) == 6:
+            got.append([int(x) for x in ints])
+            n += 6
+    exp = []
+    for pname in PRESETS:
+        for algo in ALGO_TESI:
+            exp += list(rob[(pname, algo, "inf")]) + list(rob[(pname, algo, "10")])
+    flat = [x for row in got for x in row]
+    nbad = sum(1 for a, b in zip(exp, flat) if a != b)
+    print(("[OK]   " if not nbad else f"[FAIL] ") + lab +
+          f": {n} celle intere, {nbad} fuori")
+    return n, nbad
+
+
+def _extract_resamples(block):
+    """Estrae i numeri tra parentesi dopo ogni colorcell (ricampionamenti)."""
+    out = []
+    for m in re.finditer(r"\\colorcell\{[^}]+\}\{[^}]+\}(?:[^()]*?)\((\d+)\)", block):
+        out.append(int(m.group(1)))
+    return out
+
+
+def _check_valid_resamples(blocks, data, refs):
+    lab = "tab:riuso_valid_confronto"
+    block = blocks.get(lab, "")
+    if not block:
+        print(f"[MISSING] {lab} (ricampionamenti)")
+        return 0, 80
+    got = _extract_resamples(block)
+    exp = []
+    for pname in PRESETS:
+        for algo in ALGO_CONFRONTO:
+            for col in VALID_COLS:
+                exp.append(valid_cell(data, refs, pname, algo, col)[1])
+    nbad = sum(1 for a, b in zip(exp, got) if a != b)
+    print(("[OK]   " if not nbad else f"[FAIL] ") + lab +
+          f" (ricampionamenti): {len(got)} valori, {nbad} fuori")
+    return len(got), nbad
+
+
+def _check_desc_resamples(blocks, data, refs):
+    lab = "tab:riuso_desc_confronto"
+    block = blocks.get(lab, "")
+    if not block:
+        print(f"[MISSING] {lab} (ricampionamenti)")
+        return 0, 80
+    got = _extract_resamples(block)
+    exp = []
+    for pname in PRESETS:
+        for algo in ALGO_CONFRONTO:
+            for col in DESC_COLS:
+                exp.append(desc_cell(data, refs, pname, algo, col)[1])
+    nbad = sum(1 for a, b in zip(exp, got) if a != b)
+    print(("[OK]   " if not nbad else f"[FAIL] ") + lab +
+          f" (ricampionamenti): {len(got)} valori, {nbad} fuori")
+    return len(got), nbad
+
+
 def verify(tesi_path):
     """Confronta i valori calcolati con le celle \\colorcell di tesi.tex."""
     with open(tesi_path, encoding="utf-8") as f:
@@ -2888,33 +3583,20 @@ def verify(tesi_path):
     exp = _expected_test(riuso)
     exp.update(_expected_riuso(riuso))
     for lab, vals in exp.items():
-        if lab == "tab:test_malcond":
-            # NB: incoerenza preesistente nella TESI: la Tabella 6.2
-            # (tab:test_malcond, kappa~20) riporta per TUTTI i metodi i valori
-            # del problema molto mal condizionato (kappa~100, convergenza
-            # 1.0991e-14 a k=11 per BB-CCV), incoerenti con le Tabelle 6.4-6.19
-            # e 6.20 (e30 GD 4.91e-2, BB 9.72e-5, NCG 2.35e-1, L1 4.88e-1).
-            # Lo script genera i valori CORRETTI del problema mal condizionato.
-            got = _parse_table_cells(blocks.get(lab, ""))
-            print("[NOTA] tab:test_malcond: la Tabella 6.2 della tesi contiene "
-                  "per tutti i metodi i valori del problema molto mal "
-                  "condizionato (kappa~100): incoerenza preesistente, non "
-                  "riprodotta dallo script (che genera i valori corretti per "
-                  "kappa~20). Si confrontano solo le celle della tesi che "
-                  "coincidono col problema ben condizionato... nessuna cella "
-                  "valida: la tabella è da correggere nella tesi.")
-            # non si conta tra i fallimenti: la tabella è sbagliata nella tesi
-            continue
         n, nb = _check(lab, blocks, vals)
         checks += n; failures += nb
     n, nb = _check("tab:riuso_sintesi", blocks, _expected_sintesi(riuso)["tab:riuso_sintesi"])
     checks += n; failures += nb
+    n, nb = _check_robustezza(blocks, rob)
+    checks += n; failures += nb
     vdata, vrefs = compute_validation()
     for lab, vals in _expected_valid_confronto(vdata, vrefs).items():
         n, nb = _check(lab, blocks, vals); checks += n; failures += nb
+    n, nb = _check_valid_resamples(blocks, vdata, vrefs); checks += n; failures += nb
     ddata, drefs = compute_descent()
     for lab, vals in _expected_desc_confronto(ddata, drefs).items():
         n, nb = _check(lab, blocks, vals); checks += n; failures += nb
+    n, nb = _check_desc_resamples(blocks, ddata, drefs); checks += n; failures += nb
     vrob = compute_validation_robust()
     for lab, vals in _expected_valid_robustezza(vrob).items():
         n, nb = _check(lab, blocks, vals); checks += n; failures += nb
