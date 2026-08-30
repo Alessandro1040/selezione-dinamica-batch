@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (29/08/2026, follow-up 3).** **Tesi: Ringraziamenti estesi
+  con l'elenco completo dei nomi (60 nomi, tra cui relatori, colleghi e amici).**
+  Ampliata la pagina dei ringraziamenti con tutti i nomi: Giovanni Adelfio,
+  Alessandro Pisarra, Lorenzo Salis, Alessandro Cattaneo, Alessio Projetti,
+  Alessandra Melchionna, Mia Rodotà, Mariastella Gioia La Rocca, Azzurra
+  Giordano, Rosamaria Graziosi, Natalia Pasquetto, Antonietta Todisco, Marco
+  Galletti, Francesco Mondelli, Luca Montefusco, Sofia De Angelis, Cristina
+  Pesci, Alberto Floris, Alessandro Centomini, Federico Carattoli, Elena
+  Mannoni, Emmanuel Nsia, Ilenia Filippi, Giada Manfredi, Gaia Facioni,
+  Gabriele Cirillo, Mario Prignano, Michele Aliffi, Michele Fazio, Mirko
+  Bonifazi, Luca Veneri, Matteo Pinato, Mariagiusi Nicodemo, Luca Cerovaz,
+  Matteo Sacripante, Aurora Di Giovanna, Giacomo Tronca, Alessandro Pirisinu,
+  Francesco Terracciano, Marco dell'Oste, Luigi Capini, Luca Massimo Andrea
+  Martinazzi, Claudia Malvenuto, Paolo Gaspare Bottoni, Giovanni Trappolini,
+  Federico Fusco, Giulio D'Agostini, Grant Sanderson, Steve Chow, Francesco
+  Zamponi, Emanuele Caglioti, Gabriella Puppo, Antonella Poggi, Federica
+  Baccini, Marco Sciandrone, Fabrizio Silvestri, Marco Isopi, Elena Agliari,
+  Davide Torlo. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (131 pp, 0 errori,
+  0 undefined; 13 overfull, invariati). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
+
+
 - **Ultimo intervento (29/08/2026, follow-up 2).** **Tesi: Ringraziamenti
   compilati con i nomi reali.** Sostituito il placeholder `\emph{(placeholder)}`
   con l'elenco dei ringraziamenti (Giovanni Adelfio, Alessandro Pisarra,
