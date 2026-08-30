@@ -6162,7 +6162,15 @@ $u_1,\dots,u_m$ i corrispondenti autovettori ortonormali (la cui esistenza è
 garantita dal teorema spettrale). Ogni vettore $s \neq 0$ si scrive nella base
 ortonormale come
 \[
-s = \sum_{i=1}^{m} c_i\, u_i, \qquad c_i = u_i^\top s,
+s = \sum_{i=1}^{m} c_i\, u_i
+\]
+\[
+\begin{cases}
+u_i^\top u_j = 0 \quad \text{se } i \neq j, \\[2pt]
+u_i^\top u_i = 1
+\end{cases}
+\implies
+u_i^\top s = u_i^\top \left( \sum_{j=1}^m c_j u_j \right) = \sum_{j=1}^m c_j (u_i^\top u_j) = c_i
 \]
 per cui, per l'ortonormalità degli autovettori,
 \[
