@@ -534,7 +534,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   errori, 0 undefined). Sincronizzati nella repo tesi.tex/tesi.pdf/
   tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 
-- **Ultimo intervento (28/08/2026).** **Tesi Sez. 4.3: riscritto il passo
+- **Ultimo intervento (28/08/2026).** **Tesi Sez. 4.4: riscritto il passo
   sull'identificazione delle variabili da tenere a zero nel metodo
   Newton-CG-$L_1$.** Prima: confronto di $\partial J(w)/\partial w_i$ con
   $\pm\nu$ (se $w_i=0$ e $-\nu \le \partial J(w)/\partial w_i \le +\nu$ la
@@ -543,7 +543,7 @@ Da tenere presente nelle sessioni di lavoro successive:
   minima la componente del gradiente generalizzato (zero se possibile), cosi'
   $w_i=0$ viene riconosciuto come un vero minimo del problema ogni volta che
   lo e', e l'algoritmo non rischia di allontanarsene. Allineata alla
-  spiegazione in corsivo della Sez. 5.3.3 (identificazione dell'active set).
+  spiegazione in corsivo della Sez. 5.3.2 (il gradiente generalizzato).
   Ricompilati `tesi.pdf` e `tesi_finale.pdf`; sincronizzati nella repo
   tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
   toccata.
