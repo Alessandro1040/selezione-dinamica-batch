@@ -1868,7 +1868,7 @@ Infine si esegue una line search di Armijo lungo la direzione $d_k$ trovata, si 
 
 Ora il metodo del gradiente coniugato è un metodo numerico per trovare \(x\) che approssimi la soluzione di \(Ax = b\), ovvero minimizzi il funzionale $
 \phi(x) = \frac{1}{2}x^T A x - b^T x$
-e per farlo cerca di minimizzare \(\|e^{k+1}\|_A^2\) cercando in \(e^k + \text{span}(p^k, p^{k-1})\); equivalentemente pone \(e^{k+1} \perp_A p^k\) ed \(e^{k+1} \perp_A p^{k-1}\), dalla prima condizione troviamo \(\alpha_k\) e dalla seconda \(\beta_k\) (Dimostrazione nell'appendice).
+e per farlo cerca di minimizzare \(\|e^{k+1}\|_A^2\) cercando in \(e^k + \text{span}(p^k, p^{k-1})\); equivalentemente pone \(e^{k+1} \perp_A p^k\) ed \(e^{k+1} \perp_A p^{k-1}\), dalla prima condizione troviamo \(\alpha_k\) e dalla seconda \(\beta_k\) (Dimostrazione nell'Appendice~\ref{app:cg}).
 \newpage
 
 \subsection{Metodo Newton-CG per Modelli con Regolarizzazione $L_1$}\label{sec:l1}

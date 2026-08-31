@@ -157,6 +157,39 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026).** **Test batch di `visualizzazione.html`
+  esteso: ora genera TUTTE le tabelle e30 della Sez. 6.7 (Tabelle 6.20-6.29).**
+  Restano fuori solo le tabelle per-iterazione (6.1-6.3, 6.4-6.19, 6.30-6.41),
+  perché il batch restituisce statistiche di sintesi e non l'errore a ogni $k$.
+  Ai formati esistenti (Matrice = Tabb. 6.20/6.22/6.25; Robustezza = Tabb.
+  6.24/6.27) si aggiungono **5 formati dedicati** che riproducono le tabelle
+  mancanti: **Robustezza riuso Migl./Pegg./Ug.** (stile Tab. 6.21, conteggio
+  per-seed su 5 seed per $M{=}\infty$ e $M{=}10$), **Sensibilità iperparametri
+  (validation)** (stile Tab. 6.23, griglia 3×3×3×2×2=108 hp su 16 caselle),
+  **Sensibilità iperparametri (discesa)** (stile Tab. 6.26, griglia 3×3×2=18
+  hp), **Confronto finale** (stile Tab. 6.28: base / $M{=}\infty$ / stop
+  adattivo calibrato $P{=}1,p{=}0.1$,dyn / discesa calibrata $\tau{=}10^{-3}$,
+  su 16 caselle × 5 seed) e **Sintesi consigliati** (stile Tab. 6.29: mediana
+  di $e_{30}$ su 5 seed + vitt. per-seed, consigliata per-algoritmo: riuso
+  $M{=}5$ per GD, \emph{base} per BB, stop adattivo $P{=}1,f{=}1,p{=}10\%$,
+  split fissa per Newton-CG, riuso $M{=}3$ per Newton-L1). Implementazione: i
+  runner dedicati costruiscono i cfg ed eseguono lo STESSO codice generato
+  dall'app (`batchBuildFullCode`), quindi i valori coincidono con le altre run
+  a meno dei soli errori numerici (runtime Pyodide/WASM nel browser vs NumPy
+  di sistema); usano le dimensioni loss/algo della finestra e gli altri
+  parametri ai default (seed 42, max_iter 30, alpha 0.1, θ 0.5, batch0 5,
+  N 200, w0 (2,-3)). Run totali coi default: rob_riuso 240, sens_val 1728,
+  sens_desc 288, confronto 400, consigliati 140. Ogni formato ha export
+  LaTeX (label `tab:batch_test_*`) e JSON. **Tesi Sez. 5.2.3 (passo CG):
+  aggiunto il collegamento ipertestuale alla dimostrazione in Appendice**
+  ("Dimostrazione nell'appendice" → "Dimostrazione nell'Appendice~\ref{app:cg}",
+  il `\ref` è un link con hyperref). Validazione: harness Deno (stub DOM) —
+  sintassi JS ok, 36/36 controlli (parsing strategie, generazione codice,
+  aggregazioni, renderer), export LaTeX compilati con latexmk (0 errori).
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**131 pp**, 0 errori, 0
+  undefined; 13 overfull, invariati). Sincronizzati nella repo
+  visualizzazione.html + tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (29/08/2026, follow-up 3).** **Tesi: Ringraziamenti estesi
   con l'elenco completo dei nomi (60 nomi, tra cui relatori, colleghi e amici).**
   Ampliata la pagina dei ringraziamenti con tutti i nomi: Giovanni Adelfio,

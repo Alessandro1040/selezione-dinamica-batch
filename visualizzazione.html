@@ -1447,7 +1447,7 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
     <div class="batch-modal-header">
       <div>
         <div class="batch-modal-title">🧪 Test batch — esperimenti di riuso</div>
-        <div class="batch-modal-sub">Genera il prodotto cartesiano delle dimensioni e le tabelle e30 come nella Sez. 6.7 della tesi. Per ogni dimensione inserisci i valori separati da virgola; se spunti <strong>media</strong> i risultati vengono mediati su quei valori (e la dimensione sparisce dalla tabella). Le colonne sono le strategie di riuso, le righe le combinazioni delle altre dimensioni non-media.</div>
+        <div class="batch-modal-sub">Genera il prodotto cartesiano delle dimensioni e le tabelle e30 come nella Sez. 6.7 della tesi. Per ogni dimensione inserisci i valori separati da virgola; se spunti <strong>media</strong> i risultati vengono mediati su quei valori (e la dimensione sparisce dalla tabella). Le colonne sono le strategie di riuso, le righe le combinazioni delle altre dimensioni non-media. I formati aggiuntivi (Robustezza riuso, Sensibilità iperparametri, Confronto finale, Sintesi consigliati) riproducono le Tabelle 6.21, 6.23, 6.26, 6.28 e 6.29 della tesi: usano le dimensioni loss/algo (con i relativi default) e gli altri parametri ai default della finestra.</div>
       </div>
       <button class="btn-icon-sm" id="batchCloseBtn">✕ Chiudi</button>
     </div>
@@ -1459,6 +1459,11 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
           <select id="batchTableFormat" style="width:auto;padding:3px 24px 3px 8px;font-size:10.5px">
             <option value="matrice">Matrice (confronto)</option>
             <option value="robustezza">Robustezza (sintesi)</option>
+            <option value="rob_riuso">Robustezza riuso Migl./Pegg./Ug. (stile Tab. 6.21)</option>
+            <option value="sens_val">Sensibilità iperparametri (validation, stile Tab. 6.23)</option>
+            <option value="sens_desc">Sensibilità iperparametri (discesa, stile Tab. 6.26)</option>
+            <option value="confronto_finale">Confronto finale (stile Tab. 6.28)</option>
+            <option value="consigliati">Sintesi consigliati (stile Tab. 6.29)</option>
           </select>
         </label>
         <span class="batch-media-note" id="batchMediaNote"></span>
@@ -6507,7 +6512,7 @@ const BATCH_DIM_DEFS = [
     hint:'gd = Dynamic GD, bb = BB-CCV, newton_cg = Newton-CG, newton_l1 = Newton-CG L1.', sugg:['gd','bb','newton_cg','newton_l1'] },
   { key:'strategia', label:'Strategia di riuso (colonne)', values:'base,M=inf,M=10,M=5,M=2,H ind M_H=inf', media:false,
     hint:'base (standard) · desc base / val base (base "alla tesi": codice del criterio con ricampionamento forzato) · M=inf / M=k · H ind M_H=inf / H ind M_H=k · val (P=..; p=..; tau=..; f=..; strat=..; minabs=..) · desc (P=..; tau=..; f=..; minabs=..). Parametri separati da ;.',
-    sugg:['base','desc base','val base','M=inf','M=2','M=5','M=10','H ind M_H=inf','H ind M_H=5','val','val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic','desc','desc P=1;tau=1e-3;f=1'] },
+    sugg:['base','desc base','val base','M=inf','M=10','M=5','M=3','M=2','M=1','H ind M_H=inf','H ind M_H=5','val','val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic','desc','desc P=1;tau=1e-3;f=1'] },
   { key:'seed', label:'Seed', values:'42', media:false, type:'num',
     hint:'Più seed con media = robustezza (es. 42,7,123,2024,999 come nella tesi).' },
   { key:'maxIter', label:'max_iter', values:'30', media:false, type:'num', hint:'e30 = errore all\'ultima iterazione.' },
@@ -6840,20 +6845,122 @@ function batchBuildGrid(dims){
   }
   return combos.map(c=>{ const cfg={}; for(const x of c) cfg[x.key]=x.value; return cfg; });
 }
+/* =====================================================================
+   FORMATI DEDICATI (stile Tabelle 6.21, 6.23, 6.26, 6.28, 6.29)
+   ---------------------------------------------------------------------
+   La griglia cartesiana non può esprimere:
+     (1) la robustezza per-seed del riuso (Migl./Pegg./Uguale, Tab. 6.21);
+     (2) la sensibilità marginale agli iperparametri (Tabb. 6.23 e 6.26);
+     (3) il confronto finale che mescola le famiglie validation e discesa
+         (Tab. 6.28);
+     (4) la sintesi dei consigliati con mediana su 5 seed e vittorie
+         per-seed (Tab. 6.29).
+   Questi runner costruiscono i cfg direttamente ed eseguono lo STESSO
+   codice generato dall'app (batchBuildFullCode): i valori coincidono con
+   quelli delle altre run a meno dei soli errori numerici (runtime
+   Pyodide/WASM nel browser vs NumPy di sistema). Le dimensioni loss/algo
+   della finestra (con i relativi default) definiscono i problemi e gli
+   algoritmi; le altre dimensioni usano il primo valore (seed 42,
+   max_iter 30, alpha 0.1, θ 0.5, batch0 5, N 200, w0 (2,-3), line search
+   per-algoritmo), come nel resto del Test batch.
+   ===================================================================== */
 
-async function batchRunAll(){
-  if(!pyodideReady){ alert('Attendi il caricamento di Pyodide.'); return; }
-  const dims = batchReadDims();
-  const errs = batchValidate(dims);
-  if(errs.length){ alert('Problemi nella configurazione:\n• '+errs.join('\n• ')); return; }
-  const cfgs = batchBuildGrid(dims);
-  const total = cfgs.length;
-  if(total===0){ alert('Nessuna run da eseguire.'); return; }
-  if(total>600 && !confirm('Il prodotto cartesiano genera '+total.toLocaleString('it-IT')+' run. Continuare? (può richiedere alcuni minuti nel browser)')) return;
+function batchDimList(dims, key, def){
+  const d = dims.find(x=>x.key===key);
+  return (d && d.values.length) ? d.values : def;
+}
+function batchDimVal(dims, key, def){
+  const d = dims.find(x=>x.key===key);
+  return (d && d.values.length) ? d.values[0] : def;
+}
+function batchBaseCfg(dims){
+  return {
+    loss:'quad_well', algo:'gd', strategia:'base',
+    seed:batchDimVal(dims,'seed','42'),
+    maxIter:batchDimVal(dims,'maxIter','30'),
+    alpha:batchDimVal(dims,'alpha','0.1'),
+    theta:batchDimVal(dims,'theta','0.5'),
+    batch0:batchDimVal(dims,'batch0','5'),
+    totalN:batchDimVal(dims,'totalN','200'),
+    w0:batchDimVal(dims,'w0','2.0,-3.0'),
+    lineSearch:batchDimVal(dims,'lineSearch','wolfe'),
+    dynBatch:batchDimVal(dims,'dynBatch','dynamic'),
+    hkSubset:batchDimVal(dims,'hkSubset','subset'),
+    hessianFree:batchDimVal(dims,'hessianFree','free'),
+    R:batchDimVal(dims,'R','0.2'),
+    maxcg:batchDimVal(dims,'maxcg','10'),
+    nu:batchDimVal(dims,'nu','0.1'),
+    sigma:batchDimVal(dims,'sigma','0.1'),
+    eta:batchDimVal(dims,'eta','0.5')
+  };
+}
+function batchSensCombos(defs){
+  return batchCartesian(defs.dims.map(d=>d.values)).map(vs=>{
+    const hp={};
+    defs.dims.forEach((d,i)=>{ hp[d.key]=vs[i]; });
+    return hp;
+  });
+}
+function batchSciLatex(x){
+  if(x===0) return '$0$';
+  const a=Math.abs(x);
+  if(a>=1e-3 && a<1e6) return '$'+String(+x.toPrecision(4))+'$';
+  const e=Math.floor(Math.log10(a));
+  const m=x/Math.pow(10,e);
+  return m===1 ? '$10^{'+e+'}$' : '$'+m.toPrecision(2)+'\\times10^{'+e+'}$';
+}
+function batchSci(x){ return fmtNum(x); }
+const BATCH_SENS_VAL_DEFS = {
+  label:'tab:batch_test_sens_val',
+  dims:[
+    {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),             latexVal:v=>'$'+v+'$'},
+    {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),          latexVal:v=>batchSciLatex(v)},
+    {key:'p',    label:'Percentuale p',   latex:'Percentuale $p$',     values:[0.1,0.2,0.3], fmt:v=>Math.round(v*100)+'%',  latexVal:v=>Math.round(v*100)+'\\%'},
+    {key:'f',    label:'Frequenza f',     latex:'Frequenza $f$',       values:[1,3],         fmt:v=>String(v),             latexVal:v=>'$'+v+'$'},
+    {key:'strat',label:'Strategia di split', latex:'Strategia di split', values:['fixed','dynamic'], fmt:v=>v==='fixed'?'fisso':'dinamico', latexVal:v=>'\\emph{'+(v==='fixed'?'fisso':'dinamico')+'}'}
+  ],
+  make:hp=>'val P='+hp.P+';p='+hp.p+';tau='+hp.tau+';f='+hp.f+';strat='+hp.strat,
+  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri dello stop adattivo con validation set: media di $e_{30}$ e del numero di ricampionamenti su 16 combinazioni problema$\\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri.'
+};
+const BATCH_SENS_DESC_DEFS = {
+  label:'tab:batch_test_sens_desc',
+  dims:[
+    {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),     latexVal:v=>'$'+v+'$'},
+    {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),   latexVal:v=>batchSciLatex(v)},
+    {key:'f',    label:'Frequenza f',     latex:'Frequenza $f$',       values:[1,3],          fmt:v=>String(v),     latexVal:v=>'$'+v+'$'}
+  ],
+  make:hp=>'desc P='+hp.P+';tau='+hp.tau+';f='+hp.f,
+  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri del criterio di discesa: media di $e_{30}$ e del numero di ricampionamenti su 16 combinazioni problema$\\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri.'
+};
+const CONFRONTO_CFGS=[
+  {key:'base', strategy:'desc base', ref:'base', hidden:false, html:'base', latex:'\\emph{base}'},
+  {key:'minf', strategy:'desc P=9999;tau=1e-4;f=1', ref:'base', hidden:false, html:'M=∞', latex:'$M{=}\\infty$'},
+  {key:'valbase', strategy:'val base', ref:null, hidden:true, html:'', latex:''},
+  {key:'pat1-pct1-dyn', strategy:'val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic', ref:'valbase', hidden:false, html:'P=1, p=0.1, dyn', latex:'$P{=}1,p{=}0.1$,dyn'},
+  {key:'t3-pat1-f1', strategy:'desc P=1;tau=1e-3;f=1', ref:'base', hidden:false, html:'τ=1e-3, P=1, f=1', latex:'$\\tau{=}10^{-3},P{=}1,f{=}1$'}
+];
+const RECOMMENDED_STRATEGY={ gd:'M=5', bb:'base', newton_cg:'val P=1;p=0.1;tau=1e-4;f=1;strat=fixed', newton_l1:'M=3' };
+const RECOMMENDED_LABEL={
+  gd:'riuso $M{=}5$',
+  bb:'\\emph{base}',
+  newton_cg:'stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa',
+  newton_l1:'riuso $M{=}3$'
+};
+const ROB_RIUSO_CFGS=[
+  {key:'base', strategy:'base'},
+  {key:'inf',  strategy:'M=inf'},
+  {key:'10',   strategy:'M=10'}
+];
+
+
+
+async function batchExecute(cfgs){
+  if(!pyodideReady){ alert('Attendi il caricamento di Pyodide.'); return null; }
   try{
     pyodide.runPython('def _batch_run(code):\n    import json as _json\n    ns = {"np": np, "__builtins__": __builtins__}\n    exec(compile(code, "<batch>", "exec"), ns)\n    return ns.get("_out", "{}")\n');
   }catch(e){ console.warn('Definizione _batch_run', e); }
   batchProgress.classList.remove('hidden');
+  const total = cfgs.length;
   batchProgressBar.max = total; batchProgressBar.value = 0;
   batchProgressVal.textContent = '0/'+total;
   const results=[];
@@ -6876,6 +6983,59 @@ async function batchRunAll(){
     }
   }
   batchProgressVal.textContent = 'Completato: '+(total-errCount)+' ok'+(errCount?', '+errCount+' errori':'');
+  return results;
+}
+
+async function batchRunSpecial(fmt, dims){
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag']);
+  const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
+  const base=batchBaseCfg(dims);
+  const SEEDS=[42,7,123,2024,999];
+  let cfgs=[];
+  if(fmt==='rob_riuso'){
+    for(const loss of losses) for(const algo of algos) for(const s of SEEDS)
+      for(const c of ROB_RIUSO_CFGS)
+        cfgs.push(Object.assign({}, base, {loss, algo, seed:String(s), strategia:c.strategy, cfgKey:c.key}));
+  }else if(fmt==='sens_val' || fmt==='sens_desc'){
+    const defs=fmt==='sens_val'?BATCH_SENS_VAL_DEFS:BATCH_SENS_DESC_DEFS;
+    for(const hp of batchSensCombos(defs))
+      for(const loss of losses) for(const algo of algos)
+        cfgs.push(Object.assign({}, base, {loss, algo, strategia:defs.make(hp), hp}));
+  }else if(fmt==='confronto_finale'){
+    for(const loss of losses) for(const algo of algos) for(const s of SEEDS)
+      for(const c of CONFRONTO_CFGS)
+        cfgs.push(Object.assign({}, base, {loss, algo, seed:String(s), strategia:c.strategy, cfgKey:c.key}));
+  }else if(fmt==='consigliati'){
+    for(const loss of losses) for(const algo of algos) for(const s of SEEDS){
+      cfgs.push(Object.assign({}, base, {loss, algo, seed:String(s), strategia:'base', cfgKey:'base'}));
+      const rec=RECOMMENDED_STRATEGY[algo];
+      if(rec!=='base') cfgs.push(Object.assign({}, base, {loss, algo, seed:String(s), strategia:rec, cfgKey:'rec'}));
+    }
+  }
+  const total=cfgs.length;
+  if(total===0){ alert('Nessuna run da eseguire.'); return; }
+  if(total>600 && !confirm('Il formato selezionato genera '+total.toLocaleString('it-IT')+' run. Continuare? (può richiedere alcuni minuti nel browser)')) return;
+  const results=await batchExecute(cfgs);
+  if(!results) return;
+  batchLast={dims, results};
+  batchRenderResults(dims, results);
+  batchSaveHistory(dims, results);
+}
+
+async function batchRunAll(){
+  if(!pyodideReady){ alert('Attendi il caricamento di Pyodide.'); return; }
+  const dims = batchReadDims();
+  const errs = batchValidate(dims);
+  if(errs.length){ alert('Problemi nella configurazione:\n• '+errs.join('\n• ')); return; }
+  const fmtEl=document.getElementById('batchTableFormat');
+  const fmt=fmtEl?fmtEl.value:'matrice';
+  if(fmt==='rob_riuso' || fmt==='sens_val' || fmt==='sens_desc' || fmt==='confronto_finale' || fmt==='consigliati'){ await batchRunSpecial(fmt, dims); return; }
+  const cfgs = batchBuildGrid(dims);
+  const total = cfgs.length;
+  if(total===0){ alert('Nessuna run da eseguire.'); return; }
+  if(total>600 && !confirm('Il prodotto cartesiano genera '+total.toLocaleString('it-IT')+' run. Continuare? (può richiedere alcuni minuti nel browser)')) return;
+  const results=await batchExecute(cfgs);
+  if(!results) return;
   batchLast = {dims, results};
   batchRenderResults(dims, results);
   batchSaveHistory(dims, results);
@@ -7001,7 +7161,13 @@ function batchCellMarker(t, r, c){
 
 function batchRenderResults(dims, results){
   const fmtEl = document.getElementById('batchTableFormat');
-  if (fmtEl && fmtEl.value === 'robustezza') { batchRenderRobustezza(dims, results); return; }
+  const fmt = fmtEl ? fmtEl.value : 'matrice';
+  if (fmt === 'robustezza') { batchRenderRobustezza(dims, results); return; }
+  if (fmt === 'rob_riuso') { batchRenderRobRiuso(dims, results); return; }
+  if (fmt === 'sens_val') { batchRenderSens(dims, results, BATCH_SENS_VAL_DEFS); return; }
+  if (fmt === 'sens_desc') { batchRenderSens(dims, results, BATCH_SENS_DESC_DEFS); return; }
+  if (fmt === 'confronto_finale') { batchRenderConfronto(dims, results); return; }
+  if (fmt === 'consigliati') { batchRenderConsigliati(dims, results); return; }
   const t = batchBuildTable(dims, results);
   const el = document.getElementById('batchResults');
   const capParts=[];
@@ -7209,6 +7375,360 @@ function batchLatexExport(t){
   return L.join('\n');
 }
 
+/* ── Renderer dei formati dedicati (stile Tabelle 6.21, 6.23, 6.26, 6.28, 6.29) ── */
+function batchResultTools(){
+  return '<div class="batch-tools">'
+    +'<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>'
+    +'<button class="btn-icon-sm" id="batchDlJsonBtn">💾 Scarica JSON</button>'
+    +'<button class="btn-icon-sm" id="batchCodeBtn">🔍 Codice 1ª run</button>'
+    +'</div>';
+}
+function batchMedian(arr){
+  if(!arr || !arr.length) return null;
+  const s=arr.slice().sort((x,y)=>x-y);
+  const m=Math.floor(s.length/2);
+  return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
+}
+
+/* 6.23 / 6.26 — sensibilità marginale agli iperparametri */
+function batchSensAggregate(results, defs){
+  const byDimVal={};
+  for(const d of defs.dims) byDimVal[d.key]={};
+  let used=0;
+  for(const r of results){
+    if(r.error||!r.metrics||!r.cfg.hp) continue;
+    used++;
+    const hp=r.cfg.hp;
+    for(const d of defs.dims){
+      const k=String(hp[d.key]);
+      (byDimVal[d.key][k]=byDimVal[d.key][k]||[]).push(r.metrics);
+    }
+  }
+  const rows=defs.dims.map(d=>({
+    label:d.label,
+    latex:d.latex,
+    group:d.values.map(v=>{
+      const arr=byDimVal[d.key][String(v)]||[];
+      return {vlabel:d.fmt(v), vlatex:d.latexVal(v), e30:batchAvgMetric(arr,m=>m.e30), res:batchAvgMetric(arr,m=>m.resamples), count:arr.length};
+    })
+  }));
+  return {rows, used};
+}
+function batchRenderSens(dims, results, defs){
+  const agg=batchSensAggregate(results, defs);
+  const seed=batchDimVal(dims,'seed','42');
+  const isVal=defs===BATCH_SENS_VAL_DEFS;
+  const el=document.getElementById('batchResults');
+  let html='<div class="batch-result-card">';
+  html+='<div class="cap"><strong>Sensibilità iperparametri ('+(isVal?'validation':'discesa')+')</strong> — stile Tabella '+(isVal?'6.23':'6.26')+': media di e₃₀ e ricampionamenti su 16 caselle problema×algoritmo, fissando un iperparametro e mediando sugli altri · seed '+batchEsc(seed)+' · '+agg.used.toLocaleString('it-IT')+' run valide</div>';
+  html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Iperparametro</th><th>Valore</th><th>ē₃₀ (media)</th><th>ricampionamenti</th></tr></thead><tbody>';
+  for(const row of agg.rows){
+    row.group.forEach((g,i)=>{
+      html+='<tr><td class="rowlab">'+(i===0?batchEsc(row.label):'')+'</td>';
+      html+='<td>'+batchEsc(g.vlabel)+'</td><td>'+(g.e30===null?'—':batchFmt3(g.e30))+'</td><td>'+(g.res===null?'—':g.res.toFixed(1))+'</td></tr>';
+    });
+  }
+  html+='</tbody></table></div>';
+  html+=batchResultTools();
+  el.innerHTML=html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexSens(agg, defs)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
+}
+function batchLatexSens(agg, defs){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch, formato sensibilità) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\footnotesize');
+  L.push('\\renewcommand{\\arraystretch}{1.1}');
+  L.push('\\setlength{\\tabcolsep}{6pt}');
+  L.push('\\caption{'+defs.caption+'}');
+  L.push('\\label{'+defs.label+'}');
+  L.push('\\begin{tabular}{@{}llrr@{}}');
+  L.push('\\toprule');
+  L.push('Iperparametro & Valore & $e_{30}$ & Ricampionamenti\\\\');
+  L.push('\\midrule');
+  agg.rows.forEach((row,ri)=>{
+    row.group.forEach((g,gi)=>{
+      const cells=[gi===0?row.latex:'', g.vlatex,
+                   (g.e30===null||g.e30===undefined)?'---':batchFmt3Latex(g.e30),
+                   (g.res===null||g.res===undefined)?'---':g.res.toFixed(1)];
+      L.push(cells.join(' & ')+'\\\\');
+    });
+    if(ri<agg.rows.length-1) L.push('\\midrule');
+  });
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
+}
+
+
+/* 6.21 — robustezza per-seed del riuso (Migl./Pegg./Uguale per M=∞ e M=10) */
+function batchRobRiusoAggregate(results){
+  const cell={};
+  for(const r of results){
+    if(r.error||!r.metrics) continue;
+    cell[r.cfg.loss+'|'+r.cfg.algo+'|'+r.cfg.cfgKey+'|'+r.cfg.seed]=r.metrics.e30;
+  }
+  const rows=[];
+  for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']){
+    for(const a of ['gd','bb','newton_cg','newton_l1']){
+      const row={preset:p, algo:a, inf:[0,0,0], m10:[0,0,0]};
+      for(const s of [42,7,123,2024,999]){
+        const b=cell[p+'|'+a+'|base|'+s];
+        for(const pair of [['inf',row.inf],['10',row.m10]]){
+          const e=cell[p+'|'+a+'|'+pair[0]+'|'+s];
+          if(b===undefined||e===undefined) continue;
+          if(e < b - 1e-12) pair[1][0]++;
+          else if(e > b + 1e-12) pair[1][1]++;
+          else pair[1][2]++;
+        }
+      }
+      rows.push(row);
+    }
+  }
+  return {rows};
+}
+function batchRenderRobRiuso(dims, results){
+  const r=batchRobRiusoAggregate(results);
+  const el=document.getElementById('batchResults');
+  let html='<div class="batch-result-card">';
+  html+='<div class="cap"><strong>Robustezza del riuso su 5 seed</strong> — stile Tabella 6.21: per ogni coppia problema×algoritmo, seed su 5 in cui $e_{30}$ è minore/maggiore/uguale della base, per M=∞ e M=10</div>';
+  html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Problema</th><th>Algoritmo</th><th colspan="3">M=∞</th><th colspan="3">M=10</th></tr>';
+  html+='<tr><th></th><th></th><th>Migl.</th><th>Pegg.</th><th>Ug.</th><th>Migl.</th><th>Pegg.</th><th>Ug.</th></tr></thead><tbody>';
+  let lastP=null;
+  for(const row of r.rows){
+    html+='<tr><td class="rowlab">'+(row.preset!==lastP?batchEsc(batchValueLabel('loss',row.preset)):'')+'</td>';
+    html+='<td>'+batchEsc(batchValueLabel('algo',row.algo))+'</td>';
+    for(const c of [row.inf,row.m10]) html+='<td>'+c[0]+'</td><td>'+c[1]+'</td><td>'+c[2]+'</td>';
+    html+='</tr>';
+    lastP=row.preset;
+  }
+  html+='</tbody></table></div>';
+  html+=batchResultTools();
+  el.innerHTML=html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexRobRiuso(r)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
+}
+function batchLatexRobRiuso(r){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch, formato robustezza riuso) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\footnotesize');
+  L.push('\\renewcommand{\\arraystretch}{1.0}');
+  L.push('\\setlength{\\tabcolsep}{2pt}');
+  L.push('\\caption{Robustezza del riuso del mini-batch su 5 seed indipendenti ($\\{42,7,123,2024,999\\}$): per ogni coppia problema--algoritmo e per ciascuna politica di riuso ($M{=}\\infty$ e $M{=}10$), numero di seed su 5 in cui $e_{30}$ rispetto alla \\emph{base} è minore (\\emph{Migl.}), maggiore (\\emph{Pegg.}) o identico (\\emph{Uguale}).}');
+  L.push('\\label{tab:batch_test_rob_riuso}');
+  L.push('\\begin{tabular}{@{}llccc|ccc@{}}');
+  L.push('\\toprule');
+  L.push('Problema & Algoritmo & \\multicolumn{3}{c}{$M{=}\\infty$} & \\multicolumn{3}{c}{$M{=}10$}\\\\');
+  L.push('\\cmidrule(lr){3-5}\\cmidrule(lr){6-8}');
+  L.push(' & & \\emph{Migl.} & \\emph{Pegg.} & \\emph{Uguale} & \\emph{Migl.} & \\emph{Pegg.} & \\emph{Uguale}\\\\');
+  L.push('\\midrule');
+  let lastP=null;
+  for(const row of r.rows){
+    if(lastP!==null && row.preset!==lastP) L.push('\\midrule');
+    const prob=(row.preset===lastP)?'':batchLatexValueLabel('loss',row.preset);
+    const cells=[prob, batchLatexValueLabel('algo',row.algo), row.inf[0], row.inf[1], row.inf[2], row.m10[0], row.m10[1], row.m10[2]];
+    L.push(cells.join(' & ')+'\\\\');
+    lastP=row.preset;
+  }
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
+}
+
+
+/* 6.28 — confronto finale (base, M=∞, validation calibrata, discesa calibrata) */
+function batchConfrontoAggregate(results){
+  const cell={};
+  let nRuns=0;
+  for(const r of results){
+    if(r.error||!r.metrics) continue;
+    nRuns++;
+    const k=r.cfg.cfgKey+'|'+r.cfg.loss+'|'+r.cfg.algo;
+    (cell[k]=cell[k]||[]).push(r.metrics.e30);
+  }
+  const presets=['quad_well','quad_ill','quad_very_ill','quad_offdiag'];
+  const algos=['gd','bb','newton_cg','newton_l1'];
+  const rows=[];
+  for(const c of CONFRONTO_CFGS){
+    if(c.hidden) continue;
+    const es=[]; const perProb={}; let vitt=0;
+    for(const p of presets){
+      let acc=0, n=0;
+      for(const a of algos){
+        const vals=cell[c.key+'|'+p+'|'+a]||[];
+        if(!vals.length) continue;
+        const m=vals.reduce((x,y)=>x+y,0)/vals.length;
+        acc+=m; n++; es.push(m);
+        if(c.ref){
+          const rv=cell[c.ref+'|'+p+'|'+a]||[];
+          if(rv.length){
+            const rm=rv.reduce((x,y)=>x+y,0)/rv.length;
+            if(m < rm - 1e-12) vitt++;
+          }
+        }
+      }
+      perProb[p]=n?acc/n:null;
+    }
+    rows.push({key:c.key, html:c.html, latex:c.latex, mean:es.length?es.reduce((x,y)=>x+y,0)/es.length:null, vitt, perProb, nCells:es.length});
+  }
+  return {rows, presets, algos, nRuns};
+}
+function batchRenderConfronto(dims, results){
+  const r=batchConfrontoAggregate(results);
+  const el=document.getElementById('batchResults');
+  let html='<div class="batch-result-card">';
+  html+='<div class="cap"><strong>Confronto finale su 5 seed</strong> — stile Tabella 6.28: 16 caselle problema×algoritmo × 5 seed ('+r.nRuns.toLocaleString('it-IT')+' run)</div>';
+  html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Strategia</th><th>ē₃₀</th><th>vitt.</th>';
+  for(const p of r.presets) html+='<th>'+batchEsc(batchValueLabel('loss',p))+'</th>';
+  html+='</tr></thead><tbody>';
+  for(const row of r.rows){
+    html+='<tr><td class="rowlab">'+batchEsc(row.html)+'</td>';
+    html+='<td>'+(row.mean===null?'—':batchFmt3(row.mean))+'</td>';
+    html+='<td>'+row.vitt+'/'+row.nCells+'</td>';
+    for(const p of r.presets) html+='<td>'+(row.perProb[p]===null?'—':batchFmt3(row.perProb[p]))+'</td>';
+    html+='</tr>';
+  }
+  html+='</tbody></table></div>';
+  html+=batchResultTools();
+  el.innerHTML=html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexConfronto(r)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
+}
+function batchLatexConfronto(r){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch, formato confronto finale) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\footnotesize');
+  L.push('\\renewcommand{\\arraystretch}{1.1}');
+  L.push('\\setlength{\\tabcolsep}{3pt}');
+  L.push('\\caption{Confronto finale su 5 seed indipendenti (16 combinazioni problema$\\times$algoritmo) tra \\emph{base}, $M{=}\\infty$, lo stop adattivo con validation set calibrato ($P{=}1$, $p{=}10\\%$, split dinamico) e il riuso per discesa calibrato ($\\tau{=}10^{-3}$, $P{=}1$, $f{=}1$). $\\overline{e}_{30}$ = media su 16 caselle $\\times$ 5 seed; \\emph{vitt.} = caselle (su 16) in cui la media su 5 seed è minore del proprio riferimento.}');
+  L.push('\\label{tab:batch_test_confronto}');
+  L.push('\\begin{tabular}{@{}lrrrrrr@{}}');
+  L.push('\\toprule');
+  L.push('Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & $\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & $\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\');
+  L.push('\\midrule');
+  for(const row of r.rows){
+    const cells=[row.latex,
+                 row.mean===null?'---':batchFmt3Latex(row.mean),
+                 row.vitt+'/'+row.nCells];
+    for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']) cells.push(row.perProb[p]===null?'---':batchFmt3Latex(row.perProb[p]));
+    L.push(cells.join(' & ')+'\\\\');
+    if(row.key==='minf') L.push('\\midrule');
+  }
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
+}
+
+
+/* 6.29 — sintesi degli iperparametri consigliati */
+function batchConsigliatiAggregate(results){
+  const cell={};
+  for(const r of results){
+    if(r.error||!r.metrics) continue;
+    const k=r.cfg.loss+'|'+r.cfg.algo+'|'+(r.cfg.cfgKey||'base')+'|'+r.cfg.seed;
+    cell[k]=r.metrics.e30;
+  }
+  const SEEDS=[42,7,123,2024,999];
+  const rows=[];
+  for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']){
+    for(const a of ['gd','bb','newton_cg','newton_l1']){
+      const baseVals=[], recVals=[];
+      let wins=0;
+      for(const s of SEEDS){
+        const b=cell[p+'|'+a+'|base|'+s];
+        const rr=cell[p+'|'+a+'|rec|'+s]!==undefined?cell[p+'|'+a+'|rec|'+s]:b;
+        if(b!==undefined){
+          baseVals.push(b); recVals.push(rr);
+          if(rr!==undefined && rr < b - 1e-12) wins++;
+        }
+      }
+      rows.push({
+        preset:p, algo:a,
+        cfg:RECOMMENDED_LABEL[a],
+        baseMedian:batchMedian(baseVals),
+        recMedian:batchMedian(recVals),
+        wins,
+        kind:(RECOMMENDED_STRATEGY[a]==='base'?'base':'rec')
+      });
+    }
+  }
+  return {rows, seeds:SEEDS};
+}
+function batchRenderConsigliati(dims, results){
+  const r=batchConsigliatiAggregate(results);
+  const el=document.getElementById('batchResults');
+  let html='<div class="batch-result-card">';
+  html+='<div class="cap"><strong>Sintesi degli iperparametri consigliati</strong> — stile Tabella 6.29: configurazione consigliata, mediana di e₃₀ su 5 seed della base e della consigliata, e seed su 5 in cui la consigliata migliora la base</div>';
+  html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Problema</th><th>Algoritmo</th><th>Configurazione consigliata</th><th>e₃₀ base</th><th>e₃₀ consigliato</th><th>vitt. (su 5)</th></tr></thead><tbody>';
+  let lastP=null;
+  for(const row of r.rows){
+    if(lastP!==null && row.preset!==lastP) html+='<tr class="groupsep"><td colspan="6"></td></tr>';
+    html+='<tr><td class="rowlab">'+batchEsc(batchValueLabel('loss',row.preset))+'</td>';
+    html+='<td>'+batchEsc(batchValueLabel('algo',row.algo))+'</td>';
+    html+='<td>'+batchEsc(row.cfg.replace(/[\\$%{}]/g,''))+'</td>';
+    html+='<td>'+(row.baseMedian===null?'—':batchFmt3(row.baseMedian))+'</td>';
+    html+='<td>'+(row.recMedian===null?'—':batchFmt3(row.recMedian))+'</td>';
+    html+='<td>'+(row.kind==='base'?'---':row.wins+'/5')+'</td></tr>';
+    lastP=row.preset;
+  }
+  html+='</tbody></table></div>';
+  html+=batchResultTools();
+  el.innerHTML=html;
+  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexConsigliati(r)));
+  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
+  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
+}
+function batchLatexConsigliati(r){
+  const L=[];
+  L.push('% =====================================================================');
+  L.push('% Tabella generata da visualizzazione.html (Test batch, formato sintesi consigliati) - NON modificare a mano.');
+  L.push('% =====================================================================');
+  L.push('\\begin{table}[H]');
+  L.push('\\centering');
+  L.push('\\footnotesize');
+  L.push('\\renewcommand{\\arraystretch}{1.1}');
+  L.push('\\setlength{\\tabcolsep}{4pt}');
+  L.push('\\caption{Sintesi degli iperparametri consigliati per ciascun metodo: configurazione consigliata, mediana di $e_{30}$ su 5 seed della \\emph{base} e della configurazione consigliata, e numero di seed su 5 in cui la configurazione consigliata migliora la \\emph{base}.}');
+  L.push('\\label{tab:batch_test_consigliati}');
+  L.push('\\begin{tabular}{@{}llp{3.4cm}rrr@{}}');
+  L.push('\\toprule');
+  L.push('Problema & Algoritmo & Configurazione consigliata & $e_{30}$ base & $e_{30}$ consigliato & vitt.\\ (su 5)\\\\');
+  L.push('\\midrule');
+  let lastP=null;
+  for(const row of r.rows){
+    if(lastP!==null && row.preset!==lastP) L.push('\\midrule');
+    const cells=[batchLatexValueLabel('loss',row.preset), batchLatexValueLabel('algo',row.algo), row.cfg,
+                 row.baseMedian===null?'---':batchFmt3Latex(row.baseMedian),
+                 row.recMedian===null?'---':batchFmt3Latex(row.recMedian),
+                 row.kind==='base'?'---':row.wins+'/5'];
+    L.push(cells.join(' & ')+'\\\\');
+    lastP=row.preset;
+  }
+  L.push('\\bottomrule');
+  L.push('\\end{tabular}');
+  L.push('\\end{table}');
+  return L.join('\n');
+}
+
+
 async function batchCopy(text){
   try{ await navigator.clipboard.writeText(text); }
   catch(e){
@@ -7297,11 +7817,30 @@ function buildBatchDims(){
 function batchUpdateRunCount(){
   const lists=BATCH_DIM_DEFS.map(d=>batchParseList(document.getElementById('batchDim_'+d.key).value, d.sep));
   const total=lists.reduce((a,v)=>a*Math.max(1,v.length),1);
-  document.getElementById('batchRunCount').textContent='Run: '+lists.map(v=>v.length).join(' × ')+' = '+total.toLocaleString('it-IT');
+  let text='Run: '+lists.map(v=>v.length).join(' × ')+' = '+total.toLocaleString('it-IT');
+  const fmtEl=document.getElementById('batchTableFormat');
+  const fmt=fmtEl?fmtEl.value:'matrice';
+  const nSpec=batchSpecialRunCount(fmt);
+  if(nSpec>0) text += ' — formato “'+fmt+'”: '+nSpec.toLocaleString('it-IT')+' run';
+  document.getElementById('batchRunCount').textContent=text;
   const media=BATCH_DIM_DEFS.filter(d=>document.getElementById('batchMedia_'+d.key).checked);
   document.getElementById('batchMediaNote').textContent = media.length
     ? 'Media su: '+media.map(d=>d.label).join(', ') + ' (dimensione assente dalla tabella)'
     : 'Nessuna dimensione su media: tabella completa.';
+}
+function batchSpecialRunCount(fmt){
+  const dims=batchReadDims();
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag']).length;
+  const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
+  if(fmt==='rob_riuso') return losses*algos.length*15;
+  if(fmt==='sens_val') return losses*algos.length*108;
+  if(fmt==='sens_desc') return losses*algos.length*18;
+  if(fmt==='confronto_finale') return losses*algos.length*25;
+  if(fmt==='consigliati'){
+    let per=0; for(const a of algos) per += RECOMMENDED_STRATEGY[a]==='base'?1:2;
+    return losses*per*5;
+  }
+  return 0;
 }
 function batchResetDims(){
   for(const d of BATCH_DIM_DEFS){
@@ -7322,7 +7861,7 @@ batchModal.addEventListener('click', e=>{ if(e.target===batchModal) batchModal.c
 document.getElementById('batchRunBtn').addEventListener('click', batchRunAll);
 document.getElementById('batchResetBtn').addEventListener('click', batchResetDims);
 const batchTableFormatEl = document.getElementById('batchTableFormat');
-if (batchTableFormatEl) batchTableFormatEl.addEventListener('change', ()=>{ if (batchLast) batchRenderResults(batchLast.dims, batchLast.results); });
+if (batchTableFormatEl) batchTableFormatEl.addEventListener('change', ()=>{ batchUpdateRunCount(); if (batchLast) batchRenderResults(batchLast.dims, batchLast.results); });
 buildBatchDims();
 
 window.addEventListener('load', async () => {
