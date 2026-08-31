@@ -355,9 +355,9 @@ sperimentazione diretta.
 
 \subsection{Contributi del lavoro}
 
-I metodi qui analizzati -- gradiente a campione dinamico, Newton-CG con
+I metodi qui analizzati, gradiente a campione dinamico, Newton-CG con
 Hessiana sottocampionata ed estensione ai problemi con regolarizzazione
-$L_1$ -- sono stati introdotti da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}.
+$L_1$, sono stati introdotti da Byrd, Chin, Nocedal e Wu~\cite{byrd2012}.
 I contributi di questa tesi riguardano l'analisi, il miglioramento di alcuni
 risultati di convergenza e l'implementazione:
 
@@ -655,8 +655,8 @@ termine di penalità proporzionale alla norma $L_1$ dei parametri,
 \]
 dove $\nu > 0$ è un coefficiente che ne controlla l'intensità. L'effetto è
 duplice: da un lato i coefficienti grandi vengono penalizzati, scoraggiando
-l'adattamento eccessivo ai dati; dall'altro -- ed è la proprietà più
-importante -- la soluzione risulta \emph{sparsa}, cioè con molti coefficienti
+l'adattamento eccessivo ai dati; dall'altro, ed è la proprietà più
+importante, la soluzione risulta \emph{sparsa}, cioè con molti coefficienti
 esattamente nulli. L'intuizione è la seguente: a differenza della norma $L_2$,
 il cui costo marginale tende a zero per coefficienti piccoli, la norma $L_1$
 ``costa'' sempre $\nu$ per ogni unità di coefficiente, anche vicino a zero.
@@ -2506,8 +2506,8 @@ dimensione del dataset $N = 200$, punto iniziale $w_0 = (2,-3)$, seme
 casuale fissato (seed $42$), passo iniziale $\alpha = 0.1$, tolleranza della
 CCV $\theta = 0.5$, batch iniziale $n_0 = 5$ e un budget di 30 iterazioni; la
 convergenza è dichiarata quando $\|\nabla J(w_k)\|_2 < 10^{-6}$. Gli algoritmi
-confrontati sono i quattro implementati nell'applicazione -- Dynamic GD,
-Newton-CG, Newton-CG~$L_1$ e BB-CCV (Sezione~\ref{sec:bbccv}) -- eseguiti
+confrontati sono i quattro implementati nell'applicazione, Dynamic GD,
+Newton-CG, Newton-CG~$L_1$ e BB-CCV (Sezione~\ref{sec:bbccv}), eseguiti
 sugli stessi preset.
 
 Tutti i valori riportati in questo capitolo sono quelli mostrati dal pannello
@@ -2623,9 +2623,9 @@ Presentiamo i risultati numerici ottenuti nel setup descritto nella
 Sezione~\ref{sec:setup}, eseguendo gli algoritmi sui preset quadratici
 dell'applicazione web (Sezione~\ref{sec:visualizzazione}). Le
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} riportano la norma
-dell'errore $\|w_k - w_*\|_2$ a ogni iterazione $k$ per i quattro algoritmi
--- Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
-(Sezione~\ref{sec:bbccv}) -- sui tre problemi test: quadratico ben
+dell'errore $\|w_k - w_*\|_2$ a ogni iterazione $k$ per i quattro algoritmi,
+Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
+(Sezione~\ref{sec:bbccv}), sui tre problemi test: quadratico ben
 condizionato ($\kappa \approx 1.1$), molto mal condizionato
 ($\kappa \approx 100$) e con termine incrociato, con i quattro algoritmi
 affiancati in ordine: (a)~Dynamic GD, (b)~Newton-CG, (c)~Newton-CG~$L_1$,
@@ -3386,8 +3386,8 @@ Sezione~\ref{sec:setup}: quattro preset quadratici ($\kappa \approx 1.1$,
 $\kappa \approx 20$, $\kappa \approx 100$ e termine incrociato), $N = 200$
 esempi sintetici, $w_0 = (2, -3)$, $\alpha = 0.1$, $\theta = 0.5$, $n_0 = 5$,
 30 iterazioni, line search di Wolfe (Armijo per BB-CCV), seed 42. Per
-ciascuno dei quattro algoritmi -- Dynamic GD, Newton-CG, Newton-CG~$L_1$ e
-BB-CCV -- si confrontano la versione a ricampionamento (colonna \emph{base}) e
+ciascuno dei quattro algoritmi, Dynamic GD, Newton-CG, Newton-CG~$L_1$ e
+BB-CCV, si confrontano la versione a ricampionamento (colonna \emph{base}) e
 il riuso dello stesso mini-batch per $M$ iterazioni consecutive
 ($M \in \{\infty, 10, 5, 2\}$; la Tabella~\ref{tab:riuso_sintesi} estende la
 sintesi a $M \in \{\infty, 10, 5, 3, 2, 1\}$).
@@ -4968,8 +4968,8 @@ in cui la configurazione consigliata migliora la \emph{base}. Con queste scelte
 nessuno dei quattro metodi peggiora la mediana di $e_{30}$ rispetto alla
 \emph{base} su nessun problema; il totale di vittorie su 20 combinazioni è
 Dynamic GD 14/20, Newton-CG 13/20, Newton-CG $L_1$ 14/20. Per BB-CCV nessuna
-configurazione testata migliora la \emph{base} su tutti i problemi -- il metodo
-converge già in poche iterazioni sui problemi considerati -- e quindi la
+configurazione testata migliora la \emph{base} su tutti i problemi, il metodo
+converge già in poche iterazioni sui problemi considerati, e quindi la
 \emph{base} resta la configurazione consigliata.
 
 \begin{table}[H]
@@ -5609,8 +5609,8 @@ gradiente a campione dinamico. Abbiamo mostrato che, se la varianza stimata
 del gradiente stocastico è controllata dalla tolleranza $\theta$ (Condizione di
 Controllo della Varianza), la direzione di ricerca è una direzione di discesa e
 l'algoritmo converge linearmente, sia in forma deterministica sia in
-aspettativa. La complessità totale -- il numero di valutazioni di gradienti
-individuali necessarie per ottenere un errore $\varepsilon$ -- è
+aspettativa. La complessità totale, il numero di valutazioni di gradienti
+individuali necessarie per ottenere un errore $\varepsilon$, è
 $O(m L/(\lambda\varepsilon))$, un bound competitivo con quelli noti per SGD e
 significativamente migliore su problemi mal condizionati, dove il termine
 $\kappa^2$ di SGD diventa $\kappa$.

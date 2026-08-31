@@ -157,6 +157,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026, follow-up 4).** **Tesi: i trattini parentetici
+  (rendering ` -- `) sono stati sostituiti con virgole** in 7 passaggi:
+  Introduzione ("I metodi qui analizzati, gradiente a campione dinamico, …,
+  $L_1$, sono stati introdotti da Byrd…"), Sez. 2 sull'effetto della $L_1$
+  ("dall'altro, ed è la proprietà più importante, la soluzione risulta
+  \emph{sparsa}"), Sez. 6.2 (due passaggi: "…implementati nell'applicazione,
+  Dynamic GD, …, BB-CCV (Sezione bbccv), eseguiti…" e "…per i quattro
+  algoritmi, Dynamic GD, …, sui tre problemi test"), Sez. 6.7 ("…ciascuno dei
+  quattro algoritmi, Dynamic GD, …, BB-CCV, si confrontano…"), Sez. 6.7.8
+  ("…su tutti i problemi, il metodo converge già in poche iterazioni…, e
+  quindi la base resta…") e Conclusioni ("La complessità totale, il numero di
+  valutazioni di gradienti…, è…"). Lasciati invariati: nomi tecnici
+  (Newton-CG, Hessiana-vettore, Barzilai--Borwein), intervalli
+  (2025--2026, riferimenti tab--tab), comandi TikZ (`--`) e i trattini
+  singoli negli item di Appendice C (pacchetti). Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**132 pp** — invariate; 0 errori, 0 undefined; 13
+  overfull, invariati). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (31/08/2026, follow-up 3).** **Ringraziamenti: Emis
   Killa, Jitta On The Track e Denzel Curry spostati nei commenti LaTeX (non
   compaiono più nel PDF), Jason Derulo rimosso del tutto; aggiunti tra gli
