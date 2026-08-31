@@ -157,6 +157,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026, follow-up).** **App web: il pulsante
+  "🖼️ Traiettoria 2D" ora compare SOLO quando la loss corrente è 2D.** La
+  visibilità è determinata dalla dichiarazione `DIM = 1`/`DIM = 2` nel codice
+  corrente di `lossCode` (la stessa regex di `runAlgorithm`/
+  `renderSurfacePreview`; `DIM` assente → assunto 2D, comportamento
+  preesistente). Il blocco (pulsante + hint) viene nascosto con la classe
+  `hidden` per i preset 1D (`1d_quad`, `1d_quartic`, `1d_sin`, `1d_exp`) e per
+  la custom con `DIM = 1`; mostrato per i preset 2D e la custom con `DIM = 2`
+  (o senza `DIM`). L'aggiornamento avviene a ogni cambio preset (in
+  `loadLossPreset`) e a ogni modifica del textarea del codice custom
+  (`lossCode` → listener `input`). Validazione: harness Deno (stub DOM) —
+  13/13 controlli (tutti i preset 1D/2D + custom con/senza `DIM`). Nessun PDF
+  coinvolto; `bozza.tex` non toccata.
 - **Ultimo intervento (31/08/2026).** **Test batch di `visualizzazione.html`
   esteso: ora genera TUTTE le tabelle e30 della Sez. 6.7 (Tabelle 6.20-6.29).**
   Restano fuori solo le tabelle per-iterazione (6.1-6.3, 6.4-6.19, 6.30-6.41),

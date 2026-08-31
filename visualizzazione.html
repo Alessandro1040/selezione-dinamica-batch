@@ -610,7 +610,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
     </div>
 
     <!-- Pulsante per il plot 2D in stile Colab (traiettoria + curve di livello) -->
-    <div class="colab-launcher">
+    <div class="colab-launcher" id="colabLauncher">
       <div style="flex:1">
         <button class="btn btn-secondary" id="colabPlotBtn">🖼️ Traiettoria 2D</button>
         <p class="field-hint">Percorso nel piano (w₁, w₂) con le curve di livello di J(w) e i punti in cui la CCV aumenta il batch. Mostra <em>una sola</em> immagine, quella dell'ultima esecuzione con i parametri correnti (w₀ è quello scelto qui accanto, mai casuale).</p>
@@ -4973,6 +4973,19 @@ function loadLossPreset(key) {
   diffHint.textContent = mode === 'autodiff'
     ? 'Autodiff attiva: grad/hess calcolati automaticamente da J(w).'
     : 'Formule chiuse: grad/hess definiti esplicitamente nel codice.';
+  updateColabButtonVisibility();
+}
+
+/* Mostra il blocco "Traiettoria 2D" SOLO se la loss corrente è 2D, cioè se
+   il codice in lossCode dichiara DIM = 2 (preset 2D o custom con due
+   variabili). Usa la stessa regex di runAlgorithm/renderSurfacePreview:
+   DIM assente nel codice → assunto 2D (comportamento già esistente). */
+function updateColabButtonVisibility() {
+  const launcher = document.getElementById('colabLauncher');
+  if (!launcher) return;
+  const dimMatch = lossCode.value.match(/DIM\s*=\s*([12])/);
+  const dim = dimMatch ? parseInt(dimMatch[1]) : 2;
+  launcher.classList.toggle('hidden', dim === 1);
 }
 
 
@@ -5823,6 +5836,10 @@ lossPreset.addEventListener('change', () => {
   currentData=null; savedCamera=null;
   if(pyodideReady) renderSurfacePreview();
 });
+
+// La loss può cambiare anche digitando nel textarea del codice custom:
+// aggiorna la visibilità di "Traiettoria 2D" a ogni modifica (DIM=1 → nascosto).
+lossCode.addEventListener('input', updateColabButtonVisibility);
 
 resetLossBtn.addEventListener('click', () => {
   loadLossPreset(lossPreset.value);
