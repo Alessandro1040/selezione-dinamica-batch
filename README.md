@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026, follow-up 2).** **Tesi Sez. 5.3.3
+  (Identificazione dell'active set e della faccia ortante): aggiunto un
+  elenco itemize subito dopo la (5.45)** che esplicita la regola con cui
+  l'algoritmo sceglie $z_k^i$ basandosi sulla condizione di stazionarietà:
+  (1) $w_i > 0$ → resta a destra; (2) $w_i < 0$ → resta a sinistra;
+  (3) $w_i = 0$ e il gradiente tira a destra con forza maggiore di $\nu$ →
+  la libera a destra; (4) $w_i = 0$ e il gradiente tira a sinistra con forza
+  maggiore di $\nu$ → la libera a sinistra; (5) $w_i = 0$ e il gradiente è
+  debole ($|\partial J/\partial w_i| \le \nu$) → la blocca a zero; chiusura
+  "Quindi $z_i$ è la decisione dell'algoritmo su dove la variabile deve
+  trovarsi". Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**132 pp** — l'elenco
+  aggiunge una pagina; 0 errori, 0 undefined; 13 overfull, invariati).
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (31/08/2026, follow-up).** **App web: il pulsante
   "🖼️ Traiettoria 2D" ora compare SOLO quando la loss corrente è 2D.** La
   visibilità è determinata dalla dichiarazione `DIM = 1`/`DIM = 2` nel codice

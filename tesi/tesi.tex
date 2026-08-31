@@ -2073,7 +2073,15 @@ Il vettore $z_k$ definisce l'ortante
 \Omega_k = \{ d \in \mathbb{R}^m : \operatorname{sign}(d^i) = \operatorname{sign}(z_k^i) \}, \tag{5.45}
 \]
 all'interno del quale la funzione $\|w\|_1$ è differenziabile e il suo gradiente
-è esattamente $z_k$. Le variabili con $z_k^i = 0$ costituiscono l'active
+è esattamente $z_k$. L'algoritmo ha scelto quella posizione basandosi sulla condizione di stazionarietà:
+\begin{itemize}
+  \item Se $w_i$ è già a destra ($w_i > 0$), allora deve restare a destra.
+  \item Se $w_i$ è già a sinistra ($w_i < 0$), allora deve restare a sinistra.
+  \item Se $w_i = 0$ e il gradiente tira a destra con forza maggiore di $\nu$, allora la libera a destra.
+  \item Se $w_i = 0$ e il gradiente tira a sinistra con forza maggiore di $\nu$, allora la libera a sinistra.
+  \item Se $w_i = 0$ e il gradiente è debole ($|\partial J/\partial w_i| \le \nu$), allora la blocca a zero.
+\end{itemize}
+Quindi $z_i$ è la decisione dell'algoritmo su dove la variabile deve trovarsi. Le variabili con $z_k^i = 0$ costituiscono l'active
 set:
 \begin{equation}
 \mathcal{A}_k \triangleq \{ i \mid z_k^i = 0 \}. \tag{5.46}
