@@ -2274,6 +2274,20 @@ iterazioni interne del gradiente coniugato, $m$ il numero di variabili.}
 \end{table}
 \noindent\emph{Lettura.} La tabella riassume le differenze strutturali tra i tre metodi a campione dinamico (costo per iterazione, memoria, ipotesi aggiuntive e complessità totale); il BB-CCV è escluso perché non ha un bound di complessità totale.
 
+\textit{A differenza del Newton-CG, questa volta abbiamo una funzione da
+ottimizzare che comprende anche un termine che penalizza la norma~1 dei
+parametri: $F(w) = J(w) + \nu\sum_{i=1}^{m}|w_i|$; dobbiamo quindi cercare il
+suo minimo. Vogliamo trovare ogni singola coordinata il cui costo da spostare
+è troppo rispetto al beneficio, ovvero quando il modulo del gradiente di $J$
+rispetto a $w_i$ è minore di $\nu$: in quel caso blocchiamo la variabile $w_i$
+e la mettiamo uguale a zero. Altrimenti, prendiamo la coordinata $w_i$ e la
+lasciamo in un altro insieme, quello delle variabili libere. Di quest'insieme
+di variabili libere ci ricordiamo il segno di ognuna e vogliamo ottimizzare su
+di esso, quindi utilizziamo il Newton-CG per ottimizzare queste variabili,
+ricordandoci però il segno iniziale: facciamo in modo che, quando vogliono
+attraversare lo zero e cambiare ortante, vengano piuttosto azzerate.}
+
+
 
 \subsection{Metodo BB-CCV (Barzilai--Borwein con campionamento dinamico)}\label{sec:bbccv}
 
