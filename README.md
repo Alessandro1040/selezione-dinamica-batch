@@ -157,6 +157,12 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026, follow-up 5).** **Ringraziamenti: Pop Smoke,
+  Millyz e Free Flow Flava spostati nei commenti LaTeX (non compaiono nel PDF);
+  aggiunto Oiki tra gli artisti.** Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**132 pp** — invariate; 0 errori, 0 undefined; 13 overfull, invariati).
+  Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati).
+  `bozza.tex` non toccata.
 - **Ultimo intervento (31/08/2026, follow-up 4).** **Tesi: i trattini parentetici
   (rendering ` -- `) sono stati sostituiti con virgole** in 7 passaggi:
   Introduzione ("I metodi qui analizzati, gradiente a campione dinamico, …,
