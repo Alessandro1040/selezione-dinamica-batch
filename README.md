@@ -157,6 +157,30 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (31/08/2026, follow-up 6).** **Tesi: resi ipertestuali
+  TUTTI i riferimenti interni (cliccabili, stessa impaginazione).** (1)
+  Aggiunte le `\label` mancanti alle 93 equazioni numerate manualmente
+  (`\tag{...}`) che non ne avevano (mantenute le 4 già presenti
+  `eq:discesa`, `eq:var_bound`, `eq:bound_gk`, `eq:cg_l1`): ora tutte le 97
+  equazioni con `\tag` (Capitolo 5 e Appendice A) hanno un'etichetta
+  (`eq:5_2`...`eq:A_40`). (2) Sostituiti i 99 riferimenti letterali
+  `(5.x)`/`(A.x)` con `\eqref{...}` (in Sez. 5.1-5.4, tabelle, Sez. 6.7 e
+  nelle dimostrazioni dell'Appendice A). (3) Sostituiti i 5 riferimenti
+  letterali a sezioni/appendici: `sez.~5.1.2` → `\ref{sec:condizione-accettazione}`
+  e `sez.~5.2.2` → `\ref{sec:criterio-cg}` (etichette aggiunte alle
+  sottosezioni 5.1.2 e 5.2.2, che non le avevano), `Sezione~6` →
+  `\ref{sec:esperimenti}`, `Appendice~B` → `\ref{app:codici}`, `Appendici~A--D`
+  → `\ref{app:dimostrazioni}--\ref{app:schemi}`. Lasciati invariati i
+  riferimenti esterni (eq.~4.9 e eq.~4.4--4.5 di Nocedal--Wright) e il valore
+  numerico `(1.4142)`. Inclusa anche la modifica pendente del 31/08
+  (rimossa in Sez. 6.2 la parentesi "(nel paper il sample size per il caso
+  $L_1$ è assunto fisso, e gli autori lasciano l'estensione al caso dinamico
+  come lavoro futuro)"). Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**132 pp** — invariate; 0 errori, 0 undefined; 13 overfull, invariati).
+  Verificato nel PDF: link interni da 323 a 428 (0 `??`). Sincronizzati nella
+  repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non
+  toccata.
+
 - **Ultimo intervento (31/08/2026, follow-up 5).** **Ringraziamenti: Pop Smoke,
   Millyz e Free Flow Flava spostati nei commenti LaTeX (non compaiono nel PDF);
   aggiunto Oiki tra gli artisti.** Ricompilati `tesi.pdf` e `tesi_finale.pdf`
