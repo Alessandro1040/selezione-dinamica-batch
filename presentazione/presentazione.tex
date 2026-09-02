@@ -248,10 +248,9 @@
   Cauchy--Schwarz ($|e_k^T g_k| \le \|e_k\|\,\|g_k\|$):
   \[
     \nabla J(w_k)^T g_k \;\ge\; \|g_k\|^2 - \|e_k\|\,\|g_k\|
-    \;=\; \|g_k\|\bigl(\|g_k\| - \|e_k\|\bigr) \;>\; 0
-    \qquad\Longrightarrow\qquad -g_k \text{ scende.}
+    \;=\; \|g_k\|\bigl(\|g_k\| - \|e_k\|\bigr) \;>\; 0 .
   \]
-  Elevando al quadrato, $\|e_k\|_2^2 \le \theta^2\|g_k\|_2^2$; e poiché
+  Dunque $-g_k$ scende. Elevando al quadrato, $\|e_k\|_2^2 \le \theta^2\|g_k\|_2^2$; e poiché
   $\mathbb{E}[g_k]=\nabla J(w_k)$:
   \[
     \mathbb{E}\bigl[\|e_k\|_2^2\bigr]
@@ -270,7 +269,7 @@
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
-    \includegraphics[height=0.58\textheight]{schema_dynamic_gd.png}\\[0.4cm]
+    \includegraphics[height=0.71\paperheight]{schema_dynamic_gd.pdf}\\[0.4cm]
     {\small\color{grigio} Schema dell'algoritmo con controllo della varianza campionaria (CCV)}
   \end{center}
 \end{frame}
@@ -280,7 +279,7 @@
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
-    \includegraphics[height=0.58\textheight]{schema_newton_cg.png}\\[0.4cm]
+    \includegraphics[height=0.71\paperheight]{schema_newton_cg.pdf}\\[0.4cm]
     {\small\color{grigio} Schema del metodo Newton-CG con campionamento dinamico}
   \end{center}
 \end{frame}
@@ -290,7 +289,7 @@
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
-    \includegraphics[height=0.58\textheight]{schema_newton_l1.png}\\[0.4cm]
+    \includegraphics[height=0.71\paperheight]{schema_newton_l1.pdf}\\[0.4cm]
     {\small\color{grigio} Schema del metodo Newton-CG per problemi con regolarizzazione $L_1$}
   \end{center}
 \end{frame}
@@ -300,7 +299,7 @@
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
-    \includegraphics[height=0.58\textheight]{schema_bbccv.png}\\[0.4cm]
+    \includegraphics[height=0.71\paperheight]{schema_bbccv.pdf}\\[0.4cm]
     {\small\color{grigio} Schema dell'algoritmo BB-CCV (gradiente dinamico con passo Barzilai--Borwein)}
   \end{center}
 \end{frame}
