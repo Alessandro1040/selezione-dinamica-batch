@@ -101,7 +101,7 @@
     \item I quattro algoritmi (Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV)
     \item Risultati teorici di convergenza e complessità
     \item App web interattiva e setup sperimentale
-    \item Esperimenti numerici e applicazioni su NSynth
+    \item Esperimenti numerici
     \item Riuso del mini-batch, conclusioni e lavoro futuro
   \end{itemize}
 \end{frame}
@@ -360,36 +360,11 @@
   \end{columns}
 \end{frame}
 
-% =====================================================================
-% SLIDE 18 — Esperimenti NSynth: riconoscimento della nota
-% =====================================================================
-\begin{frame}{Esperimenti NSynth: riconoscimento della nota}
-  \begin{itemize}
-    \item Dataset audio NSynth: classificazione delle 12 note
-    \item Newton-CG con campionamento dinamico è competitivo con L-BFGS
-          (91.4\% vs 91.5\%)
-    \item $L_1$ produce modelli sparsi: 146 feature attive
-    \item Batch finale 12\,678 (intero validation set)
-  \end{itemize}
-\end{frame}
 
 % =====================================================================
-% SLIDE 19 — Esperimenti NSynth: rete neurale
+% SLIDE 18 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
-\begin{frame}{Esperimenti NSynth: rete neurale}
-  \begin{itemize}
-    \item Rete neurale: validation set di 12\,678 clip
-    \item Newton-CG è il migliore (99.2\%): sfrutta la curvatura dell'Hessiana
-          sottocampionata
-    \item Il batch cresce con la CCV ($n_0=128 \rightarrow 2\,048$)
-    \item $L_1$: modello più semplice, solo 58\,412 parametri attivi
-  \end{itemize}
-\end{frame}
-
-% =====================================================================
-% SLIDE 20 — Riuso del mini-batch (Sez. 6.7)
-% =====================================================================
-\begin{frame}{Riuso del mini-batch (Sez.~6.7)}
+\begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
       \begin{itemize}
@@ -414,7 +389,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Conclusioni
+% SLIDE 19 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -422,15 +397,15 @@
           lineare (deterministica e in aspettativa), complessità
     \item Migliorati i risultati di convergenza (PL forte, fattore di contrazione)
     \item Implementazione Python dei 4 algoritmi + app web interattiva
-    \item Esperimenti coerenti con la teoria; su NSynth Newton-CG è competitivo
-          con L-BFGS (nota) e raggiunge il 99.2\% (rete)
+    \item Esperimenti sui problemi quadratici sintetici (da $\kappa\approx1.1$
+          a $\kappa\approx100$) coerenti con la teoria
     \item Riuso del mini-batch: meccanismo analizzato con effetti dipendenti
           da metodo e condizionamento
   \end{itemize}
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Limiti e lavoro futuro
+% SLIDE 20 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
