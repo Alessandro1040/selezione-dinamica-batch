@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (02/09/2026, follow-up 3).** **Tesi: rimossa la sezione
+  NSynth.** Eliminate da `tesi.tex` le sottosezioni 6.5 "Riconoscimento Note"
+  e 6.6 "Riconoscimento Strumenti" (erano `(PLACEHOLDER)`, contenuto mai
+  mergiato da `sezioni_65_66.tex`) e il `\bibitem{engel2017}` (mai citato,
+  relativo solo a NSynth). Nessun riferimento pendente nel testo (verificato:
+  nessun `\ref{sec:nsynth*}` né menzioni "NSynth"/"riconoscimento"). La
+  sottosezione "Riuso del mini-batch" passa da 6.7 a **6.5** (rinumerazione
+  automatica, riferimenti `\ref{app:riuso*}` aggiornati). Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**132 pp**; 0 errori, 0 undefined; 13
+  overfull, invariati). Sincronizzati nella repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). Il materiale NSynth (repo e Desktop:
+  `tesi/nsynth/`, `tesi/figure_nsynth_*`, `colab_risorse/`, `sezioni_65_66.tex`)
+  NON è stato cancellato: resta come materiale non più citato, in attesa di
+  eventuale pulizia. `bozza.tex` non toccata.
 - **Ultimo intervento (02/09/2026, follow-up 2).** **Tesi: refuso corretto in
   Sez. 5.2 (dimostrazione, caso $\alpha a > 1$).** "perche è un o piccolo
   rispetto ad $\alpha^k$" → "perché è un $o$-piccolo rispetto ad $\alpha^k$"
