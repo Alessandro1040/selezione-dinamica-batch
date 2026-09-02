@@ -157,6 +157,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (02/09/2026, follow-up 2).** **Tesi: refuso corretto in
+  Sez. 5.2 (dimostrazione, caso $\alpha a > 1$).** "perche è un o piccolo
+  rispetto ad $\alpha^k$" → "perché è un $o$-piccolo rispetto ad $\alpha^k$"
+  (accento mancante su *perché* e notazione *o*-piccolo messa in math),
+  allineato alla frase gemella del caso $\alpha a < 1$. Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**133 pp** — invariate; 0 errori, 0
+  undefined; 13 overfull, invariati). Sincronizzati nella repo
+  tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (02/09/2026, follow-up).** **Tesi Appendice A.2
   (dimostrazione del fattore di correzione per popolazione finita): corretta
   una parentesi "chiusa ma non aperta".** Nel passaggio sull'espansione del
