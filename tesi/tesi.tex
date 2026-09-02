@@ -5846,9 +5846,17 @@ Per verificarlo, basta espandere la definizione di varianza applicata alla combi
 \[
 \operatorname{Var}\left(\sum_{i=1}^N X_i I_i\right) = \mathbb{E}\left[\left(\sum_{i=1}^N X_i (I_i - \mathbb{E}[I_i])\right)^2\right],
 \]
-si sviluppa il quadrato della somma usando $\left(\sum_{i=1}^N a_i\right)^2 = \sum_{i=1}^N a_i^2 + \sum_{i \neq \ell} a_i a_\ell$ con $a_i = X_i (I_i - \mathbb{E}[I_i])$ (e questa servirà anche dopo, vera perché:
-$\underbrace{\sum_i \sum_\ell a_i a_\ell}_{\left(\sum_i a_i\right)^2} = \sum_i a_i^2 + \sum_{i \neq \ell} a_i a_\ell \iff \sum_{i \neq \ell} a_i a_\ell = \left(\sum_i a_i\right)^2 - \sum_i a_i^2
-$), si applica la linearità dell'aspettazione e si riconoscono le formule per la varianza e covarianza di $I$
+si sviluppa il quadrato della somma usando l'identità
+\[
+\left(\sum_{i=1}^N a_i\right)^2 = \sum_{i=1}^N a_i^2 + \sum_{i \neq \ell} a_i a_\ell,
+\qquad a_i = X_i (I_i - \mathbb{E}[I_i]),
+\]
+che servirà anche in seguito. Essa è vera perché la doppia somma estesa a tutte le coppie, $\sum_i \sum_\ell a_i a_\ell$, coincide con il quadrato della somma $\left(\sum_i a_i\right)^2$, e quindi
+\[
+\sum_i \sum_\ell a_i a_\ell = \sum_i a_i^2 + \sum_{i \neq \ell} a_i a_\ell
+\iff \sum_{i \neq \ell} a_i a_\ell = \left(\sum_i a_i\right)^2 - \sum_i a_i^2 .
+\]
+A questo punto si applica la linearità dell'aspettazione e si riconoscono le formule per la varianza e covarianza di $I$
 \[
 = \frac{n(N-n)}{N^2} \sum_{i=1}^N X_i^2 - \frac{n(N-n)}{N^2(N-1)} \sum_{i \neq \ell} X_i X_\ell
 \]

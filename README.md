@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (02/09/2026, follow-up).** **Tesi Appendice A.2
+  (dimostrazione del fattore di correzione per popolazione finita): corretta
+  una parentesi "chiusa ma non aperta".** Nel passaggio sull'espansione del
+  quadrato della somma una parentesi testuale `(e questa servirà anche dopo,
+  vera perché: …)` avvolgeva un'equazione scritta come math inline su riga
+  propria: nel PDF la formula andava a capo e la `)` di chiusura restava
+  visivamente orfana all'inizio della riga successiva. Riscritto il passaggio:
+  l'identità `(∑a_i)² = ∑a_i² + ∑_{i≠ℓ} a_i a_ℓ` (con `a_i = X_i(I_i−E[I_i])`)
+  è ora una vera equazione display, la spiegazione "vera perché" è separata in
+  prosa con la propria equazione display, e la parentesi "a ponte" è stata
+  eliminata. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**133 pp** — +1
+  rispetto alle 132: le due equazioni in display aggiungono spazio e fanno
+  slittare la paginazione dall'Appendice A in poi; 0 errori, 0 undefined; 13
+  overfull, invariati). Passaggio corretto a pag. 105 stampata (106 nel
+  viewer). Sincronizzati nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5
+  verificati). `bozza.tex` non toccata.
 - **Ultimo intervento (02/09/2026).** **Tesi: revisione stilistica — rimossi i
   residui da bozza segnalati come "troppo AI / poco professionali".** (1)
   Appendice C (fine Sez. C.2 Newton-CG): rimossa la nota in chiaro e
