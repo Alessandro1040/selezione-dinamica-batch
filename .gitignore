@@ -15,3 +15,14 @@ tesi/frontespizio.pdf
 # Python
 __pycache__/
 *.pyc
+
+# Artefatti di build della presentazione
+presentazione/*.aux
+presentazione/*.log
+presentazione/*.out
+presentazione/*.nav
+presentazione/*.snm
+presentazione/*.toc
+presentazione/*.vrb
+presentazione/*.fls
+presentazione/*.fdb_latexmk
