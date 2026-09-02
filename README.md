@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (02/09/2026).** **Tesi: revisione stilistica — rimossi i
+  residui da bozza segnalati come "troppo AI / poco professionali".** (1)
+  Appendice C (fine Sez. C.2 Newton-CG): rimossa la nota in chiaro e
+  sottolineata *"L'algoritmo Newton CG è sostanzialmente Dynamic GD ma la
+  direzione di discesa è quella di Newton anziche l'antigradiente"* (con il
+  refuso "anziche"); sostituita da un paragrafo professionale che spiega che il
+  Newton-CG condivide con il Dynamic GD la regolazione dinamica del batch
+  (CCV) e che la differenza è la direzione di ricerca, data dalla direzione di
+  Newton approssimata (sistema \eqref{eq:5_31} risolto con il CG Hessian free).
+  (2) Sez. 5.1 (nota "Regola di aggiornamento del batch"): l'enfasi
+  sottolineata *"Il batch cresce automaticamente dove serve precisione"* è ora
+  in corsivo (`\emph`), niente più `\underline` nel documento. (3) Rimossi i
+  commenti LaTeX duplicati "Figura 5.1/5.2" (tre copie consecutive → una). (4)
+  Sez. 5.1.2 (dimostrazione del cono di discesa): spezzata in passi separati la
+  frase unica che descriveva i passaggi della dimostrazione, senza cambiarne il
+  contenuto tecnico. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**132 pp** —
+  invariate; 0 errori, 0 undefined; 13 overfull, invariati). Sincronizzati
+  nella repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). `bozza.tex`
+  non toccata. Restano volutamente invariate (in attesa di decisione): il merge
+  delle Sezioni 6.5/6.6 (ancora `(PLACEHOLDER)` in tesi.tex, contenuto in
+  `sezioni_65_66.tex`), l'uso di "il paper", le ripetizioni di "In sintesi" e i
+  ringraziamenti con la lista degli artisti.
 - **Ultimo intervento (31/08/2026, follow-up 6).** **Tesi: resi ipertestuali
   TUTTI i riferimenti interni (cliccabili, stessa impaginazione).** (1)
   Aggiunte le `\label` mancanti alle 93 equazioni numerate manualmente

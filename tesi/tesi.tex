@@ -801,7 +801,7 @@ esatto $\nabla J(w_k)$, con errore $\|e_k\| = \|g_k - \nabla J(w_k)\| \le
 \end{figure}
 
 \paragraph{Dimostrazione:}\label{sec:cono-dimostrazione}
-Per dimostrare il fatto che $g_k$ debba essere in norma vicino al gradiente, possiamo semplicemente prendere le disuguaglianze del Lemma~\ref{lem:accuratezza} (dimostrate nella Sezione~\ref{sec:convergenza-deterministica}); poi, per trovare l'angolo, prendiamo la disuguaglianza che abbiamo ottenuto per il doppio prodotto scalare tra il gradiente di $J(w_k)$ e $g_k$ durante la dimostrazione del Lemma~\ref{lem:accuratezza}. Da lì sostituiamo la definizione di prodotto scalare e isoliamo il coseno, ottenendo un quoziente con una somma di quadrati al numeratore. Da quella somma di quadrati possiamo indebolire il termine, minorando tale somma con $2AB$ (grazie a $A^2+B^2 \ge 2AB$), e infine, dall'identità fondamentale $\sin^2\varphi+\cos^2\varphi=1$, esprimiamo il seno in funzione del coseno, $\sin\varphi=\sqrt{1-\cos^2\varphi}$, per concludere $\sin\varphi \le \theta$. \newline
+Per dimostrare che $g_k$ deve essere in norma vicino al gradiente esatto, si riprendono le disuguaglianze del Lemma~\ref{lem:accuratezza}, dimostrato nella Sezione~\ref{sec:convergenza-deterministica}. Per quanto riguarda l'angolo, si usa la disuguaglianza sul doppio prodotto scalare tra $\nabla J(w_k)$ e $g_k$ ricavata nella dimostrazione dello stesso lemma: sostituendo la definizione di prodotto scalare e isolando il coseno si ottiene un quoziente con una somma di quadrati al numeratore. Tale somma si può minorare con $2AB$ (grazie a $A^2+B^2 \ge 2AB$), indebolendo il termine; infine, dall'identità fondamentale $\sin^2\varphi+\cos^2\varphi=1$, si esprime il seno in funzione del coseno, $\sin\varphi=\sqrt{1-\cos^2\varphi}$, e si conclude $\sin\varphi \le \theta$. \newline
 Poich\'e il gradiente della popolazione totale $\nabla J(w_k)$ \`e ignoto, non \`e possibile valutare questa condizione in modo deterministico a ogni iterazione. \'E importante distinguere due livelli: la condizione puntuale $\|g_k - \nabla J(w_k)\| \le \theta\|g_k\|$ \`e quella usata nel Teorema deterministico per garantire la discesa a ogni passo; la Condizione di Controllo della Varianza (CCV) che introdurremo tra poco \`e invece una condizione in aspettativa, sufficiente per l'analisi di convergenza in media ma non una garanzia puntuale. Il mini batch $\mathcal{S}_k$ viene estratto casualmente dal dataset, rendendo $g_k$ una variabile aleatoria con $\E_{\mathcal{S}_k}[g_k] = \nabla J(w_k)$. Passare dal controllo dell'errore puntuale $\|g_k - \nabla J(w_k)\|$ al controllo del suo valore atteso permette di aggirare l'ignoranza su $\nabla J(w_k)$:
 \begin{align*}
 \mathbb{E}_{\mathcal{S}_k}\left[\|g_k - \mathbb{E}_{\mathcal{S}_k}[g_k]\|_2^2\right]
@@ -894,7 +894,7 @@ Se la condizione CCV non \`e soddisfatta, si stima la nuova dimensione minima de
 \end{definitionbox}
 
 \begin{notebox}
-  Quando siamo lontani dal minimo, $\|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2$ \`e grande: la formula di aggiornamento del batch d\`a un $n$ piccolo, quindi il batch resta piccolo. Avvicinandoci al minimo, il gradiente si azzera e il denominatore diventa piccolo: la formula impone un batch grande. \underline{Il batch cresce automaticamente dove serve precisione.}
+  Quando siamo lontani dal minimo, $\|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2$ \`e grande: la formula di aggiornamento del batch d\`a un $n$ piccolo, quindi il batch resta piccolo. Avvicinandoci al minimo, il gradiente si azzera e il denominatore diventa piccolo: la formula impone un batch grande. \emph{Il batch cresce automaticamente dove serve precisione.}
 \end{notebox}
 
 \begin{figure}[H]
@@ -931,9 +931,6 @@ $.
 \end{actionbox}
 
 % Figura 5.1 - schema a blocchi dell'algoritmo Dynamic GD (versione migliorata)
-% Figura 5.1 - schema a blocchi dell'algoritmo Dynamic GD (versione migliorata)
-% Figura 5.1 - schema a blocchi dell'algoritmo Dynamic GD (versione migliorata)
-
 
 
 \newpage
@@ -1739,8 +1736,6 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
   \end{enumerate}
 \end{actionbox}
 
-% Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
-% Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
 % Figura 5.2 - schema a blocchi del metodo Newton-CG con campionamento dinamico
 \begin{figure}[H]
 \centering
@@ -6535,9 +6530,13 @@ in modo che il batch cresca automaticamente quando la varianza dello stimatore �
 history, batch_sizes = newton_cg(w0, theta, max_iter, alpha, batch0, R, maxcg)
 \end{pythoncode}
 Infine, si controlla la norma del gradiente esatto (calcolato su tutto il dataset) tramite \texttt{grad\_full}; se \(\|\nabla J(w_{k+1})\|_2 < 10^{-6}\), si considera raggiunta la convergenza e si interrompe il ciclo. Al termine delle iterazioni, la funzione restituisce le liste \texttt{history} e \texttt{batch\_sizes}, che contengono rispettivamente la traiettoria dei pesi \(w_k\) e le dimensioni del batch \(n_k\) a ogni iterazione. L'ultima riga mostra la chiamata tipica alla funzione, che produce le due liste per l'analisi successiva.
-\underline{L'algoritmo Newton CG è sostanzialmente Dynamic GD ma la direzione di}
+Dunque l'algoritmo Newton-CG condivide con il Dynamic GD la strategia di
+campionamento dinamico del gradiente (regolazione della dimensione del batch
+tramite la CCV); la differenza è nella direzione di ricerca, che non è
+l'antigradiente, bensì la direzione di Newton approssimata, ottenuta
+risolvendo il sistema \eqref{eq:5_31} con il gradiente coniugato Hessian
+free.
 
- \underline{discesa è quella di Newton anziche l'antigradiente}
 \subsection{Newton-CG per problemi $L_1$-regolarizzati}
 
 In questa sezione illustriamo il funzionamento del codice dell'algoritmo Newton-CG
