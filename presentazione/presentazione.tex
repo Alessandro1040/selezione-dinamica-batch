@@ -1,14 +1,15 @@
 % =====================================================================
 % presentazione.tex
 % Presentazione della tesi "Selezione Dinamica della Dimensione del
-% Campione in Metodi di Ottimizzazione per il Machine Learning"
-% Conversione della presentazione PowerPoint (presentazione_tesi_15min.pptx)
-% in Beamer: testo in LaTeX, formule in codice LaTeX, immagini incluse.
+% Campione in Metodi di Ottimizzazione per il Machine Learning".
+%
+% Riorganizzata come traccia di esposizione: contesto e stato
+% dell'arte (SGD, metodi a varianza ridotta SVRG/SAGA con schemi),
+% quindi CCV, algoritmi a campionamento dinamico, teoria,
+% esperimenti, riuso del mini-batch, conclusioni.
 %
 % Compilazione:
 %   cd presentazione
-%   pdflatex presentazione.tex   (due passate)
-% oppure:
 %   latexmk -pdf presentazione.tex
 % =====================================================================
 \documentclass[aspectratio=169,11pt]{beamer}
@@ -78,31 +79,32 @@
     \textcolor{acc2}{\rule{0.7\textwidth}{0.8pt}}\\[0.5cm]
   \end{center}
   \small
-  Questa tesi presenta la metodologia per la selezione dinamica della
-  dimensione del campione negli algoritmi di ottimizzazione per il machine
-  learning su larga scala, fondandosi sul lavoro di Byrd, Chin, Nocedal e Wu
-  (2012). L'idea centrale è che, invece di fissare a priori la dimensione del
-  batch, si possa decidere durante l'algoritmo se e quando aumentarla,
-  guidandosi da stime statistiche della varianza del gradiente stocastico. Il
-  lavoro offre un'analisi teorica completa della convergenza, il miglioramento
-  di alcuni risultati mediante disuguaglianze più strette e
-  un'implementazione Python dei quattro algoritmi principali: gradiente
-  dinamico, Newton-CG, estensione $L_1$ e BB-CCV, con un'applicazione web
-  interattiva per la sperimentazione.
+  La tesi presenta la selezione dinamica della dimensione del campione
+  negli algoritmi di ottimizzazione per il machine learning su larga scala,
+  fondandosi sul lavoro di Byrd, Chin, Nocedal e Wu (2012). L'idea centrale:
+  invece di fissare a priori la dimensione del batch, si decide durante
+  l'algoritmo se e quando aumentarla, guidandosi da stime statistiche della
+  varianza del gradiente stocastico. Il lavoro offre un'analisi teorica
+  completa della convergenza, il miglioramento di alcuni risultati mediante
+  disuguaglianze più strette e un'implementazione Python dei quattro algoritmi
+  principali: Dynamic GD, Newton-CG, estensione $L_1$ e BB-CCV, con
+  un'applicazione web interattiva per la sperimentazione.
 \end{frame}
 
 % =====================================================================
-% SLIDE 2 — Indice
+% SLIDE 2 — Struttura dell'esposizione
 % =====================================================================
-\begin{frame}{Indice}
+\begin{frame}{Struttura dell'esposizione}
   \begin{itemize}
-    \item Contesto: l'ottimizzazione su larga scala e il mini-batch
-    \item L'idea: campionamento dinamico e Condizione di Controllo della Varianza
-    \item I quattro algoritmi (Dynamic GD, Newton-CG, Newton-CG $L_1$, BB-CCV)
+    \item Contesto: il costo del gradiente su larga scala e il mini-batch
+    \item Stato dell'arte: SGD e metodi a varianza ridotta (SVRG, SAGA)
+    \item L'idea: batch grandi solo quando servono, con la Condizione di
+          Controllo della Varianza (CCV)
+    \item I quattro algoritmi a campionamento dinamico e i loro schemi
     \item Risultati teorici di convergenza e complessità
-    \item App web interattiva e setup sperimentale
-    \item Esperimenti numerici
-    \item Riuso del mini-batch, conclusioni e lavoro futuro
+    \item Esperimenti numerici: app web, problemi sintetici, riuso del
+          mini-batch
+    \item Conclusioni e lavoro futuro
   \end{itemize}
 \end{frame}
 
@@ -111,277 +113,379 @@
 % =====================================================================
 \begin{frame}{Contesto: ottimizzazione su larga scala}
   \begin{itemize}
-    \item ML su larga scala: dataset con $N \approx 10^6$--$10^9$ esempi, perdita media $J(w)$
-    \item Gradiente completo $\nabla J(w)$: costo $O(N\,m)$ a iterazione, proibitivo
-    \item Standard: metodi stocastici su batch (SGD, metodi a varianza ridotta)
-    \item Il batch è un sottoinsieme dei dati usato a ogni passo
-    \item Riferimento: Byrd, Chin, Nocedal e Wu (2012)
-  \end{itemize}
-\end{frame}
-
-% =====================================================================
-% SLIDE 4 — Il problema: la dimensione del mini-batch
-% =====================================================================
-\begin{frame}{Il problema: la dimensione del mini-batch}
-  \begin{itemize}
-    \item Batch piccolo $\rightarrow$ iterazioni economiche, ma gradiente rumoroso
-      \begin{itemize}
-        \item il rumore limita la precisione raggiungibile
-      \end{itemize}
-    \item Batch grande $\rightarrow$ stima accurata, ma costo proporzionale alla dimensione
-    \item Nei metodi classici la dimensione è fissa e scelta in modo euristico
-    \item Troppo piccolo: non si converge alla precisione desiderata
-    \item Troppo grande: risorse sprecate nelle prime iterazioni
-  \end{itemize}
-\end{frame}
-
-% =====================================================================
-% SLIDE 5 — L'idea: campionamento dinamico
-% =====================================================================
-\begin{frame}{L'idea: campionamento dinamico}
-  \begin{itemize}
-    \item Si parte da un batch piccolo: progressi rapidi ed economici
-    \item Lo si aumenta progressivamente quando serve precisione
-    \item La decisione è guidata dalla Condizione di Controllo della Varianza (CCV)
-    \item Risorse concentrate dove servono davvero, con adattamento automatico
-      \begin{itemize}
-        \item alla difficoltà del problema
-      \end{itemize}
-    \item Nessuna scelta euristica a priori del batch
-  \end{itemize}
-\end{frame}
-
-% =====================================================================
-% SLIDE 6 — La CCV
-% =====================================================================
-\begin{frame}{La Condizione di Controllo della Varianza (CCV)}
-  \begin{itemize}
-    \item Finché la varianza campionaria del gradiente stocastico è piccola
-          rispetto alla norma del gradiente, il batch è adeguato:
+    \item Obiettivo: minimizzare la perdita empirica
       \[
-        \frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \;\le\; \theta^2\,\|\nabla J(w_k)\|_2^2
+        J(w) = \frac{1}{N}\sum_{i=1}^{N}\ell(w;i),
+        \qquad w\in\mathbb{R}^m
       \]
-    \item Vicino all'ottimo il gradiente tende a zero: il rumore relativo
-          cresce e la CCV impone un batch più grande
-    \item Il batch cresce a ``scalini'', esattamente quando la soglia viene superata
-    \item $\theta$ piccolo $\rightarrow$ batch cresce presto; $\theta$ grande
-          $\rightarrow$ batch piccolo più a lungo
+      con $N \approx 10^6$--$10^9$ esempi e $m$ grande: il gradiente completo
+      $\nabla J(w)$ costa $O(Nm)$ per iterazione, proibitivo.
+    \item Mini-batch $\mathcal{S}_k$ di dimensione $n_k$: stima
+      $g_k=\nabla J_{\mathcal{S}_k}(w_k)$, costo $O(n_k m)$.
+      Se $n_k\ll N$ le iterazioni sono economiche.
+    \item Compromesso classico (Bottou--Bousquet, 2008):
+      batch piccolo = stima rumorosa; batch grande = stima accurata ma costo
+      proporzionale alla dimensione.
+    \item Nei metodi classici $n_k$ è \textbf{fissa a priori}; questa tesi la
+          rende \textbf{dinamica}.
   \end{itemize}
 \end{frame}
 
 % =====================================================================
-% SLIDE 7 — I quattro algoritmi
+% SLIDE 4 — Stato dell'arte: SGD e il problema della varianza
 % =====================================================================
-\begin{frame}{I quattro algoritmi}
+\begin{frame}{Stato dell'arte: SGD e il problema della varianza}
   \begin{itemize}
-    \item Dynamic GD: gradiente a campione dinamico (base del metodo)
-    \item Newton-CG: Hessiana sottocampionata ($|\mathcal{H}| = R\,|\mathcal{S}|$) e criterio di arresto adattivo del CG interno
-    \item Newton-CG $L_1$: gradiente generalizzato, identificazione dell'active set e line search proiettata
-    \item BB-CCV: passo di Barzilai--Borwein con campionamento dinamico
-    \item Tutti implementati in Python (Appendice B)
+    \item SGD (Robbins--Monro, 1951): aggiornamento su un singolo esempio
+      (o un piccolo batch),
+      $w_{k+1}=w_k-\alpha_k\nabla\ell(w_k;i_k)$, con
+      $\mathbb{E}[\nabla\ell(w_k;i)]=\nabla J(w_k)$: stimatore
+      \emph{non distorto}, costo per iterazione indipendente da $N$.
+    \item Ma la varianza $\mathrm{Var}[\nabla\ell(w;i)]$ \textbf{non} tende a
+      zero vicino all'ottimo: quando $\nabla J(w)\to 0$ il rumore domina e
+      limita la precisione raggiungibile.
+    \item Conseguenze pratiche: a passo fisso si resta in un intorno
+      dell'ottimo (precisione limitata); a passo $\alpha_k\to 0$ la
+      convergenza rallenta.
+    \item Su larga scala conta il \textbf{costo totale} (costo per iterazione
+      $\times$ numero di iterazioni), non solo il numero di iterazioni.
+    \item Due strade per uscirne: aumentare il campione (costo) oppure
+      ridurre la varianza con stimatori migliori.
   \end{itemize}
 \end{frame}
 
 % =====================================================================
-% SLIDE 8 — Line search: Armijo e Wolfe
+% SLIDE 5 — Metodi a varianza ridotta: l'idea comune
 % =====================================================================
-\begin{frame}{Line search: Armijo e Wolfe}
-  \fonte{Dalla tesi --- Appendice A, condizioni sul passo $\alpha$}
-
-  \textbf{Armijo} (limite superiore su $f$): il passo $\alpha$ è accettato se
-  \[
-    f(x_k+\alpha\,p) \;\le\; f(x_k) + c_1\,\alpha\,\nabla f(x_k)^T p,
-  \]
-  con $c_1\in(0,1)$ (tipicamente $10^{-4}$): la retta
-  $f(x_k)+c_1\,\alpha\,\nabla f(x_k)^T p$ funge da upper bound; i passi che la
-  superano vengono rifiutati e ridotti.
-
-  \vspace{1em}
-  \textbf{Curvatura di Wolfe} (limite inferiore su $g'$), con
-  $g(\alpha)=f(x_k+\alpha\,p)$ e $g'(\alpha)=\nabla f(x_k+\alpha\,p)^T p$:
-  \[
-    g'(\alpha) \;\ge\; c_2\,g'(0),
-    \qquad c_2\in(c_1,1), \qquad g'(0)=\nabla f(x_k)^T p < 0.
-  \]
-  La condizione $0<c_1<c_2<1$ garantisce un intervallo non vuoto di passi
-  accettabili: Armijo scarta i passi troppo grandi, Wolfe quelli troppo piccoli.
+\begin{frame}{Metodi a varianza ridotta: l'idea comune}
+  \begin{itemize}
+    \item SVRG (Johnson--Zhang, 2013) e SAGA (Defazio--Bach--Lacoste-Julien,
+      2014): SGD + \emph{correzione} costruita su quantità globali.
+    \item Forma generale dello stimatore corretto:
+      \[
+        g_k = \nabla\ell(w_k;i_k) - c_k + \mathbb{E}[c_k],
+      \]
+      che resta non distorto: $\mathbb{E}[g_k]=\nabla J(w_k)$.
+    \item Se la correzione $c_k$ è correlata al rumore del gradiente
+      stocastico, la varianza di $g_k$ si riduce (idealmente tende a zero
+      vicino all'ottimo): \emph{variance reduction}.
+    \item Differenza chiave tra i due metodi:
+      \begin{itemize}
+        \item \textbf{SVRG}: ricalcola periodicamente un gradiente esatto su
+          un punto di ancoraggio;
+        \item \textbf{SAGA}: mantiene una tavola dei gradienti per-esempio,
+          aggiornata a ogni iterazione.
+      \end{itemize}
+    \item Ricompensa: convergenza \emph{lineare} su problemi fortemente
+      convessi anche con passo costante.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~4.1 (Lavori Correlati) e Appendice~D (Schemi
+    dei metodi a varianza ridotta)}
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — La CCV (definizione e regola di aggiornamento)
+% SLIDE 6 — Schema SVRG e perché ricampionare ogni m iterazioni
 % =====================================================================
-\begin{frame}{La Condizione di Controllo della Varianza (CCV)}
-  \fonte{Dalla tesi --- Sez.~5.1, Metodo del Gradiente a Campione Dinamico}
+\begin{frame}{SVRG: l'ancora e il ricampionamento ogni $m$ iterazioni}
+  \small
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \begin{itemize}
+        \item Punto di ancoraggio $\bar w$ con gradiente esatto
+          $\nabla J(\bar w)$, ricalcolato ogni $m$ iterazioni.
+        \item Stimatore non distorto:
+          \[
+            g_k=\nabla\ell(w_k;i_k)-\nabla\ell(\bar w;i_k)+\nabla J(\bar w)
+          \]
+        \item \textbf{Idea}: finché $w_k\approx\bar w$, per la regolarità dei
+          gradienti $\nabla\ell(w_k;i_k)\approx\nabla\ell(\bar w;i_k)$: i due
+          termini stocastici si elidono e resta $g_k\approx\nabla J(\bar w)$:
+          poca varianza.
+        \item Quando $w_k$ si allontana da $\bar w$ la correzione
+          ``invecchia'': il rumore non è più eliso e la varianza ricresce
+          $\to$ si aggiorna l'ancora e si ricampiona l'intero dataset.
+      \end{itemize}
+      \fonte{Dalla tesi --- Appendice~D, Schema SVRG}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth,height=0.62\paperheight,keepaspectratio]{schema_svrg.pdf}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
 
-  Varianza campionaria del gradiente stimato sul batch $\mathcal{S}_k$:
-  \[
-    \widehat{\mathcal{V}} \;=\;
-    \mathrm{Var}_{i\in\mathcal{S}_k}\!\bigl(\nabla \ell(w_k;i)\bigr)
-    \;=\; \frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}
-    \Bigl(\nabla \ell(w_k;i) - \nabla J_{\mathcal{S}_k}(w_k)\Bigr)^2 .
-  \]
-  La varianza stimata deve essere piccola rispetto al gradiente corrente:
-  \[
-    \frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \;\le\;
-    \theta^2\,\|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2,
-    \qquad \theta\in(0,1).
-  \]
-  Se la CCV è violata, la nuova dimensione del batch è
-  \[
-    n_k^{\mathrm{new}} \;=\;
-    \left\lceil \frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|\nabla J_{\mathcal{S}_k}(w_k)\|_2^2} \right\rceil .
-  \]
+% =====================================================================
+% SLIDE 7 — Schema SAGA
+% =====================================================================
+\begin{frame}{SAGA: la tavola dei gradienti, nessun ricalcolo globale}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \begin{itemize}
+        \item Tavola $g^{(i)}$: l'ultimo gradiente calcolato per ogni esempio
+          $i$; media $\bar g=\frac{1}{N}\sum_i g^{(i)}$ (solo memoria
+          $O(Nm)$, nessuna passata completa periodica).
+        \item Stimatore:
+          \[
+            g_k=\nabla\ell(w_k;i_k)-g^{(i_k)}+\bar g
+          \]
+        \item A ogni iterazione si aggiorna \emph{solo} la voce estratta:
+          $g^{(i_k)}\leftarrow\nabla\ell(w_k;i_k)$ e $\bar g$ di
+          conseguenza.
+        \item Stesso schema di riduzione della varianza di SVRG, ma la
+          correzione è sempre ``fresca'' per l'esempio appena campionato.
+      \end{itemize}
+      \fonte{Dalla tesi --- Appendice~D, Schema SAGA (fig.~saga)}
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \begin{center}
+        \includegraphics[width=\textwidth,height=0.62\paperheight,keepaspectratio]{schema_saga.pdf}
+      \end{center}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+% =====================================================================
+% SLIDE 8 — Limiti di SVRG/SAGA e lezione per la tesi
+% =====================================================================
+\begin{frame}{Limiti di SVRG/SAGA e lezione per la tesi}
+  \begin{itemize}
+    \item \textbf{SVRG}: una passata completa sui dati ogni $m$ iterazioni;
+      se $N$ è enorme il costo dei ricalcoli periodici si fa sentire.
+    \item \textbf{SAGA}: memoria $O(Nm)$ per la tavola dei gradienti
+      (un gradiente per ogni esempio): improponibile quando $N\cdot m$ è
+      molto grande.
+    \item In entrambi la dimensione del campione è \textbf{fissata a
+      priori} (tipicamente un esempio per iterazione): non è mai adattata
+      alle necessità di accuratezza del momento.
+    \item Le garanzie di convergenza lineare valgono sotto convessità forte.
+    \item \textbf{Lezione}: rendere \emph{dinamica} la dimensione del
+      campione, aumentandola (e ricampionando) quando la stima corrente non
+      è abbastanza accurata: è l'approccio di Byrd, Chin, Nocedal e Wu
+      (2012), al centro della tesi.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+% SLIDE 9 — Campionamento dinamico e CCV
+% =====================================================================
+\begin{frame}{Campionamento dinamico: la Condizione di Controllo della Varianza}
+  \begin{itemize}
+    \item Si parte da un batch piccolo: iterazioni economiche; il batch
+      cresce solo quando la stima del gradiente non è abbastanza accurata.
+    \item Criterio (CCV): la varianza campionaria del gradiente deve essere
+      piccola rispetto alla norma del gradiente stimato:
+      \[
+        \frac{\|\widehat{\mathcal{V}}\|_1}{n_k}
+        \;\le\; \theta^2\,\|g_k\|_2^2,
+        \qquad g_k=\nabla J_{\mathcal{S}_k}(w_k),\quad \theta\in(0,1)
+      \]
+    \item Se la CCV è violata si ricampiona con un batch più grande:
+      \[
+        n_k^{\mathrm{new}}
+        \;=\; \left\lceil
+        \frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2\,\|g_k\|_2^2}
+        \right\rceil
+      \]
+    \item Profilo a ``scalini''; $\theta$ piccolo $\to$ si aumenta presto
+      (batch accurati), $\theta$ grande $\to$ batch piccolo più a lungo.
+    \item Nessuna stima di $\kappa$ né regola geometrica a priori: la
+      crescita è guidata dai dati.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.1 (Byrd, Chin, Nocedal e Wu, 2012)}
 \end{frame}
 
 % =====================================================================
 % SLIDE 10 — La CCV garantisce una direzione di discesa
 % =====================================================================
 \begin{frame}{La CCV garantisce una direzione di discesa}
-  \fonte{Dalla tesi --- Sez.~5.1, condizione di discesa e Lemma di accuratezza}
-
-  $-g_k$ è di discesa per $J$ se l'errore relativo del gradiente stimato è piccolo:
-  \[
-    \|e_k\|_2 \;\le\; \theta\,\|g_k\|_2,
-    \qquad e_k := g_k - \nabla J(w_k), \qquad \theta\in[0,1).
-  \]
-  Infatti, ponendo $g_k = \nabla J(w_k) + e_k$ e usando
-  Cauchy--Schwarz ($|e_k^T g_k| \le \|e_k\|\,\|g_k\|$):
-  \[
-    \nabla J(w_k)^T g_k \;\ge\; \|g_k\|^2 - \|e_k\|\,\|g_k\|
-    \;=\; \|g_k\|\bigl(\|g_k\| - \|e_k\|\bigr) \;>\; 0 .
-  \]
-  Dunque $-g_k$ scende. Elevando al quadrato, $\|e_k\|_2^2 \le \theta^2\|g_k\|_2^2$; e poiché
-  $\mathbb{E}[g_k]=\nabla J(w_k)$:
-  \[
-    \mathbb{E}\bigl[\|e_k\|_2^2\bigr]
-    \;=\; \mathbb{E}\bigl[\|g_k - \mathbb{E}[g_k]\|_2^2\bigr]
-    \;=\; \|\mathrm{Var}(g_k)\|_1.
-  \]
-  Stimando $\|\mathrm{Var}(g_k)\|_1 \approx \|\widehat{\mathcal{V}}\|_1/n_k$,
-  la disuguaglianza in attesa diventa esattamente la CCV:
-  \[
-    \frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \;\le\; \theta^2\,\|g_k\|_2^2 .
-  \]
+  \begin{itemize}
+    \item $-g_k$ è di discesa per $J$ se l'errore relativo della stima è
+      piccolo: $\|e_k\|_2\le\theta\|g_k\|_2$ con
+      $e_k=g_k-\nabla J(w_k)$. Infatti, per Cauchy--Schwarz,
+      \[
+        \nabla J(w_k)^\top g_k
+        \;=\; \|g_k\|_2^2+e_k^\top g_k
+        \;\ge\; \|g_k\|_2^2-\|e_k\|_2\|g_k\|_2
+        \;\ge\; (1-\theta)\|g_k\|_2^2 \;>\; 0 .
+      \]
+    \item In aspettativa l'errore è la varianza dello stimatore:
+      \[
+        \mathbb{E}\bigl[\|e_k\|_2^2\bigr]
+        \;=\; \mathbb{E}\bigl[\|g_k-\mathbb{E}[g_k]\|_2^2\bigr]
+        \;=\; \|\mathrm{Var}(g_k)\|_1 ,
+      \]
+      stimata dalla CCV con $\|\widehat{\mathcal{V}}\|_1/n_k$.
+    \item Sotto la CCV la direzione resta di discesa: è la base per la
+      convergenza dei metodi presentati.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.1: condizione di discesa e Lemma di accuratezza}
 \end{frame}
 
 % =====================================================================
-% SLIDE 11 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 11 — I quattro algoritmi
+% =====================================================================
+\begin{frame}{I quattro algoritmi a campionamento dinamico}
+  \begin{itemize}
+    \item \textbf{Dynamic GD}: gradiente su campione dinamico con CCV e line
+      search di Wolfe (base del metodo).
+    \item \textbf{Newton-CG}: Hessiana sottocampionata
+      ($|\mathcal{H}|=R\,|\mathcal{S}|$) e criterio di arresto adattivo del
+      CG interno, basato sulla varianza dei prodotti Hessiana-vettore: niente
+      iterazioni interne sprecate quando l'Hessiana è limitata dal
+      sottocampionamento.
+    \item \textbf{Newton-CG $L_1$}: gradiente generalizzato, identificazione
+      dell'active set e line search proiettata (soluzioni sparse).
+    \item \textbf{BB-CCV}: passo di Barzilai--Borwein con campionamento
+      dinamico (line search di Armijo).
+    \item Tutti implementati in Python (Appendice~B) e nell'app web
+      interattiva; per ognuno, lo schema seguente mostra il flusso con la
+      CCV come decisione centrale.
+  \end{itemize}
+\end{frame}
+
+% =====================================================================
+% SLIDE 12 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
-    \includegraphics[height=0.71\paperheight]{schema_dynamic_gd.pdf}\\[0.4cm]
-    {\small\color{grigio} Schema dell'algoritmo con controllo della varianza campionaria (CCV)}
+    \includegraphics[height=0.67\paperheight]{schema_dynamic_gd.pdf}\\[0.2cm]
+    {\small\color{grigio} Flusso CCV: se la varianza campionaria è troppo
+      grande rispetto a $\theta^2\|g_k\|^2$, $n_k$ cresce e si ricampiona;
+      altrimenti line search di Wolfe e aggiornamento.}
   \end{center}
 \end{frame}
 
 % =====================================================================
-% SLIDE 12 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 13 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
-    \includegraphics[height=0.71\paperheight]{schema_newton_cg.pdf}\\[0.4cm]
-    {\small\color{grigio} Schema del metodo Newton-CG con campionamento dinamico}
+    \includegraphics[height=0.67\paperheight]{schema_newton_cg.pdf}\\[0.2cm]
+    {\small\color{grigio} Hessiana sottocampionata con $|\mathcal{H}|=R\,|\mathcal{S}|$;
+      il CG interno è Hessian-free e si ferma con un criterio adattivo basato
+      sulla varianza dei prodotti Hessiana-vettore.}
   \end{center}
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 14 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
-    \includegraphics[height=0.71\paperheight]{schema_newton_l1.pdf}\\[0.4cm]
-    {\small\color{grigio} Schema del metodo Newton-CG per problemi con regolarizzazione $L_1$}
+    \includegraphics[height=0.67\paperheight]{schema_newton_l1.pdf}\\[0.2cm]
+    {\small\color{grigio} Gradiente generalizzato per la $L_1$: identificazione
+      dell'active set e line search proiettata mantengono a zero le variabili
+      giuste, producendo soluzioni sparse.}
   \end{center}
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 15 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
-    \includegraphics[height=0.71\paperheight]{schema_bbccv.pdf}\\[0.4cm]
-    {\small\color{grigio} Schema dell'algoritmo BB-CCV (gradiente dinamico con passo Barzilai--Borwein)}
+    \includegraphics[height=0.67\paperheight]{schema_bbccv.pdf}\\[0.2cm]
+    {\small\color{grigio} Gradiente dinamico con passo Barzilai--Borwein
+      (line search di Armijo): la CCV regola la dimensione del campione
+      mentre il passo adatta la lunghezza dello spostamento.}
   \end{center}
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Risultati teorici
+% SLIDE 16 — Risultati teorici
 % =====================================================================
-\begin{frame}{Risultati teorici}
+\begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
     \item Sotto la CCV la direzione di ricerca è di discesa e il metodo
-          converge linearmente (forma deterministica e in aspettativa)
-    \item Complessità totale: $O(mL/(\lambda\varepsilon))$ --- competitiva con SGD
-    \item Su problemi mal condizionati il termine $\kappa^2$ di SGD diventa $\kappa$
-    \item Fattore di contrazione migliorato: da
-          $1-\frac{(1-\theta)\lambda}{2L}$ a
-          $1-\frac{(1-\theta)\lambda}{L}$ usando la disuguaglianza di
-          Polyak--Lojasiewicz in forma forte
+      converge \emph{linearmente}: sia in forma deterministica sia in
+      aspettativa.
+    \item Complessità totale $\mathcal{O}\!\left(mL/(\lambda\varepsilon)\right)$
+      (con $m$ parametri, $L$ costante di Lipschitz di $\nabla J$, $\lambda$
+      convessità forte): competitiva con SGD.
+    \item Su problemi mal condizionati il fattore $\kappa^2$ tipico di SGD
+      diventa $\kappa$ per il campionamento dinamico.
+    \item \textbf{Contributo della tesi}: fattore di contrazione migliorato,
+      da $1-\frac{(1-\theta)\lambda}{2L}$ a
+      $1-\frac{(1-\theta)\lambda}{L}$, usando la disuguaglianza di
+      Polyak--Lojasiewicz in forma forte.
+    \item Per Newton-CG: arresto adattivo del CG basato sulla varianza dei
+      prodotti Hessiana-vettore, nessuna iterazione interna sprecata.
   \end{itemize}
+  \fonte{Dalla tesi --- Cap.~5 (convergenza) e Sez.~6.3 (Risultati Numerici)}
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — App web interattiva
+% SLIDE 17 — App web interattiva
 % =====================================================================
-\begin{frame}{App web interattiva}
+\begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
-    \item \texttt{visualizzazione.html}: Pyodide + Plotly, nessuna installazione
-    \item Codice Python dei 4 algoritmi visibile e modificabile nel browser
-    \item Preset quadratici + dataset sintetico ``centrato'' ($\hat{J}_N = J$)
+    \item \texttt{visualizzazione.html}: singolo file, Pyodide + Plotly,
+      nessuna installazione o server.
+    \item Codice Python dei quattro algoritmi visibile e modificabile nel
+      browser; preset quadratici + dataset sintetico ``centrato''
+      ($\widehat J_N = J$).
     \item Percorso 3D/2D su $J(w)$, metriche in tempo reale, pannelli
-          ``Analisi'' e ``Test batch''
-    \item Permette di osservare la dinamica del batch e l'effetto di $\theta$
+      ``Analisi'' e ``Test batch'' (per riprodurre le tabelle della tesi).
+    \item Permette di osservare la dinamica del batch ($n_k$ vs $k$) e
+      l'effetto del parametro $\theta$ sulla soglia CCV.
+    \item Implementazione Python standalone equivalente
+      (\texttt{simulazione\_batch.py}) per la rigenerazione di figure e
+      tabelle della tesi.
   \end{itemize}
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Setup e risultati numerici
+% SLIDE 18 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \begin{itemize}
         \item Setup: $N=200$, seed 42, $w_0=(2,-3)$, $\alpha=0.1$,
-              $\theta=0.5$, $n_0=5$, 30 iterazioni, $\|\nabla J\| < 10^{-6}$
+          $\theta=0.5$, $n_0=5$, 30 iterazioni, tolleranza
+          $\|\nabla J\| < 10^{-6}$.
         \item Preset: ben condizionato ($\kappa\approx1.1$), mal condizionato
-              ($\kappa\approx20$), molto mal condizionato ($\kappa\approx100$),
-              incrociato
-        \item Profilo a ``scalini'' del batch confermato dagli esperimenti
-        \item BB-CCV raggiunge la precisione macchina ($\approx1.1\times10^{-14}$)
-              su $\kappa\approx100$
+          ($\kappa\approx20$), molto mal condizionato ($\kappa\approx100$),
+          incrociato.
+        \item Profilo a ``scalini'' di $n_k$ confermato dagli esperimenti:
+          il batch cresce solo quando la CCV lo richiede.
+        \item BB-CCV raggiunge la precisione macchina
+          ($\approx1.1\times10^{-14}$) su $\kappa\approx100$; l'analisi
+          teorica ($\kappa$ al posto di $\kappa^2$) è confermata dai dati.
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
       \begin{center}
-        \includegraphics[width=0.95\textwidth]{fig_batch_size.png}\\[0.2cm]
-        {\small\color{grigio} Fig.~5.3 --- dimensione del campione $n_k$ vs iterazioni}
+        \includegraphics[width=\textwidth]{fig_batch_size.png}\\[0.2cm]
+        {\small\color{grigio} Fig.~5.3 --- dimensione del campione $n_k$ vs
+          iterazioni $k$}
       \end{center}
     \end{column}
   \end{columns}
 \end{frame}
 
-
 % =====================================================================
-% SLIDE 18 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 19 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
     \begin{column}{0.55\textwidth}
       \begin{itemize}
-        \item Variante: riusare lo stesso campione per $M$ iterazioni consecutive
-        \item Si riusa la lista degli indici, NON il gradiente
-          \begin{itemize}
-            \item ricalcolato a ogni iterazione al punto corrente
-          \end{itemize}
-        \item La CCV fa da segnale di esaurimento: se non è soddisfatta,
-              $n_k$ cresce e si ricampiona
-        \item $M=\infty$: si tiene il campione finché la CCV vale
-        \item L'effetto dipende dal metodo e dal condizionamento del problema
+        \item Variante studiata nella tesi: riusare lo stesso campione per
+          $M$ iterazioni consecutive (ricalcolando però il gradiente al punto
+          corrente, non riusando i gradienti vecchi).
+        \item La CCV fa da segnale di ``esaurimento'' del campione: quando
+          non è più soddisfatta, $n_k$ cresce e si ricampiona.
+        \item $M=\infty$: si tiene il campione finché la CCV vale; il costo
+          per iterazione scende, ma il campione ``invecchia''.
+        \item Effetti dipendenti dal metodo e dal condizionamento del
+          problema: quantificati con le tabelle del Cap.~6.
       \end{itemize}
     \end{column}
     \begin{column}{0.45\textwidth}
       \begin{center}
-        \includegraphics[width=0.95\textwidth]{fig_riuso.png}\\[0.2cm]
+        \includegraphics[width=\textwidth]{fig_riuso.png}\\[0.2cm]
         {\small\color{grigio} Traiettorie con riuso del batch}
       \end{center}
     \end{column}
@@ -389,32 +493,46 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Conclusioni
+% SLIDE 20 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
-    \item Analisi teorica completa del campionamento dinamico: convergenza
-          lineare (deterministica e in aspettativa), complessità
-    \item Migliorati i risultati di convergenza (PL forte, fattore di contrazione)
-    \item Implementazione Python dei 4 algoritmi + app web interattiva
+    \item Quadro completo: dalla varianza del gradiente stocastico (SGD) e
+      dai metodi a varianza ridotta (SVRG/SAGA) si arriva a una regola
+      \emph{dinamica e basata sui dati} per la dimensione del campione.
+    \item Analisi teorica: convergenza lineare (deterministica e in
+      aspettativa) e complessità sotto la CCV.
+    \item Contributi propri: fattore di contrazione migliorato (PL forte),
+      arresto adattivo del CG per Newton-CG.
+    \item Implementazione Python dei quattro algoritmi + app web interattiva
+      per ripetere gli esperimenti.
     \item Esperimenti sui problemi quadratici sintetici (da $\kappa\approx1.1$
-          a $\kappa\approx100$) coerenti con la teoria
-    \item Riuso del mini-batch: meccanismo analizzato con effetti dipendenti
-          da metodo e condizionamento
+      a $\kappa\approx100$) coerenti con la teoria; analizzato anche il riuso
+      del mini-batch.
   \end{itemize}
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Limiti e lavoro futuro
+% SLIDE 21 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
-    \item Limiti: ipotesi di convessità forte, varianza limitata, dataset
-          sintetico centrato
+    \item Limiti attuali: ipotesi di convessità forte, varianza limitata,
+      esperimenti su dataset sintetici (quadratici, centrati).
     \item Futuro: assumere direttamente la condizione di
-          Polyak--Lojasiewicz (copre funzioni non convesse)
+      Polyak--Lojasiewicz (copre funzioni non convesse).
     \item Futuro: rapporto di sottocampionamento $R$ dell'Hessiana dinamico
+      (oltre alla sola $n_k$ del gradiente).
+    \item Futuro: validazione su dataset reali e problemi non convessi,
+      confronto sistematico con SVRG/SAGA su larga scala.
   \end{itemize}
 \end{frame}
 
 \end{document}
+
+
+
+
+
+
+

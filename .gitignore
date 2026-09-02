@@ -26,3 +26,12 @@ presentazione/*.toc
 presentazione/*.vrb
 presentazione/*.fls
 presentazione/*.fdb_latexmk
+
+# Artefatti di build degli schemi (i sorgenti .tex sono tracciati;
+# le copie PDF ufficiali stanno in presentazione/immagini/)
+presentazione/schemi/*.aux
+presentazione/schemi/*.log
+presentazione/schemi/*.out
+presentazione/schemi/*.fls
+presentazione/schemi/*.fdb_latexmk
+presentazione/schemi/*.pdf
