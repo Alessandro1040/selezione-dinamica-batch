@@ -361,7 +361,51 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 13 — Newton-CG: criterio di arresto adattivo del CG
+% =====================================================================
+\begin{frame}{Newton-CG: criterio di arresto adattivo del CG}
+  \small
+  \begin{itemize}
+    \item Il sistema di Newton è risolto in modo Hessian-free con il CG,
+      usando per l'Hessiana il sottocampione
+      $\mathcal{H}_k\subseteq\mathcal{S}_k$:
+      \[
+        \nabla^2 J_{\mathcal{H}_k}(w_k)\,d=-\nabla J_{\mathcal{S}_k}(w_k),
+        \qquad
+        r_k=\nabla^2 J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k).
+      \]
+      L'errore di Hessiana $\Delta_{\mathcal{H}_k}(w_k;d)$ (differenza tra
+      le Hessiane sui campioni $\mathcal{S}_k$ e $\mathcal{H}_k$ lungo $d$)
+      è costante e non calcolabile: non serve spingere $r_k$ a zero, basta
+      fermarsi quando è dello \emph{stesso ordine} di $\Delta$.
+    \item L'errore si stima con la \emph{varianza campionaria dei prodotti
+      Hessiana-vettore} su $\mathcal{H}_k$ (stessa strategia usata per il
+      gradiente):
+      \[
+        \mathbb{E}\bigl[\|\Delta_{\mathcal{H}_k}(w_k;d)\|_2^2\bigr]
+        \approx \frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
+          \bigl(\nabla^2\ell(w_k;i)\,d\bigr)\bigr\|_1}{|\mathcal{H}_k|}.
+      \]
+    \item Per l'omogeneità quadratica in $d$, la varianza è calcolata una
+      sola volta sulla prima direzione del CG $p_0=-g_k$; la soglia cresce
+      con $\|d\|^2$ (evita anche direzioni troppo grandi):
+      \[
+        \gamma=\frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
+          \bigl(\nabla^2\ell(w_k;i)\,p_0\bigr)\bigr\|_1}
+          {|\mathcal{H}_k|\,\|p_0\|_2^2},
+        \qquad
+        \Psi(d)=\gamma\,\|d\|_2^2.
+      \]
+    \item \textbf{Test di arresto} del CG (a ogni iterazione $j$):
+      \[
+        \|r_{j+1}\|_2^2 \;\le\; \Psi(d_j)=\gamma\,\|d_j\|_2^2.
+      \]
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.2, criterio di terminazione del CG (eq.~5.33--5.39)}
+\end{frame}
+
+% =====================================================================
+% SLIDE 14 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -373,7 +417,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 15 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -385,7 +429,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 16 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -397,7 +441,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Risultati teorici
+% SLIDE 17 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -420,7 +464,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — App web interattiva
+% SLIDE 18 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -440,7 +484,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 18 — Setup e risultati numerici
+% SLIDE 19 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -470,7 +514,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 20 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -497,7 +541,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Conclusioni
+% SLIDE 21 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -517,7 +561,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Limiti e lavoro futuro
+% SLIDE 22 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
