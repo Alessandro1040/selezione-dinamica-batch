@@ -365,41 +365,37 @@
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG}
   \small
-  \begin{itemize}
-    \item Il sistema di Newton è risolto in modo Hessian-free con il CG,
-      usando per l'Hessiana il sottocampione
-      $\mathcal{H}_k\subseteq\mathcal{S}_k$:
+  \setlength{\abovedisplayskip}{3pt}
+  \setlength{\belowdisplayskip}{3pt}
+  \setlength{\abovedisplayshortskip}{3pt}
+  \setlength{\belowdisplayshortskip}{3pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Sistema risolto con il CG \emph{Hessian-free}, gradiente su
+      $\mathcal{S}_k$ e Hessiana su $\mathcal{H}_k\subseteq\mathcal{S}_k$:
+      fermarsi quando il residuo è dello \emph{stesso ordine}
+      dell'errore di Hessiana (costante, non calcolabile):
       \[
-        \nabla^2 J_{\mathcal{H}_k}(w_k)\,d=-\nabla J_{\mathcal{S}_k}(w_k),
-        \qquad
-        r_k=\nabla^2 J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k).
+        \nabla^2J_{\mathcal{H}_k}(w_k)d=-\nabla J_{\mathcal{S}_k}(w_k),\qquad
+        r_k=\nabla^2J_{\mathcal{H}_k}(w_k)d+\nabla J_{\mathcal{S}_k}(w_k).
       \]
-      L'errore di Hessiana $\Delta_{\mathcal{H}_k}(w_k;d)$ (differenza tra
-      le Hessiane sui campioni $\mathcal{S}_k$ e $\mathcal{H}_k$ lungo $d$)
-      è costante e non calcolabile: non serve spingere $r_k$ a zero, basta
-      fermarsi quando è dello \emph{stesso ordine} di $\Delta$.
-    \item L'errore si stima con la \emph{varianza campionaria dei prodotti
-      Hessiana-vettore} su $\mathcal{H}_k$ (stessa strategia usata per il
-      gradiente):
+    \item Errore stimato con la \emph{varianza campionaria dei prodotti
+      Hessiana-vettore} su $\mathcal{H}_k$:
       \[
         \mathbb{E}\bigl[\|\Delta_{\mathcal{H}_k}(w_k;d)\|_2^2\bigr]
-        \approx \frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
+        \approx\frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
           \bigl(\nabla^2\ell(w_k;i)\,d\bigr)\bigr\|_1}{|\mathcal{H}_k|}.
       \]
-    \item Per l'omogeneità quadratica in $d$, la varianza è calcolata una
-      sola volta sulla prima direzione del CG $p_0=-g_k$; la soglia cresce
-      con $\|d\|^2$ (evita anche direzioni troppo grandi):
+    \item Per l'omogeneità quadratica in $d$ la varianza è calcolata una
+      sola volta sulla prima direzione $p_0=-g_k$; la soglia cresce con
+      $\|d\|^2$:
       \[
         \gamma=\frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
           \bigl(\nabla^2\ell(w_k;i)\,p_0\bigr)\bigr\|_1}
-          {|\mathcal{H}_k|\,\|p_0\|_2^2},
-        \qquad
+          {|\mathcal{H}_k|\,\|p_0\|_2^2},\qquad
         \Psi(d)=\gamma\,\|d\|_2^2.
       \]
-    \item \textbf{Test di arresto} del CG (a ogni iterazione $j$):
-      \[
-        \|r_{j+1}\|_2^2 \;\le\; \Psi(d_j)=\gamma\,\|d_j\|_2^2.
-      \]
+    \item \textbf{Test di arresto} (iterazione $j$ del CG):
+      $\|r_{j+1}\|_2^2\;\le\;\Psi(d_j)=\gamma\,\|d_j\|_2^2$.
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.2, criterio di terminazione del CG (eq.~5.33--5.39)}
 \end{frame}
