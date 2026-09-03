@@ -251,8 +251,11 @@
 % =====================================================================
 \begin{frame}{Limiti di SVRG/SAGA e lezione per la tesi}
   \begin{itemize}
-    \item \textbf{SVRG}: una passata completa sui dati ogni $m$ iterazioni;
-      se $N$ è enorme il costo dei ricalcoli periodici si fa sentire.
+    \item \textbf{SVRG}: il gradiente esatto dell'ancora
+      $\nabla J(\bar w)$ è ricalcolato ogni $m$ iterazioni con una
+      passata completa sul dataset (costo $O(Nm)$); per $N$ molto
+      grande questi ricalcoli periodici possono dominare il costo
+      complessivo.
     \item \textbf{SAGA}: memoria $O(Nm)$ per la tavola dei gradienti
       (un gradiente per ogni esempio): improponibile quando $N\cdot m$ è
       molto grande.
