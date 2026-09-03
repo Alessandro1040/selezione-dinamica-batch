@@ -159,8 +159,10 @@
 % =====================================================================
 \begin{frame}{Metodi a varianza ridotta: l'idea comune}
   \begin{itemize}
-    \item SVRG (Johnson--Zhang, 2013) e SAGA (Defazio--Bach--Lacoste-Julien,
-      2014): SGD + \emph{correzione} costruita su quantità globali.
+    \item SVRG (\emph{Stochastic Variance Reduced Gradient};
+      Johnson--Zhang, 2013) e SAGA (metodo di riduzione della varianza di
+      Defazio--Bach--Lacoste-Julien, 2014; il nome non è un acronimo):
+      SGD + \emph{correzione} costruita su quantità globali.
     \item Forma generale dello stimatore corretto:
       \[
         g_k = \nabla\ell(w_k;i_k) - c_k + \mathbb{E}[c_k],
