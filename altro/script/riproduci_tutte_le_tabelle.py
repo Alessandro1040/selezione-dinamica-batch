@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Riproduzione di TUTTE le tabelle numeriche della Sezione 6 di tesi/tesi.tex
-(Tabelle 6.1-6.40) con un unico script autocontenuto (solo numpy).
+Riproduzione di TUTTE le tabelle numeriche del Capitolo 6 di tesi/tesi.tex
+(risultati numerici, riuso del mini-batch, stop adattivo con validation set,
+riuso per discesa della loss sul batch e iperparametri consigliati, incluse le
+12 tabelle per-iterazione "base vs consigliato") con un unico script
+autocontenuto (solo numpy). Non produce la Tabella 5.1 (confronto analitico
+delle complessita', non un insieme di dati numerici).
 
 Preset e algoritmi sono il codice ESATTO generato da visualizzazione.html
 (generatori generateGD / generateNewtonCG / generateNewtonL1 / generateBB e
@@ -3079,7 +3083,6 @@ def gen_descent_confronto(data, refs):
     out.append("\\toprule")
     out.append("Metodo & " + " & ".join(DESC_HEADERS) + "\\\\")
     out.append("\\midrule")
-    cells_all = {c: [] for c in DESC_COLS}
     for i, pname in enumerate(PRESETS):
         if i:
             out.append("\\midrule")
@@ -3088,20 +3091,14 @@ def gen_descent_confronto(data, refs):
             row = [PRESET_LATEX[pname] + " - " + ALGO_LATEX[algo]]
             for col in DESC_COLS:
                 e30, res = desc_cell(data, refs, pname, algo, col)
-                cells_all[col].append(e30)
                 cell = colorcell(e30)
                 if col != "base":
                     cell += marker(base30, e30)
                 cell += f" ({res})"
                 row.append(cell)
             out.append(" & ".join(row) + "\\\\")
-    out.append("\\midrule")
-    base_all = np.mean(cells_all["base"])
-    media = ["Media (16 casi)", colorcell(float(base_all))]
-    for col in DESC_COLS[1:]:
-        media.append(colorcell(float(np.mean(cells_all[col]))) +
-                     marker(base_all, float(np.mean(cells_all[col]))))
-    out.append(" & ".join(media) + "\\\\")
+    # NB: la Tabella 6.25 della tesi NON ha la riga "Media (16 casi)"
+    # (a differenza della Tabella 6.22, che la include).
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
     out.append("\\end{table}")
@@ -3294,11 +3291,13 @@ def gen_cons_sintesi(cons):
 
 def gen_cons_tables(riuso):
     """Tabelle 6.30-6.41: errore e_k (seed 42) base vs configurazione
-    consigliata, per le combinazioni problema x algoritmo con consigliata
-    diversa dalla base (si esclude BB-CCV)."""
+    consigliata, per i tre metodi con consigliata diversa dalla base
+    (Dynamic GD: riuso M=5; Newton-CG: stop adattivo con validation set
+    P=1, f=1, p=10%, split fissa; Newton-CG L1: riuso M=3; si esclude
+    BB-CCV, la cui consigliata è la base)."""
     cfg_label = {
         "gd": "riuso $M{=}5$",
-        "newton_cg": "stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa)",
+        "newton_cg": "stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa",
         "newton_l1": "riuso $M{=}3$",
     }
     labels = {
@@ -3320,6 +3319,14 @@ def gen_cons_tables(riuso):
             if RECOMMENDED[algo][0] == "riuso":
                 m = RECOMMENDED[algo][1].split("=")[1]
                 cons = riuso[(pname, algo, m)]
+            elif RECOMMENDED[algo][0] == "validation":
+                # Newton-CG: la consigliata è lo stop adattivo con validation
+                # set (P=1, f=1, p=10%, split fissa), seed 42.
+                hp = dict(VALID_DEFAULT_HP, val_patience=1, val_freq=1,
+                          val_pct=0.1, val_strategy="fixed")
+                np.random.seed(SEED)
+                p = PRESET_MAKERS[pname]()
+                cons, _res = run_validation(p, algo, hp)
             else:
                 continue
             cap = ("Errore $e_k=\\|w_k-w_*\\|_2$ a ogni iterazione $k$ sul "
@@ -3484,6 +3491,30 @@ def _expected_cons_sintesi(cons):
     return {"tab:riuso_cons_sintesi": vals}
 
 
+def _expected_ncg_cons(riuso):
+    r"""Tabelle consigliate per-iterazione di Newton-CG
+    (tab:riuso_cons_{bencond,malcond,veryill,offdiag}_ncg): colonna
+    \emph{base} (ricampionamento a ogni iterazione) e colonna consigliata
+    (stop adattivo con validation set: P=1, f=1, p=10%, split fissa),
+    valori e_k al seed 42, ordinate per riga k (base, consigliato)."""
+    hp = dict(VALID_DEFAULT_HP, val_patience=1, val_freq=1, val_pct=0.1,
+              val_strategy="fixed")
+    sfx = {"quad_well": "bencond", "quad_ill": "malcond",
+           "quad_very_ill": "veryill", "quad_offdiag": "offdiag"}
+    out = {}
+    for pname in PRESETS:
+        base = riuso[(pname, "newton_cg", "base")]
+        np.random.seed(SEED)
+        p = PRESET_MAKERS[pname]()
+        cons, _res = run_validation(p, "newton_cg", hp)
+        vals = []
+        for k in range(MAX_ITER + 1):
+            vals.append(base[k])
+            vals.append(cons[k])
+        out[f"tab:riuso_cons_{sfx[pname]}_ncg"] = vals
+    return out
+
+
 def _check(label, blocks, vals, label_lookup=None):
     """Confronta vals con le celle del blocco label; ritorna (n, nbad)."""
     lookup = label_lookup or label
@@ -3607,6 +3638,8 @@ def verify(tesi_path):
         n, nb = _check(lab, blocks, vals); checks += n; failures += nb
     cons = compute_consigliati()
     for lab, vals in _expected_cons_sintesi(cons).items():
+        n, nb = _check(lab, blocks, vals); checks += n; failures += nb
+    for lab, vals in _expected_ncg_cons(riuso).items():
         n, nb = _check(lab, blocks, vals); checks += n; failures += nb
     print(f"=== {checks - failures}/{checks} celle entro tolleranza "
           f"({failures} fuori) ===")

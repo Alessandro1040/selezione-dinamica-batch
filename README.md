@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (03/09/2026).** **Script di riproduzione
+  `riproduci_tutte_le_tabelle.py` allineato a `tesi.tex` su tutte le tabelle
+  del Capitolo 6.** (1) `gen_cons_tables` ora genera anche le 4 tabelle
+  per-iterazione "base vs consigliato" di Newton-CG
+  (`tab:riuso_cons_{bencond,malcond,veryill,offdiag}_ncg`): la colonna
+  consigliata è lo stop adattivo con validation set (P=1, f=1, p=10%, split
+  fissa, seed 42), finora presente in `tesi.tex` ma non emessa dallo script.
+  (2) Rimossa da `gen_descent_confronto` la riga "Media (16 casi)": la Tabella
+  6.25 della tesi non la contiene (le 80 celle coincidevano già).
+  (3) `--verify` esteso alle 4 tabelle Newton-CG (29 → 33 tabelle controllate;
+  **3951/3951 celle OK, 0 fuori**). Validazione completa: `--tex` ora emette
+  tutte le **41** tabelle numeriche del Capitolo 6 e il confronto
+  cella-per-cella contro `tesi.tex` non ha differenze (resta esclusa solo la
+  Tabella 5.1, analitica, non un insieme di dati). Docstring dello script
+  aggiornata. Nessun PDF coinvolto (`bozza.tex` non toccata).
 - **Ultimo intervento (02/09/2026, follow-up 3).** **Tesi: rimossa la sezione
   NSynth.** Eliminate da `tesi.tex` le sottosezioni 6.5 "Riconoscimento Note"
   e 6.6 "Riconoscimento Strumenti" (erano `(PLACEHOLDER)`, contenuto mai
