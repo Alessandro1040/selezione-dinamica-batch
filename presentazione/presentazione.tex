@@ -168,9 +168,11 @@
         g_k = \nabla\ell(w_k;i_k) - c_k + \mathbb{E}[c_k],
       \]
       che resta non distorto: $\mathbb{E}[g_k]=\nabla J(w_k)$.
-    \item Se la correzione $c_k$ è correlata al rumore del gradiente
-      stocastico, la varianza di $g_k$ si riduce (idealmente tende a zero
-      vicino all'ottimo): \emph{variance reduction}.
+    \item Se $c_k$ ``specchia'' il gradiente campionato (stesso esempio
+      $i_k$, valutato in un punto vicino a $w_k$), sottrarla riduce la
+      varianza di $g_k$, fino a zero vicino all'ottimo:
+      \emph{variance reduction}. Meccanismo e forma di $c_k$ per SVRG e
+      SAGA: prossima slide.
     \item Differenza chiave tra i due metodi:
       \begin{itemize}
         \item \textbf{SVRG}: ricalcola periodicamente un gradiente esatto su
@@ -184,7 +186,40 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 6 — Schema SVRG e perché ricampionare ogni m iterazioni
+% SLIDE 6 — Perché la correzione riduce la varianza
+% =====================================================================
+\begin{frame}{Perché la correzione riduce la varianza}
+  \small
+  \begin{itemize}
+    \item Per $w_k$ fissato, $\mathbb{E}[c_k]$ è noto: non aggiunge
+      rumore. La parte aleatoria di
+      $g_k=\nabla\ell(w_k;i_k)-c_k+\mathbb{E}[c_k]$ è
+      $\nabla\ell(w_k;i_k)-c_k$, quindi
+      \[
+        \mathrm{Var}(g_k)=\mathrm{Var}\big(\nabla\ell(w_k;i_k)\big)
+        +\mathrm{Var}(c_k)
+        -2\,\mathrm{Cov}\big(\nabla\ell(w_k;i_k),\,c_k\big).
+      \]
+    \item $c_k$ è costruita usando lo \emph{stesso} esempio $i_k$ del
+      gradiente: se lo ``specchia'' ($\mathrm{Cov}>0$), il termine
+      $-2\,\mathrm{Cov}$ cancella parte del rumore e
+      $\mathrm{Var}(g_k)$ scende. Se $c_k$ fosse indipendente non ci
+      sarebbe guadagno; se anti-correlata la varianza \emph{aumenterebbe}.
+    \item \textbf{SVRG}: $c_k=\nabla\ell(\bar w;i_k)$ con
+      $\mathbb{E}[c_k]=\nabla J(\bar w)$. Quando $w_k\approx\bar w$, per
+      la regolarità dei gradienti $c_k\approx\nabla\ell(w_k;i_k)$: la
+      covarianza è quasi massima e $\mathrm{Var}(g_k)\to 0$.
+    \item \textbf{SAGA}: $c_k=g^{(i_k)}$ (gradiente dell'esempio $i_k$
+      memorizzato alla sua ultima occorrenza) con
+      $\mathbb{E}[c_k]=\bar g$; a convergenza ($w_k\to w_*$, minimo)
+      ogni voce tende a $\nabla\ell(w_*;i)$ e la cancellazione è la
+      stessa di SVRG, senza ricalcoli globali.
+  \end{itemize}
+  \fonte{Dalla tesi --- Appendice~D (Schemi dei metodi a varianza ridotta)}
+\end{frame}
+
+% =====================================================================
+% SLIDE 7 — Schema SVRG e perché ricampionare ogni m iterazioni
 % =====================================================================
 \begin{frame}{SVRG: l'ancora e il ricampionamento ogni $m$ iterazioni}
   \small
@@ -216,7 +251,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 7 — Schema SAGA
+% SLIDE 8 — Schema SAGA
 % =====================================================================
 \begin{frame}{SAGA: la tavola dei gradienti, nessun ricalcolo globale}
   \begin{columns}[T]
@@ -246,7 +281,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 8 — Limiti di SVRG/SAGA e lezione per la tesi
+% SLIDE 9 — Limiti di SVRG/SAGA e lezione per la tesi
 % =====================================================================
 \begin{frame}{Limiti di SVRG/SAGA e lezione per la tesi}
   \begin{itemize}
@@ -267,7 +302,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — Campionamento dinamico e CCV
+% SLIDE 10 — Campionamento dinamico e CCV
 % =====================================================================
 \begin{frame}{Campionamento dinamico: la Condizione di Controllo della Varianza}
   \begin{itemize}
@@ -296,7 +331,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 10 — La CCV garantisce una direzione di discesa
+% SLIDE 11 — La CCV garantisce una direzione di discesa
 % =====================================================================
 \begin{frame}{La CCV garantisce una direzione di discesa}
   \begin{itemize}
@@ -323,7 +358,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 11 — I quattro algoritmi
+% SLIDE 12 — I quattro algoritmi
 % =====================================================================
 \begin{frame}{I quattro algoritmi a campionamento dinamico}
   \begin{itemize}
@@ -345,7 +380,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 12 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 13 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
@@ -357,7 +392,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 14 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -369,7 +404,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 15 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -381,7 +416,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 16 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -393,7 +428,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Risultati teorici
+% SLIDE 17 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -416,7 +451,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — App web interattiva
+% SLIDE 18 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -436,7 +471,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 18 — Setup e risultati numerici
+% SLIDE 19 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -466,7 +501,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 20 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -493,7 +528,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Conclusioni
+% SLIDE 21 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -513,7 +548,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Limiti e lavoro futuro
+% SLIDE 22 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
