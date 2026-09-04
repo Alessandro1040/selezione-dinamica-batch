@@ -201,6 +201,12 @@ Da tenere presente nelle sessioni di lavoro successive:
   $2.0\times10^{-1}$). Ricompilati `tesi.pdf` e `tesi_finale.pdf` e
   sincronizzati in repo (md5 verificati).
 
+- **Ultimo intervento (04/09/2026, ringraziamenti).** Rimosso ``Sik World''
+  dai ringraziamenti visibili della pagina Ringraziamenti di `tesi.tex` e
+  spostato in commento (lista ``mantenuti come commento'', con data di
+  rimozione). Ricompilati `tesi.pdf` e `tesi_finale.pdf`; sincronizzati in repo
+  (md5 verificati). Nessun'altra modifica: nessuna tabella numerica coinvolta
+  (nessuna riga dello script di riproduzione cambiata).
 - **Ultimo intervento (03/09/2026).** **Script di riproduzione
   `riproduci_tutte_le_tabelle.py` allineato a `tesi.tex` su tutte le tabelle
   del Capitolo 6.** (1) `gen_cons_tables` ora genera anche le 4 tabelle
