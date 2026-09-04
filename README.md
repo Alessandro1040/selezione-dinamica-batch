@@ -157,6 +157,33 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (04/09/2026, schemi).** **Schemi a blocchi del Cap. 5
+  ripuliti: niente variabili pendenti (R, $\sigma$, $\nu$, $Y_k$, $\alpha$).**
+  (1) Fig. 5.5 (Newton-CG $L_1$): rimosso $R$ da "Inizializzazione" (in
+  questa variante i campioni sono fissi, $|\mathcal{H}|=|\mathcal{H}_0|$ e
+  $|\mathcal{S}|=|\mathcal{S}_0|$; $R$ non è un input, cfr. action box);
+  il nodo subgradiente ora mostra
+  $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k$
+  ($\nu$ resa esplicita); il nodo CG definisce $Y_k$ ("versori delle
+  coordinate libere"); il nodo "Ricerca lineare proiettata" cita Armijo con
+  $\sigma$. (2) Fig. 5.2 (Newton-CG): il nodo "Ricampionamento" ora mostra
+  $\mathcal{H}_{k+1}\subseteq\mathcal{S}_{k+1}$ con
+  $|\mathcal{H}_{k+1}|=R|\mathcal{S}_{k+1}|$ (prima $R$ compariva solo in
+  "Inizializzazione"). (3) Fig. 5.6 (BB-CCV): aggiunto $\alpha$ a
+  "Inizializzazione" (usato nella formula del passo BB). Verificati anche gli
+  altri schemi (Dynamic GD fig. 5.1, SVRG/SAGA in Appendice): nessun altro
+  simbolo pendente; $\mu$ non compare in nessuno schema del Cap. 5. Aggiunte
+  le sorgenti standalone
+  `presentazione/schemi/schema_{dynamic_gd,newton_cg,newton_l1,bbccv}.tex`
+  (pattern di `schema_saga.tex`/`schema_svrg.tex`) e rigenerate le immagini
+  `presentazione/immagini/schema_*.pdf` (4 file). Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**135 pp** — invariate; 0 errori, 0 undefined; 16
+  overfull preesistenti, nessuno sui nodi modificati) e
+  `presentazione/presentazione.pdf` (**27 pp**; 0 overfull). Sincronizzati in
+  repo tesi.tex/tesi.pdf/tesi_finale.pdf (md5 verificati). Nessun altro file
+  toccato.
+
+
 - **Ultimo intervento (04/09/2026, follow-up).** **Presentazione, slide 9
   ("La varianza del gradiente stimato: definizioni"): aggiunta la definizione
   di $\mathcal{V}$, prima assente.** La slide definiva solo la stima

@@ -1,0 +1,73 @@
+% =====================================================================
+% schema_bbccv.tex — Schema BB-CCV, fig:bbccv della tesi
+% Stesso codice TikZ della tesi; compilare con pdflatex.
+% =====================================================================
+\documentclass[border=8pt]{standalone}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath, amssymb}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta, positioning, calc}
+\definecolor{coverblue}{RGB}{30, 60, 120}
+
+\begin{document}
+\begin{tikzpicture}[
+  node distance=1.0cm and 2.4cm,
+  every node/.style={font=\small},
+  box/.style={
+    draw=coverblue, fill=coverblue!6, rounded corners=3pt,
+    text width=4.2cm, align=center, minimum height=1.2cm,
+    inner sep=6pt
+  },
+  io/.style={
+    draw=gray!60, fill=gray!8, rounded corners=3pt,
+    text width=4.0cm, align=center, minimum height=1.0cm,
+    inner sep=5pt
+  },
+  arrow/.style={-{Stealth[length=2.5mm]}, thick, color=coverblue},
+  label/.style={font=\scriptsize, fill=white, inner sep=1.5pt}
+]
+
+  % Nodi principali (colonna centrale)
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$, $\alpha$};
+  \node[box, below=of init] (batch) {Estrazione batch\\[2pt] $\mathcal{S}_k \subseteq \{1,\dots,N\}$, $|\mathcal{S}_k| = n_k$};
+  \node[box, below=of batch] (grad) {Calcolo gradiente\\[2pt] $g_k = \nabla J_{\mathcal{S}_k}(w_k)$\\[1pt] e varianza campionaria $\widehat{\mathcal{V}}$};
+  \node[box, below=of grad] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \le \theta^2 \|g_k\|^2$};
+  \node[box, below=of ccv, text width=5.9cm, minimum height=1.9cm] (bb) {Passo di Barzilai-Borwein\\[2pt] $s = w_k - w_{k-1}$, \; $y = g_k - g_{k-1}$\\[2pt] $\alpha_k = \mathrm{clip}\!\Bigl(\dfrac{s^T s}{s^T y}, \dfrac{\alpha}{20}, 5\alpha\Bigr)$};
+  \node[box, below=of bb] (ls) {Line search di Armijo\\[2pt] backtracking $\alpha_k \leftarrow \alpha_k / 2$};
+  \node[box, below=of ls] (upd) {Aggiornamento\\[2pt] $w_{k+1} = w_k - \alpha_k g_k$};
+  \node[io, below=of upd] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
+  \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
+
+  % Nodo laterale (aumento batch)
+  \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
+    CCV violata:\\[2pt]
+    aumento del batch\\[2pt]
+    $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
+  };
+
+  % Frecce verticali principali
+  \draw[arrow] (init) -- (batch);
+  \draw[arrow] (batch) -- (grad);
+  \draw[arrow] (grad) -- (ccv);
+  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (bb) -- (ls);
+  \draw[arrow] (ls) -- (upd);
+  \draw[arrow] (upd) -- (conv);
+
+  % Freccia uscita
+  \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
+
+  % Freccia CCV violata
+  \draw[arrow] (ccv) -- (grow) node[label, midway, above] {no};
+
+  % Loop ritorno da grow a batch (percorso esterno destro)
+  \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
+    node[label, pos=0.25, right] {nuovo $n_k$};
+
+  % Loop ritorno da conv a batch (percorso esterno sinistro)
+  \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
+    node[label, pos=0.25, left] {no: $k \leftarrow k{+}1$};
+
+\end{tikzpicture}
+\end{document}

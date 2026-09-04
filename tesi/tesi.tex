@@ -1771,7 +1771,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
   \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (cg) {Gradiente Coniugato adattivo\\[2pt] Risolvi $H_k d = -g_k$\\[1pt] Criterio: $\|r_j\|^2 \le \gamma\|d_j\|^2$};
   \node[box, below=of cg] (ls) {Line search di Wolfe\\[2pt] $\alpha_k$};
   \node[box, below=of ls] (upd) {Aggiornamento\\[2pt] $w_{k+1} = w_k + \alpha_k d_k$};
-  \node[box, below=of upd, text width=4.6cm, minimum height=1.4cm] (recamp) {Ricampionamento\\[2pt] Seleziona $\mathcal{S}_{k+1}$, $\mathcal{H}_{k+1}$\\[1pt] Calcola $g_{k+1}$, $\widehat{\mathcal{V}}$};
+  \node[box, below=of upd, text width=4.6cm, minimum height=1.4cm] (recamp) {Ricampionamento\\[2pt] Seleziona $\mathcal{S}_{k+1}$; $\mathcal{H}_{k+1}\subseteq\mathcal{S}_{k+1}$\\[1pt] con $|\mathcal{H}_{k+1}| = R\,|\mathcal{S}_{k+1}|$\\[1pt] Calcola $g_{k+1}$, $\widehat{\mathcal{V}}$};
   \node[box, below=of recamp] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_{k+1}} \le \theta^2 \|g_{k+1}\|^2$};
   \node[io, below=of ccv] (conv) {Convergenza?\\[2pt] $\|\nabla J(w_k)\| < \mathrm{tol}$};
   \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
@@ -2211,10 +2211,10 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 ]
 
   % Nodi principali (colonna centrale)
-  \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $\nu$, $\eta$, $\sigma$, $R$};
-  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[2pt] e determina $z_k$, $\mathcal{A}_k$};
-  \node[box, below=of subgrad, text width=4.8cm, minimum height=1.6cm] (cg) {CG nel sottospazio libero\\[2pt] $[Y_k^T H_k Y_k]\,d^Y = -Y_k^T \widetilde{\nabla}F$\\[1pt] Arresto: $\|r\| \le \eta\|Y_k^T \widetilde{\nabla}F\|$};
-  \node[box, below=of cg, text width=4.6cm, minimum height=1.4cm] (ls) {Ricerca lineare proiettata\\[2pt] Trova $\alpha_k$\\[1pt] $w_{k+1} = P[w_k + \alpha_k d_k]$};
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $\nu$, $\eta$, $\sigma$};
+  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
+  \node[box, below=of subgrad, text width=4.8cm, minimum height=1.6cm] (cg) {CG nel sottospazio libero\\[2pt] ($Y_k$: versori delle coordinate libere)\\[2pt] $[Y_k^T H_k Y_k]\,d^Y = -Y_k^T \widetilde{\nabla}F$\\[1pt] Arresto: $\|r\| \le \eta\|Y_k^T \widetilde{\nabla}F\|$};
+  \node[box, below=of cg, text width=4.6cm, minimum height=1.4cm] (ls) {Ricerca lineare proiettata\\[1pt] (Armijo, $\sigma$)\\[2pt] Trova $\alpha_k$\\[1pt] $w_{k+1} = P[w_k + \alpha_k d_k]$};
   \node[box, below=of ls] (recamp) {Ricampionamento\\[2pt] $\mathcal{S}_{k+1}$, $\mathcal{H}_{k+1}$ (fissi)};
   \node[io, below=of recamp] (conv) {Convergenza?\\[2pt] $\|\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\| < \mathrm{tol}$};
   \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
@@ -2404,7 +2404,7 @@ raggiunge la precisione macchina sui problemi mal condizionati.
 ]
 
   % Nodi principali (colonna centrale)
-  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$};
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0$, $\mathcal{S}_0$, $\theta$, $\alpha$};
   \node[box, below=of init] (batch) {Estrazione batch\\[2pt] $\mathcal{S}_k \subseteq \{1,\dots,N\}$, $|\mathcal{S}_k| = n_k$};
   \node[box, below=of batch] (grad) {Calcolo gradiente\\[2pt] $g_k = \nabla J_{\mathcal{S}_k}(w_k)$\\[1pt] e varianza campionaria $\widehat{\mathcal{V}}$};
   \node[box, below=of grad] (ccv) {Verifica CCV\\[3pt] $\displaystyle\frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \le \theta^2 \|g_k\|^2$};
