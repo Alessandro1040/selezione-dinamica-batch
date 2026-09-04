@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (04/09/2026, SVRG/SAGA).** **Presentazione slide 6 e 8:
+  chiarito il confronto SVRG/SAGA e rinominato l'intervallo SVRG da $m$ a
+  $t$.** La slide 8 poteva far credere che entrambi i metodi a varianza
+  ridotta "costassero" $O(Nm)$; in realtà i due $O(Nm)$ riguardano risorse
+  diverse: SVRG paga $O(Nm)$ di costo *temporale* per ogni passata completa
+  sul dataset (memoria extra minima, solo l'ancora: $O(m)$), SAGA paga
+  $O(Nm)$ di *memoria* per la tavola dei gradienti (nessuna passata completa
+  periodica). La slide 8 ora esplicita "costo temporale" vs "memoria".
+  Inoltre $m$ era usato con due significati (dimensione dei parametri in
+  $O(Nm)$ e intervallo di ricampionamento di SVRG): l'intervallo è rinominato
+  $t$ nella slide 6 (titolo e testo), slide 8, nello schema SVRG
+  (`presentazione/schemi/schema_svrg.tex` e immagine) e, per coerenza, nella
+  figura fig:svrg della tesi (nodo, etichetta e didascalia). Ricompilati
+  `presentazione/presentazione.pdf` (**27 pp**; 0 overfull) e `tesi.pdf` +
+  `tesi_finale.pdf` (**135 pp**; 0 errori, 0 undefined; 16 overfull
+  preesistenti invariati). Sincronizzati in repo tesi.tex/tesi.pdf/
+  tesi_finale.pdf (md5 verificati). Nessun altro file toccato.
+
+
 - **Ultimo intervento (04/09/2026, schemi).** **Schemi a blocchi del Cap. 5
   ripuliti: niente variabili pendenti (R, $\sigma$, $\nu$, $Y_k$, $\alpha$).**
   (1) Fig. 5.5 (Newton-CG $L_1$): rimosso $R$ da "Inizializzazione" (in

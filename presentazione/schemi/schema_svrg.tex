@@ -39,7 +39,7 @@
 
   % Nodo laterale: aggiornamento del punto di ancoraggio
   \node[box, right=2.1cm of stim, text width=4.8cm, minimum height=1.9cm] (snap) {
-    Ogni $m$ iterazioni:\\[2pt]
+    Ogni $t$ iterazioni:\\[2pt]
     $\bar w \leftarrow w_k$\\[2pt]
     $\nabla J(\bar w) = \dfrac{1}{N}\sum_{i=1}^{N} \nabla\ell(\bar w; i)$
   };
@@ -59,7 +59,7 @@
 
   % Aggiornamento ancoraggio -> stimatore
   \draw[arrow] (snap.west) -- (stim.east)
-    node[label, midway, above] {ogni $m$ it.};
+    node[label, midway, above] {ogni $t$ it.};
 
 \end{tikzpicture}
 \end{document}

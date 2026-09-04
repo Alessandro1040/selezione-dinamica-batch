@@ -7423,7 +7423,7 @@ $\alpha_k$ il passo.
 
   % Nodo laterale: aggiornamento del punto di ancoraggio
   \node[box, right=2.1cm of stim, text width=4.8cm, minimum height=1.9cm] (snap) {
-    Ogni $m$ iterazioni:\\[2pt]
+    Ogni $t$ iterazioni:\\[2pt]
     $\bar w \leftarrow w_k$\\[2pt]
     $\nabla J(\bar w) = \dfrac{1}{N}\sum_{i=1}^{N} \nabla\ell(\bar w; i)$
   };
@@ -7443,11 +7443,11 @@ $\alpha_k$ il passo.
 
   % Aggiornamento ancoraggio -> stimatore
   \draw[arrow] (snap.west) -- (stim.east)
-    node[label, midway, above] {ogni $m$ it.};
+    node[label, midway, above] {ogni $t$ it.};
 
 \end{tikzpicture}}
 \caption{Schema del metodo SVRG di Johnson e Zhang~\cite{johnson2013}: il
-punto di ancoraggio $\bar w$ viene aggiornato ogni $m$ iterazioni con il
+punto di ancoraggio $\bar w$ viene aggiornato ogni $t$ iterazioni con il
 gradiente esatto $\nabla J(\bar w)$, e lo stimatore corregge il gradiente
 stocastico corrente con la differenza
 $\nabla\ell(w_k; i_k) - \nabla\ell(\bar w; i_k)$. Lo stimatore è non distorto,

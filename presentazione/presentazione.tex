@@ -187,13 +187,13 @@
 % =====================================================================
 % SLIDE 6 — Schema SVRG e perché ricampionare ogni m iterazioni
 % =====================================================================
-\begin{frame}{SVRG: l'ancora e il ricampionamento ogni $m$ iterazioni}
+\begin{frame}{SVRG: l'ancora e il ricampionamento ogni $t$ iterazioni}
   \small
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
       \begin{itemize}
         \item Punto di ancoraggio $\bar w$ con gradiente esatto
-          $\nabla J(\bar w)$, ricalcolato ogni $m$ iterazioni.
+          $\nabla J(\bar w)$, ricalcolato ogni $t$ iterazioni.
         \item Stimatore non distorto:
           \[
             g_k=\nabla\ell(w_k;i_k)-\nabla\ell(\bar w;i_k)+\nabla J(\bar w)
@@ -251,14 +251,14 @@
 % =====================================================================
 \begin{frame}{Limiti di SVRG/SAGA e conseguenze per la tesi}
   \begin{itemize}
-    \item \textbf{SVRG}: il gradiente esatto dell'ancora
-      $\nabla J(\bar w)$ è ricalcolato ogni $m$ iterazioni con una
-      passata completa sul dataset (costo $O(Nm)$); per $N$ molto
-      grande questi ricalcoli periodici possono dominare il costo
-      complessivo.
-    \item \textbf{SAGA}: memoria $O(Nm)$ per la tavola dei gradienti
-      (un gradiente per ogni esempio): improponibile quando $N\cdot m$ è
-      molto grande.
+    \item \textbf{SVRG}: memoria extra minima (solo l'ancora e il suo
+      gradiente, $O(m)$); ma ogni $t$ iterazioni va ricalcolato il
+      gradiente esatto $\nabla J(\bar w)$ con una passata completa sul
+      dataset: costo \emph{temporale} $O(Nm)$ per passata, che per $N$
+      molto grande può dominare il costo complessivo.
+    \item \textbf{SAGA}: nessuna passata completa periodica, ma
+      \emph{memoria} $O(Nm)$ per la tavola dei gradienti (un gradiente
+      per ogni esempio): improponibile quando $N\cdot m$ è molto grande.
     \item In entrambi la dimensione del campione è \textbf{fissata a
       priori} (un esempio per iterazione): non è mai adattata
       alle necessità di accuratezza del momento.
