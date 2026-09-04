@@ -271,18 +271,46 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — Campionamento dinamico e CCV
+% SLIDE 9 — Varianza del gradiente stimato: definizioni
+% =====================================================================
+\begin{frame}{La varianza del gradiente stimato: definizioni}
+  \small
+  \begin{itemize}\setlength{\itemsep}{4pt}
+    \item Il gradiente sul batch è la \emph{media} dei gradienti per-esempio,
+      $g_k=\nabla J_{\mathcal{S}_k}(w_k)
+      =\frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell(w_k;i)$,
+      con $\mathbb{E}[g_k]=\nabla J(w_k)$ (stimatore non distorto). L'errore
+      $e_k:=g_k-\nabla J(w_k)$ non è calcolabile: $\nabla J(w_k)$ è ignoto.
+    \item Si controlla il suo valore atteso, la \emph{varianza dello
+      stimatore}: $\mathbb{E}[\|e_k\|_2^2]=\|\mathrm{Var}(g_k)\|_1$ (somma
+      delle varianze componente per componente).
+    \item Definizione (``v-hat''): la stima si ottiene dalla varianza
+      \emph{campionaria} dei gradienti per-esempio sul batch corrente,
+      centrata sulla media campionaria $g_k$:
+      \[
+        \widehat{\mathcal{V}}
+        := \frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}
+        \bigl(\nabla\ell(w_k;i)-g_k\bigr)^2\in\mathbb{R}^m ,
+      \]
+      quadrato e divisione componente per componente; il denominatore
+      $n_k-1$ (Bessel) rende la stima non distorta.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.1}
+\end{frame}
+
+% =====================================================================
+% SLIDE 10 — Campionamento dinamico e CCV
 % =====================================================================
 \begin{frame}{Campionamento dinamico: la Condizione di Controllo della Varianza}
   \begin{itemize}
     \item Si parte da un batch piccolo: iterazioni economiche; il batch
       cresce solo quando la stima del gradiente non è abbastanza accurata.
-    \item Criterio (CCV): la varianza campionaria del gradiente deve essere
-      piccola rispetto alla norma del gradiente stimato:
+    \item Criterio (CCV): la varianza stimata dello stimatore del gradiente
+      deve essere piccola rispetto alla norma del gradiente stimato:
       \[
         \frac{\|\widehat{\mathcal{V}}\|_1}{n_k}
         \;\le\; \theta^2\,\|g_k\|_2^2,
-        \qquad g_k=\nabla J_{\mathcal{S}_k}(w_k),\quad \theta\in(0,1)
+        \qquad \theta\in(0,1)
       \]
     \item Se la CCV è violata si ricampiona con un batch più grande:
       \[
@@ -300,7 +328,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 10 — La CCV garantisce una direzione di discesa
+% SLIDE 11 — La CCV garantisce una direzione di discesa
 % =====================================================================
 \begin{frame}{La CCV garantisce una direzione di discesa}
   \begin{itemize}
@@ -319,7 +347,10 @@
         \;=\; \mathbb{E}\bigl[\|g_k-\mathbb{E}[g_k]\|_2^2\bigr]
         \;=\; \|\mathrm{Var}(g_k)\|_1 ,
       \]
-      stimata dalla CCV con $\|\widehat{\mathcal{V}}\|_1/n_k$.
+      stimata dalla CCV con $\|\widehat{\mathcal{V}}\|_1/n_k$: $g_k$ è la
+      media di $n_k$ termini indipendenti, quindi
+      $\mathrm{Var}(g_k)=\mathcal{V}/n_k$; $\mathcal{V}$ (ignota) è stimata
+      da $\widehat{\mathcal{V}}$ (slide~9).
     \item Sotto la CCV la direzione resta di discesa: è la base per la
       convergenza dei metodi presentati.
   \end{itemize}
@@ -327,7 +358,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 11 — I quattro algoritmi
+% SLIDE 12 — I quattro algoritmi
 % =====================================================================
 \begin{frame}{I quattro algoritmi a campionamento dinamico}
   \begin{itemize}
@@ -349,7 +380,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 12 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 13 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
@@ -361,7 +392,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Newton-CG: struttura del metodo (due campioni)
+% SLIDE 14 — Newton-CG: struttura del metodo (due campioni)
 % =====================================================================
 \begin{frame}{Newton-CG: struttura del metodo (eq.~5.31--5.32)}
   \small
@@ -391,7 +422,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 15 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG}
   \small
@@ -431,7 +462,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Newton-CG: come si stima l'errore di Hessiana
+% SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.34--5.37)}
   \small
@@ -482,7 +513,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 17 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -494,7 +525,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 18 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -506,7 +537,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 18 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 19 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -518,7 +549,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Risultati teorici
+% SLIDE 20 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -541,7 +572,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — App web interattiva
+% SLIDE 21 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -561,7 +592,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Setup e risultati numerici
+% SLIDE 22 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -591,7 +622,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 23 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -618,7 +649,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — Conclusioni
+% SLIDE 24 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -638,7 +669,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Limiti e lavoro futuro
+% SLIDE 25 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}

@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (04/09/2026).** **Presentazione: aggiunta la definizione
+  di $\widehat{\mathcal{V}}$ (``v-hat'') e completata la spiegazione del perché
+  la varianza di $g_k$ si stima con $\|\widehat{\mathcal{V}}\|_1/n_k$.**
+  Prima la slide CCV usava $\widehat{\mathcal{V}}$ senza definirlo e la slide
+  ``La CCV garantisce una direzione di discesa'' dava la stima
+  $\|\widehat{\mathcal{V}}\|_1/n_k$ senza giustificarla. Inserita una nuova
+  slide 9 (``La varianza del gradiente stimato: definizioni''):
+  $g_k$ è la media campionaria non distorta ($\mathbb{E}[g_k]=\nabla J(w_k)$),
+  la varianza dello stimatore è $\mathbb{E}[\|e_k\|_2^2]=\|\mathrm{Var}(g_k)\|_1$
+  e
+  $\widehat{\mathcal{V}}:=\frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}(\nabla\ell(w_k;i)-g_k)^2\in\mathbb{R}^m$
+  (quadrato per componente; centrata sulla media campionaria $g_k$ perché
+  $\nabla J(w_k)$ è ignoto; $n_k-1$ di Bessel). Slide CCV (ora 10) alleggerita:
+  definizione di $g_k$ rimossa dalla formula (già data a slide 9) e bullet del
+  criterio riformulato (``varianza stimata dello stimatore''). Slide 11:
+  completata la frase sulla stima — $g_k$ è media di $n_k$ termini indipendenti
+  $\Rightarrow\mathrm{Var}(g_k)=\mathcal{V}/n_k$, con $\mathcal{V}$ (ignota)
+  stimata da $\widehat{\mathcal{V}}$ (slide 9). Commenti SLIDE rinumerati
+  (da 24 a 25 slide). Ricompilato `presentazione/presentazione.pdf` (0 errori,
+  0 undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (03/09/2026).** **Script di riproduzione
   `riproduci_tutte_le_tabelle.py` allineato a `tesi.tex` su tutte le tabelle
   del Capitolo 6.** (1) `gen_cons_tables` ora genera anche le 4 tabelle
