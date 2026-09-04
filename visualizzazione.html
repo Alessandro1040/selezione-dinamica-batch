@@ -6877,7 +6877,7 @@ function batchSciLatex(x){
 }
 function batchSci(x){ return fmtNum(x); }
 const BATCH_SENS_VAL_DEFS = {
-  label:'tab:batch_test_sens_val',
+  label:'tab:riuso_valid_iper',
   dims:[
     {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),             latexVal:v=>'$'+v+'$'},
     {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),          latexVal:v=>batchSciLatex(v)},
@@ -6886,17 +6886,17 @@ const BATCH_SENS_VAL_DEFS = {
     {key:'strat',label:'Strategia di split', latex:'Strategia di split', values:['fixed','dynamic'], fmt:v=>v==='fixed'?'fisso':'dinamico', latexVal:v=>'\\emph{'+(v==='fixed'?'fisso':'dinamico')+'}'}
   ],
   make:hp=>'val P='+hp.P+';p='+hp.p+';tau='+hp.tau+';f='+hp.f+';strat='+hp.strat,
-  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri dello stop adattivo con validation set: media di $e_{30}$ e del numero di ricampionamenti su 16 combinazioni problema$\\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri.'
+  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri dello stop adattivo con validation set: media di $e_{30}$ e del numero di ricampionamenti sulle 20 combinazioni problema$\times$algoritmo (seed 42).'
 };
 const BATCH_SENS_DESC_DEFS = {
-  label:'tab:batch_test_sens_desc',
+  label:'tab:riuso_desc_iper',
   dims:[
     {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),     latexVal:v=>'$'+v+'$'},
     {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),   latexVal:v=>batchSciLatex(v)},
     {key:'f',    label:'Frequenza f',     latex:'Frequenza $f$',       values:[1,3],          fmt:v=>String(v),     latexVal:v=>'$'+v+'$'}
   ],
   make:hp=>'desc P='+hp.P+';tau='+hp.tau+';f='+hp.f,
-  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri del criterio di discesa: media di $e_{30}$ e del numero di ricampionamenti su 16 combinazioni problema$\\times$algoritmo (seed 42), fissando uno iperparametro al valore indicato e mediando sugli altri.'
+  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri del criterio di discesa: media di $e_{30}$ e del numero di ricampionamenti sulle 20 combinazioni problema$\times$algoritmo (seed 42).'
 };
 const CONFRONTO_CFGS=[
   {key:'base', strategy:'desc base', ref:'base', hidden:false, html:'base', latex:'\\emph{base}'},
@@ -6905,9 +6905,9 @@ const CONFRONTO_CFGS=[
   {key:'pat1-pct1-dyn', strategy:'val P=1;p=0.1;tau=1e-4;f=1;strat=dynamic', ref:'valbase', hidden:false, html:'P=1, p=0.1, dyn', latex:'$P{=}1,p{=}0.1$,dyn'},
   {key:'t3-pat1-f1', strategy:'desc P=1;tau=1e-3;f=1', ref:'base', hidden:false, html:'τ=1e-3, P=1, f=1', latex:'$\\tau{=}10^{-3},P{=}1,f{=}1$'}
 ];
-const RECOMMENDED_STRATEGY={ gd:'M=5', bb:'base', newton_cg:'val P=1;p=0.1;tau=1e-4;f=1;strat=fixed', newton_l1:'M=3' };
+const RECOMMENDED_STRATEGY={ gd:'base', bb:'base', newton_cg:'val P=1;p=0.1;tau=1e-4;f=1;strat=fixed', newton_l1:'M=3' };
 const RECOMMENDED_LABEL={
-  gd:'riuso $M{=}5$',
+  gd:'\\emph{base}',
   bb:'\\emph{base}',
   newton_cg:'stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa',
   newton_l1:'riuso $M{=}3$'
@@ -6917,6 +6917,8 @@ const ROB_RIUSO_CFGS=[
   {key:'inf',  strategy:'M=inf'},
   {key:'10',   strategy:'M=10'}
 ];
+const BATCH_PRESET_KEYS=['quad_well','quad_ill','quad_very_ill','quad_offdiag','rosenbrock'];
+const BATCH_ALGO_KEYS=['gd','bb','newton_cg','newton_l1'];
 
 
 
@@ -7386,7 +7388,7 @@ function batchRenderSens(dims, results, defs){
   const isVal=defs===BATCH_SENS_VAL_DEFS;
   const el=document.getElementById('batchResults');
   let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Sensibilità iperparametri ('+(isVal?'validation':'discesa')+')</strong> — stile Tabella '+(isVal?'6.23':'6.26')+': media di e₃₀ e ricampionamenti su 16 caselle problema×algoritmo, fissando un iperparametro e mediando sugli altri · seed '+batchEsc(seed)+' · '+agg.used.toLocaleString('it-IT')+' run valide</div>';
+  html+='<div class="cap"><strong>Sensibilità iperparametri ('+(isVal?'validation':'discesa')+')</strong> — stile Tabella '+(isVal?'6.23':'6.26')+': media di e₃₀ e ricampionamenti su 20 caselle problema×algoritmo un iperparametro e mediando sugli altri · seed '+batchEsc(seed)+' · '+agg.used.toLocaleString('it-IT')+' run valide</div>';
   html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Iperparametro</th><th>Valore</th><th>ē₃₀ (media)</th><th>ricampionamenti</th></tr></thead><tbody>';
   for(const row of agg.rows){
     row.group.forEach((g,i)=>{
@@ -7441,8 +7443,8 @@ function batchRobRiusoAggregate(results){
     cell[r.cfg.loss+'|'+r.cfg.algo+'|'+r.cfg.cfgKey+'|'+r.cfg.seed]=r.metrics.e30;
   }
   const rows=[];
-  for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']){
-    for(const a of ['gd','bb','newton_cg','newton_l1']){
+  for(const p of BATCH_PRESET_KEYS){
+    for(const a of BATCH_ALGO_KEYS){
       const row={preset:p, algo:a, inf:[0,0,0], m10:[0,0,0]};
       for(const s of [42,7,123,2024,999]){
         const b=cell[p+'|'+a+'|base|'+s];
@@ -7492,7 +7494,7 @@ function batchLatexRobRiuso(r){
   L.push('\\renewcommand{\\arraystretch}{1.0}');
   L.push('\\setlength{\\tabcolsep}{2pt}');
   L.push('\\caption{Robustezza del riuso del mini-batch su 5 seed indipendenti ($\\{42,7,123,2024,999\\}$): per ogni coppia problema--algoritmo e per ciascuna politica di riuso ($M{=}\\infty$ e $M{=}10$), numero di seed su 5 in cui $e_{30}$ rispetto alla \\emph{base} è minore (\\emph{Migl.}), maggiore (\\emph{Pegg.}) o identico (\\emph{Uguale}).}');
-  L.push('\\label{tab:batch_test_rob_riuso}');
+  L.push('\\label{tab:riuso_robustezza}');
   L.push('\\begin{tabular}{@{}llccc|ccc@{}}');
   L.push('\\toprule');
   L.push('Problema & Algoritmo & \\multicolumn{3}{c}{$M{=}\\infty$} & \\multicolumn{3}{c}{$M{=}10$}\\\\');
@@ -7524,7 +7526,7 @@ function batchConfrontoAggregate(results){
     const k=r.cfg.cfgKey+'|'+r.cfg.loss+'|'+r.cfg.algo;
     (cell[k]=cell[k]||[]).push(r.metrics.e30);
   }
-  const presets=['quad_well','quad_ill','quad_very_ill','quad_offdiag'];
+  const presets=BATCH_PRESET_KEYS;
   const algos=['gd','bb','newton_cg','newton_l1'];
   const rows=[];
   for(const c of CONFRONTO_CFGS){
@@ -7555,7 +7557,7 @@ function batchRenderConfronto(dims, results){
   const r=batchConfrontoAggregate(results);
   const el=document.getElementById('batchResults');
   let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Confronto finale su 5 seed</strong> — stile Tabella 6.28: 16 caselle problema×algoritmo × 5 seed ('+r.nRuns.toLocaleString('it-IT')+' run)</div>';
+  html+='<div class="cap"><strong>Confronto finale su 5 seed</strong> — stile Tabella 6.28: 20 caselle problema×algoritmo × 5 seed ('+r.nRuns.toLocaleString('it-IT')+' run)</div>';
   html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Strategia</th><th>ē₃₀</th><th>vitt.</th>';
   for(const p of r.presets) html+='<th>'+batchEsc(batchValueLabel('loss',p))+'</th>';
   html+='</tr></thead><tbody>';
@@ -7583,17 +7585,17 @@ function batchLatexConfronto(r){
   L.push('\\footnotesize');
   L.push('\\renewcommand{\\arraystretch}{1.1}');
   L.push('\\setlength{\\tabcolsep}{3pt}');
-  L.push('\\caption{Confronto finale su 5 seed indipendenti (16 combinazioni problema$\\times$algoritmo) tra \\emph{base}, $M{=}\\infty$, lo stop adattivo con validation set calibrato ($P{=}1$, $p{=}10\\%$, split dinamico) e il riuso per discesa calibrato ($\\tau{=}10^{-3}$, $P{=}1$, $f{=}1$). $\\overline{e}_{30}$ = media su 16 caselle $\\times$ 5 seed; \\emph{vitt.} = caselle (su 16) in cui la media su 5 seed è minore del proprio riferimento.}');
-  L.push('\\label{tab:batch_test_confronto}');
-  L.push('\\begin{tabular}{@{}lrrrrrr@{}}');
+  L.push('\\caption{Confronto finale su 5 seed indipendenti (20 combinazioni problema$\times$algoritmo) tra \\emph{base}, $M{=}\\infty$, lo stop adattivo con validation set calibrato ($P{=}1$, $p{=}10\\%$, split dinamico) e il riuso per discesa calibrato ($\\tau{=}10^{-3}$, $P{=}1$, $f{=}1$). $\\overline{e}_{30}$ = media su 20 caselle $\times$ 5 seed; \\emph{vitt.} = caselle (su 20) in cui la media su 5 seed è minore del proprio riferimento.}');
+  L.push('\\label{tab:riuso_confronto_finale}');
+  L.push('\\begin{tabular}{@{}lrrrrrrr@{}}');
   L.push('\\toprule');
-  L.push('Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & $\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & $\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\');
+  L.push('Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & $\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & $\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & funzione di Rosenbrock ($c{=}100$)\\\\');
   L.push('\\midrule');
   for(const row of r.rows){
     const cells=[row.latex,
                  row.mean===null?'---':batchFmt3Latex(row.mean),
                  row.vitt+'/'+row.nCells];
-    for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']) cells.push(row.perProb[p]===null?'---':batchFmt3Latex(row.perProb[p]));
+    for(const p of r.presets) cells.push(row.perProb[p]===null?'---':batchFmt3Latex(row.perProb[p]));
     L.push(cells.join(' & ')+'\\\\');
     if(row.key==='minf') L.push('\\midrule');
   }
@@ -7614,7 +7616,7 @@ function batchConsigliatiAggregate(results){
   }
   const SEEDS=[42,7,123,2024,999];
   const rows=[];
-  for(const p of ['quad_well','quad_ill','quad_very_ill','quad_offdiag']){
+  for(const p of BATCH_PRESET_KEYS){
     for(const a of ['gd','bb','newton_cg','newton_l1']){
       const baseVals=[], recVals=[];
       let wins=0;
@@ -7649,7 +7651,7 @@ function batchRenderConsigliati(dims, results){
     if(lastP!==null && row.preset!==lastP) html+='<tr class="groupsep"><td colspan="6"></td></tr>';
     html+='<tr><td class="rowlab">'+batchEsc(batchValueLabel('loss',row.preset))+'</td>';
     html+='<td>'+batchEsc(batchValueLabel('algo',row.algo))+'</td>';
-    html+='<td>'+batchEsc(row.cfg.replace(/[\\$%{}]/g,''))+'</td>';
+    html+='<td>'+batchEsc(row.cfg.replace(/\\emph\\{([^}]*)\\}/g,'$1').replace(/[\\$%{}]/g,''))+'</td>';
     html+='<td>'+(row.baseMedian===null?'—':batchFmt3(row.baseMedian))+'</td>';
     html+='<td>'+(row.recMedian===null?'—':batchFmt3(row.recMedian))+'</td>';
     html+='<td>'+(row.kind==='base'?'---':row.wins+'/5')+'</td></tr>';
@@ -7673,7 +7675,7 @@ function batchLatexConsigliati(r){
   L.push('\\renewcommand{\\arraystretch}{1.1}');
   L.push('\\setlength{\\tabcolsep}{4pt}');
   L.push('\\caption{Sintesi degli iperparametri consigliati per ciascun metodo: configurazione consigliata, mediana di $e_{30}$ su 5 seed della \\emph{base} e della configurazione consigliata, e numero di seed su 5 in cui la configurazione consigliata migliora la \\emph{base}.}');
-  L.push('\\label{tab:batch_test_consigliati}');
+  L.push('\\label{tab:riuso_cons_sintesi}');
   L.push('\\begin{tabular}{@{}llp{3.4cm}rrr@{}}');
   L.push('\\toprule');
   L.push('Problema & Algoritmo & Configurazione consigliata & $e_{30}$ base & $e_{30}$ consigliato & vitt.\\ (su 5)\\\\');

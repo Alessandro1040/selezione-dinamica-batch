@@ -157,6 +157,30 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, Test batch ↔ tesi).** **Allineati Test batch
+  e tabelle della tesi: ordine algoritmi unico GD, BB-CCV, Newton-CG, Newton-CG
+  $L_1$, Funzione di Rosenbrock presente in tutti i formati, corretta la
+  consigliata di Dynamic GD.** (1) `riproduci_tutte_le_tabelle.py`:
+  `ALGO_TESI` = ordine canonico GD,BB,NCG,L1 (era GD,NCG,L1,BB) e tabelle
+  per-iterazione in quest'ordine; `tesi.tex` (sintesi 6.20, robustezza 6.21,
+  tabelle test per-iterazione) riordinate allo stesso ordine — valori
+  invariati, solo permutazione di righe/sottotabelle (verifica cella-per-cella
+  del generatore: 4973/4973 OK). (2) `visualizzazione.html` (formati speciali
+  del Test batch): `Robustezza riuso` (6.21), `Confronto finale` (6.28) e
+  `Sintesi consigliati` (6.29) ora includono anche la Funzione di Rosenbrock
+  (righe/colonne); le didascalie di Sensibilità (6.23/6.26) e Confronto
+  contano 20 combinazioni problema×algoritmo; consigliata di Dynamic GD
+  corretta da "riuso $M{=}5$" a `base` (come la tesi dopo la selezione con
+  Rosenbrock); label LaTeX esportate allineate a quelle della tesi
+  (`tab:riuso_robustezza`, `tab:riuso_valid_iper`, `tab:riuso_desc_iper`,
+  `tab:riuso_confronto_finale`, `tab:riuso_cons_sintesi`); intestazioni del
+  confronto con la colonna Rosenbrock. Nessuna modifica ai valori numerici
+  delle run. Nota: resta da allineare (opzionale) la formattazione numerica
+  del "Copia LaTeX" dell'app a quella della tesi (`\colorcell{mantissa}{exp}`)
+  e i formati generici `Matrice`/`Robustezza (sintesi)` non sono repliche
+  esatte di una singola tabella per costruzione.
+
+
 - **Ultimo intervento (04/09/2026, SVRG/SAGA).** **Presentazione slide 6 e 8:
   chiarito il confronto SVRG/SAGA e rinominato l'intervallo SVRG da $m$ a
   $t$.** La slide 8 poteva far credere che entrambi i metodi a varianza

@@ -2719,6 +2719,29 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{subtable}\hfill
 \begin{subtable}{0.24\textwidth}
 \centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4142}{0}\\
+1 &\colorcell{1.1516}{0}\\
+2 &\colorcell{3.8420}{-1}\\
+3 &\colorcell{9.3399}{-2}\\
+4 &\colorcell{2.0089}{-1}\\
+5 &\colorcell{1.6584}{-1}\\
+6 &\colorcell{7.9543}{-2}\\
+7 &\colorcell{1.0292}{-1}\\
+8 &\colorcell{1.1777}{-1}\\
+9 &\colorcell{1.1707}{-1}\\
+10 &\colorcell{1.1673}{-1}\\
+11 &\colorcell{1.1662}{-1}\\
+12 &\colorcell{1.1662}{-1}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
 \caption{Newton-CG}
 \begin{tabular}{@{}rl@{}}
 \toprule
@@ -2799,29 +2822,6 @@ $k$ & $\|w_k-w_*\|_2$\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
-\begin{subtable}{0.24\textwidth}
-\centering
-\caption{BB-CCV}
-\begin{tabular}{@{}rl@{}}
-\toprule
-$k$ & $\|w_k-w_*\|_2$\\
-\midrule
-0 &\colorcell{1.4142}{0}\\
-1 &\colorcell{1.1516}{0}\\
-2 &\colorcell{3.8420}{-1}\\
-3 &\colorcell{9.3399}{-2}\\
-4 &\colorcell{2.0089}{-1}\\
-5 &\colorcell{1.6584}{-1}\\
-6 &\colorcell{7.9543}{-2}\\
-7 &\colorcell{1.0292}{-1}\\
-8 &\colorcell{1.1777}{-1}\\
-9 &\colorcell{1.1707}{-1}\\
-10 &\colorcell{1.1673}{-1}\\
-11 &\colorcell{1.1662}{-1}\\
-12 &\colorcell{1.1662}{-1}\\
-\bottomrule
-\end{tabular}
-\end{subtable}\hfill
 \end{table}
 \noindent\emph{Lettura.} La tabella riporta l'errore $\|w_k-w_*\|_2$ a ogni iterazione per i quattro algoritmi sul problema ben condizionato (una sottotabella per metodo) e serve a confrontare velocità di convergenza ed errore finale: qui Dynamic GD, BB-CCV e Newton-CG~$L_1$ sono i più veloci, mentre Newton-CG è il più lento ($\approx4\times10^{-1}$).
 
@@ -2872,6 +2872,47 @@ $k$ & $\|w_k-w_*\|_2$\\
 28 &\colorcell{5.8579}{-2}\\
 29 &\colorcell{5.3525}{-2}\\
 30 &\colorcell{4.9050}{-2}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4142}{0}\\
+1 &\colorcell{1.2185}{0}\\
+2 &\colorcell{8.6105}{-1}\\
+3 &\colorcell{8.2371}{-1}\\
+4 &\colorcell{7.9710}{-1}\\
+5 &\colorcell{7.0281}{-1}\\
+6 &\colorcell{6.5120}{-1}\\
+7 &\colorcell{6.0802}{-1}\\
+8 &\colorcell{4.6587}{-1}\\
+9 &\colorcell{4.2194}{-1}\\
+10 &\colorcell{3.9018}{-1}\\
+11 &\colorcell{3.6447}{-1}\\
+12 &\colorcell{3.2652}{-1}\\
+13 &\colorcell{2.9964}{-1}\\
+14 &\colorcell{2.7815}{-1}\\
+15 &\colorcell{2.5184}{-1}\\
+16 &\colorcell{1.9301}{-1}\\
+17 &\colorcell{1.8029}{-1}\\
+18 &\colorcell{1.6945}{-1}\\
+19 &\colorcell{1.3385}{-1}\\
+20 &\colorcell{8.0846}{-2}\\
+21 &\colorcell{7.3365}{-2}\\
+22 &\colorcell{6.9333}{-2}\\
+23 &\colorcell{6.4693}{-2}\\
+24 &\colorcell{4.2703}{-3}\\
+25 &\colorcell{3.8442}{-3}\\
+26 &\colorcell{3.6361}{-3}\\
+27 &\colorcell{3.3838}{-3}\\
+28 &\colorcell{1.2191}{-4}\\
+29 &\colorcell{1.0321}{-4}\\
+30 &\colorcell{9.7195}{-5}\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
@@ -2957,47 +2998,6 @@ $k$ & $\|w_k-w_*\|_2$\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
-\begin{subtable}{0.24\textwidth}
-\centering
-\caption{BB-CCV}
-\begin{tabular}{@{}rl@{}}
-\toprule
-$k$ & $\|w_k-w_*\|_2$\\
-\midrule
-0 &\colorcell{1.4142}{0}\\
-1 &\colorcell{1.2185}{0}\\
-2 &\colorcell{8.6105}{-1}\\
-3 &\colorcell{8.2371}{-1}\\
-4 &\colorcell{7.9710}{-1}\\
-5 &\colorcell{7.0281}{-1}\\
-6 &\colorcell{6.5120}{-1}\\
-7 &\colorcell{6.0802}{-1}\\
-8 &\colorcell{4.6587}{-1}\\
-9 &\colorcell{4.2194}{-1}\\
-10 &\colorcell{3.9018}{-1}\\
-11 &\colorcell{3.6447}{-1}\\
-12 &\colorcell{3.2652}{-1}\\
-13 &\colorcell{2.9964}{-1}\\
-14 &\colorcell{2.7815}{-1}\\
-15 &\colorcell{2.5184}{-1}\\
-16 &\colorcell{1.9301}{-1}\\
-17 &\colorcell{1.8029}{-1}\\
-18 &\colorcell{1.6945}{-1}\\
-19 &\colorcell{1.3385}{-1}\\
-20 &\colorcell{8.0846}{-2}\\
-21 &\colorcell{7.3365}{-2}\\
-22 &\colorcell{6.9333}{-2}\\
-23 &\colorcell{6.4693}{-2}\\
-24 &\colorcell{4.2703}{-3}\\
-25 &\colorcell{3.8442}{-3}\\
-26 &\colorcell{3.6361}{-3}\\
-27 &\colorcell{3.3838}{-3}\\
-28 &\colorcell{1.2191}{-4}\\
-29 &\colorcell{1.0321}{-4}\\
-30 &\colorcell{9.7195}{-5}\\
-\bottomrule
-\end{tabular}
-\end{subtable}\hfill
 \end{table}
 \noindent\emph{Lettura.} Stesso confronto sul problema mal condizionato ($\kappa\approx20$): Dynamic GD e BB-CCV convergono sensibilmente (errore finale $\approx4.9\times10^{-2}$ e $\approx9.7\times10^{-5}$), mentre Newton-CG ($\approx2.3\times10^{-1}$) e Newton-CG~$L_1$ ($\approx4.9\times10^{-1}$) restano più lenti.
 
@@ -3048,6 +3048,33 @@ $k$ & $\|w_k-w_*\|_2$\\
 28 &\colorcell{1.2950}{-2}\\
 29 &\colorcell{1.1032}{-2}\\
 30 &\colorcell{9.4161}{-3}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4142}{0}\\
+1 &\colorcell{1.1925}{0}\\
+2 &\colorcell{2.9864}{-1}\\
+3 &\colorcell{3.6502}{-2}\\
+4 &\colorcell{1.3817}{-1}\\
+5 &\colorcell{1.1954}{-1}\\
+6 &\colorcell{6.5108}{-2}\\
+7 &\colorcell{4.4710}{-2}\\
+8 &\colorcell{1.4514}{-2}\\
+9 &\colorcell{2.9908}{-3}\\
+10 &\colorcell{6.4737}{-4}\\
+11 &\colorcell{4.6638}{-4}\\
+12 &\colorcell{5.7492}{-4}\\
+13 &\colorcell{6.0513}{-4}\\
+14 &\colorcell{6.1389}{-4}\\
+15 &\colorcell{6.1588}{-4}\\
+16 &\colorcell{6.1644}{-4}\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
@@ -3130,33 +3157,6 @@ $k$ & $\|w_k-w_*\|_2$\\
 28 &\colorcell{7.2958}{-3}\\
 29 &\colorcell{1.3420}{-2}\\
 30 &\colorcell{2.0877}{-2}\\
-\bottomrule
-\end{tabular}
-\end{subtable}\hfill
-\begin{subtable}{0.24\textwidth}
-\centering
-\caption{BB-CCV}
-\begin{tabular}{@{}rl@{}}
-\toprule
-$k$ & $\|w_k-w_*\|_2$\\
-\midrule
-0 &\colorcell{1.4142}{0}\\
-1 &\colorcell{1.1925}{0}\\
-2 &\colorcell{2.9864}{-1}\\
-3 &\colorcell{3.6502}{-2}\\
-4 &\colorcell{1.3817}{-1}\\
-5 &\colorcell{1.1954}{-1}\\
-6 &\colorcell{6.5108}{-2}\\
-7 &\colorcell{4.4710}{-2}\\
-8 &\colorcell{1.4514}{-2}\\
-9 &\colorcell{2.9908}{-3}\\
-10 &\colorcell{6.4737}{-4}\\
-11 &\colorcell{4.6638}{-4}\\
-12 &\colorcell{5.7492}{-4}\\
-13 &\colorcell{6.0513}{-4}\\
-14 &\colorcell{6.1389}{-4}\\
-15 &\colorcell{6.1588}{-4}\\
-16 &\colorcell{6.1644}{-4}\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
@@ -3291,6 +3291,47 @@ $k$ & $\|w_k-w_*\|_2$\\
 \end{subtable}\hfill
 \begin{subtable}{0.24\textwidth}
 \centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4013}{0}\\
+1 &\colorcell{1.3111}{0}\\
+2 &\colorcell{1.1814}{0}\\
+3 &\colorcell{1.1800}{0}\\
+4 &\colorcell{1.1771}{0}\\
+5 &\colorcell{1.1301}{0}\\
+6 &\colorcell{1.1258}{0}\\
+7 &\colorcell{1.0739}{0}\\
+8 &\colorcell{1.0377}{0}\\
+9 &\colorcell{9.6573}{-1}\\
+10 &\colorcell{9.5455}{-1}\\
+11 &\colorcell{9.1365}{-1}\\
+12 &\colorcell{8.7707}{-1}\\
+13 &\colorcell{8.2871}{-1}\\
+14 &\colorcell{8.1201}{-1}\\
+15 &\colorcell{7.4914}{-1}\\
+16 &\colorcell{7.1031}{-1}\\
+17 &\colorcell{6.6295}{-1}\\
+18 &\colorcell{6.2550}{-1}\\
+19 &\colorcell{5.6023}{-1}\\
+20 &\colorcell{5.3209}{-1}\\
+21 &\colorcell{4.6428}{-1}\\
+22 &\colorcell{4.3816}{-1}\\
+23 &\colorcell{3.7956}{-1}\\
+24 &\colorcell{3.5060}{-1}\\
+25 &\colorcell{3.0716}{-1}\\
+26 &\colorcell{2.6247}{-1}\\
+27 &\colorcell{1.7822}{-1}\\
+28 &\colorcell{1.5343}{-1}\\
+29 &\colorcell{1.2880}{-1}\\
+30 &\colorcell{1.0645}{-1}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
 \caption{Newton-CG}
 \begin{tabular}{@{}rl@{}}
 \toprule
@@ -3368,47 +3409,6 @@ $k$ & $\|w_k-w_*\|_2$\\
 28 &\colorcell{1.5243}{-1}\\
 29 &\colorcell{1.3750}{-1}\\
 30 &\colorcell{1.2525}{-1}\\
-\bottomrule
-\end{tabular}
-\end{subtable}\hfill
-\begin{subtable}{0.24\textwidth}
-\centering
-\caption{BB-CCV}
-\begin{tabular}{@{}rl@{}}
-\toprule
-$k$ & $\|w_k-w_*\|_2$\\
-\midrule
-0 &\colorcell{1.4013}{0}\\
-1 &\colorcell{1.3111}{0}\\
-2 &\colorcell{1.1814}{0}\\
-3 &\colorcell{1.1800}{0}\\
-4 &\colorcell{1.1771}{0}\\
-5 &\colorcell{1.1301}{0}\\
-6 &\colorcell{1.1258}{0}\\
-7 &\colorcell{1.0739}{0}\\
-8 &\colorcell{1.0377}{0}\\
-9 &\colorcell{9.6573}{-1}\\
-10 &\colorcell{9.5455}{-1}\\
-11 &\colorcell{9.1365}{-1}\\
-12 &\colorcell{8.7707}{-1}\\
-13 &\colorcell{8.2871}{-1}\\
-14 &\colorcell{8.1201}{-1}\\
-15 &\colorcell{7.4914}{-1}\\
-16 &\colorcell{7.1031}{-1}\\
-17 &\colorcell{6.6295}{-1}\\
-18 &\colorcell{6.2550}{-1}\\
-19 &\colorcell{5.6023}{-1}\\
-20 &\colorcell{5.3209}{-1}\\
-21 &\colorcell{4.6428}{-1}\\
-22 &\colorcell{4.3816}{-1}\\
-23 &\colorcell{3.7956}{-1}\\
-24 &\colorcell{3.5060}{-1}\\
-25 &\colorcell{3.0716}{-1}\\
-26 &\colorcell{2.6247}{-1}\\
-27 &\colorcell{1.7822}{-1}\\
-28 &\colorcell{1.5343}{-1}\\
-29 &\colorcell{1.2880}{-1}\\
-30 &\colorcell{1.0645}{-1}\\
 \bottomrule
 \end{tabular}
 \end{subtable}\hfill
@@ -4748,29 +4748,29 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 Metodo & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}3$ & $M{=}2$ & $M{=}1$\\
 \midrule
 $\kappa\approx1.1$ - Dynamic GD & \colorcell{1.1895}{-1} & \colorcell{1.1739}{-1}$\blacktriangle$ & \colorcell{1.1739}{-1}$\blacktriangle$ & \colorcell{1.1920}{-1}$\blacktriangledown$ & \colorcell{1.1903}{-1}$\blacktriangledown$ & \colorcell{1.1777}{-1}$\blacktriangle$ & \colorcell{1.1895}{-1}$=$\\
+$\kappa\approx1.1$ - BB-CCV & \colorcell{1.1662}{-1} & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$=$\\
 $\kappa\approx1.1$ - Newton-CG & \colorcell{4.0264}{-1} & \colorcell{2.2230}{-1}$\blacktriangle$ & \colorcell{3.7373}{-1}$\blacktriangle$ & \colorcell{4.1553}{-1}$\blacktriangledown$ & \colorcell{3.2913}{-1}$\blacktriangle$ & \colorcell{2.6069}{-1}$\blacktriangle$ & \colorcell{3.0560}{-1}$\blacktriangle$\\
 $\kappa\approx1.1$ - Newton-CG $L_1$ & \colorcell{1.0167}{-1} & \colorcell{8.1750}{-2}$\blacktriangle$ & \colorcell{9.2407}{-2}$\blacktriangle$ & \colorcell{1.0010}{-1}$\blacktriangle$ & \colorcell{1.0624}{-1}$\blacktriangledown$ & \colorcell{9.4078}{-2}$\blacktriangle$ & \colorcell{1.0028}{-1}$\blacktriangle$\\
-$\kappa\approx1.1$ - BB-CCV & \colorcell{1.1662}{-1} & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$\blacktriangle$ & \colorcell{1.1662}{-1}$=$\\
 \midrule
 $\kappa\approx20$ - Dynamic GD & \colorcell{4.9050}{-2} & \colorcell{1.0103}{-1}$\blacktriangledown$ & \colorcell{7.6020}{-2}$\blacktriangledown$ & \colorcell{4.7211}{-2}$\blacktriangle$ & \colorcell{1.1746}{-1}$\blacktriangledown$ & \colorcell{4.2898}{-2}$\blacktriangle$ & \colorcell{4.9050}{-2}$=$\\
+$\kappa\approx20$ - BB-CCV & \colorcell{9.7195}{-5} & \colorcell{9.5364}{-10}$\blacktriangle$ & \colorcell{9.5364}{-10}$\blacktriangle$ & \colorcell{2.6835}{-3}$\blacktriangledown$ & \colorcell{3.8422}{-8}$\blacktriangle$ & \colorcell{1.5436}{-10}$\blacktriangle$ & \colorcell{9.7195}{-5}$=$\\
 $\kappa\approx20$ - Newton-CG & \colorcell{2.3463}{-1} & \colorcell{1.2807}{0}$\blacktriangledown$ & \colorcell{9.4933}{-1}$\blacktriangledown$ & \colorcell{4.1051}{-1}$\blacktriangledown$ & \colorcell{3.3396}{-1}$\blacktriangledown$ & \colorcell{4.0617}{-1}$\blacktriangledown$ & \colorcell{1.6683}{-1}$\blacktriangle$\\
 $\kappa\approx20$ - Newton-CG $L_1$ & \colorcell{4.8802}{-1} & \colorcell{7.6221}{-1}$\blacktriangledown$ & \colorcell{5.5687}{-1}$\blacktriangledown$ & \colorcell{6.2190}{-1}$\blacktriangledown$ & \colorcell{4.5512}{-1}$\blacktriangle$ & \colorcell{4.3392}{-1}$\blacktriangle$ & \colorcell{5.4573}{-1}$\blacktriangledown$\\
-$\kappa\approx20$ - BB-CCV & \colorcell{9.7195}{-5} & \colorcell{9.5364}{-10}$\blacktriangle$ & \colorcell{9.5364}{-10}$\blacktriangle$ & \colorcell{2.6835}{-3}$\blacktriangledown$ & \colorcell{3.8422}{-8}$\blacktriangle$ & \colorcell{1.5436}{-10}$\blacktriangle$ & \colorcell{9.7195}{-5}$=$\\
 \midrule
 $\kappa\approx100$ - Dynamic GD & \colorcell{4.6668}{-1} & \colorcell{3.7060}{-1}$\blacktriangle$ & \colorcell{3.7060}{-1}$\blacktriangle$ & \colorcell{3.7060}{-1}$\blacktriangle$ & \colorcell{3.7060}{-1}$\blacktriangle$ & \colorcell{3.7060}{-1}$\blacktriangle$ & \colorcell{4.6668}{-1}$=$\\
+$\kappa\approx100$ - BB-CCV & \colorcell{1.0991}{-14} & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{1.0991}{-14}$=$\\
 $\kappa\approx100$ - Newton-CG & \colorcell{2.0969}{-1} & \colorcell{1.2807}{0}$\blacktriangledown$ & \colorcell{6.4441}{-1}$\blacktriangledown$ & \colorcell{3.3452}{-1}$\blacktriangledown$ & \colorcell{3.7338}{-1}$\blacktriangledown$ & \colorcell{4.4283}{-1}$\blacktriangledown$ & \colorcell{2.3041}{-1}$\blacktriangledown$\\
 $\kappa\approx100$ - Newton-CG $L_1$ & \colorcell{9.6954}{-1} & \colorcell{9.7065}{-1}$\blacktriangledown$ & \colorcell{8.6360}{-1}$\blacktriangle$ & \colorcell{9.6997}{-1}$\blacktriangledown$ & \colorcell{8.7711}{-1}$\blacktriangle$ & \colorcell{9.6944}{-1}$\blacktriangle$ & \colorcell{8.6562}{-1}$\blacktriangle$\\
-$\kappa\approx100$ - BB-CCV & \colorcell{1.0991}{-14} & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{7.4538}{-3}$\blacktriangledown$ & \colorcell{1.0991}{-14}$=$\\
 \midrule
 incrociato ($\kappa\approx1.67$) - Dynamic GD & \colorcell{9.4161}{-3} & \colorcell{5.5315}{-3}$\blacktriangle$ & \colorcell{9.9566}{-3}$\blacktriangledown$ & \colorcell{5.9490}{-3}$\blacktriangle$ & \colorcell{7.5801}{-3}$\blacktriangle$ & \colorcell{8.7213}{-3}$\blacktriangle$ & \colorcell{9.4161}{-3}$=$\\
+incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{6.1644}{-4} & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1610}{-4}$\blacktriangle$ & \colorcell{6.1685}{-4}$\blacktriangledown$ & \colorcell{6.1644}{-4}$=$\\
 incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{3.5167}{-1} & \colorcell{4.1026}{-2}$\blacktriangle$ & \colorcell{1.0511}{-1}$\blacktriangle$ & \colorcell{3.3540}{-1}$\blacktriangle$ & \colorcell{2.3364}{-1}$\blacktriangle$ & \colorcell{2.1820}{-1}$\blacktriangle$ & \colorcell{2.6381}{-1}$\blacktriangle$\\
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.0877}{-2} & \colorcell{3.8938}{-2}$\blacktriangledown$ & \colorcell{3.9410}{-2}$\blacktriangledown$ & \colorcell{2.9304}{-2}$\blacktriangledown$ & \colorcell{2.3645}{-2}$\blacktriangledown$ & \colorcell{3.8543}{-2}$\blacktriangledown$ & \colorcell{2.5154}{-2}$\blacktriangledown$\\
-incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{6.1644}{-4} & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1610}{-4}$\blacktriangle$ & \colorcell{6.1685}{-4}$\blacktriangledown$ & \colorcell{6.1644}{-4}$=$\\
 \midrule
 Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & \colorcell{6.1354}{-4} & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.0803}{0}$\blacktriangledown$ & \colorcell{1.4213}{0}$\blacktriangledown$ & \colorcell{6.1354}{-4}$=$\\
+Funzione di Rosenbrock ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{3.6984}{-1}$\blacktriangledown$ & \colorcell{1.0645}{-1}$=$\\
 Funzione di Rosenbrock ($c{=}100$) - Newton-CG & \colorcell{2.0625}{-1} & \colorcell{1.0605}{0}$\blacktriangledown$ & \colorcell{1.1367}{0}$\blacktriangledown$ & \colorcell{1.2475}{0}$\blacktriangledown$ & \colorcell{1.1893}{0}$\blacktriangledown$ & \colorcell{1.2292}{0}$\blacktriangledown$ & \colorcell{9.3953}{-1}$\blacktriangledown$\\
 Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & \colorcell{1.2525}{-1} & \colorcell{3.8199}{-1}$\blacktriangledown$ & \colorcell{2.4883}{-1}$\blacktriangledown$ & \colorcell{3.0766}{-1}$\blacktriangledown$ & \colorcell{3.1242}{-1}$\blacktriangledown$ & \colorcell{2.7111}{-1}$\blacktriangledown$ & \colorcell{2.0207}{-1}$\blacktriangledown$\\
-Funzione di Rosenbrock ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{3.6984}{-1}$\blacktriangledown$ & \colorcell{1.0645}{-1}$=$\\
 \bottomrule
 \end{tabular}
 \end{fitwidth}
@@ -4802,29 +4802,29 @@ Problema & Algoritmo & \multicolumn{3}{c}{$M{=}\infty$} & \multicolumn{3}{c}{$M{
  & & \emph{Migl.} & \emph{Pegg.} & \emph{Uguale} & \emph{Migl.} & \emph{Pegg.} & \emph{Uguale}\\
 \midrule
 $\kappa\approx1.1$ & Dynamic GD & 5 & 0 & 0 & 5 & 0 & 0\\
+ & BB-CCV & 5 & 0 & 0 & 5 & 0 & 0\\
  & Newton-CG & 4 & 1 & 0 & 3 & 2 & 0\\
  & Newton-CG $L_1$ & 4 & 1 & 0 & 5 & 0 & 0\\
- & BB-CCV & 5 & 0 & 0 & 5 & 0 & 0\\
 \midrule
 $\kappa\approx20$ & Dynamic GD & 2 & 3 & 0 & 1 & 4 & 0\\
+ & BB-CCV & 3 & 2 & 0 & 3 & 2 & 0\\
  & Newton-CG & 0 & 5 & 0 & 0 & 5 & 0\\
  & Newton-CG $L_1$ & 1 & 4 & 0 & 2 & 3 & 0\\
- & BB-CCV & 3 & 2 & 0 & 3 & 2 & 0\\
 \midrule
 $\kappa\approx100$ & Dynamic GD & 3 & 2 & 0 & 3 & 2 & 0\\
+ & BB-CCV & 1 & 3 & 1 & 1 & 3 & 1\\
  & Newton-CG & 0 & 5 & 0 & 0 & 5 & 0\\
  & Newton-CG $L_1$ & 3 & 2 & 0 & 4 & 1 & 0\\
- & BB-CCV & 1 & 3 & 1 & 1 & 3 & 1\\
 \midrule
 incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
+ & BB-CCV & 2 & 3 & 0 & 2 & 3 & 0\\
  & Newton-CG & 4 & 1 & 0 & 3 & 2 & 0\\
  & Newton-CG $L_1$ & 2 & 3 & 0 & 1 & 4 & 0\\
- & BB-CCV & 2 & 3 & 0 & 2 & 3 & 0\\
 \midrule
 Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
+ & BB-CCV & 1 & 4 & 0 & 1 & 4 & 0\\
  & Newton-CG & 1 & 4 & 0 & 2 & 3 & 0\\
  & Newton-CG $L_1$ & 1 & 4 & 0 & 2 & 3 & 0\\
- & BB-CCV & 1 & 4 & 0 & 1 & 4 & 0\\
 \bottomrule
 \end{tabular}
 \end{table}

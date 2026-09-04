@@ -2814,7 +2814,7 @@ def gen_test_tables(riuso):
         out.append("\\setlength{\\tabcolsep}{3pt}")
         out.append("\\caption{" + captions[pname] + "}")
         out.append("\\label{" + labels[pname] + "}")
-        for algo in ("gd", "newton_cg", "newton_l1", "bb"):
+        for algo in ALGOS4:
             out.append("\\begin{subtable}{0.24\\textwidth}")
             out.append("\\centering")
             out.append("\\caption{" + ALGO_METHOD_LATEX[algo] + "}")
@@ -2852,7 +2852,7 @@ def gen_rosenbrock_test_tables():
                "($c{=}100$, dataset stocastico centrato, seed 42), per i "
                "quattro algoritmi.}")
     out.append("\\label{tab:test_rosenbrock}")
-    for algo in ("gd", "newton_cg", "newton_l1", "bb"):
+    for algo in ALGOS4:
         out.append("\\begin{subtable}{0.24\\textwidth}")
         out.append("\\centering")
         out.append("\\caption{" + ALGO_METHOD_LATEX[algo] + "}")
@@ -3519,7 +3519,7 @@ def _parse_table_cells(text):
             for m in CELL_RE.finditer(text)]
 
 
-ALGO_TESI = ("gd", "newton_cg", "newton_l1", "bb")   # ordine righe/colonne in tesi.tex
+ALGO_TESI = ALGOS4   # ordine righe/colonne in tesi.tex (canonico: GD, BB-CCV, NCG, NCG L1)
 
 
 def _expected_test(riuso):
