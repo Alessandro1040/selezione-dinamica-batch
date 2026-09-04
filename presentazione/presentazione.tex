@@ -622,9 +622,41 @@
       tabelle della tesi.
   \end{itemize}
 \end{frame}
+% =====================================================================
+% SLIDE 23 — Le funzioni test: espressioni usate negli esperimenti
+% =====================================================================
+\begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{4pt}
+    \item \textbf{Ben condizionata} ($\kappa\approx1.1$):
+      $J(w)=(w_1-1)^2+(w_2+2)^2+0.1\,w_1w_2$
+    \item \textbf{Mal condizionata} ($\kappa\approx20$):
+      $J(w)=20\,(w_1-1)^2+(w_2+2)^2$
+    \item \textbf{Molto mal condizionata} ($\kappa\approx100$):
+      $J(w)=100\,(w_1-1)^2+(w_2+2)^2$
+    \item \textbf{Termine incrociato} ($\kappa\approx1.67$):
+      $J(w)=(w_1-1)^2+(w_2+2)^2+0.5\,(w_1-1)(w_2+2)$
+    \item \textbf{Funzione di Rosenbrock} (non quadratica, $c{=}100$):
+      \[
+        J(w)=\frac{1}{N}\sum_{i=1}^N\Bigl[(w_1-a_i)^2+
+        100\bigl((w_2-b_i)-(w_1-a_i)^2\bigr)^2\Bigr],
+      \]
+      con $a_i,b_i$ stocastici centrati ($\sigma=0.2$, medie $1$ e $-2$),
+      $N=200$, seed 42: $w_*\approx(1.06,-1.96)$.
+    \item Minimo comune dei quattro problemi quadratici:
+      $w_*=(1,-2)$ (dataset centrato, $\widehat J_N=J$).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.1 (Setup Sperimentale)}
+\end{frame}
+
+
 
 % =====================================================================
-% SLIDE 23 — Setup e risultati numerici
+% SLIDE 24 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -654,7 +686,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 25 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -681,7 +713,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Conclusioni
+% SLIDE 26 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -701,7 +733,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 — Limiti e lavoro futuro
+% SLIDE 27 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
