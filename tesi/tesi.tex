@@ -3569,8 +3569,27 @@ condizionamento $\kappa$ e dall'algoritmo:
   $L_1$ sulla Hessiana rende la direzione più robusta, ma non abbastanza da
   garantire un vantaggio uniforme.
 \end{itemize}
-\paragraph{Perché il riuso peggiora sui problemi mal condizionati e, in particolare, per i metodi di Newton.}
-La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$: il gradiente è sempre ricalcolato nel punto corrente, l'angolo con la direzione di movimento è sempre $180^\circ$ e la discesa sul batch è garantita; il riuso al più provoca la deriva verso il minimo campionario $w^*_{\mathcal S}$. Nel metodo di Newton $d_k=-H_k^{-1}g_k$: $H_k^{-1}$ ruota e riscala il gradiente secondo la curvatura stimata, allungando il passo lungo le direzioni piatte e accorciandolo lungo quelle ripide. Se $H_k$ è quella del punto in cui il batch è stato estratto mentre $w_k$ si è spostato, al gradiente fresco viene applicata una geometria vecchia: il passo viene allungato proprio dove la funzione è nel frattempo diventata ripida e accorciato dove è diventata piatta. Più $\kappa$ è grande, più la curvatura cambia tra le direzioni e più il disallineamento è dannoso: l'angolo tra $d_k$ e la vera direzione di discesa può avvicinarsi a $90^\circ$ e la line search taglia il passo fino a bloccare il metodo lontano dal minimo ($e_{30}\approx1.28$ con $M=\infty$ su $\kappa\approx100$; Tabella~\ref{tab:riuso_sintesi}). Per questo il riuso prolungato è deleterio per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è solo la deriva verso il minimo campionario.
+\paragraph{Perché il riuso danneggia i metodi di Newton sui problemi mal condizionati.}
+La differenza è geometrica. Nel primo ordine $d_k=-g_k(w_k)$ il gradiente è
+ricalcolato nel punto corrente, quindi $d_k$ è sempre esattamente opposto al
+gradiente (angolo $180^\circ$) e la discesa sul batch è garantita: il riuso
+può al più causare una lenta deriva verso il minimo campionario
+$w^*_{\mathcal S}$. In Newton, invece, $d_k=-H_k^{-1}g_k$: l'Hessiana ruota e
+riscala il gradiente secondo la curvatura, allungando il passo dove questa è
+debole e accorciandolo dove è forte.
+
+Il problema nasce quando $H_k$ invecchia: se è stata calcolata nel punto in
+cui il batch è stato estratto, ma $w_k$ nel frattempo si è spostato, al
+gradiente fresco viene applicata una geometria vecchia. Il passo viene allora
+allungato dove la funzione è diventata ripida e accorciato dove è diventata
+piatta, cioè esattamente al contrario di ciò che servirebbe. Più $\kappa$ è
+grande, più la curvatura cambia tra le direzioni e più il disallineamento è
+grave: $d_k$ può formare un angolo vicino a $90^\circ$ con la vera direzione
+di discesa, e la line search taglia il passo fino a bloccare il metodo lontano
+dal minimo ($e_{30}\approx1.28$ con $M=\infty$ su $\kappa\approx100$;
+Tabella~\ref{tab:riuso_sintesi}). Per questo il riuso prolungato è deleterio
+per i metodi del secondo ordine, mentre per Dynamic GD e BB-CCV il rischio è
+solo la deriva verso il minimo campionario.
 
 
 La Figura~\ref{fig:riuso_traiettorie} mostra due esecuzioni di Dynamic GD sul
