@@ -2505,8 +2505,10 @@ stress test per i quattro algoritmi nei Risultati Numerici
   caratteristica dominante: la Hessiana $\nabla^2 J$ ha autovalori $2.5$ e
   $1.5$, quindi $\kappa = 2.5/1.5 \approx 1.67$.
   \item Banana di Rosenbrock (non quadratica):
-  $J(w) = \dfrac{1}{N}\sum_{i=1}^{N}\left[(w_1 - a_i)^2 + 100\left((w_2 - b_i)
-  - (w_1 - a_i)^2\right)^2\right]$
+  \[
+  J(w) = \frac{1}{N}\sum_{i=1}^{N}\left[(w_1 - a_i)^2
+    + 100\left((w_2 - b_i) - (w_1 - a_i)^2\right)^2\right]
+  \]
   (preset ``Banana di Rosenbrock''). Il dataset è stocastico centrato come
   negli altri preset: $a_i$ centrati su $1$ e $b_i$ su $-2$, con rumore
   $\sigma = 0.2$. La funzione è non quadratica e non separabile: il minimo
