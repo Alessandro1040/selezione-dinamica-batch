@@ -2483,10 +2483,10 @@ controllare esattamente la soluzione $w^*$ e di misurare l'errore finale
 $\|w_k - w^*\|$ senza ambiguità.
 
 Le funzioni test utilizzate nel Capitolo sono cinque problemi: i quattro
-preset quadratici dell'applicazione e la ``banana di Rosenbrock'', problema
+preset quadratici dell'applicazione e la ``Funzione di Rosenbrock'', problema
 non quadratico descritto qui sotto. I tre problemi quadratici ben
 condizionato, mal condizionato e con termine incrociato sono usati nei
-Risultati Numerici della Sezione~\ref{sec:risultati}, insieme alla banana come
+Risultati Numerici della Sezione~\ref{sec:risultati}, insieme alla Funzione di Rosenbrock come
 quinto problema; l'intera batteria di cinque problemi è invece impiegata negli
 esperimenti sul riuso del mini-batch (Sezione~\ref{app:riuso}), sullo stop
 adattivo con validation set, sul riuso per discesa e sugli iperparametri
@@ -2510,19 +2510,19 @@ consigliati (Sezioni~\ref{app:riuso-validation}--\ref{app:riuso-consigliati}).
   ``Quadratica con termine incrociato''). Qui l'accoppiamento è la
   caratteristica dominante: la Hessiana $\nabla^2 J$ ha autovalori $2.5$ e
   $1.5$, quindi $\kappa = 2.5/1.5 \approx 1.67$.
-  \item Banana di Rosenbrock (non quadratica):
+  \item Funzione di Rosenbrock (non quadratica):
   \[
   J(w) = \frac{1}{N}\sum_{i=1}^{N}\left[(w_1 - a_i)^2
     + 100\left((w_2 - b_i) - (w_1 - a_i)^2\right)^2\right]
   \]
-  (preset ``Banana di Rosenbrock''). Il dataset è stocastico centrato come
+  (preset ``Funzione di Rosenbrock''). Il dataset è stocastico centrato come
   negli altri preset: $a_i$ centrati su $1$ e $b_i$ su $-2$, con rumore
   $\sigma = 0.2$. La funzione è non quadratica e non separabile: il minimo
   non è in forma chiusa e al seed 42 vale $w_* \approx (1.06,\,-1.96)$
   (calcolato numericamente). La ``valle'' è la curva
   $w_2 \approx -2 + (w_1 - 1)^2$: scendendo lungo di essa la curvatura cambia
   con la posizione, e tra un esempio e l'altro le valli sono leggermente
-  diverse. La banana è inclusa, come quinto problema, in tutte le batterie di
+  diverse. La Funzione di Rosenbrock è inclusa, come quinto problema, in tutte le batterie di
   test del Capitolo (Risultati Numerici, riuso del mini-batch, stop adattivo
   con validation set, riuso per discesa e iperparametri consigliati).
 \end{itemize}
@@ -2653,7 +2653,7 @@ Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
 ($\kappa \approx 1.1$), mal condizionato ($\kappa \approx 20$) e con termine
 incrociato, con i quattro algoritmi affiancati in ordine: (a)~Dynamic GD,
 (b)~Newton-CG, (c)~Newton-CG~$L_1$, (d)~BB-CCV. Alla fine della sottosezione
-aggiungiamo il confronto sul quinto problema, la banana di Rosenbrock
+aggiungiamo il confronto sul quinto problema, la Funzione di Rosenbrock
 (Tabella~\ref{tab:test_banana}). I valori sono quelli riportati dal pannello
 ``Analisi'' dell'applicazione.
 
@@ -3166,7 +3166,7 @@ $k$ & $\|w_k-w_*\|_2$\\
 
 \paragraph{Osservazioni comparative.} Dai valori delle
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono tre
-indicazioni; il quinto problema, la banana di Rosenbrock, è discusso qui sotto
+indicazioni; il quinto problema, la Funzione di Rosenbrock, è discusso qui sotto
 con la Tabella~\ref{tab:test_banana}.
 
 (i)~Sul problema ben condizionato ($\kappa \approx 1.1$) la curvatura è quasi
@@ -3208,9 +3208,9 @@ calcolo e adattabilità al terreno. Dynamic GD è sufficiente solo dove la
 curvatura è ben bilanciata, ma fallisce dove non lo è, perché non ha un modo
 per adattare il passo alla forma della funzione.
 
-\paragraph{Quinto problema test: la ``banana di Rosenbrock'' (non quadratica).}
+\paragraph{Quinto problema test: la ``Funzione di Rosenbrock'' (non quadratica).}
 Completa il confronto dei Risultati Numerici il problema non quadratico
-``banana di Rosenbrock'' descritto nella Sezione~\ref{sec:setup}, eseguito
+``Funzione di Rosenbrock'' descritto nella Sezione~\ref{sec:setup}, eseguito
 con lo stesso setup dei problemi quadratici (seed 42, $w_0=(2,-3)$,
 $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni). La
 Tabella~\ref{tab:test_banana} riporta l'errore $\|w_k-w_*\|_2$ a ogni
@@ -3235,7 +3235,7 @@ sottocampione è poco rappresentativa quando la curvatura cambia tra gli esempi
 (la valle di ogni esempio è leggermente spostata) e, inoltre, il passo dei
 metodi di Newton è limitato dal passo iniziale della line search di Wolfe.
 
-In sintesi, la banana separa nettamente i comportamenti: Dynamic GD è lento ma
+In sintesi, la Funzione di Rosenbrock separa nettamente i comportamenti: Dynamic GD è lento ma
 stabile; BB-CCV è molto veloce quando il passo di Barzilai--Borwein stima bene
 la curvatura, ma può restare indietro quando non la stima; i metodi del secondo
 ordine perdono il loro vantaggio perché l'Hessiana campionaria descrive male
@@ -3246,7 +3246,7 @@ la curvatura globale di un problema non quadratico.
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{3pt}
-\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$, dataset stocastico centrato, seed 42), per i quattro algoritmi.}
+\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$, dataset stocastico centrato, seed 42), per i quattro algoritmi.}
 \label{tab:test_banana}
 \begin{subtable}{0.24\textwidth}
 \centering
@@ -3635,7 +3635,7 @@ punti marcati indicano le iterazioni in cui la condizione CCV risulta violata
 Gli esperimenti usano gli stessi problemi, parametri e seed della
 Sezione~\ref{sec:setup}: l'intera batteria di cinque problemi, i quattro
 preset quadratici ($\kappa \approx 1.1$, $\kappa \approx 20$, $\kappa \approx
-100$ e termine incrociato) e la banana di Rosenbrock (non quadratica,
+100$ e termine incrociato) e la Funzione di Rosenbrock (non quadratica,
 $c{=}100$), $N = 200$
 esempi sintetici, $w_0 = (2, -3)$, $\alpha = 0.1$, $\theta = 0.5$, $n_0 = 5$,
 30 iterazioni, line search di Wolfe (Armijo per BB-CCV), seed 42. Per
@@ -3677,7 +3677,7 @@ emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
   ($3.71\times10^{-1}$ contro $4.67\times10^{-1}$) ma peggiora BB-CCV, la
   cui base è già alla precisione macchina ($1.10\times10^{-14}$) e con
   $M=\infty$ sale a $7.45\times10^{-3}$ (Tabella~\ref{tab:riuso_sintesi}).
-  Sulla banana di Rosenbrock il riuso non aiuta nessuno dei due: Dynamic GD
+  Sulla Funzione di Rosenbrock il riuso non aiuta nessuno dei due: Dynamic GD
   ha base $6.14\times10^{-4}$ al seed 42 e con $M=\infty$ l'errore sale a
   $2.54\times10^{0}$; BB-CCV peggiora in 4 seed su 5 sia con $M=\infty$ sia
   con $M=10$ (Tabelle~\ref{tab:riuso_sintesi} e~\ref{tab:riuso_robustezza}).
@@ -3685,11 +3685,11 @@ emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
   (su $\kappa\approx20$ e $\kappa\approx100$ peggiora su tutti e 5 i seed con
   $M=\infty$), mentre il riuso lo aiuta sul problema ben condizionato
   (4 seed su 5 con $M=\infty$) e sul termine incrociato con $M=\infty$ (Tabella~\ref{tab:riuso_robustezza}).
-  Sulla banana Newton-CG peggiora con ogni valore di $M$ (1 seed su 5 con
+  Sulla Funzione di Rosenbrock Newton-CG peggiora con ogni valore di $M$ (1 seed su 5 con
   $M=\infty$, 2 su 5 con $M=10$): con $M=\infty$ l'errore al seed 42 passa da
   $2.06\times10^{-1}$ a $1.06\times10^{0}$ (Tabelle~\ref{tab:riuso_sintesi} e~\ref{tab:riuso_robustezza}).
 \item Newton-CG $L_1$ ha comportamento intermedio, senza una tendenza netta
-  sui problemi quadratici. Sulla banana, al seed 42, ogni $M$ (anche
+  sui problemi quadratici. Sulla Funzione di Rosenbrock, al seed 42, ogni $M$ (anche
   $M{=}1$) peggiora la base ($1.25\times10^{-1}$); su 5 seed, invece, il riuso
   $M{=}3$ migliora la mediana (da $2.05\times10^{-1}$ a $1.73\times10^{-1}$)
   pur vincendo in soli 2 seed su 5 (Sezione~\ref{app:riuso-consigliati}).
@@ -3727,7 +3727,7 @@ su cinque seed indipendenti.
   $\kappa\approx20$ e di BB-CCV su $\kappa\approx100$, dove la base è già alla
   precisione macchina e il riuso introduce la deriva verso il minimo
   campionario, non rilevata dalla CCV; non aiuta nemmeno con i metodi del
-  secondo ordine (Hessiana obsoleta). Sulla banana di Rosenbrock vale lo
+  secondo ordine (Hessiana obsoleta). Sulla Funzione di Rosenbrock vale lo
   stesso: al seed 42 nessun valore di $M$ migliora la base per nessun metodo
   (Tabella~\ref{tab:riuso_sintesi}), e su 5 seed le mediane peggiorano per
   Dynamic GD e BB-CCV; l'unica eccezione è Newton-CG~$L_1$ con $M{=}3$, che
@@ -4546,7 +4546,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
 \label{tab:riuso_banana_gd}
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
@@ -4591,7 +4591,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
 \label{tab:riuso_banana_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
@@ -4636,7 +4636,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
 \label{tab:riuso_banana_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
@@ -4681,7 +4681,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
 \label{tab:riuso_banana_bb}
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
@@ -4767,10 +4767,10 @@ incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{3.5167}{-1} & \colorce
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.0877}{-2} & \colorcell{3.8938}{-2}$\blacktriangledown$ & \colorcell{3.9410}{-2}$\blacktriangledown$ & \colorcell{2.9304}{-2}$\blacktriangledown$ & \colorcell{2.3645}{-2}$\blacktriangledown$ & \colorcell{3.8543}{-2}$\blacktriangledown$ & \colorcell{2.5154}{-2}$\blacktriangledown$\\
 incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{6.1644}{-4} & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1689}{-4}$\blacktriangledown$ & \colorcell{6.1610}{-4}$\blacktriangle$ & \colorcell{6.1685}{-4}$\blacktriangledown$ & \colorcell{6.1644}{-4}$=$\\
 \midrule
-banana ($c{=}100$) - Dynamic GD & \colorcell{6.1354}{-4} & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.0803}{0}$\blacktriangledown$ & \colorcell{1.4213}{0}$\blacktriangledown$ & \colorcell{6.1354}{-4}$=$\\
-banana ($c{=}100$) - Newton-CG & \colorcell{2.0625}{-1} & \colorcell{1.0605}{0}$\blacktriangledown$ & \colorcell{1.1367}{0}$\blacktriangledown$ & \colorcell{1.2475}{0}$\blacktriangledown$ & \colorcell{1.1893}{0}$\blacktriangledown$ & \colorcell{1.2292}{0}$\blacktriangledown$ & \colorcell{9.3953}{-1}$\blacktriangledown$\\
-banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{1.2525}{-1} & \colorcell{3.8199}{-1}$\blacktriangledown$ & \colorcell{2.4883}{-1}$\blacktriangledown$ & \colorcell{3.0766}{-1}$\blacktriangledown$ & \colorcell{3.1242}{-1}$\blacktriangledown$ & \colorcell{2.7111}{-1}$\blacktriangledown$ & \colorcell{2.0207}{-1}$\blacktriangledown$\\
-banana ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{3.6984}{-1}$\blacktriangledown$ & \colorcell{1.0645}{-1}$=$\\
+Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & \colorcell{6.1354}{-4} & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.5435}{0}$\blacktriangledown$ & \colorcell{2.0803}{0}$\blacktriangledown$ & \colorcell{1.4213}{0}$\blacktriangledown$ & \colorcell{6.1354}{-4}$=$\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG & \colorcell{2.0625}{-1} & \colorcell{1.0605}{0}$\blacktriangledown$ & \colorcell{1.1367}{0}$\blacktriangledown$ & \colorcell{1.2475}{0}$\blacktriangledown$ & \colorcell{1.1893}{0}$\blacktriangledown$ & \colorcell{1.2292}{0}$\blacktriangledown$ & \colorcell{9.3953}{-1}$\blacktriangledown$\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & \colorcell{1.2525}{-1} & \colorcell{3.8199}{-1}$\blacktriangledown$ & \colorcell{2.4883}{-1}$\blacktriangledown$ & \colorcell{3.0766}{-1}$\blacktriangledown$ & \colorcell{3.1242}{-1}$\blacktriangledown$ & \colorcell{2.7111}{-1}$\blacktriangledown$ & \colorcell{2.0207}{-1}$\blacktriangledown$\\
+Funzione di Rosenbrock ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{3.6984}{-1}$\blacktriangledown$ & \colorcell{1.0645}{-1}$=$\\
 \bottomrule
 \end{tabular}
 \end{fitwidth}
@@ -4821,7 +4821,7 @@ incrociato ($\kappa\approx1.67$) & Dynamic GD & 4 & 1 & 0 & 3 & 2 & 0\\
  & Newton-CG $L_1$ & 2 & 3 & 0 & 1 & 4 & 0\\
  & BB-CCV & 2 & 3 & 0 & 2 & 3 & 0\\
 \midrule
-banana ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
+Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
  & Newton-CG & 1 & 4 & 0 & 2 & 3 & 0\\
  & Newton-CG $L_1$ & 1 & 4 & 0 & 2 & 3 & 0\\
  & BB-CCV & 1 & 4 & 0 & 1 & 4 & 0\\
@@ -4848,7 +4848,7 @@ termine incrociato ($\kappa\approx1.67$) il riuso aiuta Dynamic GD e
 Newton-CG (4/5 con $M{=}\infty$) ma non BB-CCV e Newton-CG~$L_1$ (2/5), meno
 robusti quando al riuso di batch e Hessiana si sommano la proiezione ortante
 e il subgradiente del termine $L_1$ (per $L_1$) o la sensibilità del passo di
-Barzilai--Borwein al campione fissato (per BB-CCV). Sulla banana di Rosenbrock
+Barzilai--Borwein al campione fissato (per BB-CCV). Sulla Funzione di Rosenbrock
 il riuso è invece sempre peggiorativo: migliora in 2 seed su 5 al massimo
 (Dynamic GD, sia con $M=\infty$ sia con $M=10$) e per gli altri tre metodi in
 1--2 seed su 5 (Tabella~\ref{tab:riuso_robustezza}).
@@ -4886,7 +4886,7 @@ batch); per i metodi di Newton l'Hessiana segue il batch in modalità legata
 (Sezione~\ref{app:riuso-descrizione}).
 
 Setup come nella Sezione~\ref{app:riuso-setup} (l'intera batteria di cinque
-problemi: i quattro quadratici e la banana di Rosenbrock;
+problemi: i quattro quadratici e la Funzione di Rosenbrock;
 $N=200$, $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni,
 seed 42), con gli algoritmi esatti generati dall'applicazione (varianti con
 validation set dei codici Python dell'Appendice~\ref{app:codici}). I
@@ -4991,10 +4991,10 @@ incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{9.5580}{-3} (29) & \color
 incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.8717}{-1} (29) & \colorcell{1.4142}{0}$\blacktriangledown$ (0) & \colorcell{7.8791}{-2}$\blacktriangle$ (5) & \colorcell{9.2824}{-2}$\blacktriangle$ (11) & \colorcell{1.7781}{-1}$\blacktriangle$ (8)\\
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{1.0628}{-2} (29) & \colorcell{2.2289}{-2}$\blacktriangledown$ (11) & \colorcell{2.2289}{-2}$\blacktriangledown$ (11) & \colorcell{2.7610}{-2}$\blacktriangledown$ (17) & \colorcell{2.7754}{-2}$\blacktriangledown$ (14)\\
 \midrule
-banana ($c{=}100$) - Dynamic GD & \colorcell{5.3698}{-3} (29) & \colorcell{5.3845}{-3}$\blacktriangledown$ (22) & \colorcell{5.3845}{-3}$\blacktriangledown$ (22) & \colorcell{1.4065}{-2}$\blacktriangledown$ (24) & \colorcell{4.7963}{-3}$\blacktriangle$ (23)\\
-banana ($c{=}100$) - BB-CCV & \colorcell{5.3653}{-3} (29) & \colorcell{5.3653}{-3}$\blacktriangledown$ (26) & \colorcell{5.3653}{-3}$\blacktriangledown$ (26) & \colorcell{5.0034}{-3}$\blacktriangle$ (27) & \colorcell{5.0034}{-3}$\blacktriangle$ (27)\\
-banana ($c{=}100$) - Newton-CG & \colorcell{4.2039}{-1} (29) & \colorcell{5.6994}{-1}$\blacktriangledown$ (2) & \colorcell{4.8797}{-1}$\blacktriangledown$ (3) & \colorcell{7.2464}{-2}$\blacktriangle$ (10) & \colorcell{9.7980}{-2}$\blacktriangle$ (7)\\
-banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0116}{-1} (29) & \colorcell{1.2973}{-1}$\blacktriangle$ (2) & \colorcell{1.2973}{-1}$\blacktriangle$ (2) & \colorcell{1.1021}{-1}$\blacktriangle$ (3) & \colorcell{1.0884}{-1}$\blacktriangle$ (3)\\
+Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & \colorcell{5.3698}{-3} (29) & \colorcell{5.3845}{-3}$\blacktriangledown$ (22) & \colorcell{5.3845}{-3}$\blacktriangledown$ (22) & \colorcell{1.4065}{-2}$\blacktriangledown$ (24) & \colorcell{4.7963}{-3}$\blacktriangle$ (23)\\
+Funzione di Rosenbrock ($c{=}100$) - BB-CCV & \colorcell{5.3653}{-3} (29) & \colorcell{5.3653}{-3}$\blacktriangledown$ (26) & \colorcell{5.3653}{-3}$\blacktriangledown$ (26) & \colorcell{5.0034}{-3}$\blacktriangle$ (27) & \colorcell{5.0034}{-3}$\blacktriangle$ (27)\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG & \colorcell{4.2039}{-1} (29) & \colorcell{5.6994}{-1}$\blacktriangledown$ (2) & \colorcell{4.8797}{-1}$\blacktriangledown$ (3) & \colorcell{7.2464}{-2}$\blacktriangle$ (10) & \colorcell{9.7980}{-2}$\blacktriangle$ (7)\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0116}{-1} (29) & \colorcell{1.2973}{-1}$\blacktriangle$ (2) & \colorcell{1.2973}{-1}$\blacktriangle$ (2) & \colorcell{1.1021}{-1}$\blacktriangle$ (3) & \colorcell{1.0884}{-1}$\blacktriangle$ (3)\\
 \midrule
 Media (20 casi) & \colorcell{1.9562}{-1} & \colorcell{4.0383}{-1}$\blacktriangledown$ & \colorcell{2.3383}{-1}$\blacktriangledown$ & \colorcell{1.7919}{-1}$\blacktriangle$ & \colorcell{2.0065}{-1}$\blacktriangledown$\\
 \bottomrule
@@ -5051,7 +5051,7 @@ Strategia di split & \emph{dinamico} & \colorcell{3.1926}{-1} & 12.7\\
 \begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
+Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & Funzione di Rosenbrock ($c{=}100$)\\
 \midrule
 \emph{base} & \colorcell{2.1608}{-1} & 0/20 & \colorcell{1.8850}{-1} & \colorcell{1.9229}{-1} & \colorcell{4.0422}{-1} & \colorcell{8.4365}{-2} & \colorcell{2.1102}{-1}\\
 $M{=}\infty$ & \colorcell{3.8354}{-1} & 5/20 & \colorcell{2.4978}{-1} & \colorcell{4.5080}{-1} & \colorcell{7.1556}{-1} & \colorcell{1.6970}{-1} & \colorcell{3.3186}{-1}\\
@@ -5111,7 +5111,7 @@ generano più ricampionamenti.
 % =====================================================================
 
 Setup come nella Sezione~\ref{app:riuso-setup} (l'intera batteria di cinque
-problemi: i quattro quadratici e la banana di Rosenbrock;
+problemi: i quattro quadratici e la Funzione di Rosenbrock;
 $N=200$, $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni,
 seed 42), con gli algoritmi esatti generati dall'applicazione (varianti con
 criterio di discesa dei codici Python dell'Appendice~\ref{app:codici}). I
@@ -5187,10 +5187,10 @@ incrociato ($\kappa\approx1.67$) - BB-CCV & \colorcell{6.1644}{-4} (15) & \color
 incrociato ($\kappa\approx1.67$) - Newton-CG & \colorcell{2.6381}{-1} (29) & \colorcell{4.1026}{-2}$\blacktriangle$ (5) & \colorcell{4.1026}{-2}$\blacktriangle$ (5) & \colorcell{4.1026}{-2}$\blacktriangle$ (5) & \colorcell{4.1026}{-2}$\blacktriangle$ (5)\\
 incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & \colorcell{2.5154}{-2} (29) & \colorcell{3.8938}{-2}$\blacktriangledown$ (10) & \colorcell{3.8938}{-2}$\blacktriangledown$ (10) & \colorcell{3.8938}{-2}$\blacktriangledown$ (10) & \colorcell{3.8938}{-2}$\blacktriangledown$ (10)\\
 \midrule
-banana ($c{=}100$) - Dynamic GD & \colorcell{6.1354}{-4} (29) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25)\\
-banana ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} (29) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10)\\
-banana ($c{=}100$) - Newton-CG & \colorcell{9.3953}{-1} (29) & \colorcell{1.0605}{0}$\blacktriangledown$ (0) & \colorcell{1.0247}{0}$\blacktriangledown$ (4) & \colorcell{1.0247}{0}$\blacktriangledown$ (4) & \colorcell{1.0247}{0}$\blacktriangledown$ (4)\\
-banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0207}{-1} (29) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0)\\
+Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & \colorcell{6.1354}{-4} (29) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25) & \colorcell{2.5435}{0}$\blacktriangledown$ (25)\\
+Funzione di Rosenbrock ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} (29) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10) & \colorcell{1.6648}{-1}$\blacktriangledown$ (10)\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG & \colorcell{9.3953}{-1} (29) & \colorcell{1.0605}{0}$\blacktriangledown$ (0) & \colorcell{1.0247}{0}$\blacktriangledown$ (4) & \colorcell{1.0247}{0}$\blacktriangledown$ (4) & \colorcell{1.0247}{0}$\blacktriangledown$ (4)\\
+Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0207}{-1} (29) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0)\\
 \bottomrule
 \end{tabular}
 \end{fitwidth}
@@ -5238,7 +5238,7 @@ Frequenza $f$ & 3 & \colorcell{4.3877}{-1} & 9.5\\
 \begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
+Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & Funzione di Rosenbrock ($c{=}100$)\\
 \midrule
 \emph{base} & \colorcell{2.0909}{-1} & 0/20 & \colorcell{1.7930}{-1} & \colorcell{1.7595}{-1} & \colorcell{4.1162}{-1} & \colorcell{8.1419}{-2} & \colorcell{1.9719}{-1}\\
 $M{=}\infty$ & \colorcell{3.7299}{-1} & 8/20 & \colorcell{1.9159}{-1} & \colorcell{5.0123}{-1} & \colorcell{6.6432}{-1} & \colorcell{9.8773}{-2} & \colorcell{4.0901}{-1}\\
@@ -5253,7 +5253,7 @@ $P{=}1,\tau{=}10^{-5},f{=}1$ & \colorcell{2.3947}{-1} & 10/20 & \colorcell{1.185
 \noindent\emph{Lettura.} Robustezza su 5 seed: la configurazione consigliata
 ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$) vince in 11 delle 20 combinazioni
 problema$\times$algoritmo ma porta l'errore medio a $2.38\times10^{-1}$,
-superiore alla media della \emph{base} ($2.09\times10^{-1}$): sulla banana di
+superiore alla media della \emph{base} ($2.09\times10^{-1}$): sulla Funzione di Rosenbrock di
 Rosenbrock il criterio peggiora su tutti i metodi ($3.84\times10^{-1}$ contro
 $1.97\times10^{-1}$, ultima colonna), mentre sui problemi quadratici resta
 vicina o migliore della \emph{base}. Rispetto a $M{=}\infty$
@@ -5275,7 +5275,7 @@ Dynamic GD a $4.89\times10^{-2}$ con 14 ricampionamenti). BB-CCV, la cui base
 su $\kappa\approx20$ è già $9.72\times10^{-5}$, migliora fino a
 $9.54\times10^{-10}$. Per i metodi di Newton il criterio limita il riuso ed
 evita il collasso di $M=\infty$: su Newton-CG con $\kappa\approx20$ l'errore
-finale passa da $1.28$ (riuso illimitato) a $2.48\times10^{-1}$. Sulla banana
+finale passa da $1.28$ (riuso illimitato) a $2.48\times10^{-1}$. Sulla Funzione di Rosenbrock
 di Rosenbrock, al contrario, il criterio è controproducente rispetto alla
 \emph{base}: l'errore medio per problema su 5 seed sale da
 $1.97\times10^{-1}$ a $3.84\times10^{-1}$
@@ -5290,7 +5290,7 @@ delle 20 combinazioni problema$\times$algoritmo, ma l'errore medio su 5 seed
 ($2.38\times10^{-1}$) supera quello della \emph{base}
 ($2.09\times10^{-1}$): le vittorie sono concentrate dove la base è già buona
 (ben condizionati, termine incrociato), mentre le sconfitte pesano di più
-sulla banana ($3.84\times10^{-1}$ contro $1.97\times10^{-1}$) e su
+sulla Funzione di Rosenbrock ($3.84\times10^{-1}$ contro $1.97\times10^{-1}$) e su
 $\kappa\approx20$ ($2.34\times10^{-1}$ contro $1.76\times10^{-1}$, dove il
 criterio trattiene Dynamic GD sullo stesso batch). Il default
 ($\tau=10^{-4}$, $P=1$, $f=1$) è pressoché equivalente
@@ -5301,11 +5301,11 @@ monotonia della ricerca lineare tiene comunque il batch ``in discesa''.
 La Tabella~\ref{tab:riuso_confronto_finale} riassume il confronto su 5 seed
 tra la \emph{base}, lo stop adattivo con validation set calibrato ($P=1$,
 $p=10\%$, split dinamico; Sezione~\ref{app:riuso-validation}) e il riuso per
-discesa calibrato ($\tau=10^{-3}$, $P=1$, $f=1$). Con la banana nella batteria
+discesa calibrato ($\tau=10^{-3}$, $P=1$, $f=1$). Con la Funzione di Rosenbrock nella batteria
 lo stop adattivo è la strategia migliore in media
 ($2.04\times10^{-1}$, 12 vittorie su 20) e l'unica a migliorare la media
 della \emph{base} ($2.09\times10^{-1}$); il riuso per discesa vince in 11 casi
-su 20, ma la sua media sale a $2.38\times10^{-1}$ perché sulla banana peggiora
+su 20, ma la sua media sale a $2.38\times10^{-1}$ perché sulla Funzione di Rosenbrock peggiora
 su tutti i metodi ($3.84\times10^{-1}$ contro $1.97\times10^{-1}$ della
 \emph{base}). Entrambi i criteri evitano il collasso di $M=\infty$
 ($3.73\times10^{-1}$, 8/20). Su $\kappa\approx20$, il problema su cui
@@ -5319,7 +5319,7 @@ adattivo quando non si vuole (o non si può) riservare una frazione dei dati:
 molti meno ricampionamenti e protezione dal collasso di $M=\infty$ per i
 metodi del secondo ordine. Sulla batteria completa di cinque problemi, però,
 la sua media su 5 seed è peggiore di quella della \emph{base} e dello stop
-adattivo, perché sulla banana (e in parte su $\kappa\approx20$) trattiene i
+adattivo, perché sulla Funzione di Rosenbrock (e in parte su $\kappa\approx20$) trattiene i
 metodi troppo a lungo sullo stesso batch. La tolleranza ha un effetto
 limitato: $\tau=10^{-3}$ è appena meglio del default $10^{-4}$, perché la
 monotonia della ricerca lineare tiene comunque il batch ``in discesa''.
@@ -5335,7 +5335,7 @@ monotonia della ricerca lineare tiene comunque il batch ``in discesa''.
 \begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
+Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & Funzione di Rosenbrock ($c{=}100$)\\
 \midrule
 \emph{base} & \colorcell{2.0909}{-1} & 0/20 & \colorcell{1.7930}{-1} & \colorcell{1.7595}{-1} & \colorcell{4.1162}{-1} & \colorcell{8.1419}{-2} & \colorcell{1.9719}{-1}\\
 $M{=}\infty$ & \colorcell{3.7299}{-1} & 8/20 & \colorcell{1.9159}{-1} & \colorcell{5.0123}{-1} & \colorcell{6.6432}{-1} & \colorcell{9.8773}{-2} & \colorcell{4.0901}{-1}\\
@@ -5381,7 +5381,7 @@ Questa sottosezione riporta la scelta consigliata per ciascun metodo, ottenuta
 con una ricerca a griglia mirata sull'intera batteria di cinque problemi e con
 lo stesso setup della Sezione~\ref{sec:risultati}: i quattro preset quadratici
 ($\kappa\approx 1.1$, $\kappa\approx 20$, $\kappa\approx 100$ e termine
-incrociato) e la banana di Rosenbrock (non quadratica, $c{=}100$),
+incrociato) e la Funzione di Rosenbrock (non quadratica, $c{=}100$),
 $N = 200$ esempi sintetici, $w_0 = (2,-3)$, $\alpha = 0.1$,
 $\theta = 0.5$, $n_0 = 5$, 30 iterazioni, line search di Wolfe (Armijo per
 BB-CCV, come nella Sezione~\ref{sec:setup}). La metrica è l'errore finale
@@ -5403,13 +5403,13 @@ La Tabella~\ref{tab:riuso_cons_sintesi} riporta, per ciascun problema e
 algoritmo, la configurazione consigliata, la mediana di $e_{30}$ su cinque seed
 della \emph{base} e della configurazione consigliata, e il numero di seed su 5
 in cui la configurazione consigliata migliora la \emph{base}. Includendo la
-banana nella ricerca, le uniche configurazioni ammissibili restano lo stop
+Funzione di Rosenbrock nella ricerca, le uniche configurazioni ammissibili restano lo stop
 adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e il riuso
 $M{=}3$ per Newton-CG~$L_1$; per Dynamic GD e BB-CCV nessuna configurazione
 testata migliora la mediana della \emph{base} su tutti e cinque i problemi ---
-sulla banana la base di Dynamic GD è già $\approx6.1\times10^{-4}$ e ogni
+sulla Funzione di Rosenbrock la base di Dynamic GD è già $\approx6.1\times10^{-4}$ e ogni
 variante la peggiora, mentre BB-CCV è già alla precisione macchina sui problemi
-molto mal condizionati e ha mediana $5.6\times10^{-9}$ sulla banana --- e quindi
+molto mal condizionati e ha mediana $5.6\times10^{-9}$ sulla Funzione di Rosenbrock --- e quindi
 la \emph{base} resta la configurazione consigliata. Il totale di vittorie su 25
 combinazioni problema$\times$seed è Newton-CG 16/25 e Newton-CG~$L_1$ 16/25.
 
@@ -5445,15 +5445,15 @@ incrociato ($\kappa\approx1.67$) & BB-CCV & \emph{base} & \colorcell{2.7237}{-4}
 incrociato ($\kappa\approx1.67$) & Newton-CG & stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa} & \colorcell{3.4458}{-1} & \colorcell{1.0227}{-1} & 5/5\\
 incrociato ($\kappa\approx1.67$) & Newton-CG $L_1$ & riuso $M{=}3$ & \colorcell{2.6752}{-2} & \colorcell{2.3645}{-2} & 2/5\\
 \midrule
-banana ($c{=}100$) & Dynamic GD & \emph{base} & \colorcell{6.1354}{-4} & \colorcell{6.1354}{-4} & ---\\
-banana ($c{=}100$) & BB-CCV & \emph{base} & \colorcell{5.6060}{-9} & \colorcell{5.6060}{-9} & ---\\
-banana ($c{=}100$) & Newton-CG & stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa} & \colorcell{6.8152}{-1} & \colorcell{6.6176}{-1} & 3/5\\
-banana ($c{=}100$) & Newton-CG $L_1$ & riuso $M{=}3$ & \colorcell{2.0488}{-1} & \colorcell{1.7321}{-1} & 2/5\\
+Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & \emph{base} & \colorcell{6.1354}{-4} & \colorcell{6.1354}{-4} & ---\\
+Funzione di Rosenbrock ($c{=}100$) & BB-CCV & \emph{base} & \colorcell{5.6060}{-9} & \colorcell{5.6060}{-9} & ---\\
+Funzione di Rosenbrock ($c{=}100$) & Newton-CG & stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa} & \colorcell{6.8152}{-1} & \colorcell{6.6176}{-1} & 3/5\\
+Funzione di Rosenbrock ($c{=}100$) & Newton-CG $L_1$ & riuso $M{=}3$ & \colorcell{2.0488}{-1} & \colorcell{1.7321}{-1} & 2/5\\
 \bottomrule
 \end{tabular}
 \end{fitwidth}
 \end{table}
-\noindent\emph{Lettura.} È la tabella operativa della sezione: per ognuna delle 20 combinazioni problema$\times$algoritmo indica la configurazione consigliata, la mediana di $e_{30}$ su 5 seed della base e della configurazione consigliata, e su quanti seed (su 5) la configurazione consigliata batte la base. Regola d'insieme: \emph{base} per Dynamic GD e BB-CCV (nessuna variante migliora la mediana su tutti i problemi, in particolare sulla banana), stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M{=}3$ per Newton-CG~$L_1$; con queste scelte nessun metodo peggiora la mediana della base su nessuno dei cinque problemi.
+\noindent\emph{Lettura.} È la tabella operativa della sezione: per ognuna delle 20 combinazioni problema$\times$algoritmo indica la configurazione consigliata, la mediana di $e_{30}$ su 5 seed della base e della configurazione consigliata, e su quanti seed (su 5) la configurazione consigliata batte la base. Regola d'insieme: \emph{base} per Dynamic GD e BB-CCV (nessuna variante migliora la mediana su tutti i problemi, in particolare sulla Funzione di Rosenbrock), stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M{=}3$ per Newton-CG~$L_1$; con queste scelte nessun metodo peggiora la mediana della base su nessuno dei cinque problemi.
 
 \paragraph{Confronto iterazione per iterazione.}
 Le Tabelle~\ref{tab:riuso_cons_bencond_ncg}--\ref{tab:riuso_cons_banana_nl1}
@@ -5863,7 +5863,7 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la configurazione \emph{base} e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa}).}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la configurazione \emph{base} e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa}).}
 \label{tab:riuso_cons_banana_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
@@ -5908,7 +5908,7 @@ $k$ & \emph{base} & consigliato\\
 \footnotesize
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
-\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} e quella consigliata (riuso $M{=}3$).}
+\caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} e quella consigliata (riuso $M{=}3$).}
 \label{tab:riuso_cons_banana_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule

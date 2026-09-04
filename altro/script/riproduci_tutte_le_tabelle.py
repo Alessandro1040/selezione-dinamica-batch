@@ -48,7 +48,7 @@ NU = 0.1
 SIGMA = 0.1
 ETA = 0.5
 SEEDS = [42, 7, 123, 2024, 999]
-BANANA = "banana"   # problema non quadratico 'banana di Rosenbrock' (c=100)
+BANANA = "banana"   # problema non quadratico 'funzione di Rosenbrock' (c=100)
 
 # ============================================================================
 # 2. PRESET (codice esatto di LOSS_PRESETS in visualizzazione.html)
@@ -184,7 +184,7 @@ def _make_preset_offdiag(seed=SEED):
 
 
 def _make_preset_banana(seed=SEED):
-    """Preset NON quadratico 'banana di Rosenbrock' (c=100), con dataset
+    """Preset NON quadratico 'funzione di Rosenbrock' (c=100), con dataset
     stocastico centrato (rumore sigma=0.2 su entrambe le coordinate, come
     negli altri preset 2D). Come nei preset 1D non quadratici la funzione e'
     definita come media sul dataset: J = mean_i loss_i; il minimo W_STAR e'
@@ -245,7 +245,7 @@ def _make_preset_banana(seed=SEED):
         w = w - d
     return dict(N=N, J=J, gradJ=gradJ, hessJ=hessJ, loss_i=loss_i,
                 grad_i=grad_i, hess_i=hess_i, hessvec_i=hessvec_i,
-                grad_full=grad_full, W_STAR=w, label="banana di Rosenbrock")
+                grad_full=grad_full, W_STAR=w, label="funzione di Rosenbrock")
 
 
 
@@ -262,7 +262,7 @@ PRESET_LATEX = {
     "quad_ill": r"$\kappa\approx20$",
     "quad_very_ill": r"$\kappa\approx100$",
     "quad_offdiag": r"incrociato ($\kappa\approx1.67$)",
-    BANANA: r"banana ($c{=}100$)",
+    BANANA: r"funzione di Rosenbrock ($c{=}100$)",
 }
 
 ALGO_LATEX = {
@@ -2783,7 +2783,7 @@ PROB_IT = {"quad_well": r"ben condizionato ($\kappa \approx 1.1$)",
            "quad_ill": r"mal condizionato ($\kappa \approx 20$)",
            "quad_very_ill": r"molto mal condizionato ($\kappa \approx 100$)",
            "quad_offdiag": r"termine incrociato ($\kappa \approx 1.67$)",
-           BANANA: r"banana di Rosenbrock ($c{=}100$, non quadratica)"}
+           BANANA: r"funzione di Rosenbrock ($c{=}100$, non quadratica)"}
 
 
 def gen_test_tables(riuso):
@@ -2836,7 +2836,7 @@ def gen_test_tables(riuso):
 
 
 def gen_banana_test_tables():
-    """Tabella di test sul problema NON quadratico 'banana di Rosenbrock':
+    """Tabella di test sul problema NON quadratico 'funzione di Rosenbrock':
     errore ||w_k-w*||_2 a ogni iterazione, 4 metodi (una sottotabella per
     metodo, storia effettiva senza padding), seed 42. Stile identico alle
     Tabelle 6.1-6.3. I valori sono generati dallo script (non dall'app)."""
@@ -2847,7 +2847,7 @@ def gen_banana_test_tables():
     out.append("\\renewcommand{\\arraystretch}{0.85}")
     out.append("\\setlength{\\tabcolsep}{3pt}")
     out.append("\\caption{Errore $\\|w_k-w_*\\|_2$ a ogni iterazione sul "
-               "problema non quadratico ``banana di Rosenbrock'' "
+               "problema non quadratico ``funzione di Rosenbrock'' "
                "($c{=}100$, dataset stocastico centrato, seed 42), per i "
                "quattro algoritmi.}")
     out.append("\\label{tab:test_banana}")
@@ -2886,7 +2886,7 @@ def gen_riuso_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
-        BANANA: "non quadratico ``banana di Rosenbrock'' ($c{=}100$) ",
+        BANANA: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
     for pname in PRESETS:
@@ -3165,7 +3165,7 @@ def gen_validation_robustezza(rob):
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
                "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
-               "banana ($c{=}100$)\\\\")
+               "funzione di Rosenbrock ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         es = [np.mean(rob[(p, a, c)]) for p in PRESETS for a in ALGOS4]
@@ -3327,7 +3327,7 @@ def gen_descent_robustezza(rob):
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
                "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
-               "banana ($c{=}100$)\\\\")
+               "funzione di Rosenbrock ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         es = [np.mean(rob[(p, a, c)]) for p in PRESETS for a in ALGOS4]
@@ -3377,7 +3377,7 @@ def gen_confronto_finale(vrob, drob):
     out.append("Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
                "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
-               "banana ($c{=}100$)\\\\")
+               "funzione di Rosenbrock ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         if c == "pat1-pct1-dyn":
@@ -3460,7 +3460,7 @@ def gen_cons_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
-        BANANA: "non quadratico ``banana di Rosenbrock'' ($c{=}100$) ",
+        BANANA: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
     algos_cons = [a for a in ("gd", "newton_cg", "newton_l1")
@@ -3818,7 +3818,7 @@ def gen_all_tables(riuso, rob, vdata, vrefs, vrob, ddata, drefs, drob, cons):
     parts = [
         "% Tabelle 6.1-6.3 (test, 4 metodi x 3 problemi)",
         gen_test_tables(riuso),
-        "% Tabella di test sul problema non quadratico 'banana di Rosenbrock'",
+        "% Tabella di test sul problema non quadratico 'funzione di Rosenbrock'",
         gen_banana_test_tables(),
         "% Tabelle 6.4-6.19 (riuso del mini-batch, per-iterazione)",
         gen_riuso_tables(riuso),
