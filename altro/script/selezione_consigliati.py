@@ -3,7 +3,7 @@
 """
 Selezione delle configurazioni consigliate per ciascun metodo (Sez. 6.5.8
 "Iperparametri consigliati per ciascun metodo"), su TUTTI i problemi della
-batteria: i quattro quadratici + la banana di Rosenbrock (non quadratica).
+batteria: i quattro quadratici + la funzione di Rosenbrock (non quadratica).
 
 Criterio (come descritto in tesi/tesi.tex):
   1. candidati per ciascun metodo: riuso del mini-batch per M in

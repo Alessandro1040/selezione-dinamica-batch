@@ -2654,7 +2654,7 @@ Dynamic GD, Newton-CG, Newton-CG~$L_1$ e BB-CCV
 incrociato, con i quattro algoritmi affiancati in ordine: (a)~Dynamic GD,
 (b)~Newton-CG, (c)~Newton-CG~$L_1$, (d)~BB-CCV. Alla fine della sottosezione
 aggiungiamo il confronto sul quinto problema, la Funzione di Rosenbrock
-(Tabella~\ref{tab:test_banana}). I valori sono quelli riportati dal pannello
+(Tabella~\ref{tab:test_rosenbrock}). I valori sono quelli riportati dal pannello
 ``Analisi'' dell'applicazione.
 
 A partire da qui, in tutte le tabelle della Sezione~\ref{sec:esperimenti} lo sfondo delle celle
@@ -3167,7 +3167,7 @@ $k$ & $\|w_k-w_*\|_2$\\
 \paragraph{Osservazioni comparative.} Dai valori delle
 Tabelle~\ref{tab:test_bencond}--\ref{tab:test_incrociato} emergono tre
 indicazioni; il quinto problema, la Funzione di Rosenbrock, è discusso qui sotto
-con la Tabella~\ref{tab:test_banana}.
+con la Tabella~\ref{tab:test_rosenbrock}.
 
 (i)~Sul problema ben condizionato ($\kappa \approx 1.1$) la curvatura è quasi
 la stessa in tutte le direzioni: il terreno è regolare e un unico passo ben
@@ -3213,7 +3213,7 @@ Completa il confronto dei Risultati Numerici il problema non quadratico
 ``Funzione di Rosenbrock'' descritto nella Sezione~\ref{sec:setup}, eseguito
 con lo stesso setup dei problemi quadratici (seed 42, $w_0=(2,-3)$,
 $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni). La
-Tabella~\ref{tab:test_banana} riporta l'errore $\|w_k-w_*\|_2$ a ogni
+Tabella~\ref{tab:test_rosenbrock} riporta l'errore $\|w_k-w_*\|_2$ a ogni
 iterazione; i valori sono generati con lo script di riproduzione delle
 tabelle del Capitolo (NumPy di sistema), come per il resto dei risultati
 numerici.
@@ -3247,7 +3247,7 @@ la curvatura globale di un problema non quadratico.
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{3pt}
 \caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$, dataset stocastico centrato, seed 42), per i quattro algoritmi.}
-\label{tab:test_banana}
+\label{tab:test_rosenbrock}
 \begin{subtable}{0.24\textwidth}
 \centering
 \caption{Dynamic GD}
@@ -3650,7 +3650,7 @@ Per i metodi di Newton la Hessiana è stimata sul sottoinsieme $H_k \subseteq
 (opzione \emph{Sottocampionamento Hessiana} dell'app, default \emph{Subset},
 coerente con la Sezione~\ref{sec:setup}). Le colonne $M{=}\infty$, $M{=}10$,
 $M{=}5$, $M{=}2$ delle tabelle dei metodi di Newton
-(Tabelle~\ref{tab:riuso_bencond_ncg}--\ref{tab:riuso_banana_l1}) usano la
+(Tabelle~\ref{tab:riuso_bencond_ncg}--\ref{tab:riuso_rosenbrock_l1}) usano la
 modalità \emph{Legato a $S_k$} (default): $H_k$ è ricampionata insieme a
 $S_k$. L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) usa la modalità
 \emph{Indipendente da $S_k$} con $M_H$ illimitato: a parità di riuso del batch
@@ -3661,7 +3661,7 @@ testata solo con batch finito.
 
 \subsubsection{Risultati numerici}\label{app:riuso-risultati}
 
-Le Tabelle~\ref{tab:riuso_bencond_gd}--\ref{tab:riuso_banana_bb} riportano
+Le Tabelle~\ref{tab:riuso_bencond_gd}--\ref{tab:riuso_rosenbrock_bb} riportano
 l'errore $e_k = \|w_k - w^*\|_2$ iterazione per iterazione. Il quadro
 emerso è coerente con l'analisi della Sezione~\ref{app:riuso-meccanismo}:
 
@@ -4547,7 +4547,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Dynamic GD}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
-\label{tab:riuso_banana_gd}
+\label{tab:riuso_rosenbrock_gd}
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
 $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
@@ -4592,7 +4592,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
-\label{tab:riuso_banana_ncg}
+\label{tab:riuso_rosenbrock_ncg}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
 $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
@@ -4637,7 +4637,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato). L'ultima colonna ($M{=}10$, H ind. $M_H{=}\infty$) è la modalità \emph{Indipendente da $S_k$} dell'app.}
-\label{tab:riuso_banana_l1}
+\label{tab:riuso_rosenbrock_l1}
 \begin{tabular}{@{}rrrrrrr@{}}
 \toprule
 $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}\infty$\\
@@ -4682,7 +4682,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$ & H ind. $M_H{=}
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{4pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{BB-CCV}: confronto tra la versione a ricampionamento (colonna \emph{base}) e il riuso dello stesso mini-batch per $M$ iterazioni consecutive ($M{=}\infty$: illimitato).}
-\label{tab:riuso_banana_bb}
+\label{tab:riuso_rosenbrock_bb}
 \begin{tabular}{@{}rrrrrr@{}}
 \toprule
 $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
@@ -5456,7 +5456,7 @@ Funzione di Rosenbrock ($c{=}100$) & Newton-CG $L_1$ & riuso $M{=}3$ & \colorcel
 \noindent\emph{Lettura.} È la tabella operativa della sezione: per ognuna delle 20 combinazioni problema$\times$algoritmo indica la configurazione consigliata, la mediana di $e_{30}$ su 5 seed della base e della configurazione consigliata, e su quanti seed (su 5) la configurazione consigliata batte la base. Regola d'insieme: \emph{base} per Dynamic GD e BB-CCV (nessuna variante migliora la mediana su tutti i problemi, in particolare sulla Funzione di Rosenbrock), stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M{=}3$ per Newton-CG~$L_1$; con queste scelte nessun metodo peggiora la mediana della base su nessuno dei cinque problemi.
 
 \paragraph{Confronto iterazione per iterazione.}
-Le Tabelle~\ref{tab:riuso_cons_bencond_ncg}--\ref{tab:riuso_cons_banana_nl1}
+Le Tabelle~\ref{tab:riuso_cons_bencond_ncg}--\ref{tab:riuso_cons_rosenbrock_nl1}
 riportano l'errore $e_k$ a ogni iterazione (seed 42) per la configurazione
 consigliata accanto alla \emph{base}, per i due metodi la cui consigliata non è
 la \emph{base} (Newton-CG e Newton-CG~$L_1$); Dynamic GD e BB-CCV hanno
@@ -5864,7 +5864,7 @@ $k$ & \emph{base} & consigliato\\
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG}: confronto tra la configurazione \emph{base} e quella consigliata (stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, split \emph{fissa}).}
-\label{tab:riuso_cons_banana_ncg}
+\label{tab:riuso_cons_rosenbrock_ncg}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\
@@ -5909,7 +5909,7 @@ $k$ & \emph{base} & consigliato\\
 \renewcommand{\arraystretch}{0.85}
 \setlength{\tabcolsep}{8pt}
 \caption{Errore $e_k=\|w_k-w_*\|_2$ a ogni iterazione $k$ sul problema non quadratico ``Funzione di Rosenbrock'' ($c{=}100$) , per \emph{Newton-CG $L_1$}: confronto tra la configurazione \emph{base} e quella consigliata (riuso $M{=}3$).}
-\label{tab:riuso_cons_banana_nl1}
+\label{tab:riuso_cons_rosenbrock_nl1}
 \begin{tabular}{@{}rrr@{}}
 \toprule
 $k$ & \emph{base} & consigliato\\

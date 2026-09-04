@@ -277,7 +277,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           <option value="quad_ill">Quadratica mal condizionata (κ ≈ 20)</option>
           <option value="quad_very_ill">Quadratica molto mal condizionata (κ ≈ 100)</option>
           <option value="quad_offdiag">Quadratica con termine incrociato</option>
-          <option value="banana">Banana di Rosenbrock (non quadratica, c=100)</option>
+          <option value="rosenbrock">Funzione di Rosenbrock (non quadratica, c=100)</option>
           <option value="1d_quad">1D Quadratica</option>
           <option value="1d_quartic">1D Quartica + quadratica</option>
           <option value="1d_sin">1D Sinusoidale + quadratica</option>
@@ -1779,8 +1779,8 @@ YMIN, YMAX = -4.0, 0.0`
 
   },
 
-  banana: {
-    label: 'Banana di Rosenbrock (non quadratica, c=100)', dim: 2,
+  rosenbrock: {
+    label: 'Funzione di Rosenbrock (non quadratica, c=100)', dim: 2,
     hint: 'J(w) = (1/N)Σ [(w₁−a_i)² + 100((w₂−b_i) − (w₁−a_i)²)²], dataset stocastico centrato (rumore 0.2)',
     code: `import numpy as np
 
@@ -6471,9 +6471,9 @@ document.getElementById('colabZoomReset').addEventListener('click', () => {
    ===================================================================== */
 
 const BATCH_DIM_DEFS = [
-  { key:'loss', label:'Loss (preset)', values:'quad_well,quad_ill,quad_very_ill,quad_offdiag,banana', media:false,
-    hint:'Chiavi preset: quad_well, quad_ill, quad_very_ill, quad_offdiag, banana, 1d_quad, 1d_quartic, 1d_sin, 1d_exp, custom.',
-    sugg:['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana','1d_quad','1d_quartic','1d_sin','1d_exp','custom'] },
+  { key:'loss', label:'Loss (preset)', values:'quad_well,quad_ill,quad_very_ill,quad_offdiag,rosenbrock', media:false,
+    hint:'Chiavi preset: quad_well, quad_ill, quad_very_ill, quad_offdiag, rosenbrock, 1d_quad, 1d_quartic, 1d_sin, 1d_exp, custom.',
+    sugg:['quad_well','quad_ill','quad_very_ill','quad_offdiag','rosenbrock','1d_quad','1d_quartic','1d_sin','1d_exp','custom'] },
   { key:'algo', label:'Algoritmo', values:'gd,bb,newton_cg,newton_l1', media:false,
     hint:'gd = Dynamic GD, bb = BB-CCV, newton_cg = Newton-CG, newton_l1 = Newton-CG L1.', sugg:['gd','bb','newton_cg','newton_l1'] },
   { key:'strategia', label:'Strategia di riuso (colonne)', values:'base,M=inf,M=10,M=5,M=2,H ind M_H=inf', media:false,
@@ -6953,7 +6953,7 @@ async function batchExecute(cfgs){
 }
 
 async function batchRunSpecial(fmt, dims){
-  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana']);
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','rosenbrock']);
   const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
   const base=batchBaseCfg(dims);
   const SEEDS=[42,7,123,2024,999];
@@ -7028,7 +7028,7 @@ function batchValueLabel(key, v){
   return String(v);
 }
 function batchLatexValueLabel(key, v){
-  if(key==='loss'){ const m={'quad_well':'$\\kappa\\approx1.1$','quad_ill':'$\\kappa\\approx20$','quad_very_ill':'$\\kappa\\approx100$','quad_offdiag':'incrociato ($\\kappa\\approx1.67$)','banana':'banana di Rosenbrock','1d_quad':'1D quadratica','1d_quartic':'1D quartica','1d_sin':'1D sinusoidale','1d_exp':'1D esponenziale','custom':'custom'}; return m[v]||v; }
+  if(key==='loss'){ const m={'quad_well':'$\\kappa\\approx1.1$','quad_ill':'$\\kappa\\approx20$','quad_very_ill':'$\\kappa\\approx100$','quad_offdiag':'incrociato ($\\kappa\\approx1.67$)','rosenbrock':'funzione di Rosenbrock','1d_quad':'1D quadratica','1d_quartic':'1D quartica','1d_sin':'1D sinusoidale','1d_exp':'1D esponenziale','custom':'custom'}; return m[v]||v; }
   if(key==='algo'){ const m={gd:'Dynamic GD',bb:'BB-CCV',newton_cg:'Newton-CG',newton_l1:'Newton-CG $L_1$'}; return m[v]||v; }
   return batchEscLatex(batchValueLabel(key, v));
 }
@@ -7796,7 +7796,7 @@ function batchUpdateRunCount(){
 }
 function batchSpecialRunCount(fmt){
   const dims=batchReadDims();
-  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana']).length;
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','rosenbrock']).length;
   const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
   if(fmt==='rob_riuso') return losses*algos.length*15;
   if(fmt==='sens_val') return losses*algos.length*108;

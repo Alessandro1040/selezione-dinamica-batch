@@ -48,7 +48,7 @@ NU = 0.1
 SIGMA = 0.1
 ETA = 0.5
 SEEDS = [42, 7, 123, 2024, 999]
-BANANA = "banana"   # problema non quadratico 'funzione di Rosenbrock' (c=100)
+ROSENBROCK = "rosenbrock"   # problema non quadratico 'funzione di Rosenbrock' (c=100)
 
 # ============================================================================
 # 2. PRESET (codice esatto di LOSS_PRESETS in visualizzazione.html)
@@ -183,7 +183,7 @@ def _make_preset_offdiag(seed=SEED):
                 label="termine incrociato")
 
 
-def _make_preset_banana(seed=SEED):
+def _make_preset_rosenbrock(seed=SEED):
     """Preset NON quadratico 'funzione di Rosenbrock' (c=100), con dataset
     stocastico centrato (rumore sigma=0.2 su entrambe le coordinate, come
     negli altri preset 2D). Come nei preset 1D non quadratici la funzione e'
@@ -254,7 +254,7 @@ PRESET_MAKERS = {
     "quad_ill": _make_preset_ill,
     "quad_very_ill": _make_preset_very_ill,
     "quad_offdiag": _make_preset_offdiag,
-    BANANA: _make_preset_banana,
+    ROSENBROCK: _make_preset_rosenbrock,
 }
 
 PRESET_LATEX = {
@@ -262,7 +262,7 @@ PRESET_LATEX = {
     "quad_ill": r"$\kappa\approx20$",
     "quad_very_ill": r"$\kappa\approx100$",
     "quad_offdiag": r"incrociato ($\kappa\approx1.67$)",
-    BANANA: r"funzione di Rosenbrock ($c{=}100$)",
+    ROSENBROCK: r"funzione di Rosenbrock ($c{=}100$)",
 }
 
 ALGO_LATEX = {
@@ -2472,7 +2472,7 @@ def marker(base, v):
 # ============================================================================
 # 6. RACCOLTA DATI
 # ============================================================================
-PRESETS = ("quad_well", "quad_ill", "quad_very_ill", "quad_offdiag", BANANA)
+PRESETS = ("quad_well", "quad_ill", "quad_very_ill", "quad_offdiag", ROSENBROCK)
 ALGOS4 = ("gd", "bb", "newton_cg", "newton_l1")
 M_VALUES = {"inf": None, "10": 10, "5": 5, "3": 3, "2": 2, "1": 1}
 
@@ -2703,12 +2703,13 @@ def compute_descent_robust():
 #   ("base", "")                    -> nessuna configurazione ammissibile
 #   ("riuso", "M=x")                -> riuso del mini-batch con M=x
 #   ("validation", "P=..;f=..;p=..;strat=fixed|dynamic")
-# Scelta (script selezione_consigliati.py, batteria completa con la banana di
+# Scelta (script selezione_consigliati.py, batteria completa con la funzione di
 # Rosenbrock): mediana di e30 su 5 seed migliore della base su TUTTI i problemi;
 # tra le ammissibili, migliore media geometrica dei rapporti e30_cfg/e30_base
-# sulle 5 problemi x 5 seed combinazioni. Con la banana come quinto problema
-# Dynamic GD non ha piu' varianti ammissibili (la base su banana e' gia' ottima,
-# ~6e-4 di mediana, e ogni variante la peggiora): consigliata = base.
+# sulle 5 problemi x 5 seed combinazioni. Con la funzione di Rosenbrock come
+# quinto problema Dynamic GD non ha piu' varianti ammissibili (la base sulla
+# funzione di Rosenbrock e' gia' ottima, ~6e-4 di mediana, e ogni variante la
+# peggiora): consigliata = base.
 RECOMMENDED = {
     "gd": ("base", ""),
     "bb": ("base", ""),
@@ -2783,7 +2784,7 @@ PROB_IT = {"quad_well": r"ben condizionato ($\kappa \approx 1.1$)",
            "quad_ill": r"mal condizionato ($\kappa \approx 20$)",
            "quad_very_ill": r"molto mal condizionato ($\kappa \approx 100$)",
            "quad_offdiag": r"termine incrociato ($\kappa \approx 1.67$)",
-           BANANA: r"funzione di Rosenbrock ($c{=}100$, non quadratica)"}
+           ROSENBROCK: r"funzione di Rosenbrock ($c{=}100$, non quadratica)"}
 
 
 def gen_test_tables(riuso):
@@ -2835,7 +2836,7 @@ def gen_test_tables(riuso):
     return "\n".join(out) + "\n"
 
 
-def gen_banana_test_tables():
+def gen_rosenbrock_test_tables():
     """Tabella di test sul problema NON quadratico 'funzione di Rosenbrock':
     errore ||w_k-w*||_2 a ogni iterazione, 4 metodi (una sottotabella per
     metodo, storia effettiva senza padding), seed 42. Stile identico alle
@@ -2850,7 +2851,7 @@ def gen_banana_test_tables():
                "problema non quadratico ``funzione di Rosenbrock'' "
                "($c{=}100$, dataset stocastico centrato, seed 42), per i "
                "quattro algoritmi.}")
-    out.append("\\label{tab:test_banana}")
+    out.append("\\label{tab:test_rosenbrock}")
     for algo in ("gd", "newton_cg", "newton_l1", "bb"):
         out.append("\\begin{subtable}{0.24\\textwidth}")
         out.append("\\centering")
@@ -2860,7 +2861,7 @@ def gen_banana_test_tables():
         out.append("$k$ & $\\|w_k-w_*\\|_2$\\\\")
         out.append("\\midrule")
         np.random.seed(SEED)
-        p = _make_preset_banana()
+        p = _make_preset_rosenbrock()
         e, bs, rp = run_base_reuse(p, algo, None, reuse=False)
         for k in range(len(e)):
             out.append(f"{k} &" + colorcell(e[k]) + "\\\\")
@@ -2878,7 +2879,7 @@ def gen_riuso_tables(riuso):
     labels = {
         "quad_well": "tab:riuso_bencond", "quad_ill": "tab:riuso_malcond",
         "quad_very_ill": "tab:riuso_veryill", "quad_offdiag": "tab:riuso_offdiag",
-        BANANA: "tab:riuso_banana",
+        ROSENBROCK: "tab:riuso_rosenbrock",
     }
     algo_sfx = {"gd": "gd", "bb": "bb", "newton_cg": "ncg", "newton_l1": "l1"}
     prob_cap = {
@@ -2886,7 +2887,7 @@ def gen_riuso_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
-        BANANA: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
+        ROSENBROCK: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
     for pname in PRESETS:
@@ -2898,7 +2899,7 @@ def gen_riuso_tables(riuso):
                                                 if is_newton else [])
             spec = "{@{}rrrrrr@{}}" if not is_newton else "{@{}rrrrrrr@{}}"
             prob_adj = ("problema quadratico "
-                        if pname != BANANA else "problema ")
+                        if pname != ROSENBROCK else "problema ")
             cap = ("Errore $e_k=\\|w_k-w_*\\|_2$ a ogni iterazione $k$ sul "
                    + prob_adj + prob_cap[pname] + ", per \\emph{"
                    + ALGO_METHOD_LATEX[algo] + "}: confronto tra la versione a "
@@ -3445,14 +3446,14 @@ def gen_cons_sintesi(cons):
 def gen_cons_tables(riuso):
     """Tabelle per-iterazione (seed 42) base vs configurazione consigliata,
     per i metodi con consigliata diversa dalla base. Dopo la selezione con la
-    banana come quinto problema: Newton-CG -> stop adattivo con validation set
+    funzione di Rosenbrock come quinto problema: Newton-CG -> stop adattivo con validation set
     P=1, f=1, p=10%, split fissa; Newton-CG L1 -> riuso M=3; Dynamic GD e
     BB-CCV hanno consigliata = base e non generano tabelle."""
     labels = {
         "quad_well": "tab:riuso_cons_bencond", "quad_ill": "tab:riuso_cons_malcond",
         "quad_very_ill": "tab:riuso_cons_veryill",
         "quad_offdiag": "tab:riuso_cons_offdiag",
-        BANANA: "tab:riuso_cons_banana",
+        ROSENBROCK: "tab:riuso_cons_rosenbrock",
     }
     algo_sfx2 = {"gd": "gd", "newton_cg": "ncg", "newton_l1": "nl1"}
     prob_cap = {
@@ -3460,7 +3461,7 @@ def gen_cons_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
-        BANANA: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
+        ROSENBROCK: "non quadratico ``funzione di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
     algos_cons = [a for a in ("gd", "newton_cg", "newton_l1")
@@ -3479,7 +3480,7 @@ def gen_cons_tables(riuso):
             else:
                 continue
             prob_adj = ("problema quadratico "
-                        if pname != BANANA else "problema ")
+                        if pname != ROSENBROCK else "problema ")
             cap = ("Errore $e_k=\\|w_k-w_*\\|_2$ a ogni iterazione $k$ sul "
                    + prob_adj + prob_cap[pname] + ", per \\emph{"
                    + ALGO_METHOD_LATEX[algo] + "}: confronto tra la "
@@ -3539,16 +3540,16 @@ def _expected_test(riuso):
     return expected
 
 
-def _expected_banana():
-    """Tabella banana (test non quadratico): base e_k (storia effettiva)
+def _expected_rosenbrock():
+    """Tabella del problema non quadratico (test): base e_k (storia effettiva)
     per ogni algoritmo, seed 42."""
     vals = []
     for algo in ALGO_TESI:
         np.random.seed(SEED)
-        p = _make_preset_banana()
+        p = _make_preset_rosenbrock()
         e, bs, rp = run_base_reuse(p, algo, None, reuse=False)
         vals += e
-    return {"tab:test_banana": vals}
+    return {"tab:test_rosenbrock": vals}
 
 
 def _expected_riuso(riuso):
@@ -3556,7 +3557,7 @@ def _expected_riuso(riuso):
     labels = {"quad_well": "tab:riuso_bencond", "quad_ill": "tab:riuso_malcond",
               "quad_very_ill": "tab:riuso_veryill",
               "quad_offdiag": "tab:riuso_offdiag",
-              BANANA: "tab:riuso_banana"}
+              ROSENBROCK: "tab:riuso_rosenbrock"}
     sfx = {"gd": "gd", "bb": "bb", "newton_cg": "ncg", "newton_l1": "l1"}
     for pname in PRESETS:
         for algo in ALGOS4:
@@ -3665,7 +3666,7 @@ def _expected_ncg_cons(riuso):
               val_strategy="fixed")
     sfx = {"quad_well": "bencond", "quad_ill": "malcond",
            "quad_very_ill": "veryill", "quad_offdiag": "offdiag",
-           BANANA: "banana"}
+           ROSENBROCK: "rosenbrock"}
     out = {}
     for pname in PRESETS:
         base = riuso[(pname, "newton_cg", "base")]
@@ -3781,7 +3782,7 @@ def verify(tesi_path):
     for lab, vals in exp.items():
         n, nb = _check(lab, blocks, vals)
         checks += n; failures += nb
-    for lab, vals in _expected_banana().items():
+    for lab, vals in _expected_rosenbrock().items():
         n, nb = _check(lab, blocks, vals)
         checks += n; failures += nb
     n, nb = _check("tab:riuso_sintesi", blocks, _expected_sintesi(riuso)["tab:riuso_sintesi"])
@@ -3819,7 +3820,7 @@ def gen_all_tables(riuso, rob, vdata, vrefs, vrob, ddata, drefs, drob, cons):
         "% Tabelle 6.1-6.3 (test, 4 metodi x 3 problemi)",
         gen_test_tables(riuso),
         "% Tabella di test sul problema non quadratico 'funzione di Rosenbrock'",
-        gen_banana_test_tables(),
+        gen_rosenbrock_test_tables(),
         "% Tabelle 6.4-6.19 (riuso del mini-batch, per-iterazione)",
         gen_riuso_tables(riuso),
         "% Tabella 6.20 (sintesi)",
