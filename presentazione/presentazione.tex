@@ -284,16 +284,20 @@
     \item Si controlla il suo valore atteso, la \emph{varianza dello
       stimatore}: $\mathbb{E}[\|e_k\|_2^2]=\|\mathrm{Var}(g_k)\|_1$ (somma
       delle varianze componente per componente).
-    \item Definizione (``v-hat''): la stima si ottiene dalla varianza
-      \emph{campionaria} dei gradienti per-esempio sul batch corrente,
-      centrata sulla media campionaria $g_k$:
+    \item Definizioni: $\mathcal{V}$ è la \emph{varianza della popolazione}
+      del gradiente della loss, componente per componente; la sua stima
+      \emph{campionaria} (``v-hat''), calcolata sul batch corrente e centrata
+      sulla media campionaria $g_k$, è
       \[
-        \widehat{\mathcal{V}}
-        := \frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}
+        \mathcal{V}:=\frac{1}{N}\sum_{i=1}^{N}\bigl(\nabla\ell(w_k;i)-\nabla
+        J(w_k)\bigr)^2\in\mathbb{R}^m,\qquad
+        \widehat{\mathcal{V}}:=\frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}
         \bigl(\nabla\ell(w_k;i)-g_k\bigr)^2\in\mathbb{R}^m ,
       \]
-      quadrato e divisione componente per componente; il denominatore
-      $n_k-1$ (Bessel) rende la stima non distorta.
+      quadrati e divisioni sempre componente per componente. Il denominatore
+      $n_k-1$ (Bessel) rende $\widehat{\mathcal{V}}$ non distorto
+      ($\mathbb{E}[\widehat{\mathcal{V}}]=\mathcal{V}$); $\mathcal{V}$ invece
+      non è calcolabile, perché $\nabla J(w_k)$ è ignoto.
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.1}
 \end{frame}

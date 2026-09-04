@@ -157,6 +157,33 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (04/09/2026, follow-up).** **Presentazione, slide 9
+  ("La varianza del gradiente stimato: definizioni"): aggiunta la definizione
+  di $\mathcal{V}$, prima assente.** La slide definiva solo la stima
+  campionaria $\widehat{\mathcal{V}}$ (``v-hat''), mentre $\mathcal{V}$
+  compariva senza definizione (slide 11: $\mathrm{Var}(g_k)=\mathcal{V}/n_k$,
+  ``$\mathcal{V}$ (ignota) è stimata da $\widehat{\mathcal{V}}$''). Ora il
+  bullet ``Definizioni'' riporta entrambe, come nella tesi (notebox Sez.~5.1):
+  $\mathcal{V}:=\frac{1}{N}\sum_{i=1}^{N}(\nabla\ell(w_k;i)-\nabla
+  J(w_k))^2\in\mathbb{R}^m$ è la *varianza della popolazione* del gradiente
+  della loss, componente per componente (non calcolabile: $\nabla J(w_k)$ è
+  ignoto), e $\widehat{\mathcal{V}}:=\frac{1}{n_k-1}\sum_{i\in\mathcal{S}_k}
+  (\nabla\ell(w_k;i)-g_k)^2\in\mathbb{R}^m$ ne è la stima campionaria
+  non distorta, con esplicito $\mathbb{E}[\widehat{\mathcal{V}}]=\mathcal{V}$
+  (Bessel). Verificata anche la condizione di arresto di Newton-CG $L_1$
+  nell'implementazione (`altro/script/gen_tabelle_riuso.py`, identica a quella
+  generata dall'app e al listato in Appendice B): **non è**
+  $\|\nabla f_{\mathcal{S}_k}(w_k)\|<tol$ — i criteri reali sono (i)
+  $\|\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\|_2<10^{-10}$ (subgradiente di
+  $F=J+\nu\|w\|_1$ sul batch, soglia fissa non parametrica, a inizio
+  iterazione) e (ii) $\|\nabla J(w_{k+1})\|_2<10^{-6}$ (gradiente esatto su
+  tutto il dataset, a fine iterazione); lo schema Fig.~5.5 riporta
+  correttamente la versione (i) ($\|\widetilde{\nabla}F_{\mathcal{S}_k}\|<
+  \mathrm{tol}$) e nessuna slide ne dà la versione ``semplice''. Ricompilato
+  `presentazione/presentazione.pdf` (**27 pp** — invariate; 0 errori, 0
+  undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (04/09/2026).** **Presentazione: aggiunta la definizione
   di $\widehat{\mathcal{V}}$ (``v-hat'') e completata la spiegazione del perché
   la varianza di $g_k$ si stima con $\|\widehat{\mathcal{V}}\|_1/n_k$.**
