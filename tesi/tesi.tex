@@ -6179,67 +6179,6 @@ dove $g'(0)=\nabla f(x_k)^Tp<0$. Poiché $c_2<1$, $c_2g'(0)$ è meno negativo di
 
 La condizione $0<c_1<c_2<1$ garantisce che le due disuguaglianze siano compatibili: Armijo (limite superiore su $f$) e Wolfe (limite inferiore su $g'$) definiscono un intervallo non vuoto di $\alpha$ accettabili. Se $c_1\ge c_2$, le due condizioni possono diventare contraddittorie. In sintesi, Armijo impedisce passi troppo grandi, Wolfe impedisce passi troppo piccoli
 
-\subsection{Il rapporto $s^\top H s / s^\top s$ come media pesata delle curvature}\label{app:rayleigh}
-
-Sia $H \in \mathbb{R}^{m \times m}$ una matrice simmetrica; l'Hessiana
-$\nabla^2 J(w)$ lo è sempre per il teorema di Schwarz. Siano
-$\lambda_1 \le \lambda_2 \le \dots \le \lambda_m$ gli autovalori di $H$ e
-$u_1,\dots,u_m$ i corrispondenti autovettori ortonormali (la cui esistenza è
-garantita dal teorema spettrale). Ogni vettore $s \neq 0$ si scrive nella base
-ortonormale come
-\[
-s = \sum_{i=1}^{m} c_i\, u_i
-\]
-\[
-\begin{cases}
-u_i^\top u_j = 0 \quad \text{se } i \neq j, \\[2pt]
-u_i^\top u_i = 1
-\end{cases}
-\implies
-u_i^\top s = u_i^\top \left( \sum_{j=1}^m c_j u_j \right) = \sum_{j=1}^m c_j (u_i^\top u_j) = c_i
-\]
-per cui, per l'ortonormalità degli autovettori,
-\[
-\|s\|^2 = s^\top s = \sum_{i=1}^{m} c_i^2,
-\qquad
-H s = \sum_{i=1}^{m} c_i \lambda_i\, u_i.
-\]
-Moltiplicando scalarmente per $s$ si ottiene
-\[
-s^\top H s = \sum_{i=1}^{m} \lambda_i\, c_i^2.
-\]
-Dividendo per $\|s\|^2 = \sum_{j=1}^{m} c_j^2$ si ha
-\[
-\frac{s^\top H s}{s^\top s}
-= \sum_{i=1}^{m} \lambda_i\, \frac{c_i^2}{\sum_{j=1}^{m} c_j^2}
-= \sum_{i=1}^{m} \omega_i\, \lambda_i,
-\qquad
-\omega_i := \frac{c_i^2}{\sum_{j=1}^{m} c_j^2}.
-\]
-I coefficienti $\omega_i \ge 0$ e la loro somma è
-\[
-\sum_{i=1}^{m} \omega_i
-= \frac{\sum_{i=1}^{m} c_i^2}{\sum_{j=1}^{m} c_j^2} = 1.
-\]
-Quindi $s^\top H s / s^\top s$ è una combinazione convessa (media pesata) degli
-autovalori di $H$: il peso dell'autovalore $\lambda_i$ è proporzionale al
-quadrato della proiezione di $s$ sull'autovettore $u_i$. Essendo una media
-pesata, il quoziente sta tra il minimo e il massimo degli autovalori,
-\[
-\lambda_{\min}(H) = \lambda_1 \;\le\; \frac{s^\top H s}{s^\top s} \;\le\;
-\lambda_m = \lambda_{\max}(H),
-\]
-con uguaglianza se e solo se $s$ è un autovettore di $H$ (rispettivamente di
-$\lambda_{\min}$ o di $\lambda_{\max}$).
-
-Nel contesto del passo di Barzilai--Borwein
-(Sezione~\ref{sec:bb} e Appendice~\ref{app:codici}), $H = \nabla^2 J$ e
-$s = s_k$: il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è la
-curvatura media di $\nabla^2 J$ lungo la direzione percorsa, e
-$\alpha_k^{\mathrm{BB}} = \frac{s_k^\top s_k}{s_k^\top \nabla^2 J\, s_k}$ è
-l'inverso di tale media, ovvero un passo di Newton scalare: un solo scalare che
-approssima l'inverso della curvatura media di $\nabla^2 J$ lungo $s_k$.
-
 % ═══════════════════════════════════════════════════════════════════════════
 % Bibliografia
 % ═══════════════════════════════════════════════════════════════════════════
@@ -6908,8 +6847,8 @@ Sezione~\ref{sec:bb} (relazione fondamentale, Eq.~\eqref{eq:5_54}); quindi
 $\alpha_k^{\mathrm{BB}} = \frac{s_k^\top s_k}{s_k^\top \nabla^2 J\, s_k}$
 coincide con l'inverso della curvatura media di $\nabla^2 J$ lungo la direzione
 $s_k$, il rapporto $\frac{s_k^\top \nabla^2 J\, s_k}{s_k^\top s_k}$ è una
-media pesata delle curvature della Hessiana (per una matrice simmetrica sta tra
-$\lambda_{\min}$ e $\lambda_{\max}$, come dimostrato nell'Appendice~\ref{app:rayleigh}),
+media pesata delle curvature della Hessiana (per una matrice simmetrica il
+rapporto sta tra $\lambda_{\min}$ e $\lambda_{\max}$; si può dimostrare),
 cioè un passo di Newton scalare a costo nullo, poiché $s_k$ e $y_k$ sono quantità
 già disponibili. Per robustezza sui problemi
 non quadratici il passo è salvaguardato nell'intervallo $[\alpha/20,\,5\alpha]$
