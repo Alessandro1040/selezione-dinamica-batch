@@ -48,6 +48,7 @@ NU = 0.1
 SIGMA = 0.1
 ETA = 0.5
 SEEDS = [42, 7, 123, 2024, 999]
+BANANA = "banana"   # problema non quadratico 'banana di Rosenbrock' (c=100)
 
 # ============================================================================
 # 2. PRESET (codice esatto di LOSS_PRESETS in visualizzazione.html)
@@ -253,6 +254,7 @@ PRESET_MAKERS = {
     "quad_ill": _make_preset_ill,
     "quad_very_ill": _make_preset_very_ill,
     "quad_offdiag": _make_preset_offdiag,
+    BANANA: _make_preset_banana,
 }
 
 PRESET_LATEX = {
@@ -260,6 +262,7 @@ PRESET_LATEX = {
     "quad_ill": r"$\kappa\approx20$",
     "quad_very_ill": r"$\kappa\approx100$",
     "quad_offdiag": r"incrociato ($\kappa\approx1.67$)",
+    BANANA: r"banana ($c{=}100$)",
 }
 
 ALGO_LATEX = {
@@ -2469,7 +2472,7 @@ def marker(base, v):
 # ============================================================================
 # 6. RACCOLTA DATI
 # ============================================================================
-PRESETS = ("quad_well", "quad_ill", "quad_very_ill", "quad_offdiag")
+PRESETS = ("quad_well", "quad_ill", "quad_very_ill", "quad_offdiag", BANANA)
 ALGOS4 = ("gd", "bb", "newton_cg", "newton_l1")
 M_VALUES = {"inf": None, "10": 10, "5": 5, "3": 3, "2": 2, "1": 1}
 
@@ -2695,13 +2698,46 @@ def compute_descent_robust():
     return res
 
 
-# Configurazione consigliata per (algoritmo) come in Sez. 6.7.8 / Tab. 6.29
+# Configurazione consigliata per (algoritmo) come in Sez. 6.5.8.
+# Formato: (kind, param)
+#   ("base", "")                    -> nessuna configurazione ammissibile
+#   ("riuso", "M=x")                -> riuso del mini-batch con M=x
+#   ("validation", "P=..;f=..;p=..;strat=fixed|dynamic")
+# Scelta (script selezione_consigliati.py, batteria completa con la banana di
+# Rosenbrock): mediana di e30 su 5 seed migliore della base su TUTTI i problemi;
+# tra le ammissibili, migliore media geometrica dei rapporti e30_cfg/e30_base
+# sulle 5 problemi x 5 seed combinazioni. Con la banana come quinto problema
+# Dynamic GD non ha piu' varianti ammissibili (la base su banana e' gia' ottima,
+# ~6e-4 di mediana, e ogni variante la peggiora): consigliata = base.
 RECOMMENDED = {
-    "gd": ("riuso", "M=5"),
+    "gd": ("base", ""),
     "bb": ("base", ""),
-    "newton_cg": ("validation", "P=1, f=1, p=10%, split fissa"),
+    "newton_cg": ("validation", "P=1;f=1;p=0.1;strat=fixed"),
     "newton_l1": ("riuso", "M=3"),
 }
+
+
+def validation_hp(param):
+    """Costruisce gli hp dello stop adattivo dalla stringa param di
+    RECOMMENDED (formato 'P=..;f=..;p=..;strat=..')."""
+    d = dict(x.split("=", 1) for x in param.split(";"))
+    return dict(VALID_DEFAULT_HP, val_patience=int(d["P"]),
+                val_freq=int(d["f"]), val_pct=float(d["p"]),
+                val_strategy=d["strat"])
+
+
+def recommended_latex(algo):
+    """Etichetta LaTeX della configurazione consigliata per l'algoritmo."""
+    kind, param = RECOMMENDED[algo]
+    if kind == "base":
+        return r"\emph{base}"
+    if kind == "riuso":
+        return f"riuso $M{{=}}{param.split('=')[1]}$"
+    d = dict(x.split("=", 1) for x in param.split(";"))
+    strat = "fissa" if d["strat"] == "fixed" else "dinamica"
+    return (f"stop adattivo: $P{{=}}{d['P']}$, $f{{=}}{d['f']}$, "
+            f"$p{{=}}{int(round(float(d['p']) * 100))}\\%$, "
+            f"split \\emph{{{strat}}}")
 
 
 def compute_consigliati():
@@ -2725,11 +2761,7 @@ def compute_consigliati():
                 elif kind == "base":
                     er = eb
                 elif kind == "validation":
-                    er, res_ = run_validation(p, algo,
-                                              dict(VALID_DEFAULT_HP,
-                                                   val_patience=1, val_freq=1,
-                                                   val_pct=0.1,
-                                                   val_strategy="fixed"))
+                    er, res_ = run_validation(p, algo, validation_hp(param))
                 base_medians.append(eb[-1])
                 rec_medians.append(er[-1])
                 if er[-1] < eb[-1] - 1e-12:
@@ -2750,7 +2782,8 @@ ALGO_METHOD_LATEX = {"gd": "Dynamic GD", "bb": "BB-CCV",
 PROB_IT = {"quad_well": r"ben condizionato ($\kappa \approx 1.1$)",
            "quad_ill": r"mal condizionato ($\kappa \approx 20$)",
            "quad_very_ill": r"molto mal condizionato ($\kappa \approx 100$)",
-           "quad_offdiag": r"termine incrociato ($\kappa \approx 1.67$)"}
+           "quad_offdiag": r"termine incrociato ($\kappa \approx 1.67$)",
+           BANANA: r"banana di Rosenbrock ($c{=}100$, non quadratica)"}
 
 
 def gen_test_tables(riuso):
@@ -2845,6 +2878,7 @@ def gen_riuso_tables(riuso):
     labels = {
         "quad_well": "tab:riuso_bencond", "quad_ill": "tab:riuso_malcond",
         "quad_very_ill": "tab:riuso_veryill", "quad_offdiag": "tab:riuso_offdiag",
+        BANANA: "tab:riuso_banana",
     }
     algo_sfx = {"gd": "gd", "bb": "bb", "newton_cg": "ncg", "newton_l1": "l1"}
     prob_cap = {
@@ -2852,6 +2886,7 @@ def gen_riuso_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
+        BANANA: "non quadratico ``banana di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
     for pname in PRESETS:
@@ -2862,8 +2897,10 @@ def gen_riuso_tables(riuso):
                        "$M{=}5$", "$M{=}2$"] + (["H ind. $M_H{=}\\infty$"]
                                                 if is_newton else [])
             spec = "{@{}rrrrrr@{}}" if not is_newton else "{@{}rrrrrrr@{}}"
+            prob_adj = ("problema quadratico "
+                        if pname != BANANA else "problema ")
             cap = ("Errore $e_k=\\|w_k-w_*\\|_2$ a ogni iterazione $k$ sul "
-                   "problema quadratico " + prob_cap[pname] + ", per \\emph{"
+                   + prob_adj + prob_cap[pname] + ", per \\emph{"
                    + ALGO_METHOD_LATEX[algo] + "}: confronto tra la versione a "
                    "ricampionamento (colonna \\emph{base}) e il riuso dello "
                    "stesso mini-batch per $M$ iterazioni consecutive "
@@ -3033,7 +3070,8 @@ def gen_validation_confronto(data, refs):
             out.append(" & ".join(row) + "\\\\")
     out.append("\\midrule")
     base_all = np.mean(cells_all["base_train"])
-    media = ["Media (16 casi)", colorcell(float(base_all))]
+    media = [f"Media ({len(PRESETS) * len(ALGOS4)} casi)",
+             colorcell(float(base_all))]
     for col in VALID_COLS[1:]:
         media.append(colorcell(float(np.mean(cells_all[col]))) +
                      marker(base_all, float(np.mean(cells_all[col]))))
@@ -3074,8 +3112,8 @@ def gen_validation_iper(data):
     out.append("\\setlength{\\tabcolsep}{5pt}")
     out.append("\\caption{Sensibilità dell'errore finale $e_{30}$ agli "
                "iperparametri dello stop adattivo: media di $e_{30}$ e del "
-               "numero di ricampionamenti sulle 16 combinazioni "
-               "problema$\\times$algoritmo (seed 42).}")
+               f"numero di ricampionamenti sulle {len(PRESETS) * len(ALGOS4)} "
+               "combinazioni problema$\\times$algoritmo (seed 42).}")
     out.append("\\label{tab:riuso_valid_iper}")
     out.append("\\begin{tabular}{@{}llrr@{}}")
     out.append("\\toprule")
@@ -3112,16 +3150,17 @@ def gen_validation_robustezza(rob):
     out.append("\\renewcommand{\\arraystretch}{1.1}")
     out.append("\\setlength{\\tabcolsep}{3.5pt}")
     out.append("\\caption{Robustezza su 5 seed indipendenti: $\\overline{e}_{30}$ "
-               "= media di $e_{30}$ su 16 caselle $\\times$ 5 seed; "
-               "\\emph{vitt.} = caselle (su 16) in cui la media su 5 seed è "
-               "minore di quella di \\emph{base}; le ultime quattro colonne "
+               "= media di $e_{30}$ su 20 caselle $\\times$ 5 seed; "
+               "\\emph{vitt.} = caselle (su 20) in cui la media su 5 seed è "
+               "minore di quella di \\emph{base}; le ultime cinque colonne "
                "riportano la media su 5 seed per problema.}")
     out.append("\\label{tab:riuso_valid_robustezza}")
-    out.append("\\begin{tabular}{@{}lrrrrrr@{}}")
+    out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
-               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\")
+               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
+               "banana ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         es = [np.mean(rob[(p, a, c)]) for p in PRESETS for a in ALGOS4]
@@ -3133,7 +3172,7 @@ def gen_validation_robustezza(rob):
                         wins += 1
         per_problem = [np.mean([np.mean(rob[(p, a, c)]) for a in ALGOS4])
                        for p in PRESETS]
-        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/16"] +
+        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/20"] +
                [colorcell(float(v)) for v in per_problem])
         out.append(" & ".join(row) + "\\\\")
         if c == "minf_train":
@@ -3234,8 +3273,8 @@ def gen_descent_iper(data):
     out.append("\\setlength{\\tabcolsep}{5pt}")
     out.append("\\caption{Sensibilità dell'errore finale $e_{30}$ agli "
                "iperparametri del criterio di discesa: media di $e_{30}$ e del "
-               "numero di ricampionamenti sulle 16 combinazioni "
-               "problema$\\times$algoritmo (seed 42).}")
+               f"numero di ricampionamenti sulle {len(PRESETS) * len(ALGOS4)} "
+               "combinazioni problema$\\times$algoritmo (seed 42).}")
     out.append("\\label{tab:riuso_desc_iper}")
     out.append("\\begin{tabular}{@{}llrr@{}}")
     out.append("\\toprule")
@@ -3269,16 +3308,17 @@ def gen_descent_robustezza(rob):
     out.append("\\renewcommand{\\arraystretch}{1.1}")
     out.append("\\setlength{\\tabcolsep}{3.5pt}")
     out.append("\\caption{Robustezza su 5 seed indipendenti del riuso per "
-               "discesa: $\\overline{e}_{30}$ = media di $e_{30}$ su 16 caselle "
-               "$\\times$ 5 seed; \\emph{vitt.} = caselle (su 16) in cui la "
+               "discesa: $\\overline{e}_{30}$ = media di $e_{30}$ su 20 caselle "
+               "$\\times$ 5 seed; \\emph{vitt.} = caselle (su 20) in cui la "
                "media su 5 seed è minore di quella di \\emph{base}; le ultime "
-               "quattro colonne riportano la media su 5 seed per problema.}")
+               "cinque colonne riportano la media su 5 seed per problema.}")
     out.append("\\label{tab:riuso_desc_robustezza}")
-    out.append("\\begin{tabular}{@{}lrrrrrr@{}}")
+    out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
-               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\")
+               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
+               "banana ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         es = [np.mean(rob[(p, a, c)]) for p in PRESETS for a in ALGOS4]
@@ -3290,7 +3330,7 @@ def gen_descent_robustezza(rob):
                         wins += 1
         per_problem = [np.mean([np.mean(rob[(p, a, c)]) for a in ALGOS4])
                        for p in PRESETS]
-        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/16"] +
+        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/20"] +
                [colorcell(float(v)) for v in per_problem])
         out.append(" & ".join(row) + "\\\\")
         if c == "minf":
@@ -3312,20 +3352,21 @@ def gen_confronto_finale(vrob, drob):
     out.append("\\footnotesize")
     out.append("\\renewcommand{\\arraystretch}{1.1}")
     out.append("\\setlength{\\tabcolsep}{3pt}")
-    out.append("\\caption{Confronto finale su 5 seed indipendenti (16 "
+    out.append("\\caption{Confronto finale su 5 seed indipendenti (20 "
                "combinazioni problema$\\times$algoritmo) tra \\emph{base}, "
                "$M{=}\\infty$, lo stop adattivo con validation set calibrato "
                "($P{=}1$, $p{=}10\\%$, split dinamico) e il riuso per discesa "
                "calibrato ($\\tau{=}10^{-3}$, $P{=}1$, $f{=}1$). "
-               "$\\overline{e}_{30}$ = media su 16 caselle $\\times$ 5 seed; "
-               "\\emph{vitt.} = caselle (su 16) in cui la media su 5 seed è "
+               "$\\overline{e}_{30}$ = media su 20 caselle $\\times$ 5 seed; "
+               "\\emph{vitt.} = caselle (su 20) in cui la media su 5 seed è "
                "minore del proprio riferimento.}")
     out.append("\\label{tab:riuso_confronto_finale}")
-    out.append("\\begin{tabular}{@{}lrrrrrr@{}}")
+    out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & "
                "$\\kappa{\\approx}1.1$ & $\\kappa{\\approx}20$ & "
-               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$)\\\\")
+               "$\\kappa{\\approx}100$ & incr. ($\\kappa{\\approx}1.67$) & "
+               "banana ($c{=}100$)\\\\")
     out.append("\\midrule")
     for c in configs:
         if c == "pat1-pct1-dyn":
@@ -3344,7 +3385,7 @@ def gen_confronto_finale(vrob, drob):
                         wins += 1
         per_problem = [np.mean([np.mean(ref[(p, a, c if c != "base" else "base")])
                                 for a in ALGOS4]) for p in PRESETS]
-        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/16"] +
+        row = ([headers[c], colorcell(float(np.mean(es))), f"{wins}/20"] +
                [colorcell(float(v)) for v in per_problem])
         out.append(" & ".join(row) + "\\\\")
         if c == "minf":
@@ -3356,12 +3397,6 @@ def gen_confronto_finale(vrob, drob):
 
 def gen_cons_sintesi(cons):
     """Tabella 6.29: sintesi degli iperparametri consigliati per ciascun metodo."""
-    cfg_label = {
-        "gd": "riuso $M{=}5$",
-        "bb": "\\emph{base}",
-        "newton_cg": "stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa",
-        "newton_l1": "riuso $M{=}3$",
-    }
     out = ["\\begin{table}[H]"]
     out.append("\\centering")
     out.append("\\footnotesize")
@@ -3383,7 +3418,8 @@ def gen_cons_sintesi(cons):
             out.append("\\midrule")
         for algo in ALGOS4:
             d = cons[(pname, algo)]
-            row = [PRESET_LATEX[pname], ALGO_LATEX[algo], cfg_label[algo],
+            row = [PRESET_LATEX[pname], ALGO_LATEX[algo],
+                   recommended_latex(algo),
                    colorcell(d["base_median"]), colorcell(d["rec_median"]),
                    "---" if d["kind"] == "base" else f"{d['wins']}/5"]
             out.append(" & ".join(row) + "\\\\")
@@ -3393,20 +3429,16 @@ def gen_cons_sintesi(cons):
     return "\n".join(out) + "\n"
 
 def gen_cons_tables(riuso):
-    """Tabelle 6.30-6.41: errore e_k (seed 42) base vs configurazione
-    consigliata, per i tre metodi con consigliata diversa dalla base
-    (Dynamic GD: riuso M=5; Newton-CG: stop adattivo con validation set
-    P=1, f=1, p=10%, split fissa; Newton-CG L1: riuso M=3; si esclude
-    BB-CCV, la cui consigliata è la base)."""
-    cfg_label = {
-        "gd": "riuso $M{=}5$",
-        "newton_cg": "stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\\%$, split fissa",
-        "newton_l1": "riuso $M{=}3$",
-    }
+    """Tabelle per-iterazione (seed 42) base vs configurazione consigliata,
+    per i metodi con consigliata diversa dalla base. Dopo la selezione con la
+    banana come quinto problema: Newton-CG -> stop adattivo con validation set
+    P=1, f=1, p=10%, split fissa; Newton-CG L1 -> riuso M=3; Dynamic GD e
+    BB-CCV hanno consigliata = base e non generano tabelle."""
     labels = {
         "quad_well": "tab:riuso_cons_bencond", "quad_ill": "tab:riuso_cons_malcond",
         "quad_very_ill": "tab:riuso_cons_veryill",
         "quad_offdiag": "tab:riuso_cons_offdiag",
+        BANANA: "tab:riuso_cons_banana",
     }
     algo_sfx2 = {"gd": "gd", "newton_cg": "ncg", "newton_l1": "nl1"}
     prob_cap = {
@@ -3414,29 +3446,31 @@ def gen_cons_tables(riuso):
         "quad_ill": "mal condizionato ($\\kappa\\approx 20$)",
         "quad_very_ill": "molto mal condizionato ($\\kappa\\approx 100$)",
         "quad_offdiag": "termine incrociato",
+        BANANA: "non quadratico ``banana di Rosenbrock'' ($c{=}100$) ",
     }
     out = []
+    algos_cons = [a for a in ("gd", "newton_cg", "newton_l1")
+                  if RECOMMENDED[a][0] != "base"]
     for pname in PRESETS:
-        for algo in ("gd", "newton_cg", "newton_l1"):
+        for algo in algos_cons:
             base = riuso[(pname, algo, "base")]
             if RECOMMENDED[algo][0] == "riuso":
                 m = RECOMMENDED[algo][1].split("=")[1]
                 cons = riuso[(pname, algo, m)]
             elif RECOMMENDED[algo][0] == "validation":
-                # Newton-CG: la consigliata è lo stop adattivo con validation
-                # set (P=1, f=1, p=10%, split fissa), seed 42.
-                hp = dict(VALID_DEFAULT_HP, val_patience=1, val_freq=1,
-                          val_pct=0.1, val_strategy="fixed")
+                hp = validation_hp(RECOMMENDED[algo][1])
                 np.random.seed(SEED)
                 p = PRESET_MAKERS[pname]()
                 cons, _res = run_validation(p, algo, hp)
             else:
                 continue
+            prob_adj = ("problema quadratico "
+                        if pname != BANANA else "problema ")
             cap = ("Errore $e_k=\\|w_k-w_*\\|_2$ a ogni iterazione $k$ sul "
-                   "problema quadratico " + prob_cap[pname] + ", per \\emph{"
+                   + prob_adj + prob_cap[pname] + ", per \\emph{"
                    + ALGO_METHOD_LATEX[algo] + "}: confronto tra la "
                    "configurazione \\emph{base} e quella consigliata ("
-                   + cfg_label[algo] + ").")
+                   + recommended_latex(algo) + ").")
             out.append("\\begin{table}[H]")
             out.append("\\centering")
             out.append("\\footnotesize")
@@ -3507,7 +3541,8 @@ def _expected_riuso(riuso):
     expected = {}
     labels = {"quad_well": "tab:riuso_bencond", "quad_ill": "tab:riuso_malcond",
               "quad_very_ill": "tab:riuso_veryill",
-              "quad_offdiag": "tab:riuso_offdiag"}
+              "quad_offdiag": "tab:riuso_offdiag",
+              BANANA: "tab:riuso_banana"}
     sfx = {"gd": "gd", "bb": "bb", "newton_cg": "ncg", "newton_l1": "l1"}
     for pname in PRESETS:
         for algo in ALGOS4:
@@ -3615,7 +3650,8 @@ def _expected_ncg_cons(riuso):
     hp = dict(VALID_DEFAULT_HP, val_patience=1, val_freq=1, val_pct=0.1,
               val_strategy="fixed")
     sfx = {"quad_well": "bencond", "quad_ill": "malcond",
-           "quad_very_ill": "veryill", "quad_offdiag": "offdiag"}
+           "quad_very_ill": "veryill", "quad_offdiag": "offdiag",
+           BANANA: "banana"}
     out = {}
     for pname in PRESETS:
         base = riuso[(pname, "newton_cg", "base")]
