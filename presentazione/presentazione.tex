@@ -524,8 +524,40 @@
   \end{center}
 \end{frame}
 
+% SLIDE 18 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
-% SLIDE 18 — Schema: Newton-CG L1 (Fig. 5.5)
+\begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
+  \small
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item $F=J+\nu\|w\|_1$ \textbf{non è differenziabile} dove $w_i=0$:
+      l'algoritmo deve decidere se \emph{liberare} $w_i$ o \emph{attivarla}
+      (tenerla a zero, soluzione sparsa).
+    \item Il vettore $z_k\in\{-1,0,+1\}^m$ (eq.~5.44) \textbf{codifica la
+      decisione} su ogni variabile: $z_k^i=\operatorname{sign}(w_k^i)$ se
+      $w_k^i\neq 0$; se $w_k^i=0$, vale $\pm 1$ quando
+      $|\partial J/\partial w_i|>\nu$ (conviene liberare) e $0$ altrimenti
+      (resta nell'\textbf{active set} $\mathcal{A}_k=\{i:z_k^i=0\}$, eq.~5.46).
+    \item $z_k$ individua la \textbf{faccia ortante}
+      $\Omega_k=\{d:\operatorname{sign}(d^i)=\operatorname{sign}(z_k^i)\}$
+      (eq.~5.45), dove $\|w\|_1$ è lineare e il gradiente generalizzato è
+      $\widetilde{\nabla}F=\nabla J+\nu z_k$; su $\Omega_k$ si minimizza il
+      modello quadratico ristretto alle variabili libere.
+    \item \textbf{Perché serve la ricerca lineare proiettata.} Il candidato
+      $w_k+\alpha d_k$ può uscire da $\Omega_k$: una variabile dell'active set
+      lascerebbe lo zero o una libera attraverserebbe l'angolo della $L_1$. La
+      proiezione $P(\cdot)$ (eq.~5.49) azzera le componenti con segno non
+      coerente con $z_k$; il passo è scelto con Armijo su $F$ (eq.~5.50) e
+      \[
+        w_{k+1}=P\bigl[w_k+\alpha_k d_k\bigr],
+      \]
+      così le variabili attive restano a zero e la soluzione è sparsa.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.3, eq.~5.44--5.50}
+\end{frame}
+
+
+% =====================================================================
+% SLIDE 19 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -537,7 +569,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 20 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -549,7 +581,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Risultati teorici
+% SLIDE 21 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -572,7 +604,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — App web interattiva
+% SLIDE 22 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -592,7 +624,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Setup e risultati numerici
+% SLIDE 23 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -622,7 +654,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 24 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -649,7 +681,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Conclusioni
+% SLIDE 25 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -669,7 +701,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Limiti e lavoro futuro
+% SLIDE 26 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
