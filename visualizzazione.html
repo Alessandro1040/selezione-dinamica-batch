@@ -277,6 +277,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
           <option value="quad_ill">Quadratica mal condizionata (κ ≈ 20)</option>
           <option value="quad_very_ill">Quadratica molto mal condizionata (κ ≈ 100)</option>
           <option value="quad_offdiag">Quadratica con termine incrociato</option>
+          <option value="banana">Banana di Rosenbrock (non quadratica, c=100)</option>
           <option value="1d_quad">1D Quadratica</option>
           <option value="1d_quartic">1D Quartica + quadratica</option>
           <option value="1d_sin">1D Sinusoidale + quadratica</option>
@@ -1776,6 +1777,118 @@ W_STAR = np.array([1.0, -2.0])
 XMIN, XMAX = -1.5, 3.5
 YMIN, YMAX = -4.0, 0.0`
 
+  },
+
+  banana: {
+    label: 'Banana di Rosenbrock (non quadratica, c=100)', dim: 2,
+    hint: 'J(w) = (1/N)Σ [(w₁−a_i)² + 100((w₂−b_i) − (w₁−a_i)²)²], dataset stocastico centrato (rumore 0.2)',
+    code: `import numpy as np
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+C = 100.0
+
+def loss_i(w, i):
+    x = w[0] - a_i[i]
+    z = (w[1] - b_i[i]) - x*x
+    return x*x + C*z*z
+
+def grad_i(w, i):
+    x = w[0] - a_i[i]
+    z = (w[1] - b_i[i]) - x*x
+    return np.array([2.0*x - 4.0*C*x*z, 2.0*C*z])
+
+def hess_i(w, i):
+    x = w[0] - a_i[i]
+    z = (w[1] - b_i[i]) - x*x
+    return np.array([[2.0 - 4.0*C*z + 8.0*C*x*x, -4.0*C*x],
+                     [-4.0*C*x, 2.0*C]])
+
+def hessvec_i(w, i, v):
+    return hess_i(w, i) @ v
+
+def J(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+def gradJ(w):
+    return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+def hessJ(w):
+    return np.mean([hess_i(w, i) for i in range(N)], axis=0)
+
+def J_full(w):
+    return J(w)
+
+def grad_full(w):
+    return gradJ(w)
+
+# Minimo full-batch: Newton 2D su J con differenze finite
+def _wstar():
+    h = 1e-6
+    w = np.array([1.0, -2.0])
+    E = [np.array([h, 0.0]), np.array([0.0, h])]
+    for _ in range(80):
+        g = np.array([(J(w + e) - J(w - e)) / (2*h) for e in E])
+        if np.linalg.norm(g) < 1e-12:
+            break
+        H = np.array([[(J(w + E[i] + E[j]) - J(w + E[i] - E[j])
+                        - J(w - E[i] + E[j]) + J(w - E[i] - E[j])) / (4*h*h)
+                       for j in range(2)] for i in range(2)])
+        try:
+            d = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        w = w - d
+    return w
+
+DIM    = 2
+W_STAR = _wstar()
+XMIN, XMAX = -0.2, 2.4
+YMIN, YMAX = -3.4, -0.6`,
+    code_autodiff: `import numpy as np
+
+def loss_i(w, i):
+    x = w[0] - a_i[i]
+    z = (w[1] - b_i[i]) - x*x
+    return x*x + 100.0*z*z
+
+def J(w):
+    return np.mean([loss_i(w, i) for i in range(N)])
+
+N = __N__
+np.random.seed(__SEED__)
+raw_a = 1.0 + 0.2 * np.random.randn(N)
+raw_b = -2.0 + 0.2 * np.random.randn(N)
+a_i = raw_a - np.mean(raw_a) + 1.0
+b_i = raw_b - np.mean(raw_b) - 2.0
+
+# Minimo full-batch: Newton 2D su J con differenze finite
+def _wstar():
+    h = 1e-6
+    w = np.array([1.0, -2.0])
+    E = [np.array([h, 0.0]), np.array([0.0, h])]
+    for _ in range(80):
+        g = np.array([(J(w + e) - J(w - e)) / (2*h) for e in E])
+        if np.linalg.norm(g) < 1e-12:
+            break
+        H = np.array([[(J(w + E[i] + E[j]) - J(w + E[i] - E[j])
+                        - J(w - E[i] + E[j]) + J(w - E[i] - E[j])) / (4*h*h)
+                       for j in range(2)] for i in range(2)])
+        try:
+            d = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        w = w - d
+    return w
+
+DIM    = 2
+W_STAR = _wstar()
+XMIN, XMAX = -0.2, 2.4
+YMIN, YMAX = -3.4, -0.6`
   },
   '1d_quad': {
     label: '1D Quadratica', dim: 1,
@@ -6358,9 +6471,9 @@ document.getElementById('colabZoomReset').addEventListener('click', () => {
    ===================================================================== */
 
 const BATCH_DIM_DEFS = [
-  { key:'loss', label:'Loss (preset)', values:'quad_well,quad_ill,quad_very_ill,quad_offdiag', media:false,
-    hint:'Chiavi preset: quad_well, quad_ill, quad_very_ill, quad_offdiag, 1d_quad, 1d_quartic, 1d_sin, 1d_exp, custom.',
-    sugg:['quad_well','quad_ill','quad_very_ill','quad_offdiag','1d_quad','1d_quartic','1d_sin','1d_exp','custom'] },
+  { key:'loss', label:'Loss (preset)', values:'quad_well,quad_ill,quad_very_ill,quad_offdiag,banana', media:false,
+    hint:'Chiavi preset: quad_well, quad_ill, quad_very_ill, quad_offdiag, banana, 1d_quad, 1d_quartic, 1d_sin, 1d_exp, custom.',
+    sugg:['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana','1d_quad','1d_quartic','1d_sin','1d_exp','custom'] },
   { key:'algo', label:'Algoritmo', values:'gd,bb,newton_cg,newton_l1', media:false,
     hint:'gd = Dynamic GD, bb = BB-CCV, newton_cg = Newton-CG, newton_l1 = Newton-CG L1.', sugg:['gd','bb','newton_cg','newton_l1'] },
   { key:'strategia', label:'Strategia di riuso (colonne)', values:'base,M=inf,M=10,M=5,M=2,H ind M_H=inf', media:false,
@@ -6840,7 +6953,7 @@ async function batchExecute(cfgs){
 }
 
 async function batchRunSpecial(fmt, dims){
-  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag']);
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana']);
   const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
   const base=batchBaseCfg(dims);
   const SEEDS=[42,7,123,2024,999];
@@ -6915,7 +7028,7 @@ function batchValueLabel(key, v){
   return String(v);
 }
 function batchLatexValueLabel(key, v){
-  if(key==='loss'){ const m={'quad_well':'$\\kappa\\approx1.1$','quad_ill':'$\\kappa\\approx20$','quad_very_ill':'$\\kappa\\approx100$','quad_offdiag':'incrociato ($\\kappa\\approx1.67$)','1d_quad':'1D quadratica','1d_quartic':'1D quartica','1d_sin':'1D sinusoidale','1d_exp':'1D esponenziale','custom':'custom'}; return m[v]||v; }
+  if(key==='loss'){ const m={'quad_well':'$\\kappa\\approx1.1$','quad_ill':'$\\kappa\\approx20$','quad_very_ill':'$\\kappa\\approx100$','quad_offdiag':'incrociato ($\\kappa\\approx1.67$)','banana':'banana di Rosenbrock','1d_quad':'1D quadratica','1d_quartic':'1D quartica','1d_sin':'1D sinusoidale','1d_exp':'1D esponenziale','custom':'custom'}; return m[v]||v; }
   if(key==='algo'){ const m={gd:'Dynamic GD',bb:'BB-CCV',newton_cg:'Newton-CG',newton_l1:'Newton-CG $L_1$'}; return m[v]||v; }
   return batchEscLatex(batchValueLabel(key, v));
 }
@@ -7683,7 +7796,7 @@ function batchUpdateRunCount(){
 }
 function batchSpecialRunCount(fmt){
   const dims=batchReadDims();
-  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag']).length;
+  const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','banana']).length;
   const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
   if(fmt==='rob_riuso') return losses*algos.length*15;
   if(fmt==='sens_val') return losses*algos.length*108;

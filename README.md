@@ -179,6 +179,28 @@ Da tenere presente nelle sessioni di lavoro successive:
   0 undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
   solo in repo, la copia Desktop/tesi non è coinvolta.
 
+- **Ultimo intervento (04/09/2026).** **Aggiunto il preset non quadratico
+  ``banana di Rosenbrock'' ($c=100$, rumore $\sigma=0.2$) come stress test per
+  i quattro algoritmi.**
+  (1) `visualizzazione.html`: nuovo preset `banana` in `LOSS_PRESETS` (`code` e
+  `code_autodiff`, dataset stocastico centrato, minimo $w_*$ calcolato
+  numericamente come nei preset 1D), opzione nel dropdown, chiave nelle liste
+  suggerite/di default del Test batch generico; i formati speciali che
+  riproducono le tabelle della tesi restano sui 4 preset quadratici.
+  (2) `altro/script/riproduci_tutte_le_tabelle.py`: aggiunti
+  `_make_preset_banana`, il generatore `gen_banana_test_tables` (tabella
+  `tab:test_banana`, seed 42) e la verifica `--verify` della nuova tabella;
+  gli output di tutte le tabelle esistenti non cambiano.
+  (3) Tesi (Setup e Risultati Numerici): la banana è aggiunta all'elenco dei
+  problemi test con la formula e la costruzione del dataset, e sono riportati
+  i risultati (Tabella errore per iterazione, seed 42). Valori generati dallo
+  script (metodologia seed→dataset→esecuzione): Dynamic GD
+  $e_{30}\approx6.1\times10^{-4}$, BB-CCV $\approx1.1\times10^{-1}$ (mediana su
+  5 seed $5.6\times10^{-9}$), Newton-CG $\approx2.1\times10^{-1}$ (mediana
+  $6.8\times10^{-1}$), Newton-CG $L_1$ $\approx1.3\times10^{-1}$ (mediana
+  $2.0\times10^{-1}$). Ricompilati `tesi.pdf` e `tesi_finale.pdf` e
+  sincronizzati in repo (md5 verificati).
+
 - **Ultimo intervento (03/09/2026).** **Script di riproduzione
   `riproduci_tutte_le_tabelle.py` allineato a `tesi.tex` su tutte le tabelle
   del Capitolo 6.** (1) `gen_cons_tables` ora genera anche le 4 tabelle

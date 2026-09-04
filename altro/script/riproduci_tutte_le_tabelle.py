@@ -182,6 +182,72 @@ def _make_preset_offdiag(seed=SEED):
                 label="termine incrociato")
 
 
+def _make_preset_banana(seed=SEED):
+    """Preset NON quadratico 'banana di Rosenbrock' (c=100), con dataset
+    stocastico centrato (rumore sigma=0.2 su entrambe le coordinate, come
+    negli altri preset 2D). Come nei preset 1D non quadratici la funzione e'
+    definita come media sul dataset: J = mean_i loss_i; il minimo W_STAR e'
+    calcolato numericamente (Newton 2D a differenze finite su J)."""
+    np.random.seed(seed)
+    raw_a = 1.0 + 0.2 * np.random.randn(N)
+    raw_b = -2.0 + 0.2 * np.random.randn(N)
+    a_i = raw_a - np.mean(raw_a) + 1.0
+    b_i = raw_b - np.mean(raw_b) - 2.0
+    C = 100.0
+
+    def loss_i(w, i):
+        x = w[0] - a_i[i]
+        z = (w[1] - b_i[i]) - x * x
+        return x * x + C * z * z
+
+    def grad_i(w, i):
+        x = w[0] - a_i[i]
+        z = (w[1] - b_i[i]) - x * x
+        return np.array([2.0 * x - 4.0 * C * x * z, 2.0 * C * z])
+
+    def hess_i(w, i):
+        x = w[0] - a_i[i]
+        z = (w[1] - b_i[i]) - x * x
+        return np.array([[2.0 - 4.0 * C * z + 8.0 * C * x * x, -4.0 * C * x],
+                         [-4.0 * C * x, 2.0 * C]])
+
+    def hessvec_i(w, i, v):
+        return hess_i(w, i) @ v
+
+    def J(w):
+        return float(np.mean([loss_i(w, i) for i in range(N)]))
+
+    def gradJ(w):
+        return np.mean([grad_i(w, i) for i in range(N)], axis=0)
+
+    def hessJ(w):
+        return np.mean([hess_i(w, i) for i in range(N)], axis=0)
+
+    def grad_full(w):
+        return gradJ(w)
+
+    # W_STAR: Newton 2D a differenze finite su J (come _wstar dell'app)
+    h = 1e-6
+    w = np.array([1.0, -2.0])
+    E = [np.array([h, 0.0]), np.array([0.0, h])]
+    for _ in range(80):
+        g = np.array([(J(w + e) - J(w - e)) / (2.0 * h) for e in E])
+        if np.linalg.norm(g) < 1e-12:
+            break
+        H = np.array([[(J(w + E[i] + E[j]) - J(w + E[i] - E[j])
+                        - J(w - E[i] + E[j]) + J(w - E[i] - E[j]))
+                       / (4.0 * h * h) for j in range(2)] for i in range(2)])
+        try:
+            d = np.linalg.solve(H, g)
+        except np.linalg.LinAlgError:
+            break
+        w = w - d
+    return dict(N=N, J=J, gradJ=gradJ, hessJ=hessJ, loss_i=loss_i,
+                grad_i=grad_i, hess_i=hess_i, hessvec_i=hessvec_i,
+                grad_full=grad_full, W_STAR=w, label="banana di Rosenbrock")
+
+
+
 PRESET_MAKERS = {
     "quad_well": _make_preset_well,
     "quad_ill": _make_preset_ill,
@@ -2736,6 +2802,43 @@ def gen_test_tables(riuso):
     return "\n".join(out) + "\n"
 
 
+def gen_banana_test_tables():
+    """Tabella di test sul problema NON quadratico 'banana di Rosenbrock':
+    errore ||w_k-w*||_2 a ogni iterazione, 4 metodi (una sottotabella per
+    metodo, storia effettiva senza padding), seed 42. Stile identico alle
+    Tabelle 6.1-6.3. I valori sono generati dallo script (non dall'app)."""
+    out = []
+    out.append("\\begin{table}[H]")
+    out.append("\\centering")
+    out.append("\\footnotesize")
+    out.append("\\renewcommand{\\arraystretch}{0.85}")
+    out.append("\\setlength{\\tabcolsep}{3pt}")
+    out.append("\\caption{Errore $\\|w_k-w_*\\|_2$ a ogni iterazione sul "
+               "problema non quadratico ``banana di Rosenbrock'' "
+               "($c{=}100$, dataset stocastico centrato, seed 42), per i "
+               "quattro algoritmi.}")
+    out.append("\\label{tab:test_banana}")
+    for algo in ("gd", "newton_cg", "newton_l1", "bb"):
+        out.append("\\begin{subtable}{0.24\\textwidth}")
+        out.append("\\centering")
+        out.append("\\caption{" + ALGO_METHOD_LATEX[algo] + "}")
+        out.append("\\begin{tabular}{@{}rl@{}}")
+        out.append("\\toprule")
+        out.append("$k$ & $\\|w_k-w_*\\|_2$\\\\")
+        out.append("\\midrule")
+        np.random.seed(SEED)
+        p = _make_preset_banana()
+        e, bs, rp = run_base_reuse(p, algo, None, reuse=False)
+        for k in range(len(e)):
+            out.append(f"{k} &" + colorcell(e[k]) + "\\\\")
+        out.append("\\bottomrule")
+        out.append("\\end{tabular}")
+        out.append("\\end{subtable}\\hfill")
+    out.append("\\end{table}")
+    out.append("")
+    return "\n".join(out) + "\n"
+
+
 def gen_riuso_tables(riuso):
     """Tabelle 6.4-6.19: errore e_k a ogni iterazione per base/M=inf/10/5/2
     (+ H ind. per Newton-CG e Newton-CG L1)."""
@@ -3388,6 +3491,18 @@ def _expected_test(riuso):
     return expected
 
 
+def _expected_banana():
+    """Tabella banana (test non quadratico): base e_k (storia effettiva)
+    per ogni algoritmo, seed 42."""
+    vals = []
+    for algo in ALGO_TESI:
+        np.random.seed(SEED)
+        p = _make_preset_banana()
+        e, bs, rp = run_base_reuse(p, algo, None, reuse=False)
+        vals += e
+    return {"tab:test_banana": vals}
+
+
 def _expected_riuso(riuso):
     expected = {}
     labels = {"quad_well": "tab:riuso_bencond", "quad_ill": "tab:riuso_malcond",
@@ -3616,6 +3731,9 @@ def verify(tesi_path):
     for lab, vals in exp.items():
         n, nb = _check(lab, blocks, vals)
         checks += n; failures += nb
+    for lab, vals in _expected_banana().items():
+        n, nb = _check(lab, blocks, vals)
+        checks += n; failures += nb
     n, nb = _check("tab:riuso_sintesi", blocks, _expected_sintesi(riuso)["tab:riuso_sintesi"])
     checks += n; failures += nb
     n, nb = _check_robustezza(blocks, rob)
@@ -3650,6 +3768,8 @@ def gen_all_tables(riuso, rob, vdata, vrefs, vrob, ddata, drefs, drob, cons):
     parts = [
         "% Tabelle 6.1-6.3 (test, 4 metodi x 3 problemi)",
         gen_test_tables(riuso),
+        "% Tabella di test sul problema non quadratico 'banana di Rosenbrock'",
+        gen_banana_test_tables(),
         "% Tabelle 6.4-6.19 (riuso del mini-batch, per-iterazione)",
         gen_riuso_tables(riuso),
         "% Tabella 6.20 (sintesi)",

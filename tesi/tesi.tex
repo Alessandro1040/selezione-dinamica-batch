@@ -2480,6 +2480,11 @@ Sezione~\ref{sec:risultati}; il quarto è usato negli esperimenti sul riuso
 del mini-batch (Sezione~\ref{app:riuso}), che impiegano complessivamente
 tutti e quattro i preset.
 
+Ai quattro problemi quadratici aggiungiamo un quinto problema test, non
+quadratico, la ``banana di Rosenbrock'' descritta qui sotto: è usata come
+stress test per i quattro algoritmi nei Risultati Numerici
+(Sezione~\ref{sec:risultati}).
+
 \begin{itemize}
   \item Quadratica ben condizionata ($\kappa \approx 1.1$):
   $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.1\,w_1 w_2$ (preset ``Quadratica ben
@@ -2498,6 +2503,17 @@ tutti e quattro i preset.
   ``Quadratica con termine incrociato''). Qui l'accoppiamento è la
   caratteristica dominante: la Hessiana $\nabla^2 J$ ha autovalori $2.5$ e
   $1.5$, quindi $\kappa = 2.5/1.5 \approx 1.67$.
+  \item Banana di Rosenbrock (non quadratica):
+  $J(w) = \dfrac{1}{N}\sum_{i=1}^{N}\left[(w_1 - a_i)^2 + 100\left((w_2 - b_i)
+  - (w_1 - a_i)^2\right)^2\right]$
+  (preset ``Banana di Rosenbrock''). Il dataset è stocastico centrato come
+  negli altri preset: $a_i$ centrati su $1$ e $b_i$ su $-2$, con rumore
+  $\sigma = 0.2$. La funzione è non quadratica e non separabile: il minimo
+  non è in forma chiusa e al seed 42 vale $w_* \approx (1.06,\,-1.96)$
+  (calcolato numericamente). La ``valle'' è la curva
+  $w_2 \approx -2 + (w_1 - 1)^2$: scendendo lungo di essa la curvatura cambia
+  con la posizione, e tra un esempio e l'altro le valli sono leggermente
+  diverse. È usata come stress test non quadratico nei Risultati Numerici.
 \end{itemize}
 
 I test sono eseguiti con i parametri di default dell'applicazione:
@@ -3170,6 +3186,212 @@ particolare sui mal condizionati: è il punto di equilibrio tra costo di
 calcolo e adattabilità al terreno. Dynamic GD è sufficiente solo dove la
 curvatura è ben bilanciata, ma fallisce dove non lo è, perché non ha un modo
 per adattare il passo alla forma della funzione.
+
+\paragraph{Stress test non quadratico: la ``banana di Rosenbrock''.}
+Come verifica della robustezza degli algoritmi su un terreno non quadratico,
+eseguiamo i quattro metodi sul problema ``banana di Rosenbrock'' descritto
+nella Sezione~\ref{sec:setup}, con lo stesso setup dei problemi quadratici
+(seed 42, $w_0=(2,-3)$, $\alpha=0.1$, $\theta=0.5$, $n_0=5$, 30 iterazioni).
+La Tabella~\ref{tab:test_banana} riporta l'errore $\|w_k-w_*\|_2$ a ogni
+iterazione; i valori sono generati con lo script di riproduzione delle
+tabelle del Capitolo (NumPy di sistema), come per il resto dei risultati
+numerici.
+
+Dynamic GD scende lungo la valle con passi piccoli ma regolari: al seed 42
+l'errore finale è $\approx6.1\times10^{-4}$, e sui 5 seed la mediana è la
+stessa ($6.1\times10^{-4}$, con il minimo a $\approx1.3\times10^{-6}$ e il
+massimo a $\approx2.8\times10^{-1}$). BB-CCV, il metodo più robusto sui
+problemi quadratici, è qui il più sensibile all'istanza: al seed 42 il passo
+di Barzilai--Borwein stenta a stimare la curvatura --- la ``secante''
+confronta gradienti calcolati su batch diversi di una funzione fortemente non
+quadratica --- e in 30 iterazioni l'errore è ancora $\approx1.1\times10^{-1}$;
+sugli altri seed invece converge in poche iterazioni, tanto che la mediana sui
+5 seed è $5.6\times10^{-9}$. I metodi del secondo ordine convergono
+lentamente: Newton-CG termina con errore $\approx2.1\times10^{-1}$ e
+Newton-CG~$L_1$ con $\approx1.3\times10^{-1}$ al seed 42 (mediane sui 5 seed
+$6.8\times10^{-1}$ e $2.0\times10^{-1}$). La stima dell'Hessiana sul
+sottocampione è poco rappresentativa quando la curvatura cambia tra gli esempi
+(la valle di ogni esempio è leggermente spostata) e, inoltre, il passo dei
+metodi di Newton è limitato dal passo iniziale della line search di Wolfe.
+
+In sintesi, la banana separa nettamente i comportamenti: Dynamic GD è lento ma
+stabile; BB-CCV è molto veloce quando il passo di Barzilai--Borwein stima bene
+la curvatura, ma può restare indietro quando non la stima; i metodi del secondo
+ordine perdono il loro vantaggio perché l'Hessiana campionaria descrive male
+la curvatura globale di un problema non quadratico.
+
+\begin{table}[H]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{0.85}
+\setlength{\tabcolsep}{3pt}
+\caption{Errore $\|w_k-w_*\|_2$ a ogni iterazione sul problema non quadratico ``banana di Rosenbrock'' ($c{=}100$, dataset stocastico centrato, seed 42), per i quattro algoritmi.}
+\label{tab:test_banana}
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{Dynamic GD}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4013}{0}\\
+1 &\colorcell{1.3111}{0}\\
+2 &\colorcell{1.6870}{0}\\
+3 &\colorcell{1.4997}{0}\\
+4 &\colorcell{1.5386}{0}\\
+5 &\colorcell{1.5013}{0}\\
+6 &\colorcell{1.4743}{0}\\
+7 &\colorcell{1.4284}{0}\\
+8 &\colorcell{1.4187}{0}\\
+9 &\colorcell{9.2212}{-1}\\
+10 &\colorcell{8.6464}{-1}\\
+11 &\colorcell{8.2042}{-1}\\
+12 &\colorcell{7.4338}{-1}\\
+13 &\colorcell{7.2527}{-1}\\
+14 &\colorcell{2.0430}{-1}\\
+15 &\colorcell{1.4882}{-1}\\
+16 &\colorcell{1.0689}{-1}\\
+17 &\colorcell{8.9073}{-2}\\
+18 &\colorcell{5.8074}{-2}\\
+19 &\colorcell{4.6830}{-2}\\
+20 &\colorcell{3.0571}{-2}\\
+21 &\colorcell{2.4372}{-2}\\
+22 &\colorcell{1.5866}{-2}\\
+23 &\colorcell{1.2668}{-2}\\
+24 &\colorcell{5.7632}{-3}\\
+25 &\colorcell{3.0387}{-3}\\
+26 &\colorcell{2.2793}{-3}\\
+27 &\colorcell{1.5318}{-3}\\
+28 &\colorcell{1.1821}{-3}\\
+29 &\colorcell{7.7944}{-4}\\
+30 &\colorcell{6.1354}{-4}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{Newton-CG}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4013}{0}\\
+1 &\colorcell{1.2628}{0}\\
+2 &\colorcell{1.1580}{0}\\
+3 &\colorcell{1.0593}{0}\\
+4 &\colorcell{1.0029}{0}\\
+5 &\colorcell{9.6455}{-1}\\
+6 &\colorcell{9.0122}{-1}\\
+7 &\colorcell{8.3596}{-1}\\
+8 &\colorcell{7.8553}{-1}\\
+9 &\colorcell{7.1829}{-1}\\
+10 &\colorcell{7.0079}{-1}\\
+11 &\colorcell{6.3023}{-1}\\
+12 &\colorcell{6.0674}{-1}\\
+13 &\colorcell{5.8733}{-1}\\
+14 &\colorcell{5.9195}{-1}\\
+15 &\colorcell{5.4014}{-1}\\
+16 &\colorcell{5.1570}{-1}\\
+17 &\colorcell{5.0273}{-1}\\
+18 &\colorcell{5.0273}{-1}\\
+19 &\colorcell{4.8119}{-1}\\
+20 &\colorcell{4.9592}{-1}\\
+21 &\colorcell{4.7511}{-1}\\
+22 &\colorcell{4.0776}{-1}\\
+23 &\colorcell{4.0776}{-1}\\
+24 &\colorcell{4.0776}{-1}\\
+25 &\colorcell{4.0776}{-1}\\
+26 &\colorcell{4.0776}{-1}\\
+27 &\colorcell{4.0776}{-1}\\
+28 &\colorcell{4.0776}{-1}\\
+29 &\colorcell{2.0625}{-1}\\
+30 &\colorcell{2.0625}{-1}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{Newton-CG $L_1$}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4013}{0}\\
+1 &\colorcell{1.3605}{0}\\
+2 &\colorcell{1.2994}{0}\\
+3 &\colorcell{1.2455}{0}\\
+4 &\colorcell{1.1981}{0}\\
+5 &\colorcell{1.1616}{0}\\
+6 &\colorcell{1.0856}{0}\\
+7 &\colorcell{1.0119}{0}\\
+8 &\colorcell{9.3758}{-1}\\
+9 &\colorcell{9.1058}{-1}\\
+10 &\colorcell{8.6424}{-1}\\
+11 &\colorcell{8.2807}{-1}\\
+12 &\colorcell{7.7246}{-1}\\
+13 &\colorcell{6.9970}{-1}\\
+14 &\colorcell{6.5292}{-1}\\
+15 &\colorcell{6.1646}{-1}\\
+16 &\colorcell{5.2961}{-1}\\
+17 &\colorcell{4.9345}{-1}\\
+18 &\colorcell{4.0645}{-1}\\
+19 &\colorcell{3.8639}{-1}\\
+20 &\colorcell{3.5114}{-1}\\
+21 &\colorcell{3.2691}{-1}\\
+22 &\colorcell{3.0067}{-1}\\
+23 &\colorcell{2.7701}{-1}\\
+24 &\colorcell{2.4892}{-1}\\
+25 &\colorcell{2.1067}{-1}\\
+26 &\colorcell{1.8188}{-1}\\
+27 &\colorcell{1.6934}{-1}\\
+28 &\colorcell{1.5243}{-1}\\
+29 &\colorcell{1.3750}{-1}\\
+30 &\colorcell{1.2525}{-1}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\begin{subtable}{0.24\textwidth}
+\centering
+\caption{BB-CCV}
+\begin{tabular}{@{}rl@{}}
+\toprule
+$k$ & $\|w_k-w_*\|_2$\\
+\midrule
+0 &\colorcell{1.4013}{0}\\
+1 &\colorcell{1.3111}{0}\\
+2 &\colorcell{1.1814}{0}\\
+3 &\colorcell{1.1800}{0}\\
+4 &\colorcell{1.1771}{0}\\
+5 &\colorcell{1.1301}{0}\\
+6 &\colorcell{1.1258}{0}\\
+7 &\colorcell{1.0739}{0}\\
+8 &\colorcell{1.0377}{0}\\
+9 &\colorcell{9.6573}{-1}\\
+10 &\colorcell{9.5455}{-1}\\
+11 &\colorcell{9.1365}{-1}\\
+12 &\colorcell{8.7707}{-1}\\
+13 &\colorcell{8.2871}{-1}\\
+14 &\colorcell{8.1201}{-1}\\
+15 &\colorcell{7.4914}{-1}\\
+16 &\colorcell{7.1031}{-1}\\
+17 &\colorcell{6.6295}{-1}\\
+18 &\colorcell{6.2550}{-1}\\
+19 &\colorcell{5.6023}{-1}\\
+20 &\colorcell{5.3209}{-1}\\
+21 &\colorcell{4.6428}{-1}\\
+22 &\colorcell{4.3816}{-1}\\
+23 &\colorcell{3.7956}{-1}\\
+24 &\colorcell{3.5060}{-1}\\
+25 &\colorcell{3.0716}{-1}\\
+26 &\colorcell{2.6247}{-1}\\
+27 &\colorcell{1.7822}{-1}\\
+28 &\colorcell{1.5343}{-1}\\
+29 &\colorcell{1.2880}{-1}\\
+30 &\colorcell{1.0645}{-1}\\
+\bottomrule
+\end{tabular}
+\end{subtable}\hfill
+\end{table}
 
 \subsection{Visualizzazione Interattiva}\label{sec:visualizzazione}
 
