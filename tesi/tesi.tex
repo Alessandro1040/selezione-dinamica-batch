@@ -138,6 +138,21 @@
 \cfoot{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 
+% --- Riduzione automatica delle tabelle più larghe del testo ---
+% fitwidth scala la tabella al \textwidth SOLO se la sua larghezza naturale
+% supera il testo (altrimenti la lascia invariata).
+\newsavebox{\fitbox}
+\newenvironment{fitwidth}{%
+  \begin{lrbox}{\fitbox}%
+}{%
+  \end{lrbox}%
+  \ifdim\wd\fitbox>\textwidth
+    \resizebox{\textwidth}{!}{\usebox{\fitbox}}%
+  \else
+    \usebox{\fitbox}%
+  \fi
+}
+
 % --- NOTAZIONI ---
 \newcommand{\R}{\mathbb{R}}
 \newcommand{\E}{\mathbb{E}}
@@ -2237,6 +2252,7 @@ proiettata mantiene le variabili dell'active set a zero.}
 \footnotesize
 \renewcommand{\arraystretch}{1.5}
 \setlength{\tabcolsep}{4pt}
+\begin{fitwidth}
 \begin{tabular}{@{}>{\raggedright\arraybackslash}p{2.5cm}
                 >{\raggedright\arraybackslash}p{3.2cm}
                 >{\raggedright\arraybackslash}p{2.0cm}
@@ -2263,6 +2279,7 @@ Identificazione corretta della faccia ortante \eqref{eq:5_41}--\eqref{eq:5_46} &
 Come Newton-CG \\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \caption{Confronto dei tre metodi a campione dinamico con analisi di
 complessità (Dynamic GD, Newton-CG e Newton-CG con regolarizzazione $L_1$);
 il metodo BB-CCV della Sezione~\ref{sec:bbccv} è escluso perché non ha un
@@ -4704,6 +4721,7 @@ $k$ & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}2$\\
 \setlength{\tabcolsep}{1.5pt}
 \caption{Errore finale $e_{30}=\|w_{30}-w_*\|_2$ al termine delle 30 iterazioni (seed 42) per tutti i valori del numero massimo $M$ di iterazioni consecutive sullo stesso mini-batch. \emph{base}: ricampionamento a ogni iterazione. Simboli relativi a \emph{base}: $\blacktriangle$ = migliora, $\blacktriangledown$ = peggiora, $=$ = invariato. Valori arrotondati a tre cifre significative.}
 \label{tab:riuso_sintesi}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Metodo & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}3$ & $M{=}2$ & $M{=}1$\\
@@ -4734,6 +4752,7 @@ banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{1.2525}{-1} & \colorcell{3.819
 banana ($c{=}100$) - BB-CCV & \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{1.6648}{-1}$\blacktriangledown$ & \colorcell{3.6984}{-1}$\blacktriangledown$ & \colorcell{1.0645}{-1}$=$\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Tabella di sintesi dell'esperimento di riuso: errore finale $e_{30}$ (seed 42) per tutti i valori di $M\in\{\infty,10,5,3,2,1\}$ su tutte le coppie problema$\times$algoritmo. Si legge per individuare dove il riuso aiuta e dove peggiora: in generale aiuta su ben condizionato e termine incrociato e per i metodi del primo ordine dove c'è margine (BB-CCV su $\kappa\approx20$), mentre peggiora per Dynamic GD e Newton-CG sui mal condizionati con $M{=}\infty$ e per BB-CCV su $\kappa\approx100$, dove la base è già alla precisione macchina.
 
@@ -4926,6 +4945,7 @@ una valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni su circa $pN$ esempi.
 \setlength{\tabcolsep}{1.5pt}
 \caption{Stop adattivo con validation set: errore finale $e_{30}=\|w_{30}-w_*\|_2$ (seed 42). Colonne: \emph{base} = ricampionamento a ogni iterazione (training set); $M{=}\infty$ = riuso illimitato (training set); \emph{def.} = valori di default ($p=0.2$, $\tau=10^{-4}$, $P=3$, $f=1$, split fisso); $P{=}1,p{=}0.1$,dyn e $P{=}3,p{=}0.1$,dyn. Tra parentesi il numero di ricampionamenti.}
 \label{tab:riuso_valid_confronto}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrr@{}}
 \toprule
 Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,p{=}0.1$,dyn & $P{=}3,p{=}0.1$,dyn\\
@@ -4958,6 +4978,7 @@ banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0116}{-1} (29) & \colorcell{
 Media (20 casi) & \colorcell{1.9562}{-1} & \colorcell{4.0383}{-1}$\blacktriangledown$ & \colorcell{2.3383}{-1}$\blacktriangledown$ & \colorcell{1.7919}{-1}$\blacktriangle$ & \colorcell{2.0065}{-1}$\blacktriangledown$\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Confronta lo stop adattivo con validation set con la base e con $M{=}\infty$ (seed 42), riportando tra parentesi il numero di ricampionamenti: con i valori di default si evita il collasso di $M{=}\infty$ per i metodi di Newton, e la calibrazione $P{=}1,p{=}0.1$,dyn migliora o eguaglia la base nella maggior parte delle combinazioni.
 
@@ -5006,6 +5027,7 @@ Strategia di split & \emph{dinamico} & \colorcell{3.1926}{-1} & 12.7\\
 \setlength{\tabcolsep}{3.5pt}
 \caption{Robustezza su 5 seed indipendenti: $\overline{e}_{30}$ = media di $e_{30}$ su 20 caselle $\times$ 5 seed; \emph{vitt.} = caselle (su 20) in cui la media su 5 seed è minore di quella di \emph{base}; le ultime cinque colonne riportano la media su 5 seed per problema.}
 \label{tab:riuso_valid_robustezza}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
@@ -5018,6 +5040,7 @@ $P{=}1,p{=}0.1$,dyn & \colorcell{2.0375}{-1} & 12/20 & \colorcell{1.4045}{-1} & 
 $P{=}3,p{=}0.1$,dyn & \colorcell{2.2931}{-1} & 11/20 & \colorcell{1.3955}{-1} & \colorcell{2.4684}{-1} & \colorcell{5.2925}{-1} & \colorcell{4.3722}{-2} & \colorcell{1.8717}{-1}\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Robustezza su 5 seed: la calibrazione $P{=}1,p{=}0.1$,dyn porta l'errore medio a $2.04\times10^{-1}$, inferiore a quello della base ($2.16\times10^{-1}$) e di $M{=}\infty$ ($3.84\times10^{-1}$), vincendo in 12 combinazioni su 20; il default ($2.67\times10^{-1}$, 7/20) resta sopra la \emph{base}.
 
@@ -5118,6 +5141,7 @@ ogni iterazione ($f=1$) è meglio di $f=3$
 \setlength{\tabcolsep}{1.5pt}
 \caption{Riuso per discesa della loss sul batch: errore finale $e_{30}$ (seed 42). Colonne: \emph{base} = ricampionamento a ogni iterazione; $M{=}\infty$ = riuso illimitato; \emph{def.} = valori di default ($\tau=10^{-4}$, $P=1$, $f=1$); $P{=}1,\tau{=}10^{-3},f{=}1$ e $P{=}1,\tau{=}10^{-5},f{=}1$. Tra parentesi il numero di ricampionamenti.}
 \label{tab:riuso_desc_confronto}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,\tau{=}10^{-3},f{=}1$ & $P{=}1,\tau{=}10^{-5},f{=}1$\\
@@ -5148,6 +5172,7 @@ banana ($c{=}100$) - Newton-CG & \colorcell{9.3953}{-1} (29) & \colorcell{1.0605
 banana ($c{=}100$) - Newton-CG $L_1$ & \colorcell{2.0207}{-1} (29) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0) & \colorcell{3.8199}{-1}$\blacktriangledown$ (0)\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Confronta il criterio di discesa (che non riserva dati) con la base e con $M{=}\infty$: per Dynamic GD e BB-CCV si comporta quasi come $M{=}\infty$ (la line search tiene il batch ``in discesa''), per i metodi di Newton evita il collasso di $M{=}\infty$ (su $\kappa\approx20$: da $1.28$ a $2.48\times10^{-1}$).
 
@@ -5189,6 +5214,7 @@ Frequenza $f$ & 3 & \colorcell{4.3877}{-1} & 9.5\\
 \setlength{\tabcolsep}{3.5pt}
 \caption{Robustezza su 5 seed indipendenti del riuso per discesa: $\overline{e}_{30}$ = media di $e_{30}$ su 20 caselle $\times$ 5 seed; \emph{vitt.} = caselle (su 20) in cui la media su 5 seed è minore di quella di \emph{base}; le ultime cinque colonne riportano la media su 5 seed per problema.}
 \label{tab:riuso_desc_robustezza}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Configurazione & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
@@ -5201,6 +5227,7 @@ $P{=}1,\tau{=}10^{-3},f{=}1$ & \colorcell{2.3817}{-1} & 11/20 & \colorcell{1.185
 $P{=}1,\tau{=}10^{-5},f{=}1$ & \colorcell{2.3947}{-1} & 10/20 & \colorcell{1.1855}{-1} & \colorcell{2.4065}{-1} & \colorcell{4.2013}{-1} & \colorcell{3.4413}{-2} & \colorcell{3.8362}{-1}\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Robustezza su 5 seed: la configurazione consigliata
 ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$) vince in 11 delle 20 combinazioni
@@ -5284,6 +5311,7 @@ monotonia della ricerca lineare tiene comunque il batch ``in discesa''.
 \setlength{\tabcolsep}{3pt}
 \caption{Confronto finale su 5 seed indipendenti (20 combinazioni problema$\times$algoritmo) tra \emph{base}, $M{=}\infty$, lo stop adattivo con validation set calibrato ($P{=}1$, $p{=}10\%$, split dinamico) e il riuso per discesa calibrato ($\tau{=}10^{-3}$, $P{=}1$, $f{=}1$). $\overline{e}_{30}$ = media su 20 caselle $\times$ 5 seed; \emph{vitt.} = caselle (su 20) in cui la media su 5 seed è minore del proprio riferimento.}
 \label{tab:riuso_confronto_finale}
+\begin{fitwidth}
 \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
 Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & banana ($c{=}100$)\\
@@ -5295,6 +5323,7 @@ $P{=}1,p{=}0.1$,dyn & \colorcell{2.0375}{-1} & 12/20 & \colorcell{1.4045}{-1} & 
 $\tau{=}10^{-3},P{=}1,f{=}1$ & \colorcell{2.3817}{-1} & 11/20 & \colorcell{1.1855}{-1} & \colorcell{2.3416}{-1} & \colorcell{4.2013}{-1} & \colorcell{3.4413}{-2} & \colorcell{3.8362}{-1}\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} Chiude il confronto tra i due criteri automatici su 5 seed: la discesa calibrata è leggermente migliore in media ($2.02\times10^{-1}$ contro $2.11\times10^{-1}$ della validation) e usa l'intero dataset, senza riservare dati; la validation tiene fuori il 10\% dei dati.
 
@@ -5370,6 +5399,7 @@ combinazioni problema$\times$seed è Newton-CG 16/25 e Newton-CG~$L_1$ 16/25.
 \setlength{\tabcolsep}{4pt}
 \caption{Sintesi degli iperparametri consigliati per ciascun metodo: configurazione consigliata, mediana di $e_{30}$ su 5 seed della \emph{base} e della configurazione consigliata, e numero di seed su 5 in cui la configurazione consigliata migliora la \emph{base}.}
 \label{tab:riuso_cons_sintesi}
+\begin{fitwidth}
 \begin{tabular}{@{}llp{3.4cm}rrr@{}}
 \toprule
 Problema & Algoritmo & Configurazione consigliata & $e_{30}$ base & $e_{30}$ consigliato & vitt.\ (su 5)\\
@@ -5400,6 +5430,7 @@ banana ($c{=}100$) & Newton-CG & stop adattivo: $P{=}1$, $f{=}1$, $p{=}10\%$, sp
 banana ($c{=}100$) & Newton-CG $L_1$ & riuso $M{=}3$ & \colorcell{2.0488}{-1} & \colorcell{1.7321}{-1} & 2/5\\
 \bottomrule
 \end{tabular}
+\end{fitwidth}
 \end{table}
 \noindent\emph{Lettura.} È la tabella operativa della sezione: per ognuna delle 20 combinazioni problema$\times$algoritmo indica la configurazione consigliata, la mediana di $e_{30}$ su 5 seed della base e della configurazione consigliata, e su quanti seed (su 5) la configurazione consigliata batte la base. Regola d'insieme: \emph{base} per Dynamic GD e BB-CCV (nessuna variante migliora la mediana su tutti i problemi, in particolare sulla banana), stop adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e riuso $M{=}3$ per Newton-CG~$L_1$; con queste scelte nessun metodo peggiora la mediana della base su nessuno dei cinque problemi.
 

@@ -2947,6 +2947,7 @@ def gen_sintesi_table(riuso):
                "$\\blacktriangledown$ = peggiora, $=$ = invariato. Valori "
                "arrotondati a tre cifre significative.}")
     out.append("\\label{tab:riuso_sintesi}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Metodo & \\emph{base} & " + " & ".join(m_headers) + "\\\\")
@@ -2964,6 +2965,7 @@ def gen_sintesi_table(riuso):
             out.append(" & ".join(row) + "\\\\")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3048,6 +3050,7 @@ def gen_validation_confronto(data, refs):
                "split fisso); $P{=}1,p{=}0.1$,dyn e $P{=}3,p{=}0.1$,dyn. Tra "
                "parentesi il numero di ricampionamenti.}")
     out.append("\\label{tab:riuso_valid_confronto}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrr@{}}")
     out.append("\\toprule")
     out.append("Metodo & " + " & ".join(VALID_HEADERS) + "\\\\")
@@ -3078,6 +3081,7 @@ def gen_validation_confronto(data, refs):
     out.append(" & ".join(media) + "\\\\")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3155,6 +3159,7 @@ def gen_validation_robustezza(rob):
                "minore di quella di \\emph{base}; le ultime cinque colonne "
                "riportano la media su 5 seed per problema.}")
     out.append("\\label{tab:riuso_valid_robustezza}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
@@ -3179,6 +3184,7 @@ def gen_validation_robustezza(rob):
             out.append("\\midrule")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3221,6 +3227,7 @@ def gen_descent_confronto(data, refs):
                "$P{=}1,\\tau{=}10^{-3},f{=}1$ e $P{=}1,\\tau{=}10^{-5},f{=}1$. "
                "Tra parentesi il numero di ricampionamenti.}")
     out.append("\\label{tab:riuso_desc_confronto}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Metodo & " + " & ".join(DESC_HEADERS) + "\\\\")
@@ -3243,6 +3250,7 @@ def gen_descent_confronto(data, refs):
     # (a differenza della Tabella 6.22, che la include).
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3313,6 +3321,7 @@ def gen_descent_robustezza(rob):
                "media su 5 seed è minore di quella di \\emph{base}; le ultime "
                "cinque colonne riportano la media su 5 seed per problema.}")
     out.append("\\label{tab:riuso_desc_robustezza}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Configurazione & $\\overline{e}_{30}$ & \\emph{vitt.} & "
@@ -3337,6 +3346,7 @@ def gen_descent_robustezza(rob):
             out.append("\\midrule")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3361,6 +3371,7 @@ def gen_confronto_finale(vrob, drob):
                "\\emph{vitt.} = caselle (su 20) in cui la media su 5 seed è "
                "minore del proprio riferimento.}")
     out.append("\\label{tab:riuso_confronto_finale}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}lrrrrrrr@{}}")
     out.append("\\toprule")
     out.append("Strategia & $\\overline{e}_{30}$ & \\emph{vitt.} & "
@@ -3392,6 +3403,7 @@ def gen_confronto_finale(vrob, drob):
             out.append("\\midrule")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
@@ -3408,6 +3420,7 @@ def gen_cons_sintesi(cons):
                "numero di seed su 5 in cui la configurazione consigliata "
                "migliora la \\emph{base}.}")
     out.append("\\label{tab:riuso_cons_sintesi}")
+    out.append("\\begin{fitwidth}")
     out.append("\\begin{tabular}{@{}llp{3.4cm}rrr@{}}")
     out.append("\\toprule")
     out.append("Problema & Algoritmo & Configurazione consigliata & $e_{30}$ base "
@@ -3425,6 +3438,7 @@ def gen_cons_sintesi(cons):
             out.append(" & ".join(row) + "\\\\")
     out.append("\\bottomrule")
     out.append("\\end{tabular}")
+    out.append("\\end{fitwidth}")
     out.append("\\end{table}")
     return "\n".join(out) + "\n"
 
