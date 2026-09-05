@@ -157,6 +157,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, ringraziamenti).** Rimossi dai
+  ringraziamenti visibili di `tesi.tex` e spostati in commento (con data di
+  rimozione): Onyx, Nitro, Salmo, Madman, lowlow, Mezzosangue, Lazza, Massimo
+  Pericolo e C-Lance. Riorganizzate le righe con i nomi rimasti (Eminem …
+  Dope D.O.D., Mostro … Denace, Chubeats/JZAC, 50 Cent/Jelly Roll/Skrizzly
+  Adams). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**135 pp**; 0 errori, 0
+  undefined); sincronizzati in repo (md5 verificati). Nessun'altra modifica.
+
+
 - **Ultimo intervento (05/09/2026, Test batch ↔ tesi).** **Allineati Test batch
   e tabelle della tesi: ordine algoritmi unico GD, BB-CCV, Newton-CG, Newton-CG
   $L_1$, Funzione di Rosenbrock presente in tutti i formati, corretta la
