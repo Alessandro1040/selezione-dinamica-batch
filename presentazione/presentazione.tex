@@ -417,15 +417,14 @@
 % =====================================================================
 \begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
   \small
-  \setlength{\abovedisplayskip}{2pt}
-  \setlength{\belowdisplayskip}{2pt}
-  \setlength{\abovedisplayshortskip}{2pt}
-  \setlength{\belowdisplayshortskip}{2pt}
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
   \begin{itemize}\setlength{\itemsep}{0pt}
     \item Il CG risolve in modo \textbf{approssimato} il sistema di Newton
-      (eq.~5.31): Hessiana sul campione piccolo $\mathcal{H}_k$, gradiente sul
-      campione grande $\mathcal{S}_k$. Il suo \textbf{residuo} è per
-      definizione (eq.~5.33)
+      (eq.~5.31), gradiente su $\mathcal{S}_k$ e Hessiana su $\mathcal{H}_k$;
+      il suo \textbf{residuo} è (eq.~5.33):
       \[
         r_k\stackrel{\mathrm{def}}{=}
         \nabla^2J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k),
@@ -442,15 +441,20 @@
       $\Delta_{\mathcal{H}_k}(w_k;d)=\bigl[\nabla^2J_{\mathcal{S}_k}(w_k)
       -\nabla^2J_{\mathcal{H}_k}(w_k)\bigr]d$ è \textbf{costante durante il
       CG} e \textbf{non eliminabile} (il campione $\mathcal{H}_k$ è fissato).
-    \item Se l'errore di Hessiana non si può eliminare, \emph{non serve}
-      ridurre $r_k$ fino a zero: \textbf{basta fermarsi quando $r_k$ è dello
-      stesso ordine (confrontabile) di $\Delta_{\mathcal{H}_k}$}. Oltre quel
-      punto le iterazioni del CG sono \emph{tempo sprecato}.
-    \item \textbf{Problema:} $\Delta_{\mathcal{H}_k}$ \textbf{non è
-      calcolabile} (servirebbe il prodotto Hessiana--vettore su tutto
-      $\mathcal{S}_k$): serve uno \textbf{stimatore} del suo ordine di
-      grandezza --- lo costruiamo nella prossima slide.
+    \item Poiché $\Delta_{\mathcal{H}_k}$ non si può eliminare, \emph{non
+      serve} ridurre $r_k$ fino a zero: \textbf{basta fermarlo quando è
+      confrontabile con $\Delta_{\mathcal{H}_k}$}; oltre, le iterazioni del CG
+      sono \emph{tempo sprecato}.
+    \item \textbf{Perché non è calcolabile?} $\Delta_{\mathcal{H}_k}$ contiene
+      il prodotto Hessiana--vettore $\nabla^2J_{\mathcal{S}_k}(w_k)d$, la media
+      su \emph{tutto} $\mathcal{S}_k$ dei prodotti $\nabla^2\ell(w_k;i)d$:
+      calcolarlo costerebbe quanto l'Hessiana piena e
+      \textbf{vanificherebbe} il sottocampionamento di $\mathcal{H}_k$. Come
+      per l'errore del gradiente $e_k$, se ne stima l'ordine di grandezza con
+      la \textbf{varianza campionaria} dei prodotti Hessiana--vettore su
+      $\mathcal{H}_k$ (prossima slide).
   \end{itemize}
+  \vspace{-8pt}
   \fonte{Dalla tesi --- Sez.~5.2, eq.~5.31 e 5.33--5.34 e discussione del criterio}
 \end{frame}
 

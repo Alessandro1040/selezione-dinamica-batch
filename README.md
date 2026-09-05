@@ -158,6 +158,20 @@ Da tenere presente nelle sessioni di lavoro successive:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
 - **Ultimo intervento (05/09/2026, presentazione).** **Slide 14: aggiunta la
+  spiegazione del perché $\Delta_{\mathcal{H}_k}$ non è calcolabile (come in
+  tesi, Sez.~5.2, subito dopo la eq.~5.34).** Il punto finale ora spiega che
+  $\Delta_{\mathcal{H}_k}$ richiederebbe il prodotto Hessiana--vettore
+  $\nabla^2J_{\mathcal{S}_k}(w_k)d$ su tutto il campione grande $\mathcal{S}_k$
+  (la media dei prodotti $\nabla^2\ell(w_k;i)d$), cioè il calcolo che il
+  sottocampionamento dell'Hessiana su $\mathcal{H}_k$ vuole evitare: lo
+  vanificherebbe; come per l'errore del gradiente $e_k$ (non calcolabile), se
+  ne stima l'ordine di grandezza con la varianza campionaria su $\mathcal{H}_k$
+  (prossima slide). Per non far traboccare la cornice, compattati il bullet 1
+  e il bullet 3 (più brevi) e portati i display skip a 1 pt. Ricompilato
+  `presentazione/presentazione.pdf` (**32 pp** — invariate; 0 errori, 0
+  undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (05/09/2026, presentazione).** **Slide 14: aggiunta la
   definizione esplicita del residuo del CG $r_k$ come nella tesi
   (eq.~5.33).** Ora il primo punto della slide introduce $r_k$ prima della
   scomposizione (eq.~5.34), che resta invariata: il CG risolve in modo
