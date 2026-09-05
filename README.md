@@ -157,6 +157,13 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, ringraziamenti).** Rimossi dai
+  ringraziamenti visibili di `tesi.tex` e spostati in commento (con data di
+  rimozione): Merkules, Chubeats e Skylar Grey. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**135 pp**; 0 errori, 0 undefined); sincronizzati in repo
+  (md5 verificati). Nessun'altra modifica.
+
+
 - **Ultimo intervento (05/09/2026, presentazione).** **Blocco Newton-CG reso
   fluido: riordinate le slide 14–16 eliminando le ripetizioni.** Ora la
   sequenza è: (14) ``Newton-CG: non serve un residuo più piccolo dell'errore
