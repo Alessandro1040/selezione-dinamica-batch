@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Slide 14: aggiunta la
+  definizione esplicita del residuo del CG $r_k$ come nella tesi
+  (eq.~5.33).** Ora il primo punto della slide introduce $r_k$ prima della
+  scomposizione (eq.~5.34), che resta invariata: il CG risolve in modo
+  approssimato il sistema di Newton (eq.~5.31), con Hessiana sul campione
+  piccolo $\mathcal{H}_k$ e gradiente sul campione grande $\mathcal{S}_k$, e il
+  suo residuo è $r_k\stackrel{\mathrm{def}}{=}\nabla^2J_{\mathcal{H}_k}(w_k)\,d+
+  \nabla J_{\mathcal{S}_k}(w_k)$; seguono la scomposizione del residuo sul
+  campione grande in residuo del CG + errore di Hessiana
+  $\Delta_{\mathcal{H}_k}$ (eq.~5.34) e i punti ``non serve ridurre $r_k$ fino
+  a zero'' e ``$\Delta_{\mathcal{H}_k}$ non è calcolabile''. Spaziature
+  compattate nella sola slide (display skip 2 pt, itemsep 0 pt) per non far
+  traboccare la cornice. Ricompilato `presentazione/presentazione.pdf`
+  (**32 pp** — invariate; 0 errori, 0 undefined, 0 overfull). Nessun altro
+  file toccato: la presentazione vive solo in repo, la copia Desktop/tesi non
+  è coinvolta.
 - **Ultimo intervento (05/09/2026, ringraziamenti).** Rimossi dai
   ringraziamenti visibili di `tesi.tex` e spostati in commento (con data di
   rimozione): Merkules, Chubeats e Skylar Grey. Ricompilati `tesi.pdf` e

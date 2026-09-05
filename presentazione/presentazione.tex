@@ -317,33 +317,34 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 10 — La CCV garantisce una direzione di discesa
+% SLIDE 10 — Direzione di discesa: livello puntuale e garanzia in media
 % =====================================================================
-\begin{frame}{La CCV garantisce una direzione di discesa}
-  \begin{itemize}
-    \item $-g_k$ è di discesa per $J$ se l'errore relativo della stima è
-      piccolo: $\|e_k\|_2\le\theta\|g_k\|_2$ con
-      $e_k=g_k-\nabla J(w_k)$. Infatti, per Cauchy--Schwarz,
+\begin{frame}{Direzione di discesa: livello puntuale e garanzia in media}
+  \small
+  \begin{itemize}\setlength{\itemsep}{3pt}
+    \item \textbf{Livello puntuale (deterministico).} Se per il batch corrente vale la condizione di accuratezza
+      $\|e_k\|_2\le\theta\|g_k\|_2$ ($e_k=g_k-\nabla J(w_k)$), allora $-g_k$ \`e di discesa per $J$: per
+      Cauchy--Schwarz,
       \[
         \nabla J(w_k)^\top g_k
-        \;=\; \|g_k\|_2^2-e_k^\top g_k
+        =\|g_k\|_2^2-e_k^\top g_k
         \;\ge\; \|g_k\|_2^2-\|e_k\|_2\|g_k\|_2
-        \;\ge\; (1-\theta)\|g_k\|_2^2 \;>\; 0 .
+        \;\ge\; (1-\theta)\|g_k\|_2^2 > 0 .
       \]
-    \item In aspettativa l'errore è la varianza dello stimatore:
+      \`E una condizione \emph{sufficiente e puntuale}: ipotesi dell'analisi deterministica, non una conseguenza
+      della CCV.
+    \item \textbf{Livello CCV (in aspettativa).} La CCV controlla la \emph{varianza} dello stimatore
+      ($\|\widehat{\mathcal{V}}\|_1/n_k\le\theta^2\|g_k\|_2^2$), non l'errore del singolo mini-batch: non garantisce
+      la discesa a ogni iterazione.
+    \item \textbf{Garanzia in media.} $g_k$ \`e non distorto, $\mathbb{E}[g_k]=\nabla J(w_k)$, quindi
       \[
-        \mathbb{E}\bigl[\|e_k\|_2^2\bigr]
-        \;=\; \mathbb{E}\bigl[\|g_k-\mathbb{E}[g_k]\|_2^2\bigr]
-        \;=\; \|\mathrm{Var}(g_k)\|_1 ,
+        \mathbb{E}\bigl[\nabla J(w_k)^\top g_k\bigr]
+        =\nabla J(w_k)^\top\mathbb{E}[g_k]
+        =\|\nabla J(w_k)\|_2^2 > 0,
       \]
-      stimata dalla CCV con $\|\widehat{\mathcal{V}}\|_1/n_k$: $g_k$ è la
-      media di $n_k$ termini indipendenti, quindi
-      $\mathrm{Var}(g_k)=\mathcal{V}/n_k$; $\mathcal{V}$ (ignota) è stimata
-      da $\widehat{\mathcal{V}}$ (slide~9).
-    \item Sotto la CCV la direzione resta di discesa: è la base per la
-      convergenza dei metodi presentati.
+      e la CCV tiene sotto controllo le fluttuazioni (base dell'analisi di convergenza in media).
   \end{itemize}
-  \fonte{Dalla tesi --- Sez.~5.1: condizione di discesa e Lemma di accuratezza}
+  \fonte{Dalla tesi --- Sez.~5.1: condizione puntuale (deterministica), CCV (in aspettativa) e garanzia in media}
 \end{frame}
 
 % =====================================================================
@@ -416,15 +417,22 @@
 % =====================================================================
 \begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
   \small
-  \setlength{\abovedisplayskip}{3pt}
-  \setlength{\belowdisplayskip}{3pt}
-  \setlength{\abovedisplayshortskip}{3pt}
-  \setlength{\belowdisplayshortskip}{3pt}
-  \begin{itemize}\setlength{\itemsep}{2pt}
-    \item L'Hessiana è calcolata sul campione piccolo $\mathcal{H}_k$ e quindi
-      è \textbf{approssimata}: non ha senso risolvere il sistema di Newton
-      con precisione assoluta. Il residuo del sistema che userebbe il campione
-      grande $\mathcal{S}_k$ per gradiente ed Hessiana si scompone in
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{0pt}
+    \item Il CG risolve in modo \textbf{approssimato} il sistema di Newton
+      (eq.~5.31): Hessiana sul campione piccolo $\mathcal{H}_k$, gradiente sul
+      campione grande $\mathcal{S}_k$. Il suo \textbf{residuo} è per
+      definizione (eq.~5.33)
+      \[
+        r_k\stackrel{\mathrm{def}}{=}
+        \nabla^2J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k),
+      \]
+    \item L'Hessiana è quindi \textbf{approssimata}: il residuo del sistema
+      che userebbe il campione grande $\mathcal{S}_k$ per gradiente ed
+      Hessiana si scompone in
       \[
         \nabla^2J_{\mathcal{S}_k}(w_k)d+\nabla J_{\mathcal{S}_k}(w_k)
         =\underbrace{r_k}_{\text{residuo del CG}}
@@ -437,14 +445,13 @@
     \item Se l'errore di Hessiana non si può eliminare, \emph{non serve}
       ridurre $r_k$ fino a zero: \textbf{basta fermarsi quando $r_k$ è dello
       stesso ordine (confrontabile) di $\Delta_{\mathcal{H}_k}$}. Oltre quel
-      punto le iterazioni del CG sono \emph{tempo sprecato}: ridurrebbero un
-      errore già dominato dal rumore del campionamento.
+      punto le iterazioni del CG sono \emph{tempo sprecato}.
     \item \textbf{Problema:} $\Delta_{\mathcal{H}_k}$ \textbf{non è
-      calcolabile} direttamente (servirebbe il prodotto Hessiana--vettore su
-      tutto $\mathcal{S}_k$): ci serve uno \textbf{stimatore} del suo ordine
-      di grandezza --- lo costruiamo nella prossima slide.
+      calcolabile} (servirebbe il prodotto Hessiana--vettore su tutto
+      $\mathcal{S}_k$): serve uno \textbf{stimatore} del suo ordine di
+      grandezza --- lo costruiamo nella prossima slide.
   \end{itemize}
-  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.33--5.34 e discussione del criterio}
+  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.31 e 5.33--5.34 e discussione del criterio}
 \end{frame}
 
 % =====================================================================

@@ -809,7 +809,7 @@ Per ogni numero reale $x$ vale $x \ge -|x|$; quindi $e_k^T g_k \ge -|e_k^T g_k|$
 \[
 \nabla J(w_k)^T g_k \ge \|g_k\|^2 - \|e_k\|\|g_k\| = \|g_k\|\bigl(\|g_k\| - \|e_k\|\bigr).
 \]
-Affinch\'e $\nabla J(w_k)^T g_k > 0$ (cio\`e $-g_k$ sia di discesa) \`e sufficiente che $\|g_k\| - \|e_k\| > 0$, ovvero $\|e_k\| < \|g_k\|$. La condizione $\|e_k\| \le \theta \|g_k\|$ con $\theta < 1$ implica $\|e_k\| < \|g_k\|$, dunque garantisce la discesa.
+Affinch\'e $\nabla J(w_k)^T g_k > 0$ (cio\`e $-g_k$ sia di discesa) \`e sufficiente che $\|g_k\| - \|e_k\| > 0$, ovvero $\|e_k\| < \|g_k\|$. La condizione $\|e_k\| \le \theta \|g_k\|$ con $\theta < 1$ implica $\|e_k\| < \|g_k\|$, dunque, quando è verificata per il batch corrente, garantisce la discesa in quell'iterazione. È la \emph{condizione puntuale di accuratezza}: una condizione sufficiente, non necessaria, assunta come ipotesi nel Teorema di Convergenza Deterministica (Sezione~\ref{sec:convergenza-deterministica}). Nel caso stocastico $g_k$ è però una variabile aleatoria e la condizione non è verificabile né garantita a ogni iterazione: la CCV, introdotta tra poco, opera invece in aspettativa.
 \newpage
 
 \begin{figure}[H]
@@ -900,6 +900,14 @@ Stimando $\|\mathrm{Var}(g_k)\|_1 \approx \frac{\|\widehat{\mathcal{V}}\|_1}{n_k
 \frac{\|\widehat{\mathcal{V}}\|_1}{n_k} \;\le\; \theta^2\, \|g_k\|_2^2.
 \]
 Il parametro $\theta$ controlla la tolleranza sull'errore relativo $\|e_k\|/\|g_k\|$; elevandolo al quadrato si preserva la coerenza dimensionale con la varianza (che è un errore quadratico medio).
+
+Va sottolineato che la CCV è una condizione \emph{in aspettativa}: controlla l'errore quadratico medio dello stimatore del gradiente, non l'errore del singolo mini-batch, e quindi non garantisce la condizione puntuale \eqref{eq:discesa} a ogni iterazione (quella resta un'ipotesi dell'analisi deterministica). Poiché $g_k$ è non distorto, $\mathbb{E}_{\mathcal{S}_k}[g_k]=\nabla J(w_k)$, la discesa è però garantita \emph{in valore atteso} a ogni iterazione in cui $\nabla J(w_k)\neq 0$:
+\[
+\mathbb{E}_{\mathcal{S}_k}\bigl[\nabla J(w_k)^\top g_k\bigr]
+=\nabla J(w_k)^\top\mathbb{E}_{\mathcal{S}_k}[g_k]
+=\|\nabla J(w_k)\|_2^2 > 0,
+\]
+e la CCV mantiene piccolo $\|\mathrm{Var}(g_k)\|_1$, facendo crescere $n_k$ quando serve: su questo si basa l'analisi di convergenza in media sviluppata più avanti.
 \end{notebox}
 
 \subsubsection{Regola di aggiornamento del batch}
