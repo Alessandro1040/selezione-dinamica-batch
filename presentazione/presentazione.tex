@@ -589,7 +589,72 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 20 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
+% =====================================================================
+\begin{frame}{Il passo di Barzilai--Borwein (1/2) --- relazione secante (eq.~5.52--5.54)}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item BB-CCV sostituisce il passo \emph{fisso} del Dynamic GD con un passo
+      \textbf{adattivo} che stima la curvatura di $J$ lungo la direzione
+      percorsa usando \textbf{solo gradienti già calcolati}: nessuna Hessiana.
+    \item Tra due iterate consecutive, $w_{k+1}=w_k+\Delta w_k$, lo sviluppo al
+      primo ordine del gradiente $g=\nabla J$ attorno a $w_k$ è
+      \[
+        g(w_{k+1})\approx g(w_k)+\nabla^2J(w_k)\,\Delta w_k .
+      \]
+    \item Posto $s_k:=w_{k+1}-w_k$ (spostamento) e $y_k:=g(w_{k+1})-g(w_k)$
+      (variazione del gradiente), si ha la \textbf{relazione secante}
+      \[
+        y_k\approx\nabla^2J(w_k)\,s_k .
+      \]
+    \item I metodi quasi-Newton approssimano l'Hessiana con $B_{k+1}$
+      imponendo $B_{k+1}s_k=y_k$: è il punto di partenza del passo BB
+      (prossima slide).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.4, eq.~5.52--5.54}
+\end{frame}
+
+% =====================================================================
+% SLIDE 21 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
+% =====================================================================
+\begin{frame}{Il passo di Barzilai--Borwein (2/2) --- minimi quadrati e salvaguardia (eq.~5.55--5.56)}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item BB spinge il quasi-Newton all'estremo: $B_{k+1}=\alpha^{-1}I$ (passo
+      \textbf{scalare}); la secante diventa $\alpha^{-1}s\approx y$, un
+      sistema di $n$ equazioni in un'incognita risolto \textbf{ai minimi
+      quadrati}. Le due formule classiche:
+      \[
+        \alpha_k^{(1)}=\frac{s_k^\top y_k}{y_k^\top y_k}
+        \quad(\min\|\alpha y-s\|^2),\qquad
+        \alpha_k^{(2)}=\frac{s_k^\top s_k}{s_k^\top y_k}
+        \quad(\min\|\alpha^{-1}s-y\|^2).
+      \]
+    \item BB-CCV usa la \textbf{seconda}, più \emph{aggressiva}: passi più
+      grandi dove il gradiente cambia poco (direzione piatta), più piccoli
+      dove cambia molto.
+    \item \textbf{Rischio:} se $s^\top y\approx0$ (spostamento e variazione del
+      gradiente quasi perpendicolari) il passo esplode; la \textbf{salvaguardia}
+      $\mathrm{clip}\!\bigl(s^\top s/s^\top y,\ \alpha/20,\ 5\alpha\bigr)$ lo
+      tiene in $[\alpha/20,\,5\alpha]$.
+    \item Su $J$ quadratiche ($y=As$ esatta, $A$ definita positiva) il passo è
+      \textbf{ottimale}: poche iterazioni. Su $J$ generali la secante è solo
+      locale e $s^\top y$ può diventare $\le0$: stabilizzano salvaguardia e
+      line search di Armijo.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.4, eq.~5.55--5.56 e salvaguardia clip}
+\end{frame}
+
+% =====================================================================
+% SLIDE 22 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -601,7 +666,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Risultati teorici
+% SLIDE 23 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -624,7 +689,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — App web interattiva
+% SLIDE 24 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -643,7 +708,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 23 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 25 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -676,7 +741,7 @@
 
 
 % =====================================================================
-% SLIDE 24 — Setup e risultati numerici
+% SLIDE 26 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -706,7 +771,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 27 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -733,7 +798,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.25)
+% SLIDE 28 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.25)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.25)}
   \footnotesize
@@ -784,7 +849,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.26)
+% SLIDE 29 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.26)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.26)}
   \footnotesize
@@ -837,7 +902,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 -- Stop adattivo con validation set (Tab.6.27)
+% SLIDE 30 -- Stop adattivo con validation set (Tab.6.27)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.27)}
   \footnotesize
@@ -890,7 +955,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.30)
+% SLIDE 31 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.30)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.30)}
   \footnotesize
@@ -941,7 +1006,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.33)
+% SLIDE 32 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.33)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.33)}
   \footnotesize
@@ -974,7 +1039,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 — Conclusioni
+% SLIDE 33 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -994,7 +1059,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 — Limiti e lavoro futuro
+% SLIDE 34 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}

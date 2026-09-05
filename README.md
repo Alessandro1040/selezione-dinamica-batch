@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Aggiunte due slide sul
+  passo di Barzilai--Borwein (nuove SLIDE 20 e 21, prima dello schema BB-CCV).**
+  Contenuto preso dalla tesi (Sez.~5.4.1, eq.~5.52--5.56). (20) Relazione
+  secante: BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
+  adattivo che stima la curvatura di $J$ senza Hessiana; sviluppo al primo
+  ordine del gradiente tra due iterate (eq.~5.52), definizione di $s_k$ e
+  $y_k$ e relazione secante $y_k\approx\nabla^2J(w_k)s_k$ (eq.~5.53--5.54);
+  i metodi quasi-Newton impongono $B_{k+1}s_k=y_k$. (21) Minimi quadrati e
+  salvaguardia: $B_{k+1}=\alpha^{-1}I$, secante $\alpha^{-1}s\approx y$
+  risolta ai minimi quadrati con le due formule classiche (eq.~5.55--5.56);
+  BB-CCV usa la seconda ($s^\top s/s^\top y$, più aggressiva) con la
+  salvaguardia $\mathrm{clip}(\cdot,\alpha/20,5\alpha)$; comportamento su
+  quadratiche e su $J$ generali. Commenti SLIDE rinumerati (20→22, 21→23,
+  …, 32→34). Ricompilato `presentazione/presentazione.pdf` (**34 pp** — era
+  32; 0 errori, 0 undefined, 0 overfull). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
 - **Ultimo intervento (05/09/2026, presentazione).** **Slide 14: aggiunta la
   spiegazione del perché $\Delta_{\mathcal{H}_k}$ non è calcolabile (come in
   tesi, Sez.~5.2, subito dopo la eq.~5.34).** Il punto finale ora spiega che
