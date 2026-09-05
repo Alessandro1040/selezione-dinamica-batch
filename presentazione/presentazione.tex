@@ -92,24 +92,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 2 — Struttura dell'esposizione
-% =====================================================================
-\begin{frame}{Struttura dell'esposizione}
-  \begin{itemize}
-    \item Contesto: il costo del gradiente su larga scala e il mini-batch
-    \item Stato dell'arte: SGD e metodi a varianza ridotta (SVRG, SAGA)
-    \item L'idea: batch grandi solo quando servono, con la Condizione di
-          Controllo della Varianza (CCV)
-    \item I quattro algoritmi a campionamento dinamico e i loro schemi
-    \item Risultati teorici di convergenza e complessità
-    \item Esperimenti numerici: app web, problemi sintetici, riuso del
-          mini-batch
-    \item Conclusioni e lavoro futuro
-  \end{itemize}
-\end{frame}
-
-% =====================================================================
-% SLIDE 3 — Contesto: ottimizzazione su larga scala
+% SLIDE 2 — Contesto: ottimizzazione su larga scala
 % =====================================================================
 \begin{frame}{Contesto: ottimizzazione su larga scala}
   \begin{itemize}
@@ -133,7 +116,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 4 — Stato dell'arte: SGD e il problema della varianza
+% SLIDE 3 — Stato dell'arte: SGD e il problema della varianza
 % =====================================================================
 \begin{frame}{Stato dell'arte: SGD e il problema della varianza}
   \begin{itemize}
@@ -156,7 +139,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 5 — Metodi a varianza ridotta: l'idea comune
+% SLIDE 4 — Metodi a varianza ridotta: l'idea comune
 % =====================================================================
 \begin{frame}{Metodi a varianza ridotta: l'idea comune}
   \begin{itemize}
@@ -185,7 +168,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 6 — Schema SVRG e perché ricampionare ogni m iterazioni
+% SLIDE 5 — Schema SVRG e perché ricampionare ogni m iterazioni
 % =====================================================================
 \begin{frame}{SVRG: l'ancora e il ricampionamento ogni $t$ iterazioni}
   \small
@@ -217,7 +200,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 7 — Schema SAGA
+% SLIDE 6 — Schema SAGA
 % =====================================================================
 \begin{frame}{SAGA: la tavola dei gradienti, nessun ricalcolo globale}
   \begin{columns}[T]
@@ -247,7 +230,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 8 — Limiti di SVRG/SAGA e conseguenze per la tesi
+% SLIDE 7 — Limiti di SVRG/SAGA e conseguenze per la tesi
 % =====================================================================
 \begin{frame}{Limiti di SVRG/SAGA e conseguenze per la tesi}
   \begin{itemize}
@@ -271,7 +254,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — Varianza del gradiente stimato: definizioni
+% SLIDE 8 — Varianza del gradiente stimato: definizioni
 % =====================================================================
 \begin{frame}{La varianza del gradiente stimato: definizioni}
   \small
@@ -303,7 +286,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 10 — Campionamento dinamico e CCV
+% SLIDE 9 — Campionamento dinamico e CCV
 % =====================================================================
 \begin{frame}{Campionamento dinamico: la Condizione di Controllo della Varianza}
   \begin{itemize}
@@ -332,7 +315,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 11 — La CCV garantisce una direzione di discesa
+% SLIDE 10 — La CCV garantisce una direzione di discesa
 % =====================================================================
 \begin{frame}{La CCV garantisce una direzione di discesa}
   \begin{itemize}
@@ -362,7 +345,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 12 — I quattro algoritmi
+% SLIDE 11 — I quattro algoritmi
 % =====================================================================
 \begin{frame}{I quattro algoritmi a campionamento dinamico}
   \begin{itemize}
@@ -384,7 +367,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 12 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
@@ -396,7 +379,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Newton-CG: struttura del metodo (due campioni)
+% SLIDE 13 — Newton-CG: struttura del metodo (due campioni)
 % =====================================================================
 \begin{frame}{Newton-CG: struttura del metodo (eq.~5.31--5.32)}
   \small
@@ -426,7 +409,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 14 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG}
   \small
@@ -466,7 +449,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
+% SLIDE 15 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.34--5.37)}
   \small
@@ -517,7 +500,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 16 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -528,7 +511,7 @@
   \end{center}
 \end{frame}
 
-% SLIDE 18 — Newton-CG L1: cos'è z_k e perché la line search proiettata
+% SLIDE 17 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
   \small
@@ -561,7 +544,7 @@
 
 
 % =====================================================================
-% SLIDE 19 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 18 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -573,7 +556,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 19 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -585,7 +568,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Risultati teorici
+% SLIDE 20 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -608,7 +591,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — App web interattiva
+% SLIDE 21 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -627,7 +610,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 23 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 22 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -660,7 +643,7 @@
 
 
 % =====================================================================
-% SLIDE 24 — Setup e risultati numerici
+% SLIDE 23 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -690,7 +673,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 24 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -717,7 +700,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 — Conclusioni
+% SLIDE 25 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -737,7 +720,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 — Limiti e lavoro futuro
+% SLIDE 26 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}

@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Rimossa la slide
+  ``Struttura dell'esposizione'' dalla presentazione** (era la SLIDE 2: elenco
+  dei punti dell'esposizione, ridondante rispetto ai titoli delle slide). In
+  `presentazione/presentazione.tex` eliminati il frame e il blocco di commento
+  SLIDE 2; commenti SLIDE rinumerati (3→2, 4→3, …, 27→26). Ricompilato
+  `presentazione/presentazione.pdf` (**26 pp** — era 27; 0 errori, 0
+  undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
+
 - **Ultimo intervento (05/09/2026, ringraziamenti).** Rimossi dai
   ringraziamenti visibili di `tesi.tex` e spostati in commento (con data di
   rimozione): Jelly Roll e Skrizzly Adams (ultimo nome visibile della lista:
