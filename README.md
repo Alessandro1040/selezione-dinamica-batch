@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Aggiunta una slide di
+  ``motivazione'' prima di ``Newton-CG: criterio di arresto adattivo del CG''**
+  (nuova SLIDE 14: ``Newton-CG: non serve un residuo più piccolo dell'errore
+  di Hessiana''). Contenuto preso dalla tesi (Sez.~5.2, eq.~5.33--5.35 e
+  discussione del criterio di terminazione del CG): l'Hessiana è approssimata
+  (campione piccolo $\mathcal{H}_k$), il residuo del sistema sul campione
+  grande si scompone in residuo del CG + errore di Hessiana
+  $\Delta_{\mathcal{H}_k}$, che è costante e non eliminabile; quindi non serve
+  ridurre $r_k$ a zero ma basta fermarsi quando $r_k$ è dello stesso ordine
+  (confrontabile) di $\Delta_{\mathcal{H}_k}$ — oltre, il tempo speso è
+  sprecato; da qui l'arresto adattivo, con $\Delta_{\mathcal{H}_k}$ stimato
+  dalla varianza campionaria su $\mathcal{H}_k$. Commenti SLIDE rinumerati
+  (14→15, …, 26→27). Ricompilato `presentazione/presentazione.pdf`
+  (**27 pp** — era 26; 0 errori, 0 undefined, 0 overfull). Nessun altro file
+  toccato: la presentazione vive solo in repo, la copia Desktop/tesi non è
+  coinvolta.
+
+
+
 - **Ultimo intervento (05/09/2026, presentazione).** **Rimossa la slide
   ``Struttura dell'esposizione'' dalla presentazione** (era la SLIDE 2: elenco
   dei punti dell'esposizione, ridondante rispetto ai titoli delle slide). In

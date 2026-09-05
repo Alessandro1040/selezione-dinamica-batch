@@ -409,7 +409,45 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 14 — Newton-CG: non serve un residuo più piccolo dell'errore
+%            di Hessiana
+% =====================================================================
+\begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
+  \small
+  \setlength{\abovedisplayskip}{3pt}
+  \setlength{\belowdisplayskip}{3pt}
+  \setlength{\abovedisplayshortskip}{3pt}
+  \setlength{\belowdisplayshortskip}{3pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item L'Hessiana è calcolata sul campione piccolo $\mathcal{H}_k$ e quindi
+      è \textbf{approssimata}: non ha senso risolvere il sistema di Newton
+      con precisione assoluta. Il residuo del sistema che userebbe il campione
+      grande $\mathcal{S}_k$ per gradiente ed Hessiana si scompone in
+      \[
+        \nabla^2J_{\mathcal{S}_k}(w_k)d+\nabla J_{\mathcal{S}_k}(w_k)
+        =\underbrace{r_k}_{\text{residuo del CG}}
+        +\underbrace{\Delta_{\mathcal{H}_k}(w_k;d)}_{\text{errore di Hessiana}},
+      \]
+      dove
+      $\Delta_{\mathcal{H}_k}(w_k;d)=\bigl[\nabla^2J_{\mathcal{S}_k}(w_k)
+      -\nabla^2J_{\mathcal{H}_k}(w_k)\bigr]d$ è \textbf{costante durante il
+      CG} e \textbf{non eliminabile} (il campione $\mathcal{H}_k$ è fissato).
+    \item Se l'errore di Hessiana non si può eliminare, \emph{non serve}
+      ridurre $r_k$ fino a zero: \textbf{basta fermarsi quando $r_k$ è dello
+      stesso ordine (confrontabile) di $\Delta_{\mathcal{H}_k}$}. Oltre quel
+      punto le iterazioni del CG sono \emph{tempo sprecato}: ridurrebbero un
+      errore già dominato dal rumore del campionamento.
+    \item \textbf{Perché un arresto adattivo:} l'obiettivo è \emph{bilanciare}
+      i due termini della decomposizione. Poiché $\Delta_{\mathcal{H}_k}$ non è
+      calcolabile direttamente (servirebbero i prodotti Hessiana--vettore su
+      $\mathcal{S}_k$), lo si \textbf{stima con la varianza campionaria} su
+      $\mathcal{H}_k$: da qui nasce la soglia del test di arresto.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.33--5.35 e discussione del criterio}
+\end{frame}
+
+% =====================================================================
+% SLIDE 15 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG}
   \small
@@ -449,7 +487,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Newton-CG: come si stima l'errore di Hessiana
+% SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.34--5.37)}
   \small
@@ -500,7 +538,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 17 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -511,7 +549,7 @@
   \end{center}
 \end{frame}
 
-% SLIDE 17 — Newton-CG L1: cos'è z_k e perché la line search proiettata
+% SLIDE 18 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
   \small
@@ -544,7 +582,7 @@
 
 
 % =====================================================================
-% SLIDE 18 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 19 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -556,7 +594,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 20 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -568,7 +606,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Risultati teorici
+% SLIDE 21 — Risultati teorici
 % =====================================================================
 \begin{frame}{Risultati teorici: convergenza e complessità}
   \begin{itemize}
@@ -591,7 +629,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — App web interattiva
+% SLIDE 22 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -610,7 +648,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 22 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 23 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -643,7 +681,7 @@
 
 
 % =====================================================================
-% SLIDE 23 — Setup e risultati numerici
+% SLIDE 24 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -673,7 +711,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 25 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -700,7 +738,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Conclusioni
+% SLIDE 26 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -720,7 +758,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 — Limiti e lavoro futuro
+% SLIDE 27 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
