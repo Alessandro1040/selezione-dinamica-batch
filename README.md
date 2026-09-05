@@ -157,6 +157,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, ringraziamenti).** Rimossi dai
+  ringraziamenti visibili di `tesi.tex` e spostati in commento (con data di
+  rimozione): Jelly Roll e Skrizzly Adams (ultimo nome visibile della lista:
+  "50 Cent"). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**135 pp**; 0
+  errori, 0 undefined); sincronizzati in repo (md5 verificati). Nessun'altra
+  modifica.
+
+
 - **Ultimo intervento (05/09/2026, ringraziamenti).** Riformulata la frase
   introduttiva dei ringraziamenti: "la mia famiglia e i miei nonni" →
   "i miei genitori e i nonni per il supporto". Ricompilati `tesi.pdf` e
