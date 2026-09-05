@@ -157,6 +157,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Blocco Newton-CG reso
+  fluido: riordinate le slide 14–16 eliminando le ripetizioni.** Ora la
+  sequenza è: (14) ``Newton-CG: non serve un residuo più piccolo dell'errore
+  di Hessiana'' — motivazione (eq.~5.34: il residuo sul campione grande è
+  residuo del CG + errore di Hessiana $\Delta_{\mathcal{H}_k}$, costante e non
+  eliminabile; basta fermarsi quando $r_k$ è confrontabile con
+  $\Delta_{\mathcal{H}_k}$); (15) ``Newton-CG: come si stima l'errore di
+  Hessiana (eq.~5.35--5.38)'' — stima di $\mathbb{E}\|\Delta_{\mathcal{H}_k}\|^2$
+  con la varianza campionaria dei prodotti Hessiana--vettore su
+  $\mathcal{H}_k$, omogeneità di grado 2 → $\gamma$ calcolata una volta su
+  $p_0$ e soglia $\Psi(d)=\gamma\|d\|^2$; (16) ``Newton-CG: criterio di arresto
+  adattivo del CG (eq.~5.39)'' — test $\|r_{j+1}\|^2\le\Psi(d_j)$, criterio
+  automatico e perché adattivo (niente calcoli inutili, $\Psi\propto\|r_0\|^2$
+  segue la distanza dal minimo, $\Psi$ cresce con $\|d_j\|^2$ previene
+  instabilità). Rimosse le duplicazioni: la decomposizione eq.~5.34 appariva
+  su due slide, la formula di stima su tre, $r_k$/$\gamma$/$\Psi$ erano
+  ripetuti tra le slide 15 e 16 (prima anche in ordine invertito).
+  Ricompilato `presentazione/presentazione.pdf` (**27 pp** — invariate; 0
+  errori, 0 undefined, 0 overfull). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
 - **Ultimo intervento (05/09/2026, presentazione).** **Aggiunta una slide di
   ``motivazione'' prima di ``Newton-CG: criterio di arresto adattivo del CG''**
   (nuova SLIDE 14: ``Newton-CG: non serve un residuo più piccolo dell'errore
