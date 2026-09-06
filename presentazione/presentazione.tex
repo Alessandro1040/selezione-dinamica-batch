@@ -416,7 +416,7 @@
 % SLIDE 13 — Il passo $\alpha_k$: condizioni di Armijo e Wolfe (App.~A)
 % =====================================================================
 \begin{frame}{Il passo $\alpha_k$: condizioni di Armijo e Wolfe}
-  \footnotesize
+  \small
   \setlength{\abovedisplayskip}{2pt}
   \setlength{\belowdisplayskip}{2pt}
   \setlength{\abovedisplayshortskip}{2pt}
@@ -424,10 +424,8 @@
   \begin{itemize}\setlength{\itemsep}{1pt}
     \item Il passo $\alpha_k$ è scelto da una \emph{line search} lungo la
       direzione di discesa $p$ ($\nabla f(x_k)^Tp<0$): $\alpha$ deve ridurre
-      $f$ in modo ``sufficiente'', senza essere troppo piccolo. Condizioni
-      usate dagli algoritmi (Appendice~A, ``Spiegazione delle condizioni sul
-      passo $\alpha_k$'').
-    \item \textbf{Armijo} --- limite \emph{superiore} su $f$ lungo $p$: il passo
+      $f$ in modo ``sufficiente'', senza essere troppo piccolo.
+    \item \textbf{Armijo}: limite \emph{superiore} su $f$ lungo $p$: il passo
       è accettato se $f(x_k+\alpha p)$ sta sotto la retta
       $f(x_k)+c_1\alpha\,\nabla f(x_k)^Tp$:
       \[
@@ -437,8 +435,8 @@
       la retta ha pendenza $c_1\nabla f(x_k)^Tp$, meno ripida della tangente in
       $\alpha=0$: i passi che la superano vengono rifiutati e ridotti
       (impedisce i passi \emph{troppo grandi}).
-    \item \textbf{Wolfe} --- condizione di \emph{curvatura}, limite
-      \emph{inferiore} sulla derivata lungo la direzione. Con
+    \item \textbf{Wolfe}: condizione di \emph{curvatura} (limite
+      \emph{inferiore} sulla derivata lungo la direzione). Con
       $g(\alpha)=f(x_k+\alpha p)$ e $g'(\alpha)=\nabla f(x_k+\alpha p)^Tp$:
       \[
         g'(\alpha)\;\ge\;c_2\,g'(0),

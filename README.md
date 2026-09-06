@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione, follow-up).** **Slide 13
+  (Armijo e Wolfe): ritocco di stile e allineamento al resto del mazzo.** Nel
+  primo bullet rimossa la frase parentetica ``Condizioni usate dagli algoritmi
+  (Appendice~A, ...)'' (il rinvio resta nella fonte); le etichette dei bullet
+  riscritte senza trattino, nello stile delle altre slide (``\textbf{Armijo}:``
+  e ``\textbf{Wolfe}:`` al posto di ``Armijo --- ...''); corpo della slide
+  passato da `\footnotesize` a `\small` come le slide di contenuto vicine.
+  Ricompilato `presentazione/presentazione.pdf` (**39 pp** — invariate; 0
+  errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (06/09/2026, presentazione).** **Aggiunta la Slide 13
 - **Ultimo intervento (06/09/2026, presentazione).** **Aggiunta la Slide 13
   ``Il passo $\alpha_k$: condizioni di Armijo e Wolfe''** subito dopo ``I
   quattro algoritmi'' (richiesta in sessione): per entrambe le condizioni si
