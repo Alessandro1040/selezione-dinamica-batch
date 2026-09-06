@@ -157,6 +157,87 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 17: rimosso il
+  termine ``una tantum''.** Nel commento SLIDE 17, nel titolo della slide e
+  nel bullet, ``calcolo una tantum'' è sostituito da ``un solo calcolo'';
+  il corpo della slide ora dice esplicitamente che la varianza ``si calcola
+  una sola volta'', sulla prima direzione $p_0=-g_k$. Contenuto invariato.
+  Ricompilato `presentazione/presentazione.pdf` (**38 pp** — invariate; 0
+  errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
+- **Ultimo intervento (06/09/2026, presentazione).** **Aggiunte due slide
+  introduttive con pseudocodice prima dei risultati del riuso con validation e
+  con discesa.** Nuova **Slide 32 ``Stop adattivo con validation set: come
+  funziona''**: perché serve uno stop automatico ($M$ ottimo ignoto,
+  $M{=}\infty$ collassa i metodi di Newton), frazione $p$ di validation e
+  mini-batch dal solo training (CCV con tetto $|\mathcal{T}|$), e pseudocodice
+  (valutazione di $J_{\mathrm{val}}$ ogni $f$ iterazioni; progresso se
+  $J_{\mathrm{val}}\le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)-\epsilon_{\mathrm{abs}}$;
+  ricampiona dopo $P$ valutazioni senza progresso; risplit se dinamica).
+  Nuova **Slide 34 ``Riuso per discesa della loss sul batch: come
+  funziona''**: stesso obiettivo *senza* riservare dati (CCV con tetto $N$), e
+  pseudocodice (confronto di $J_{\mathrm{batch}}$ tra iterati sullo stesso
+  batch; progresso se
+  $J_{\mathrm{batch}}(w_{k-1})-J_{\mathrm{batch}}(w_k)\ge
+  \tau|J_{\mathrm{batch}}(w_{k-1})|+\epsilon_{\mathrm{abs}}$; batch
+  ``esaurito''; $\tau$ più alta = ricampiona prima; per Newton-CG~$L_1$ si
+  monitora $F=J+\nu\|w\|_1$). I risultati slittano a Slide 33 (validation) e
+  35 (discesa); commenti SLIDE 32--36 rinumerati 33--38. Ricompilato
+  `presentazione/presentazione.pdf` (**38 pp** — erano 36; 0 errori, 0
+  overfull, 0 undefined). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
+- **Ultimo intervento (06/09/2026, tesi).** **Sez. 5.1.4: il titolo
+  ``Pseudocodice (Algoritmo)'' non è più orfano.** Aggiunto `\newpage` prima di
+  `\subsubsection{Pseudocodice (Algoritmo)}` in `tesi/tesi.tex`: titolo e box
+  ``Algoritmo'' (Dynamic GD) ora stanno insieme in cima alla stessa pagina
+  (pag. 19 stampata / 20 nel viewer di `tesi_finale.pdf`); prima il titolo
+  cadeva da solo in fondo alla pagina precedente. Paginazione successiva
+  invariata (Fig. 5.3 a pag. 18 stampata, Sez. 5.1.5 sempre a pag. 20
+  stampata). Ricompilati `tesi/tesi.pdf` e `tesi/tesi_finale.pdf`
+  (**101 pp** — invariate; 0 errori, 0 overfull, 0 undefined) e sincronizzati
+  in repo (md5 verificati). Nessun altro file toccato.
+
+
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 17: rimossa la
+  premessa ``La mappa $d\mapsto\nabla^2\ell(w_k;i)d$ è lineare in $d$''** (il
+  passaggio linearità $\Rightarrow$ forma quadratica non era immediato). Il
+  bullet ora afferma direttamente che, su un campione fissato, la varianza dei
+  prodotti Hessiana--vettore è una *forma quadratica* in $d$
+  ($\mathrm{Var}(\nabla^2\ell\,d)=d^T\Sigma_{\mathcal{H}_k}d$) e ne fa seguire
+  l'omogeneità di grado 2; contenuto delle eq.~5.36--5.38 invariato.
+  Ricompilato `presentazione/presentazione.pdf` (**36 pp** invariate; 0 errori,
+  0 overfull, 0 undefined). La stessa frase resta nella tesi (Sez.~5.2.2), in
+  attesa di conferma se toglierla anche lì. Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
+- **Ultimo intervento (06/09/2026, presentazione).** **Aggiunte le spiegazioni
+  su ``riuso'' e ``calib.'' richieste in sessione.** (1) Nuova **Slide 29
+  ``Cosa significa riusare il batch''**: riusare = tenere fissa *solo la
+  lista di indici* $\mathcal{S}_k$, con gradiente *ricalcolato al punto
+  corrente* $w_k$ (mai gradienti vecchi); perché sui ben condizionati la
+  traiettoria sembra ``dritta'' ($w^*_{\mathcal{S}}$ vicino a $w^*$); sui mal
+  condizionati il batch fisso ``tira'' verso $w^*_{\mathcal{S}}$ (bias
+  sistematico, Sez.~6.5.2) che la CCV non vede; primo ordine ($d_k=-g_k$,
+  angolo $180^\circ$: solo deriva lenta) vs secondo ordine (curvatura che
+  ``invecchia'', $d_k$ fino a $\approx90^\circ$ dalla vera discesa, line search
+  che taglia il passo $\Rightarrow$ serve lo stop adattivo). (2) Slide 32
+  (validation set): il bullet ``Calibrato'' ora cita esplicitamente la
+  *ricerca a griglia* (Sez.~6.5.8) e la fonte definisce i default
+  ($P{=}3$, $p{=}20\%$, split fisso). (3) Slide 33 (discesa): la fonte definisce
+  i default ($\tau{=}10^{-4}$, $P{=}1$, $f{=}1$). (4) Slide 34 (confronto
+  finale): la fonte spiega che ``*calib.*'' = parametri del criterio scelti
+  con una ricerca a griglia (Sez.~6.5.8), non i default (validation $P{=}1$,
+  $p{=}10\%$, split dinamico; discesa $\tau{=}10^{-3}$, $P{=}1$, $f{=}1$).
+  Commenti SLIDE 29--35 rinumerati 30--36. Ricompilato
+  `presentazione/presentazione.pdf` (**36 pp** — era 35; 0 errori, 0 overfull,
+  0 undefined). Nessun altro file toccato: la presentazione vive solo in repo,
+  la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Rimossa la spiegazione
   ``doppia divisione per $n_k$'' dalla Slide 9** (non necessaria: la
   decomposizione e le formule mostrano già il rapporto tra dispersione dei
