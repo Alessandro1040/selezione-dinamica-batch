@@ -413,7 +413,52 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 13 — Il passo $\alpha_k$: condizioni di Armijo e Wolfe (App.~A)
+% =====================================================================
+\begin{frame}{Il passo $\alpha_k$: condizioni di Armijo e Wolfe}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item Il passo $\alpha_k$ è scelto da una \emph{line search} lungo la
+      direzione di discesa $p$ ($\nabla f(x_k)^Tp<0$): $\alpha$ deve ridurre
+      $f$ in modo ``sufficiente'', senza essere troppo piccolo. Condizioni
+      usate dagli algoritmi (Appendice~A, ``Spiegazione delle condizioni sul
+      passo $\alpha_k$'').
+    \item \textbf{Armijo} --- limite \emph{superiore} su $f$ lungo $p$: il passo
+      è accettato se $f(x_k+\alpha p)$ sta sotto la retta
+      $f(x_k)+c_1\alpha\,\nabla f(x_k)^Tp$:
+      \[
+        f(x_k+\alpha p)\;\le\;f(x_k)+c_1\,\alpha\,\nabla f(x_k)^Tp,
+        \qquad c_1\in(0,1)\ \ (\text{tip. }10^{-4}),
+      \]
+      la retta ha pendenza $c_1\nabla f(x_k)^Tp$, meno ripida della tangente in
+      $\alpha=0$: i passi che la superano vengono rifiutati e ridotti
+      (impedisce i passi \emph{troppo grandi}).
+    \item \textbf{Wolfe} --- condizione di \emph{curvatura}, limite
+      \emph{inferiore} sulla derivata lungo la direzione. Con
+      $g(\alpha)=f(x_k+\alpha p)$ e $g'(\alpha)=\nabla f(x_k+\alpha p)^Tp$:
+      \[
+        g'(\alpha)\;\ge\;c_2\,g'(0),
+        \qquad c_2\in(c_1,1),
+        \qquad g'(0)=\nabla f(x_k)^Tp<0,
+      \]
+      poiché $c_2<1$, $c_2g'(0)$ è meno negativo di $g'(0)$: la condizione
+      scarta i passi \emph{troppo piccoli} (per $\alpha\to0^+$,
+      $g'(\alpha)\to g'(0)$, che viola la disuguaglianza).
+    \item $0<c_1<c_2<1$ rende le due condizioni \emph{compatibili} (intervallo
+      non vuoto di $\alpha$ accettabili); se $c_1\ge c_2$ le condizioni
+      possono diventare contraddittorie.
+  \end{itemize}
+  \fonte{Dalla tesi --- Appendice~A; nei codici (Appendice~B): Wolfe con
+    $c_1{=}10^{-4}$, $c_2{=}0.9$ per Dynamic GD e Newton-CG; Armijo con
+    backtracking per BB-CCV; Armijo proiettata per Newton-CG~$L_1$}
+\end{frame}
+
+% =====================================================================
+% SLIDE 14 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
@@ -425,7 +470,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Newton-CG: struttura del metodo (due campioni)
+% SLIDE 15 — Newton-CG: struttura del metodo (due campioni)
 % =====================================================================
 \begin{frame}{Newton-CG: struttura del metodo (eq.~5.31--5.32)}
   \small
@@ -459,7 +504,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Newton-CG: non serve un residuo più piccolo dell'errore
+% SLIDE 16 — Newton-CG: non serve un residuo più piccolo dell'errore
 %            di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
@@ -504,7 +549,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
+% SLIDE 17 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.35)}
   \small
@@ -537,7 +582,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Omogeneità di grado 2 e un solo calcolo
+% SLIDE 18 — Omogeneità di grado 2 e un solo calcolo
 % =====================================================================
 \begin{frame}{Newton-CG: omogeneità di grado 2 e un solo calcolo (eq.~5.36--5.38)}
   \footnotesize
@@ -582,7 +627,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 18 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 19 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG (eq.~5.39)}
   \small
@@ -616,7 +661,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 19 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 20 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -627,7 +672,7 @@
   \end{center}
 \end{frame}
 
-% SLIDE 20 — Newton-CG L1: cos'è z_k e perché la line search proiettata
+% SLIDE 21 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
   \small
@@ -660,7 +705,7 @@
 
 
 % =====================================================================
-% SLIDE 21 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 22 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -672,7 +717,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
+% SLIDE 23 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (1/2) --- relazione secante (eq.~5.52--5.54)}
   \small
@@ -702,7 +747,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
+% SLIDE 24 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (2/2) --- minimi quadrati e salvaguardia (eq.~5.55--5.56)}
   \small
@@ -737,7 +782,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 25 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -749,7 +794,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — App web interattiva
+% SLIDE 26 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -768,7 +813,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 26 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 27 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -801,7 +846,7 @@
 
 
 % =====================================================================
-% SLIDE 27 — Setup e risultati numerici
+% SLIDE 28 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -831,7 +876,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 29 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -858,7 +903,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 — Cosa significa riusare il batch
+% SLIDE 30 — Cosa significa riusare il batch
 % =====================================================================
 \begin{frame}{Cosa significa riusare il batch}
   \small
@@ -890,7 +935,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
+% SLIDE 31 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
@@ -941,7 +986,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
+% SLIDE 32 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
@@ -994,7 +1039,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 — Stop adattivo con validation set: come funziona
+% SLIDE 33 — Stop adattivo con validation set: come funziona
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set: come funziona}
   \small
@@ -1031,7 +1076,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 -- Stop adattivo con validation set (Tab.6.3)
+% SLIDE 34 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
@@ -1084,7 +1129,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 34 — Riuso per discesa della loss sul batch: come funziona
+% SLIDE 35 — Riuso per discesa della loss sul batch: come funziona
 % =====================================================================
 \begin{frame}{Riuso per discesa della loss sul batch: come funziona}
   \small
@@ -1122,7 +1167,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 35 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
+% SLIDE 36 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
@@ -1173,7 +1218,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
 \end{frame}
 
 % =====================================================================
-% SLIDE 36 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
+% SLIDE 37 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
@@ -1206,7 +1251,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 37 — Conclusioni
+% SLIDE 38 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1224,7 +1269,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 38 — Limiti e lavoro futuro
+% SLIDE 39 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}

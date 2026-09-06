@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Aggiunta la Slide 13
+  ``Il passo $\alpha_k$: condizioni di Armijo e Wolfe''** subito dopo ``I
+  quattro algoritmi'' (richiesta in sessione): per entrambe le condizioni si
+  dà la formula e la spiegazione fedele all'Appendice~A della tesi
+  (``Spiegazione delle condizioni sul passo $\alpha_k$'') — Armijo, limite
+  *superiore* su $f$ ($f(x_k+\alpha p)\le f(x_k)+c_1\alpha\nabla f(x_k)^Tp$,
+  $c_1\in(0,1)$, tip. $10^{-4}$; impedisce i passi troppo grandi), e
+  curvatura di Wolfe, limite *inferiore* sulla derivata direzionale
+  ($g'(\alpha)\ge c_2g'(0)$, $g(\alpha)=f(x_k+\alpha p)$,
+  $g'(0)=\nabla f(x_k)^Tp<0$, $c_2\in(c_1,1)$; scarta i passi troppo piccoli),
+  con la nota di compatibilità $0<c_1<c_2<1$ (se $c_1\ge c_2$ le condizioni
+  possono diventare contraddittorie). In fonte, l'uso nei codici
+  (Appendice~B): Wolfe con $c_1{=}10^{-4}$, $c_2{=}0.9$ per Dynamic GD e
+  Newton-CG; Armijo con backtracking per BB-CCV; Armijo proiettata per
+  Newton-CG~$L_1$. Commenti SLIDE 13--38 rinumerati 14--39. Ricompilato
+  `presentazione/presentazione.pdf` (**39 pp** — erano 38; 0 errori, 0
+  overfull, 0 undefined). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (06/09/2026, presentazione).** **Font più professionali
 - **Ultimo intervento (06/09/2026, presentazione).** **Font più professionali
   (Times/NewTX).** Aggiunti `newtxtext` e `newtxmath` e impostato
   `\familydefault` su Roman: corpo del testo, titoli di frame e slide in serif
