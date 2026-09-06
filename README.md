@@ -157,6 +157,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Font più professionali
+  (Times/NewTX).** Aggiunti `newtxtext` e `newtxmath` e impostato
+  `\familydefault` su Roman: corpo del testo, titoli di frame e slide in serif
+  TeX~Gyre~Termes (Times), matematica in NewTX (Times math); struttura e titoli
+  in serif via `\usefonttheme{professionalfonts}` e `\setbeamerfont`.
+  Verificato con l'estrazione font del PDF: testo/titoli in
+  TeXGyreTermesX-Regular/Bold/Italic + NewTXMI per la matematica. Ricompilato
+  `presentazione/presentazione.pdf` (**38 pp** — invariate; 0 errori, 0
+  overfull, 0 undefined; nessuna sovrapposizione con la fonte, ricontrollata
+  sulle pagine 14/15/17/26). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Rimossi i punti
   puramente teorici dalle slide finali (focus implementativo, come richiesto
   dal relatore).** Slide 37 (Conclusioni): eliminate le voci ``Analisi

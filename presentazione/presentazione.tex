@@ -22,6 +22,11 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{colortbl}
+
+% ---- font professionali (Times, stile tesi) ----
+\usepackage{newtxtext}
+\usepackage{newtxmath}
+\renewcommand{\familydefault}{\rmdefault}
 \graphicspath{{immagini/}}
 
 % ---- colori (tema scuro, sfondo nero) ----
@@ -43,6 +48,12 @@
 
 % ogni formula (inline e display) in bianco
 \AtBeginDocument{\everymath{\color{testo}}}
+
+% struttura e titoli in serif (Times)
+\usefonttheme{professionalfonts}
+\setbeamerfont{title}{family=\rmfamily,series=\bfseries}
+\setbeamerfont{frametitle}{family=\rmfamily,series=\bfseries}
+\setbeamerfont{subtitle}{family=\rmfamily}
 
 % marcatori di lista
 \setbeamertemplate{itemize item}{\textbullet}
