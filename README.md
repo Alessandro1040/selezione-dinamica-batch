@@ -185,6 +185,17 @@ Da tenere presente nelle sessioni di lavoro successive:
   Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**101 pp**, 0 errori, 0
   undefined); sincronizzati in repo (md5 verificati). Presentazione non
   toccata.
+- **Intervento (06/09/2026, revisione linguistica).** Scansione sistematica di
+  tesi e presentazione per doppioni, calchi/anglicismi e parole anomale
+  (confronto con dizionario italiano + lista di frequenze, parole inglesi
+  residue fuori dai termini tecnici, pattern ``X di X''): nessun altro refuso
+  del tipo ``Rosenbrock di Rosenbrock''. Gli unici termini inglesi in prosa
+  sono tecnici e attesi (loss, seed, batch, bound, step, line search, outlier,
+  fallback, preset, build WASM). Ritoccata la frase introduttiva della
+  Sez.~6.3: le versioni \emph{base} non ``ricompaiono con i valori
+  completi'', ma sono riprese nell'esperimento di riuso, che ne riporta
+  l'errore finale $e_{30}$ per tutti i problemi. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**101 pp**). Presentazione invariata.
 - **Ultimo intervento (05/09/2026, presentazione).** **Riformulati i bullet
   ``Aiuta/Peggiora'' della slide ``Riuso del mini-batch: sintesi dei risultati
   (Tab.~6.25)'' e rimossa la slide ``Risultati teorici''.** I due bullet ora
