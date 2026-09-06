@@ -157,6 +157,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Rimosso il titolo dal
+  piè di pagina.** La footline ora contiene solo il numero di pagina a destra:
+  eliminata la scritta ``Selezione Dinamica della Dimensione del Campione'' in
+  basso a sinistra di ogni slide (resta solo come titolo della prima slide).
+  Ricompilato `presentazione/presentazione.pdf` (**38 pp** — invariate; 0
+  errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 17: rimosso il
   termine ``una tantum''.** Nel commento SLIDE 17, nel titolo della slide e
   nel bullet, ``calcolo una tantum'' è sostituito da ``un solo calcolo'';

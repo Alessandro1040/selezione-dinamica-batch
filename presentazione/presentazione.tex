@@ -51,13 +51,10 @@
 % niente simboli di navigazione
 \setbeamertemplate{navigation symbols}{}
 
-% piè di pagina: titolo breve a sinistra, numero a destra
+% piè di pagina: solo numero di pagina a destra
 \setbeamertemplate{footline}{%
   \leavevmode\hbox{%
-    \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.6ex,dp=1.2ex,left]{footline}%
-      \hspace*{1.6ex}\small Selezione Dinamica della Dimensione del Campione
-    \end{beamercolorbox}%
-    \begin{beamercolorbox}[wd=.5\paperwidth,ht=2.6ex,dp=1.2ex,right]{footline}%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=2.6ex,dp=1.2ex,right]{footline}%
       \small\insertframenumber/\inserttotalframenumber\hspace*{1.6ex}%
     \end{beamercolorbox}}%
   \vskip0pt}
