@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 16-17-18: dettagli
+  della Sez.~5.2.2 (pp.~35-36) resi fedeli in presentazione.** La Slide 16 resta
+  con la sola stima dell'errore di Hessiana (eq.~5.35: varianza campionaria dei
+  prodotti Hessiana--vettore su $\mathcal{H}_k$); nuova **Slide 17**
+  ``Omogeneità di grado 2 e calcolo una tantum (eq.~5.36--5.38)'': la mappa
+  $d\mapsto\nabla^2\ell(w_k;i)d$ è lineare in $d$, quindi la sua varianza è una
+  forma quadratica $d^T\Sigma_{\mathcal{H}_k}d$ (covarianza campionaria sdp) e
+  gode dell'omogeneità di grado 2; si definisce
+  $\alpha=\|\mathrm{Var}(\nabla^2\ell\,p_0)\|_1/\|p_0\|_2^2$ calcolato una sola
+  volta su $p_0=-g_k$ (eq.~5.36) e si stima ogni direzione con
+  $\|\mathrm{Var}(\nabla^2\ell\,d_j)\|_1\approx\alpha\|d_j\|_2^2$ (eq.~5.37),
+  esplicitando che è un'approssimazione ($\alpha$ media pesata degli autovalori,
+  lecita se la forma quadratica è ben condizionata); soglia
+  $\gamma=\alpha/|\mathcal{H}_k|$, $\Psi(d)=\gamma\|d\|_2^2$ (eq.~5.38). Criterio
+  di arresto del CG slitta da 17 a 18. Commenti SLIDE 17--34 rinumerati 18--35.
+  Ricompilato `presentazione/presentazione.pdf` (**35 pp** — era 34; 0 errori, 0
+  overfull, 0 undefined). Nessun altro file toccato: la presentazione vive solo
+  in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (06/09/2026, tesi bibliografia).** **Aggiunta in
   bibliografia la voce dell'articolo originale del passo di
   Barzilai--Borwein:** J.~Barzilai e J.~M. Borwein, ``Two-point step size

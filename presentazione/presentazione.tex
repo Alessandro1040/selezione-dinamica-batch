@@ -502,7 +502,7 @@
 % =====================================================================
 % SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
-\begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.35--5.38)}
+\begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.35)}
   \small
   \setlength{\abovedisplayskip}{3pt}
   \setlength{\belowdisplayskip}{3pt}
@@ -524,26 +524,61 @@
       Come per il gradiente: è la varianza della \emph{media} su
       $\mathcal{H}_k$ (la dispersione dei singoli prodotti divisa per
       $|\mathcal{H}_k|$).
-    \item La varianza è \textbf{omogenea di grado 2} in $d$
-      $\bigl(\mathrm{Var}(\nabla^2\ell(w_k;i)\,\lambda d)
-      =\lambda^2\,\mathrm{Var}(\nabla^2\ell(w_k;i)\,d)\bigr)$: basta
-      calcolarla \textbf{una sola volta}, sulla prima direzione del CG
-      $p_0=-g_k$,
-      \[
-        \gamma=\frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}
-          \bigl(\nabla^2\ell(w_k;i)\,p_0\bigr)\bigr\|_1}
-          {|\mathcal{H}_k|\,\|p_0\|_2^2},\qquad
-        \Psi(d)=\gamma\,\|d\|_2^2,
-      \]
-      così per ogni direzione $d_j$ la soglia
-      $\Psi(d_j)\approx\mathbb{E}\|\Delta_{\mathcal{H}_k}(w_k;d_j)\|_2^2$
-      \textbf{cresce con $\|d_j\|^2$}.
+    \item La stima vale per una direzione generica $d$: nel CG andrebbe
+      rivalutata a ogni iterazione interna $j$, sulla direzione corrente
+      $d_j$. Ricalcolare la varianza campionaria a ogni passo è però
+      costoso: la prossima slide mostra come si evita.
   \end{itemize}
-  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.35--5.38}
+  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.35}
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 17 — Omogeneità di grado 2 e calcolo una tantum
+% =====================================================================
+\begin{frame}{Newton-CG: omogeneità di grado 2 e calcolo \emph{una tantum} (eq.~5.36--5.38)}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{1pt}
+    \item La mappa $d\mapsto\nabla^2\ell(w_k;i)\,d$ è \textbf{lineare} in $d$:
+      su un campione fissato la sua varianza è una \textbf{forma quadratica}
+      in $d$, $\mathrm{Var}\bigl(\nabla^2\ell(w_k;i)d\bigr)
+      =d^T\Sigma_{\mathcal{H}_k}d$ ($\Sigma_{\mathcal{H}_k}$ covarianza
+      campionaria sdp; la relazione vale componente per componente). Vale
+      quindi l'\textbf{omogeneità di grado 2}
+      \[
+        \mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)(\lambda d)\bigr)
+        =\lambda^2\,\mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)d\bigr).
+      \]
+    \item \textbf{Calcolo una tantum.} Per non ricalcolare la varianza a ogni
+      iterazione del CG (costo elevato), la si calcola \textbf{una sola
+      volta} sulla prima direzione $p_0=-g_k$,
+      \[
+        \alpha:=\frac{\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2
+        \ell(w_k;i)\,p_0\bigr)\bigr\|_1}{\|p_0\|_2^2}
+        =\frac{\bigl\|p_0^T\Sigma_{\mathcal{H}_k}p_0\bigr\|_1}{\|p_0\|_2^2},
+      \]
+      e per ogni $d_j$ si usa
+      $\bigl\|\mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)d_j\bigr)
+      \bigr\|_1\approx\alpha\,\|d_j\|_2^2$.
+    \item \textbf{Approssimazione.} La varianza effettiva di $d_j$ è
+      $\|d_j^T\Sigma_{\mathcal{H}_k}d_j\|_1$, non $\alpha\|d_j\|^2$: $\alpha$
+      è la media pesata degli autovalori di $\Sigma_{\mathcal{H}_k}$
+      ($\lambda_{\min}\le\alpha\le\lambda_{\max}$) e usarla su tutte le
+      direzioni è lecito se la forma quadratica è sufficientemente
+      \emph{ben condizionata} (dipendenza angolare trascurabile).
+    \item Dalla (5.35), la soglia per il test di arresto del CG è
+      $\gamma:=\alpha/|\mathcal{H}_k|$ e $\Psi(d):=\gamma\|d\|_2^2$: per ogni
+      $d_j$, $\Psi(d_j)\approx\mathbb{E}\|\Delta_{\mathcal{H}_k}(w_k;d_j)\|_2^2$
+      \textbf{cresce con $\|d_j\|^2$} (prossima slide: criterio di arresto).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.2, eq.~5.36--5.38}
+\end{frame}
+
+% =====================================================================
+% SLIDE 18 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG (eq.~5.39)}
   \small
@@ -577,7 +612,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 18 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 19 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -588,7 +623,7 @@
   \end{center}
 \end{frame}
 
-% SLIDE 19 — Newton-CG L1: cos'è z_k e perché la line search proiettata
+% SLIDE 20 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
   \small
@@ -621,7 +656,7 @@
 
 
 % =====================================================================
-% SLIDE 20 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 21 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -633,7 +668,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
+% SLIDE 22 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (1/2) --- relazione secante (eq.~5.52--5.54)}
   \small
@@ -663,7 +698,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
+% SLIDE 23 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (2/2) --- minimi quadrati e salvaguardia (eq.~5.55--5.56)}
   \small
@@ -698,7 +733,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 24 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -710,7 +745,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — App web interattiva
+% SLIDE 25 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -729,7 +764,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 25 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 26 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -762,7 +797,7 @@
 
 
 % =====================================================================
-% SLIDE 26 — Setup e risultati numerici
+% SLIDE 27 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -792,7 +827,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 28 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -819,7 +854,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
+% SLIDE 29 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
@@ -870,7 +905,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
+% SLIDE 30 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
@@ -923,7 +958,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- Stop adattivo con validation set (Tab.6.3)
+% SLIDE 31 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
@@ -976,7 +1011,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
+% SLIDE 32 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
@@ -1027,7 +1062,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
+% SLIDE 33 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
@@ -1060,7 +1095,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 — Conclusioni
+% SLIDE 34 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1080,7 +1115,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 34 — Limiti e lavoro futuro
+% SLIDE 35 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
