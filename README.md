@@ -157,6 +157,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, tesi bibliografia).** **Aggiunta in
+  bibliografia la voce dell'articolo originale del passo di
+  Barzilai--Borwein:** J.~Barzilai e J.~M. Borwein, ``Two-point step size
+  gradient methods,'' \textit{IMA Journal of Numerical Analysis}, vol.~8,
+  no.~1, pp.~141--148, 1988 (`\bibitem{barzilai1988}`, [13]). Aggiunto il
+  corrispondente `\cite{barzilai1988}` alla prima presentazione formale del
+  metodo in Sez.~5.4.1 (``Il metodo di Barzilai--Borwein''). Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**101 pp** — invariate; 0 errori, 0
+  undefined). Sincronizzati in repo `tesi/tesi.tex`, `tesi/tesi.pdf` e
+  `tesi/tesi_finale.pdf` (md5 verificati). `bozza.tex` non toccata;
+  presentazione non toccata.
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 8--10: resa fedele
   alla tesi (Sez.~5.1) della ``doppia divisione'' e del fattore di correzione
   per popolazione finita.** La Slide 8 resta con le sole definizioni

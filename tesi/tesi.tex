@@ -2276,9 +2276,9 @@ cui si basa e riportiamo lo schema a blocchi corrispondente.
 \subsubsection{Il metodo di Barzilai--Borwein}\label{sec:bb}
 
 Il metodo BB-CCV sostituisce il passo fisso del Dynamic GD con un passo
-adattivo di Barzilai--Borwein, che stima la curvatura di $J$ lungo la
-direzione percorsa usando soltanto le quantità già disponibili, senza
-richiedere la Hessiana.
+adattivo di Barzilai--Borwein~\cite{barzilai1988}, che stima la curvatura di
+$J$ lungo la direzione percorsa usando soltanto le quantità già disponibili,
+senza richiedere la Hessiana.
 
 Consideriamo due iterazioni consecutive, $w_k$ e $w_{k+1} = w_k + \Delta w_k$.
 Lo sviluppo al primo ordine del gradiente $g(w) = \nabla J(w)$ attorno a $w_k$
@@ -5259,6 +5259,12 @@ J.~R. Shewchuk,
 ``An introduction to the conjugate gradient method without the agonizing
 pain,''
 Technical Report CMU-CS-94-125, Carnegie Mellon University, 1994.
+
+\bibitem{barzilai1988}
+J.~Barzilai and J.~M. Borwein,
+``Two-point step size gradient methods,''
+\textit{IMA Journal of Numerical Analysis}, vol.~8, no.~1, pp.~141--148,
+1988.
 
 \end{thebibliography}
 
