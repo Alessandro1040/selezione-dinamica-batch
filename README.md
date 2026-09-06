@@ -175,6 +175,16 @@ Da tenere presente nelle sessioni di lavoro successive:
   (6.25$\to$6.1, 6.26$\to$6.2, 6.27$\to$6.3, 6.30$\to$6.5, 6.33$\to$6.7, in
   titoli, `\fonte` e commenti SLIDE); ricompilato
   `presentazione/presentazione.pdf`. `bozza.tex` non toccata.
+- **Ultimo intervento (06/09/2026, refuso).** Corretto il refuso ``Funzione di
+  Rosenbrock di Rosenbrock'' (nome ripetuto) in 2 punti di `tesi.tex`
+  (Sez.~6.5.7: paragrafo ``Lettura'' della Tab.~6.6 e paragrafo ``Confronto con
+  i riferimenti''). Scansione di controllo per doppioni/ripetizioni simili
+  (parole adiacenti identiche e pattern ``X di X'') su tesi e presentazione:
+  nessun altro caso nella prosa (gli unici ``X per X'' sono le espressioni
+  corrette ``componente per componente'' e ``iterazione per iterazione'').
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**101 pp**, 0 errori, 0
+  undefined); sincronizzati in repo (md5 verificati). Presentazione non
+  toccata.
 - **Ultimo intervento (05/09/2026, presentazione).** **Riformulati i bullet
   ``Aiuta/Peggiora'' della slide ``Riuso del mini-batch: sintesi dei risultati
   (Tab.~6.25)'' e rimossa la slide ``Risultati teorici''.** I due bullet ora
