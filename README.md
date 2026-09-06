@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (05/09/2026, presentazione).** **Riformulati i bullet
+  ``Aiuta/Peggiora'' della slide ``Riuso del mini-batch: sintesi dei risultati
+  (Tab.~6.25)'' e rimossa la slide ``Risultati teorici''.** I due bullet ora
+  elencano direttamente i casi, senza le frasi di raccordo ``quando la base
+  oscilla o è lenta e un batch stabile riduce le fluttuazioni'' e ``quando
+  bloccare il batch toglie più di quanto dà'': Aiuta = ben condizionato
+  ($\kappa\approx1.1$), termine incrociato, BB-CCV su $\kappa\approx20$ (fino
+  a $\sim10^{-10}$); Peggiora = BB-CCV su $\kappa\approx100$ (base già alla
+  precisione macchina, $\sim10^{-14}$) e Dynamic GD/Newton-CG sui mal
+  condizionati con $M{=}\infty$ (direzioni che invecchiano). Rimossa la slide
+  ``Risultati teorici: convergenza e complessità'' (era subito dopo lo schema
+  BB-CCV); commenti SLIDE rinumerati (24→23, …, 34→33). Ricompilato
+  `presentazione/presentazione.pdf` (**33 pp** — era 34; 0 errori, 0
+  undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
 - **Ultimo intervento (05/09/2026, presentazione).** **Aggiunte due slide sul
   passo di Barzilai--Borwein (nuove SLIDE 20 e 21, prima dello schema BB-CCV).**
   Contenuto preso dalla tesi (Sez.~5.4.1, eq.~5.52--5.56). (20) Relazione

@@ -666,30 +666,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — Risultati teorici
-% =====================================================================
-\begin{frame}{Risultati teorici: convergenza e complessità}
-  \begin{itemize}
-    \item Sotto la CCV la direzione di ricerca è di discesa e il metodo
-      converge \emph{linearmente}: sia in forma deterministica sia in
-      aspettativa.
-    \item Complessità totale $\mathcal{O}\!\left(mL/(\lambda\varepsilon)\right)$
-      (con $m$ parametri, $L$ costante di Lipschitz di $\nabla J$, $\lambda$
-      convessità forte): competitiva con SGD.
-    \item Su problemi mal condizionati il fattore $\kappa^2$ tipico di SGD
-      diventa $\kappa$ per il campionamento dinamico.
-    \item \textbf{Contributo della tesi}: fattore di contrazione migliorato,
-      da $1-\frac{(1-\theta)\lambda}{2L}$ a
-      $1-\frac{(1-\theta)\lambda}{L}$, usando la disuguaglianza di
-      Polyak--Lojasiewicz in forma forte.
-    \item Per Newton-CG: arresto adattivo del CG basato sulla varianza dei
-      prodotti Hessiana-vettore, nessuna iterazione interna sprecata.
-  \end{itemize}
-  \fonte{Dalla tesi --- Cap.~5 (convergenza) e Sez.~6.3 (Risultati Numerici)}
-\end{frame}
-
-% =====================================================================
-% SLIDE 24 — App web interattiva
+% SLIDE 23 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -708,7 +685,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 25 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 24 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -741,7 +718,7 @@
 
 
 % =====================================================================
-% SLIDE 26 — Setup e risultati numerici
+% SLIDE 25 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -771,7 +748,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 26 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -798,13 +775,13 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.25)
+% SLIDE 27 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.25)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.25)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
-\item \textbf{Aiuta} quando la base oscilla o è lenta e un batch stabile riduce le fluttuazioni: ben condizionato ($\kappa\approx1.1$), termine incrociato, BB-CCV su $\kappa\approx20$ (fino a $\sim10^{-10}$).
-\item \textbf{Peggiora} quando bloccare il batch toglie più di quanto dà: base già alla precisione macchina (BB-CCV su $\kappa\approx100$, $\sim10^{-14}$) o direzioni che invecchiano (Dynamic GD e Newton-CG sui mal condizionati, $M{=}\infty$).
+\item \textbf{Aiuta}: ben condizionato ($\kappa\approx1.1$), termine incrociato, BB-CCV su $\kappa\approx20$ (fino a $\sim10^{-10}$).
+\item \textbf{Peggiora}: BB-CCV su $\kappa\approx100$ (base già alla precisione macchina, $\sim10^{-14}$) e Dynamic GD/Newton-CG sui mal condizionati con $M{=}\infty$ (direzioni che invecchiano).
   \end{itemize}
   \vspace{0.05cm}
   \begin{center}
@@ -849,7 +826,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.26)
+% SLIDE 28 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.26)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.26)}
   \footnotesize
@@ -902,7 +879,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- Stop adattivo con validation set (Tab.6.27)
+% SLIDE 29 -- Stop adattivo con validation set (Tab.6.27)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.27)}
   \footnotesize
@@ -955,7 +932,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.30)
+% SLIDE 30 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.30)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.30)}
   \footnotesize
@@ -1006,7 +983,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.33)
+% SLIDE 31 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.33)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.33)}
   \footnotesize
@@ -1039,7 +1016,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 — Conclusioni
+% SLIDE 32 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1059,7 +1036,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 34 — Limiti e lavoro futuro
+% SLIDE 33 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
