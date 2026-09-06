@@ -157,6 +157,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 8: resa esplicita
+  la ``doppia divisione per $n_k$'' nella stima della varianza del gradiente
+  (coerente con la tesi, Sez.~5.1).** I bullet ora distinguono i due ruoli
+  delle due divisioni: $n_k-1$ (correzione di Bessel) rende
+  $\widehat{\mathcal{V}}$ non distorto ($\mathbb{E}[\widehat{\mathcal{V}}]
+  =\mathcal{V}$) e stima la \emph{dispersione dei singoli gradienti} del
+  batch; $g_k$ è la loro \emph{media}, quindi la varianza dello stimatore è
+  quella dei singoli divisa per $n_k$:
+  $\mathrm{Var}(g_k)=\mathcal{V}/n_k\approx\widehat{\mathcal{V}}/n_k$, cioè
+  $\|\mathrm{Var}(g_k)\|_1\approx\|\widehat{\mathcal{V}}\|_1/n_k$
+  ($=\mathbb{E}[\|e_k\|_2^2]$) è la quantità controllata dalla CCV. Slide 15:
+  aggiunto il richiamo parallelo che la varianza dei prodotti
+  Hessiana--vettore è la varianza della \emph{media} su $\mathcal{H}_k$
+  (dispersione dei singoli divisa per $|\mathcal{H}_k|$, come per $g_k$).
+  Ricompilato `presentazione/presentazione.pdf` (**33 pp**; 0 errori, 0
+  overfull, 0 undefined). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (06/09/2026, tesi cap. 6 + presentazione).** **Taglio
   deciso delle tabelle del capitolo 6 di `tesi.tex`: da 44 a 8 tabelle.** Rimossi
   (36 blocchi `table[H]`, ~2 000 righe) tutte le tabelle ``errore a ogni
