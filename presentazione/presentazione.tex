@@ -268,15 +268,14 @@
     \item Il gradiente sul batch è la \emph{media} dei gradienti per-esempio,
       $g_k=\nabla J_{\mathcal{S}_k}(w_k)
       =\frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell(w_k;i)$, con
-      $\mathbb{E}[g_k]=\nabla J(w_k)$ (stimatore non distorto); l'errore
-      $e_k:=g_k-\nabla J(w_k)$ non è calcolabile, perché $\nabla J(w_k)$ è
-      ignoto.
-    \item Quantità che si può controllare: la \emph{varianza dello
-      stimatore}, $\mathbb{E}[\|e_k\|_2^2]=\|\mathrm{Var}(g_k)\|_1$ (somma
-      componente per componente).
-    \item $\mathcal{V}$ = varianza \emph{della popolazione} (non calcolabile:
-      servirebbe $\nabla J(w_k)$); $\widehat{\mathcal{V}}$ = stima
-      \emph{campionaria} sul batch corrente, centrata su $g_k$:
+      $\mathbb{E}[g_k]=\nabla J(w_k)$ (stimatore non distorto). L'errore
+      $e_k=g_k-\nabla J(w_k)$ non è calcolabile; si controlla la \emph{varianza
+      dello stimatore}: $\mathbb{E}[\|e_k\|_2^2]=\|\mathrm{Var}(g_k)\|_1$
+      (somma delle varianze, componente per componente).
+    \item Definizioni: $\mathcal{V}$ è la \emph{varianza della popolazione}
+      del gradiente della loss (non calcolabile: servirebbe $\nabla J(w_k)$);
+      $\widehat{\mathcal{V}}$ (``v-hat'') è la sua stima \emph{campionaria}
+      sul batch corrente, centrata sulla media campionaria $g_k$:
       \[
         \mathcal{V}:=\frac{1}{N}\sum_{i=1}^{N}\bigl(\nabla\ell(w_k;i)-\nabla
         J(w_k)\bigr)^2,\qquad
@@ -284,22 +283,53 @@
         \bigl(\nabla\ell(w_k;i)-g_k\bigr)^2 ,
       \]
       quadrati e divisioni sempre componente per componente ($\in\mathbb{R}^m$).
-    \item \textbf{Doppia divisione per $n_k$}: $n_k-1$ (Bessel) rende
-      $\widehat{\mathcal{V}}$ non distorto
-      ($\mathbb{E}[\widehat{\mathcal{V}}]=\mathcal{V}$), stima della
-      \emph{dispersione dei singoli gradienti} del batch; $g_k$ è la loro
-      \emph{media}, la cui varianza è quella dei singoli \emph{divisa per
-      $n_k$}:
-      $\mathrm{Var}(g_k)=\mathcal{V}/n_k\approx\widehat{\mathcal{V}}/n_k$,
-      quindi $\|\mathrm{Var}(g_k)\|_1\approx\|\widehat{\mathcal{V}}\|_1/n_k$
-      ($=\mathbb{E}[\|e_k\|_2^2]$) è la varianza dello stimatore che la CCV
-      controlla (slide successiva).
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.1}
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — Campionamento dinamico e CCV
+% SLIDE 9 — Varianza dello stimatore: decomposizione e "doppia divisione"
+% =====================================================================
+\begin{frame}{Varianza dello stimatore: decomposizione e ``doppia divisione''}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item $\widehat{\mathcal{V}}$ (denominatore $n_k-1$) è non distorta,
+      $\mathbb{E}[\widehat{\mathcal{V}}]=\mathcal{V}$: stima la
+      \emph{dispersione dei singoli gradienti} del batch. Ma $g_k$ è la loro
+      \emph{media}; la varianza della media si ricava da quella dei singoli
+      con la \emph{decomposizione} (con reinserimento, indipendenza):
+      \[
+        \mathrm{Var}(g_k)
+        =\mathrm{Var}\!\Bigl(\frac{1}{n_k}\sum_{i\in\mathcal{S}_k}
+        \nabla\ell(w_k;i)\Bigr)
+        =\frac{1}{n_k^2}\sum_{i\in\mathcal{S}_k}\mathrm{Var}\bigl(\nabla
+        \ell(w_k;i)\bigr)
+        =\frac{\mathcal{V}}{n_k}.
+      \]
+    \item Senza reinserimento (i batch reali) si aggiunge il \emph{fattore di
+      correzione per popolazione finita}:
+      \[
+        \mathrm{Var}(g_k)=\frac{\mathcal{V}}{n_k}\cdot\frac{N-n_k}{N-1}.
+      \]
+      La sua dimostrazione è in Appendice (tesi). Per $N\gg n_k$ (condizione
+      tipica nel machine learning) il fattore è $\approx1$, quindi vale la
+      forma pratica $\mathrm{Var}(g_k)\approx\mathcal{V}/n_k$.
+    \item \textbf{Doppia divisione per $n_k$:}
+      $n_k-1$ stima la dispersione dei \emph{singoli} gradienti; dividere
+      ancora per $n_k$ passa alla varianza della \emph{media}:
+      $\|\mathrm{Var}(g_k)\|_1\approx\|\widehat{\mathcal{V}}\|_1/n_k$
+      ($=\mathbb{E}[\|e_k\|_2^2]$). È questa la quantità che la CCV
+      controllerà (prossima slide).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.1; dimostrazione del fattore di correzione per popolazione finita in Appendice}
+\end{frame}
+
+% =====================================================================
+% SLIDE 10 — Campionamento dinamico e CCV
 % =====================================================================
 \begin{frame}{Campionamento dinamico: la Condizione di Controllo della Varianza}
   \begin{itemize}
@@ -328,7 +358,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 10 — Direzione di discesa: livello puntuale e garanzia in media
+% SLIDE 11 — Direzione di discesa: livello puntuale e garanzia in media
 % =====================================================================
 \begin{frame}{Direzione di discesa: livello puntuale e garanzia in media}
   \small
@@ -359,7 +389,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 11 — I quattro algoritmi
+% SLIDE 12 — I quattro algoritmi
 % =====================================================================
 \begin{frame}{I quattro algoritmi a campionamento dinamico}
   \begin{itemize}
@@ -381,7 +411,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 12 — Schema: Dynamic GD (Fig. 5.1)
+% SLIDE 13 — Schema: Dynamic GD (Fig. 5.1)
 % =====================================================================
 \begin{frame}{Schema: Dynamic GD (Fig.~5.1)}
   \begin{center}
@@ -393,7 +423,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Newton-CG: struttura del metodo (due campioni)
+% SLIDE 14 — Newton-CG: struttura del metodo (due campioni)
 % =====================================================================
 \begin{frame}{Newton-CG: struttura del metodo (eq.~5.31--5.32)}
   \small
@@ -423,7 +453,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 14 — Newton-CG: non serve un residuo più piccolo dell'errore
+% SLIDE 15 — Newton-CG: non serve un residuo più piccolo dell'errore
 %            di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
@@ -470,7 +500,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 15 — Newton-CG: come si stima l'errore di Hessiana
+% SLIDE 16 — Newton-CG: come si stima l'errore di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: come si stima l'errore di Hessiana (eq.~5.35--5.38)}
   \small
@@ -513,7 +543,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 16 — Newton-CG: criterio di arresto adattivo del CG
+% SLIDE 17 — Newton-CG: criterio di arresto adattivo del CG
 % =====================================================================
 \begin{frame}{Newton-CG: criterio di arresto adattivo del CG (eq.~5.39)}
   \small
@@ -547,7 +577,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Schema: Newton-CG (Fig. 5.2)
+% SLIDE 18 — Schema: Newton-CG (Fig. 5.2)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG (Fig.~5.2)}
   \begin{center}
@@ -558,7 +588,7 @@
   \end{center}
 \end{frame}
 
-% SLIDE 18 — Newton-CG L1: cos'è z_k e perché la line search proiettata
+% SLIDE 19 — Newton-CG L1: cos'è z_k e perché la line search proiettata
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$ e la ricerca lineare proiettata}
   \small
@@ -591,7 +621,7 @@
 
 
 % =====================================================================
-% SLIDE 19 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 20 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -603,7 +633,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 20 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
+% SLIDE 21 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (1/2) --- relazione secante (eq.~5.52--5.54)}
   \small
@@ -633,7 +663,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
+% SLIDE 22 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (2/2) --- minimi quadrati e salvaguardia (eq.~5.55--5.56)}
   \small
@@ -668,7 +698,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 22 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 23 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -680,7 +710,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 23 — App web interattiva
+% SLIDE 24 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -699,7 +729,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 24 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 25 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -732,7 +762,7 @@
 
 
 % =====================================================================
-% SLIDE 25 — Setup e risultati numerici
+% SLIDE 26 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \begin{columns}[T]
@@ -762,7 +792,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 27 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -789,7 +819,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
+% SLIDE 28 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
@@ -840,7 +870,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
+% SLIDE 29 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
@@ -893,7 +923,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- Stop adattivo con validation set (Tab.6.3)
+% SLIDE 30 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
@@ -946,7 +976,7 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
+% SLIDE 31 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
@@ -997,7 +1027,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
+% SLIDE 32 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
@@ -1030,7 +1060,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 — Conclusioni
+% SLIDE 33 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1050,7 +1080,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 — Limiti e lavoro futuro
+% SLIDE 34 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}

@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 8--10: resa fedele
+  alla tesi (Sez.~5.1) della ``doppia divisione'' e del fattore di correzione
+  per popolazione finita.** La Slide 8 resta con le sole definizioni
+  ($\mathcal{V}$, $\widehat{\mathcal{V}}$, varianza dello stimatore); nuova
+  **Slide 9** ``Varianza dello stimatore: decomposizione e doppia divisione'':
+  (i) con reinserimento $\mathrm{Var}(g_k)=\mathcal{V}/n_k$; (ii) senza
+  reinserimento $\mathrm{Var}(g_k)=\frac{\mathcal{V}}{n_k}\frac{N-n_k}{N-1}$,
+  con la nota che per $N\gg n_k$ il fattore $\approx1$ e vale la forma pratica
+  $\mathcal{V}/n_k$, e che la dimostrazione del fattore è in Appendice (tesi).
+  Resa esplicita la doppia divisione: $n_k-1$ stima la dispersione dei
+  \emph{singoli} gradienti, il $/n_k$ passa alla varianza della \emph{media}
+  $\|\mathrm{Var}(g_k)\|_1\approx\|\widehat{\mathcal{V}}\|_1/n_k
+  =\mathbb{E}[\|e_k\|_2^2]$. Rimossa la parentesi ``(Bessel)'' (il denominatore
+  $n_k-1$ è descritto solo come non distorsione). La CCV slitta da 9 a 10;
+  commenti SLIDE 9--33 rinumerati 10--34 (la slide sull'errore di Hessiana è
+  ora la 16). Ricompilato `presentazione/presentazione.pdf` (**34 pp** — era
+  33; 0 errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 8: resa esplicita
   la ``doppia divisione per $n_k$'' nella stima della varianza del gradiente
   (coerente con la tesi, Sez.~5.1).** I bullet ora distinguono i due ruoli
