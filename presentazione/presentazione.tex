@@ -527,18 +527,18 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 17 — Omogeneità di grado 2 e calcolo una tantum
+% SLIDE 17 — Omogeneità di grado 2 e un solo calcolo
 % =====================================================================
-\begin{frame}{Newton-CG: omogeneità di grado 2 e calcolo \emph{una tantum} (eq.~5.36--5.38)}
+\begin{frame}{Newton-CG: omogeneità di grado 2 e un solo calcolo (eq.~5.36--5.38)}
   \small
   \setlength{\abovedisplayskip}{2pt}
   \setlength{\belowdisplayskip}{2pt}
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
   \begin{itemize}\setlength{\itemsep}{1pt}
-    \item La mappa $d\mapsto\nabla^2\ell(w_k;i)\,d$ è \textbf{lineare} in $d$:
-      su un campione fissato la sua varianza è una \textbf{forma quadratica}
-      in $d$, $\mathrm{Var}\bigl(\nabla^2\ell(w_k;i)d\bigr)
+    \item Su un campione fissato, la varianza dei prodotti
+      Hessiana--vettore è una \textbf{forma quadratica} in $d$:
+      $\mathrm{Var}\bigl(\nabla^2\ell(w_k;i)d\bigr)
       =d^T\Sigma_{\mathcal{H}_k}d$ ($\Sigma_{\mathcal{H}_k}$ covarianza
       campionaria sdp; la relazione vale componente per componente). Vale
       quindi l'\textbf{omogeneità di grado 2}
@@ -546,7 +546,7 @@
         \mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)(\lambda d)\bigr)
         =\lambda^2\,\mathrm{Var}_{i\in\mathcal{H}_k}\bigl(\nabla^2\ell(w_k;i)d\bigr).
       \]
-    \item \textbf{Calcolo una tantum.} Per non ricalcolare la varianza a ogni
+    \item \textbf{Un solo calcolo.} Per non ricalcolare la varianza a ogni
       iterazione del CG (costo elevato), la si calcola \textbf{una sola
       volta} sulla prima direzione $p_0=-g_k$,
       \[
@@ -848,7 +848,39 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
+% SLIDE 29 — Cosa significa riusare il batch
+% =====================================================================
+\begin{frame}{Cosa significa riusare il batch}
+  \small
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  \begin{itemize}\setlength{\itemsep}{0pt}
+    \item Riusare il batch = tenere \textbf{fissa solo la lista di indici}
+      $\mathcal{S}_k$ per $M$ iterazioni; il gradiente è \textbf{ricalcolato
+      al punto corrente} $w_k$ a ogni iterazione (non si riusa il gradiente
+      né una ``direzione vecchia'').
+    \item Sui \emph{ben condizionati} la traiettoria sembra ``dritta''
+      perché $w^*_{\mathcal S}$ è vicino a $w^*$ in ogni direzione: i gradienti
+      successivi puntano quasi allo stesso bersaglio.
+    \item Sui \emph{mal condizionati} il minimo campionario $w^*_{\mathcal S}$
+      è spostato lungo la direzione quasi piatta: il batch fisso ``tira''
+      verso un bersaglio sbagliato (\textbf{bias sistematico}, Sez.~6.5.2),
+      che la CCV \textbf{non} vede (misura la varianza interna, non il bias).
+    \item \textbf{Primo ordine} (Dynamic GD, BB-CCV): $d_k=-g_k$ è sempre
+      opposto al gradiente fresco (angolo $180^\circ$), la discesa sul batch è
+      garantita: il rischio è solo la lenta \emph{deriva} verso $w^*_{\mathcal S}$.
+    \item \textbf{Secondo ordine} (Newton-CG): con $\mathcal{H}_k$ fisso la
+      curvatura ``invecchia'' mentre $w_k$ avanza; $d_k=-H_k^{-1}g_k$ può
+      finire a $\approx90^\circ$ dalla vera discesa e la line search taglia il
+      passo $\Rightarrow$ per questo serve lo stop adattivo (slide seguenti).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.5.2, ``Meccanismo: vantaggi e limiti del riuso''}
+\end{frame}
+
+% =====================================================================
+% SLIDE 30 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
@@ -899,7 +931,7 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
+% SLIDE 31 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
@@ -952,13 +984,50 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- Stop adattivo con validation set (Tab.6.3)
+% SLIDE 32 — Stop adattivo con validation set: come funziona
+% =====================================================================
+\begin{frame}{Stop adattivo con validation set: come funziona}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Il riuso richiede di fissare $M$ (iterazioni sullo stesso batch),
+      ma il valore ottimo cambia con problema e algoritmo e $M{=}\infty$ può
+      far collassare i metodi di Newton. Lo stop adattivo \textbf{decide da
+      solo quando ricampionare}, senza scegliere $M$ a priori.
+    \item Si riserva una frazione $p$ del dataset come \emph{validation set}:
+      il mini-batch è campionato dal solo training set (CCV con tetto
+      $\lvert\mathcal{T}\rvert$ invece di $N$) e l'Hessiana segue il batch
+      (modalità legata).
+  \end{itemize}
+  \vspace{0.04cm}
+  \textbf{Pseudocodice} (iterazione esterna $k$, batch in riuso):
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item $S_k\leftarrow$ mini-batch dal training set;
+      $g_k=\nabla J_{S_k}(w_k)$; aggiorna $w_{k+1}$ con la line search.
+    \item Ogni $f$ iterazioni (dopo l'aggiornamento) valuta
+      $J_{\mathrm{val}}(w_{k+1})$, la loss media sul validation set.
+    \item \emph{Progresso} se
+      $J_{\mathrm{val}}\le J_{\mathrm{val}}^{\mathrm{best}}(1-\tau)
+      -\epsilon_{\mathrm{abs}}$: aggiorna il best e azzera il contatore.
+    \item Se per $P$ valutazioni consecutive \emph{non} c'è progresso
+      $\Rightarrow$ \textbf{ricampiona} all'iterazione successiva (risplit
+      se la strategia è \emph{dinamica}).
+  \end{enumerate}
+  \fonte{Dalla tesi --- Sez.~6.5.6. Iperparametri: $P$, $f$, $p$, $\tau$,
+    $\epsilon_{\mathrm{abs}}$, strategia di split (fissa o dinamica).}
+\end{frame}
+
+% =====================================================================
+% SLIDE 33 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item Ricampiona quando la loss su un \emph{validation set} smette di migliorare per $P$ valutazioni; evita il collasso di $M{=}\infty$ sui metodi di Newton.
-\item Calibrato ($P{=}1$, $p{=}10\%$, split dinamico) scende sotto la \emph{base} su 5 seed: $2.04\times10^{-1}$ vs $2.16\times10^{-1}$ (12/20).
+\item Calibrato con ricerca a griglia (Sez.~6.5.8): $P{=}1$, $p{=}10\%$, split dinamico; scende sotto la \emph{base} su 5 seed: $2.04\times10^{-1}$ vs $2.16\times10^{-1}$ (12/20).
   \end{itemize}
   \vspace{0.05cm}
   \begin{center}
@@ -1001,11 +1070,49 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.6 e Tab.~6.3 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
+  \fonte{Dalla tesi --- Sez.~6.5.6 e Tab.~6.3 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni. \emph{def.} = valori di default ($P{=}3$, $p{=}20\%$, split fisso).}
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
+% SLIDE 34 — Riuso per discesa della loss sul batch: come funziona
+% =====================================================================
+\begin{frame}{Riuso per discesa della loss sul batch: come funziona}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Stesso obiettivo dello stop adattivo --- capire quando il batch è
+      ``esaurito'' --- ma \textbf{senza riservare dati}: si osserva solo la
+      loss sul mini-batch corrente, campionato dall'\emph{intero} dataset
+      (CCV con tetto $N$).
+    \item Le line search garantiscono già $J_{\mathrm{batch}}$ decrescente a
+      ogni passo accettato: il criterio non scatta se la loss \emph{cresce},
+      ma se \emph{decresce troppo poco} (riduzione relativa sotto soglia),
+      tipico in prossimità del minimo campionario del batch.
+  \end{itemize}
+  \vspace{0.04cm}
+  \textbf{Pseudocodice} (iterazione esterna $k$, batch in riuso):
+  \begin{enumerate}\setlength{\itemsep}{1pt}
+    \item $S_k\leftarrow$ mini-batch dall'intero dataset;
+      $g_k=\nabla J_{S_k}(w_k)$; aggiorna $w_{k+1}$ con la line search.
+    \item Ogni $f$ iterazioni valuta $J_{\mathrm{batch}}(w_k)$ e la confronta
+      con la valutazione precedente \emph{sullo stesso batch} (il confronto
+      riparte da zero dopo ogni ricampionamento).
+    \item \emph{Progresso} se
+      $J_{\mathrm{batch}}(w_{k-1})-J_{\mathrm{batch}}(w_k)\ge
+      \tau\,\lvert J_{\mathrm{batch}}(w_{k-1})\rvert+\epsilon_{\mathrm{abs}}$.
+    \item Se per $P$ valutazioni consecutive \emph{non} c'è progresso
+      $\Rightarrow$ \textbf{ricampiona} (batch ``esaurito''); $\tau$ più alta
+      (es. $10^{-3}$) dichiara il batch esaurito prima.
+  \end{enumerate}
+  \fonte{Dalla tesi --- Sez.~6.5.7. Per Newton-CG~$L_1$ si monitora
+    $F_{\mathrm{batch}}=J_{\mathrm{batch}}+\nu\lVert w\rVert_1$ sul batch.}
+\end{frame}
+
+% =====================================================================
+% SLIDE 35 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
@@ -1052,11 +1159,11 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.7 e Tab.~6.5 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
+  \fonte{Dalla tesi --- Sez.~6.5.7 e Tab.~6.5 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni. \emph{def.} = valori di default ($\tau{=}10^{-4}$, $P{=}1$, $f{=}1$).}
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
+% SLIDE 36 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
@@ -1085,11 +1192,11 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.6--6.5.7 e Tab.~6.7: confronto dei due criteri automatici calibrati su 5 seed.}
+  \fonte{Dalla tesi --- Sez.~6.5.6--6.5.7 e Tab.~6.7: confronto dei due criteri automatici su 5 seed. ``\emph{calib.}'' = parametri del criterio scelti con una ricerca a griglia (Sez.~6.5.8), non i default: validation $P{=}1$, $p{=}10\%$, split dinamico (default $P{=}3$, $p{=}20\%$, split fisso); discesa $\tau{=}10^{-3}$, $P{=}1$, $f{=}1$ (default $\tau{=}10^{-4}$).}
 \end{frame}
 
 % =====================================================================
-% SLIDE 34 — Conclusioni
+% SLIDE 37 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1109,7 +1216,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 \end{frame}
 
 % =====================================================================
-% SLIDE 35 — Limiti e lavoro futuro
+% SLIDE 38 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
