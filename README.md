@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Rimossi i punti
+  puramente teorici dalle slide finali (focus implementativo, come richiesto
+  dal relatore).** Slide 37 (Conclusioni): eliminate le voci ``Analisi
+  teorica: convergenza lineare...'' e ``fattore di contrazione migliorato
+  (PL forte)''; i contributi ora sono l'arresto adattivo del CG per
+  Newton-CG, l'implementazione Python dei quattro algoritmi + app web, e gli
+  esperimenti (inclusa la Funzione di Rosenbrock e lo stop adattivo). Slide 38
+  (Limiti e lavoro futuro): tolti ``convessità forte'', ``varianza limitata''
+  e il futuro su Polyak--Lojasiewicz; restano i limiti/futuro implementativi
+  (solo problemi sintetici, nessun confronto sistematico con SVRG/SAGA,
+  rapporto $R$ dell'Hessiana dinamico, dataset reali e problemi non convessi).
+  Ricompilato `presentazione/presentazione.pdf` (**38 pp** — invariate; 0
+  errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 15: eliminata la
   sovrapposizione dell'ultima riga con la fonte ``Dalla tesi --- ...''** (più
   controlli preventivi su slide simili). (1) Slide 15 (``non serve un residuo

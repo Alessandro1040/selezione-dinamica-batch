@@ -1202,15 +1202,13 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
     \item Quadro completo: dalla varianza del gradiente stocastico (SGD) e
       dai metodi a varianza ridotta (SVRG/SAGA) si arriva a una regola
       \emph{dinamica e basata sui dati} per la dimensione del campione.
-    \item Analisi teorica: convergenza lineare (deterministica e in
-      aspettativa) e complessità sotto la CCV.
-    \item Contributi propri: fattore di contrazione migliorato (PL forte),
-      arresto adattivo del CG per Newton-CG.
+    \item Arresto adattivo del CG per Newton-CG: criterio automatico basato
+      sulla varianza dei prodotti Hessiana--vettore.
     \item Implementazione Python dei quattro algoritmi + app web interattiva
       per ripetere gli esperimenti.
     \item Esperimenti sui problemi quadratici sintetici (da $\kappa\approx1.1$
-      a $\kappa\approx100$) coerenti con la teoria; analizzato anche il riuso
-      del mini-batch.
+      a $\kappa\approx100$) e sulla Funzione di Rosenbrock; analizzato anche
+      il riuso del mini-batch con stop adattivo.
   \end{itemize}
 \end{frame}
 
@@ -1219,12 +1217,13 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
-    \item Limiti attuali: ipotesi di convessità forte, varianza limitata,
-      esperimenti su dataset sintetici (quadratici, centrati).
-    \item Futuro: assumere direttamente la condizione di
-      Polyak--Lojasiewicz (copre funzioni non convesse).
+    \item Limite attuale: esperimenti solo su problemi sintetici (quadratici
+      centrati, $\kappa\approx1.1,20,100$, termine incrociato, Funzione di
+      Rosenbrock).
+    \item Limite attuale: nessun confronto sistematico con SVRG/SAGA sulle
+      stesse batterie di test.
     \item Futuro: rapporto di sottocampionamento $R$ dell'Hessiana dinamico
-      (oltre alla sola $n_k$ del gradiente).
+      (oggi $R$ è fisso: si adatta solo $n_k$ del gradiente).
     \item Futuro: validazione su dataset reali e problemi non convessi,
       confronto sistematico con SVRG/SAGA su larga scala.
   \end{itemize}
