@@ -157,6 +157,24 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, tesi cap. 6 + presentazione).** **Taglio
+  deciso delle tabelle del capitolo 6 di `tesi.tex`: da 44 a 8 tabelle.** Rimossi
+  (36 blocchi `table[H]`, ~2 000 righe) tutte le tabelle ``errore a ogni
+  iterazione'' (`test_*` ex 6.1--6.4, riuso per problema$\times$algoritmo ex
+  6.5--6.24 e configurazioni consigliate ex 6.35--6.44) e le due griglie di
+  sensibilità agli iperparametri (ex 6.28 `tab:riuso_valid_iper` ed ex 6.31
+  `tab:riuso_desc_iper`), insieme ai paragrafi ``Lettura'' e ai rimandi nel
+  testo. Tenute solo le 8 tabelle di sintesi/confronto/robustezza/consigliati,
+  ora numerate 6.1--6.8. Adattata la prosa delle Sez.~6.3 e 6.5.4--6.5.8 senza
+  riferimenti orfani; rimossi i commenti superflui (elenchi persone/artisti nei
+  Ringraziamenti, intestazioni `% Tabella E.x` delle tabelle rimosse).
+  Ricompilati `tesi.pdf` (**101 pp** — era 136; 0 errori, 0 undefined, 8
+  overfull) e `tesi_finale.pdf` (**101 pp**). Sincronizzati in repo
+  `tesi/tesi.tex`, `tesi/tesi.pdf` e `tesi/tesi_finale.pdf` (md5 verificati).
+  Presentazione: aggiornati i riferimenti alle tabelle nelle slide 27--31
+  (6.25$\to$6.1, 6.26$\to$6.2, 6.27$\to$6.3, 6.30$\to$6.5, 6.33$\to$6.7, in
+  titoli, `\fonte` e commenti SLIDE); ricompilato
+  `presentazione/presentazione.pdf`. `bozza.tex` non toccata.
 - **Ultimo intervento (05/09/2026, presentazione).** **Riformulati i bullet
   ``Aiuta/Peggiora'' della slide ``Riuso del mini-batch: sintesi dei risultati
   (Tab.~6.25)'' e rimossa la slide ``Risultati teorici''.** I due bullet ora

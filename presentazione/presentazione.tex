@@ -775,9 +775,9 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.25)
+% SLIDE 27 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
-\begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.25)}
+\begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item \textbf{Aiuta}: ben condizionato ($\kappa\approx1.1$), termine incrociato, BB-CCV su $\kappa\approx20$ (fino a $\sim10^{-10}$).
@@ -822,13 +822,13 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.5 e Tab.~6.25: errore finale $e_{30}$ (seed 42) per tutti i valori di $M$; $\blacktriangle$/$\blacktriangledown$/$=$ rispetto alla \emph{base}.}
+  \fonte{Dalla tesi --- Sez.~6.5.5 e Tab.~6.1: errore finale $e_{30}$ (seed 42) per tutti i valori di $M$; $\blacktriangle$/$\blacktriangledown$/$=$ rispetto alla \emph{base}.}
 \end{frame}
 
 % =====================================================================
-% SLIDE 28 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.26)
+% SLIDE 28 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
-\begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.26)}
+\begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item Su $\kappa\approx1.1$ il riuso regge su quasi tutti i seed (Dynamic GD e BB-CCV 5/5).
@@ -875,13 +875,13 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.5 e Tab.~6.26: numero di seed (su 5, $\{42,7,123,2024,999\}$) in cui $e_{30}$ \`e minore/maggiore/uguale rispetto alla \emph{base}.}
+  \fonte{Dalla tesi --- Sez.~6.5.5 e Tab.~6.2: numero di seed (su 5, $\{42,7,123,2024,999\}$) in cui $e_{30}$ \`e minore/maggiore/uguale rispetto alla \emph{base}.}
 \end{frame}
 
 % =====================================================================
-% SLIDE 29 -- Stop adattivo con validation set (Tab.6.27)
+% SLIDE 29 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
-\begin{frame}{Stop adattivo con validation set (Tab.~6.27)}
+\begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item Ricampiona quando la loss su un \emph{validation set} smette di migliorare per $P$ valutazioni; evita il collasso di $M{=}\infty$ sui metodi di Newton.
@@ -928,13 +928,13 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.6 e Tab.~6.27 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
+  \fonte{Dalla tesi --- Sez.~6.5.6 e Tab.~6.3 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.30)
+% SLIDE 30 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
-\begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.30)}
+\begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item Alternativa \emph{senza} validation set: si osserva la sola loss sul batch corrente (``esaurito'' quando la riduzione relativa \`e sotto soglia).
@@ -979,13 +979,13 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.7 e Tab.~6.30 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
+  \fonte{Dalla tesi --- Sez.~6.5.7 e Tab.~6.5 (seed 42): tra parentesi il numero di ricampionamenti su 30 iterazioni.}
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.33)
+% SLIDE 31 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
-\begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.33)}
+\begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
 \item $\overline{e}_{30}$ = media su 20 combinazioni problema$\times$algoritmo e 5 seed; \emph{vitt.} = caselle (su 20) in cui la strategia batte la \emph{base}.
@@ -1012,7 +1012,7 @@ Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & 
         \end{tabular}}
     }
   \end{center}
-  \fonte{Dalla tesi --- Sez.~6.5.6--6.5.7 e Tab.~6.33: confronto dei due criteri automatici calibrati su 5 seed.}
+  \fonte{Dalla tesi --- Sez.~6.5.6--6.5.7 e Tab.~6.7: confronto dei due criteri automatici calibrati su 5 seed.}
 \end{frame}
 
 % =====================================================================
