@@ -157,6 +157,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Rimossa la spiegazione
+  ``doppia divisione per $n_k$'' dalla Slide 9** (non necessaria: la
+  decomposizione e le formule mostrano già il rapporto tra dispersione dei
+  singoli e varianza della media). Rinominata la Slide 9 da ``Varianza dello
+  stimatore: decomposizione e doppia divisione'' a **``Varianza dello
+  stimatore: decomposizione''** e rimosso il bullet ``Doppia divisione per
+  $n_k$'' (commento SLIDE 9 aggiornato). Nessun altro cambiamento di
+  contenuto/numerazione. Ricompilato `presentazione/presentazione.pdf`
+  (**35 pp** — invariate; 0 errori, 0 overfull, 0 undefined). Nessun altro
+  file toccato: la presentazione vive solo in repo, la copia Desktop/tesi non
+  è coinvolta.
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 16-17-18: dettagli
   della Sez.~5.2.2 (pp.~35-36) resi fedeli in presentazione.** La Slide 16 resta
   con la sola stima dell'errore di Hessiana (eq.~5.35: varianza campionaria dei

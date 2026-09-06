@@ -288,9 +288,9 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 9 — Varianza dello stimatore: decomposizione e "doppia divisione"
+% SLIDE 9 — Varianza dello stimatore: decomposizione
 % =====================================================================
-\begin{frame}{Varianza dello stimatore: decomposizione e ``doppia divisione''}
+\begin{frame}{Varianza dello stimatore: decomposizione}
   \small
   \setlength{\abovedisplayskip}{2pt}
   \setlength{\belowdisplayskip}{2pt}
@@ -318,12 +318,6 @@
       La sua dimostrazione è in Appendice (tesi). Per $N\gg n_k$ (condizione
       tipica nel machine learning) il fattore è $\approx1$, quindi vale la
       forma pratica $\mathrm{Var}(g_k)\approx\mathcal{V}/n_k$.
-    \item \textbf{Doppia divisione per $n_k$:}
-      $n_k-1$ stima la dispersione dei \emph{singoli} gradienti; dividere
-      ancora per $n_k$ passa alla varianza della \emph{media}:
-      $\|\mathrm{Var}(g_k)\|_1\approx\|\widehat{\mathcal{V}}\|_1/n_k$
-      ($=\mathbb{E}[\|e_k\|_2^2]$). È questa la quantità che la CCV
-      controllerà (prossima slide).
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.1; dimostrazione del fattore di correzione per popolazione finita in Appendice}
 \end{frame}
