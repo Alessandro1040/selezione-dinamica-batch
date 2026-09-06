@@ -418,7 +418,11 @@
 % =====================================================================
 \begin{frame}{Newton-CG: struttura del metodo (eq.~5.31--5.32)}
   \small
-  \begin{itemize}\setlength{\itemsep}{3pt}
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  \begin{itemize}\setlength{\itemsep}{1pt}
     \item Due campioni a ogni iterazione: $\mathcal{S}_k$ per il
       \textbf{gradiente} (campionamento dinamico con CCV) e
       $\mathcal{H}_k\subset\mathcal{S}_k$ per l'\textbf{Hessiana}, con
@@ -458,8 +462,7 @@
       (eq.~5.31), gradiente su $\mathcal{S}_k$ e Hessiana su $\mathcal{H}_k$;
       il suo \textbf{residuo} è (eq.~5.33):
       \[
-        r_k\stackrel{\mathrm{def}}{=}
-        \nabla^2J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k),
+        r_k=\nabla^2J_{\mathcal{H}_k}(w_k)\,d+\nabla J_{\mathcal{S}_k}(w_k),
       \]
     \item L'Hessiana è quindi \textbf{approssimata}: il residuo del sistema
       che userebbe il campione grande $\mathcal{S}_k$ per gradiente ed
@@ -482,11 +485,10 @@
       su \emph{tutto} $\mathcal{S}_k$ dei prodotti $\nabla^2\ell(w_k;i)d$:
       calcolarlo costerebbe quanto l'Hessiana piena e
       \textbf{vanificherebbe} il sottocampionamento di $\mathcal{H}_k$. Come
-      per l'errore del gradiente $e_k$, se ne stima l'ordine di grandezza con
-      la \textbf{varianza campionaria} dei prodotti Hessiana--vettore su
-      $\mathcal{H}_k$ (prossima slide).
+      per l'errore $e_k$ del gradiente: stima con la \textbf{varianza
+      campionaria} dei prodotti Hessiana--vettore su $\mathcal{H}_k$ (prossima
+      slide).
   \end{itemize}
-  \vspace{-8pt}
   \fonte{Dalla tesi --- Sez.~5.2, eq.~5.31 e 5.33--5.34 e discussione del criterio}
 \end{frame}
 
@@ -527,12 +529,12 @@
 % SLIDE 17 — Omogeneità di grado 2 e un solo calcolo
 % =====================================================================
 \begin{frame}{Newton-CG: omogeneità di grado 2 e un solo calcolo (eq.~5.36--5.38)}
-  \small
-  \setlength{\abovedisplayskip}{2pt}
-  \setlength{\belowdisplayskip}{2pt}
-  \setlength{\abovedisplayshortskip}{2pt}
-  \setlength{\belowdisplayshortskip}{2pt}
-  \begin{itemize}\setlength{\itemsep}{1pt}
+  \footnotesize
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  \begin{itemize}\setlength{\itemsep}{0pt}
     \item Su un campione fissato, la varianza dei prodotti
       Hessiana--vettore è una \textbf{forma quadratica} in $d$:
       $\mathrm{Var}\bigl(\nabla^2\ell(w_k;i)d\bigr)
@@ -763,7 +765,7 @@
   \setlength{\belowdisplayskip}{2pt}
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
-  \begin{itemize}\setlength{\itemsep}{4pt}
+  \begin{itemize}\setlength{\itemsep}{1pt}
     \item \textbf{Ben condizionata} ($\kappa\approx1.1$):
       $J(w)=(w_1-1)^2+(w_2+2)^2+0.1\,w_1w_2$
     \item \textbf{Mal condizionata} ($\kappa\approx20$):

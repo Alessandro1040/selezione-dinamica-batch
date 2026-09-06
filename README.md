@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 15: eliminata la
+  sovrapposizione dell'ultima riga con la fonte ``Dalla tesi --- ...''** (più
+  controlli preventivi su slide simili). (1) Slide 15 (``non serve un residuo
+  più piccolo dell'errore di Hessiana''): rimosso il `\stackrel{def}{=}` nella
+  definizione di $r_k$ (eq.~5.33) e accorciata la chiusa del bullet ``Perché
+  non è calcolabile?''; eliminato l'hack `\vspace{-8pt}` prima della fonte.
+  (2) Slide 14: `itemsep` 3→1 pt e display equation compattate (skips 1 pt).
+  (3) Slide 17: display skips 1 pt, `itemsep` 0 pt e slide passata a
+  `\footnotesize`. (4) Slide 26: `itemsep` 4→1 pt. Verifica geometrica
+  (parole estratte dal PDF): nessuna parola invade più la riga della fonte
+  sulle pagine 14, 15, 17 e 26. Ricompilato `presentazione/presentazione.pdf`
+  (**38 pp** — invariate; 0 errori, 0 overfull, 0 undefined). Nessun altro
+  file toccato: la presentazione vive solo in repo, la copia Desktop/tesi non
+  è coinvolta.
+
+
 - **Ultimo intervento (06/09/2026, presentazione).** **Rimosso il titolo dal
   piè di pagina.** La footline ora contiene solo il numero di pagina a destra:
   eliminata la scritta ``Selezione Dinamica della Dimensione del Campione'' in
