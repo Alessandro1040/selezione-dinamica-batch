@@ -157,6 +157,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, tesi).** **Ringraziamenti: aggiunta la
+  frase ``...e mi ha insegnato quanto è importante credere in se stessi'' e
+  commentati due artisti.** Nella pagina dei Ringraziamenti, dopo ``nei
+  momenti difficili'' è aggiunto ``e mi ha insegnato quanto è importante
+  credere in se stessi''; gli artisti ``SkyDxddy'' e ``Denace'' sono stati
+  commentati (non rimossi) dalla riga ``Mostro, SkyDxddy, Hopsin, Snak The
+  Ripper, Ensi, Denace'': restano in sorgente come commento per un eventuale
+  ripristino. Ricompilati `tesi/tesi.pdf` e `tesi/tesi_finale.pdf` (**101 pp**
+  — invariate; 0 errori, 0 undefined; nessun overfull nella pagina
+  modificata) e sincronizzati in repo (md5 verificati). Nessun altro file
+  toccato.
+- **Ultimo intervento (06/09/2026, presentazione, follow-up).** **Slide 13
 - **Ultimo intervento (06/09/2026, presentazione, follow-up).** **Slide 13
   (Armijo e Wolfe): ritocco di stile e allineamento al resto del mazzo.** Nel
   primo bullet rimossa la frase parentetica ``Condizioni usate dagli algoritmi
