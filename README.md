@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 21 sdoppiata in
+  due slide (21 e 22) e resa ``standalone''.** L'ex slide ``Newton-CG $L_1$:
+  $z_k$ e la ricerca lineare proiettata'' citava le eq.~5.44--5.50 della tesi
+  senza riportarle. Ora la presentazione è auto-contenuta: **Slide 21**
+  ``Newton-CG $L_1$: $z_k$, active set e faccia ortante'' con la formula
+  esplicita di $z_k$ (eq.~5.44, a casi), l'active set $\mathcal{A}_k$
+  (eq.~5.46) e la faccia ortante $\Omega_k$ (eq.~5.45) con il gradiente
+  generalizzato; **Slide 22** ``Newton-CG $L_1$: la ricerca lineare
+  proiettata'' con la proiezione $P(\cdot)$ (eq.~5.49), la condizione di
+  Armijo su $F$ (eq.~5.50) e l'aggiornamento
+  $w_{k+1}=P[w_k+\alpha_k d_k]$. Commenti SLIDE 22--39 rinumerati 23--40.
+  Ricompilato `presentazione/presentazione.pdf` (**40 pp** — era 39;
+  0 errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 13 riscritta in
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 13 riscritta in
   versione essenziale: ``Condizioni di Wolfe (con $h=\alpha d$)''** (era
   ``Il passo $\alpha_k$: condizioni di Armijo e Wolfe'', giudicata troppo
