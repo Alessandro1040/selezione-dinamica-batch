@@ -157,6 +157,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, presentazione — grafica).** Migliorie
+  grafiche: titoli con riga ambra sottostante; footer con barra di
+  avanzamento colorata; macro `\kw` per parole chiave in ambra (etichette-tema
+  delle slide di discussione); riquadro `\takeaway` nelle Conclusioni; tabella
+  Robustezza (Tab.~6.2) uniformata su celle bianche come le altre tabelle.
+  Slide 17 resa più compatta (`\footnotesize`) per evitare overflow.
+  Ricompilato `presentazione/presentazione.pdf` (**45 pp**; 0 errori,
+  0 undefined, 0 overfull).
+
 - **Ultimo intervento (07/09/2026, tesi).** Rimossa dal testo la frase ``La
   media geometrica dei rapporti $R_i=...$ è infine invariante alla scala
   assoluta degli errori...'' (Sez. consigliati): resta solo la motivazione

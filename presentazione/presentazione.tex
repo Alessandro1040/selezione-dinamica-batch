@@ -95,6 +95,32 @@
 % comodità per il sottotitolo "Dalla tesi ..."
 \newcommand{\fonte}[1]{\par\vspace{-0.15cm}{\small\color{grigio}#1}\par}
 
+% ---- migliorie grafiche ----
+% parola chiave in ambra (grassetto colorato)
+\newcommand{\kw}[1]{\textcolor{acc}{\textbf{#1}}}
+
+% titolo con riga colorata sotto
+\setbeamertemplate{frametitle}{%
+  \noindent\usebeamerfont{frametitle}\color{acc}\insertframetitle\par
+  \vskip-0.30ex
+  {\color{acc}\hrule height 0.6pt}\vskip0.25ex}
+
+% piè di pagina: barra di avanzamento + numero pagina
+\setbeamertemplate{footline}{%
+  \leavevmode\hbox{%
+    \begin{beamercolorbox}[wd=\paperwidth,ht=3.0ex,dp=1.1ex]{footline}%
+      \hspace*{1.2ex}%
+      {\color{acc}\rule{\dimexpr(\paperwidth-3ex)*\insertframenumber/\inserttotalframenumber}{1.4pt}}%
+      \hfill{\small\insertframenumber/\inserttotalframenumber\hspace*{1.6ex}}%
+    \end{beamercolorbox}}%
+  \vskip0pt}
+
+% riquadro "take-away" / risultato chiave
+\newcommand{\takeaway}[1]{%
+  \begin{center}
+    \fcolorbox{acc}{sfondo}{\parbox{0.9\textwidth}{\centering\small\kw{#1}}}
+  \end{center}}
+
 \title{Selezione Dinamica della Dimensione del Campione}
 \subtitle{in Metodi di Ottimizzazione per il Machine Learning}
 \author{Alessandro Lo Curcio}
@@ -528,7 +554,7 @@
 %            di Hessiana
 % =====================================================================
 \begin{frame}{Newton-CG: non serve un residuo più piccolo dell'errore di Hessiana}
-  \small
+  \footnotesize
   \setlength{\abovedisplayskip}{1pt}
   \setlength{\belowdisplayskip}{1pt}
   \setlength{\abovedisplayshortskip}{1pt}
@@ -556,14 +582,12 @@
       serve} ridurre $r_k$ fino a zero: \textbf{basta fermarlo quando è
       confrontabile con $\Delta_{\mathcal{H}_k}$}; oltre, le iterazioni del CG
       sono \emph{tempo sprecato}.
-    \item \textbf{Perché non è calcolabile?} $\Delta_{\mathcal{H}_k}$ contiene
-      il prodotto Hessiana--vettore $\nabla^2J_{\mathcal{S}_k}(w_k)d$, la media
-      su \emph{tutto} $\mathcal{S}_k$ dei prodotti $\nabla^2\ell(w_k;i)d$:
-      calcolarlo costerebbe quanto l'Hessiana piena e
+    \item \kw{Perché non è calcolabile?} Conterrebbe la media su tutto
+      $\mathcal{S}_k$ dei prodotti Hessiana--vettore
+      $\nabla^2\ell(w_k;i)d$: costerebbe quanto l'Hessiana piena e
       \textbf{vanificherebbe} il sottocampionamento di $\mathcal{H}_k$. Come
-      per l'errore $e_k$ del gradiente: stima con la \textbf{varianza
-      campionaria} dei prodotti Hessiana--vettore su $\mathcal{H}_k$ (prossima
-      slide).
+      per l'errore $e_k$ del gradiente: la si stima con la \textbf{varianza
+      campionaria} dei prodotti Hessiana--vettore su $\mathcal{H}_k$.
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.2, eq.~5.31 e 5.33--5.34 e discussione del criterio}
 \end{frame}
@@ -667,7 +691,7 @@
     \item È un criterio \emph{automatico}: $\gamma$ è fissata dai dati
       all'inizio del CG e la soglia $\Psi(d_j)$ si aggiorna a ogni iterazione
       con la sola $\|d_j\|_2^2$ e nessuna tolleranza da scegliere a priori.
-    \item \textbf{Perché è adattivo.}
+    \item \kw{Perché è adattivo.}
       \begin{itemize}\setlength{\itemsep}{1pt}
         \item evita calcoli inutili quando l'approssimazione dell'Hessiana è
           limitata dal campione $\mathcal{H}_k$;
@@ -1131,7 +1155,7 @@
   con $\varepsilon^{(i)}\sim\mathcal N(0,0.04\,I)$. La media sugli $N$ esempi è
   $J(w)$, ma ogni loss è centrata in un punto diverso.
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item \textbf{Primo ordine ($d_k=-g_k$): deriva permanente.} Il gradiente
+    \item \kw{Primo ordine ($d_k=-g_k$): deriva permanente.} Il gradiente
       sul batch punta al \emph{minimo campionario}
       $w^*_{\mathcal S}=(-\bar\varepsilon_1,-\bar\varepsilon_2)\ne w^*$:
       \[
@@ -1144,7 +1168,7 @@
       $w^*_{\mathcal S}$. Riusare lo stesso batch significa smettere di mediare
       il rumore: l'iterato \emph{deriva} verso $w^*_{\mathcal S}$, e la CCV non
       lo vede (misura la varianza interna, non il bias sistematico).
-    \item \textbf{Secondo ordine ($d_k=-H_k^{-1}g_k$): Hessiana obsoleta.}
+    \item \kw{Secondo ordine ($d_k=-H_k^{-1}g_k$): Hessiana obsoleta.}
       $H_k$ compensa il condizionamento: se è stata calcolata dove il batch è
       stato estratto ma $w_k$ si è spostato, applica una curvatura
       \emph{vecchia} (allunga il passo dove la funzione è diventata ripida,
@@ -1223,7 +1247,8 @@
       \renewcommand{\arraystretch}{0.92}
       \setlength{\tabcolsep}{3pt}
       \arrayrulecolor{grigio}
-      \scalebox{0.40}{%
+      \color{black}\everymath{\color{black}}
+      \colorbox{white}{\scalebox{0.40}{%
         \begin{tabular}{@{}llccc|ccc@{}}
 \toprule
 Problema & Algoritmo & \multicolumn{3}{c}{$M{=}\infty$} & \multicolumn{3}{c}{$M{=}10$}\\
@@ -1255,7 +1280,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
  & Newton-CG & 1 & 4 & 0 & 2 & 3 & 0\\
  & Newton-CG $L_1$ & 1 & 4 & 0 & 2 & 3 & 0\\
 \bottomrule
-        \end{tabular}}
+        \end{tabular}}}
     }
   \end{center}
   \fonte{Dalla tesi --- Sez.~6.5.5 e Tab.~6.2: numero di seed (su 5, $\{42,7,123,2024,999\}$) in cui $e_{30}$ \`e minore/maggiore/uguale rispetto alla \emph{base}.}
@@ -1362,28 +1387,28 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item \textbf{Perché $M{=}\infty$ collassa (Newton).} $H_k$ è calcolata nel
+    \item \kw{Perché $M{=}\infty$ collassa (Newton).} $H_k$ è calcolata nel
       punto in cui il batch è stato estratto e ``invecchia'' mentre $w_k$ si
       muove: curvatura vecchia su gradiente fresco $\Rightarrow$ $d_k$ quasi
       $\perp$ alla discesa (fino a $\approx90^\circ$), la line search dimezza
       $\alpha_k$ e l'iterato si blocca ($e_{30}$ fino a $1.41$). La CCV non lo
       vede: controlla solo la varianza interna dei gradienti del batch.
-    \item \textbf{La validation è un giudice esterno} (i suoi dati non entrano
+    \item \kw{La validation è un giudice esterno} (i suoi dati non entrano
       in gradiente/Hessiana): finché il batch è utile $J_{\mathrm{val}}$ scende;
       quando $H_k$ invecchia o si deriva verso $w^*_{\mathcal S}$,
       $J_{\mathrm{val}}$ smette di scendere (anche se $J_{\mathrm{batch}}$
       scende ancora) $\Rightarrow$ dopo $P$ controlli si ricampiona
       $\mathcal S_k$ (e $H_k$ legata) al punto corrente: curvatura
       ``rinfrescata''.
-    \item \textbf{seed 42 (Tab.~6.3).} Newton-CG su $\kappa\approx1.1$:
+    \item \kw{seed 42 (Tab.~6.3).} Newton-CG su $\kappa\approx1.1$:
       $M{=}\infty$ $1.41$ $\to$ default $2.98\times10^{-1}$ $\to$ calib.
       $P{=}1,p{=}10\%$,dyn $1.78\times10^{-1}$, migliore della base
       ($3.73\times10^{-1}$). Con i default la media (20 casi) resta sopra la
       base: $2.34\times10^{-1}$ vs $1.96\times10^{-1}$.
-    \item \textbf{5 seed.} Default $2.67\times10^{-1}$ (7/20), peggiore della
+    \item \kw{5 seed.} Default $2.67\times10^{-1}$ (7/20), peggiore della
       base ($2.16\times10^{-1}$); calib. $P{=}1,p{=}10\%$,dyn $2.04\times10^{-1}$
       (12/20), sotto base e molto sotto $M{=}\infty$ ($3.84\times10^{-1}$).
-    \item \textbf{Perché $P{=}1$, $p{=}10\%$, dyn.} Pazienza bassa = criterio
+    \item \kw{Perché $P{=}1$, $p{=}10\%$, dyn.} Pazienza bassa = criterio
       reattivo (in 30 iterazioni i passi persi contano); $p{=}10\%$ lascia più
       training di $p{=}20\%$; split dinamico riparte da zero la validation a
       ogni cambio di batch. Contano pazienza e $p$; $\tau$ e strategia di split
@@ -1493,7 +1518,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item \textbf{Meccanismo (ricorda).} Nessun dato riservato: si campiona
+    \item \kw{Meccanismo (ricorda).} Nessun dato riservato: si campiona
       dall'intero dataset (tetto $N$); la decisione usa solo $J_{\mathrm{batch}}$
       sul batch corrente. La line search fa scendere sempre $J_{\mathrm{batch}}$:
       il criterio scatta quando la discesa è \emph{troppo lenta} (vicino al
@@ -1502,18 +1527,18 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
       ricampionamenti (BB-CCV su $\kappa\approx20$ fino a $\sim9.5\times10^{-10}$);
       $\tau$ più alto ($10^{-3}$) $\Rightarrow$ più ricampionamenti: Dynamic GD
       su $\kappa\approx20$ torna vicino alla base ($\approx4.9\times10^{-2}$).
-    \item \textbf{Newton protetto.} Newton-CG su $\kappa\approx20$: da $1.28$
+    \item \kw{Newton protetto.} Newton-CG su $\kappa\approx20$: da $1.28$
       ($M{=}\infty$) a $2.48\times10^{-1}$; evita il collasso anche per
       Newton-CG $L_1$ (si monitora $F_{\mathrm{batch}}$).
-    \item \textbf{Punto debole: Rosenbrock.} Sul batch locale la loss scende
+    \item \kw{Punto debole: Rosenbrock.} Sul batch locale la loss scende
       sempre: nessun segnale di ``deriva''; il criterio trattiene troppo il batch
       e peggiora tutti i metodi (su Rosenbrock: $1.97\times10^{-1}$ base $\to$
       $3.84\times10^{-1}$ con la discesa).
-    \item \textbf{5 seed (Tab.~6.7).} Discesa calib.
+    \item \kw{5 seed (Tab.~6.7).} Discesa calib.
       ($\tau{=}10^{-3},P{=}1,f{=}1$): vince 11/20 ma media $2.38\times10^{-1}$
       sopra la base ($2.09\times10^{-1}$); la validation calib. resta migliore in
       media ($2.04\times10^{-1}$, 12/20) ma ``costa'' il 10\% dei dati.
-    \item \textbf{In sintesi.} È l'alternativa alla validation \emph{senza
+    \item \kw{In sintesi.} È l'alternativa alla validation \emph{senza
       riservare dati} e protegge i metodi di Newton dal collasso; non risolve
       Rosenbrock. Per Dynamic GD/BB-CCV resta consigliata la \emph{base}; per
       Newton-CG la validation $P{=}1$, $p{=}10\%$.
@@ -1571,6 +1596,8 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
       a $\kappa\approx100$) e sulla Funzione di Rosenbrock; analizzato anche
       il riuso del mini-batch con stop adattivo.
   \end{itemize}
+  \vspace{0.1cm}
+  \takeaway{Dimensione del campione adattiva e guidata dalla varianza: quattro algoritmi implementati e validati, riuso reso sicuro dallo stop adattivo.}
 \end{frame}
 
 % =====================================================================
