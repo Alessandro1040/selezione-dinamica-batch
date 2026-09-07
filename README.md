@@ -165,18 +165,11 @@ Da tenere presente nelle sessioni di lavoro successive:
   `figure_sim/batch_size_app.png`). Verificato che la tesi non cita lo script.
   Ricompilato `presentazione/presentazione.pdf` (**45 pp**; 0 errori,
   0 undefined, 0 overfull).
-- **Ultimo intervento (07/09/2026, ringraziamenti).** Eliminati del tutto
-- **Ultimo intervento (07/09/2026, ringraziamenti).** Eliminati del tutto
-  (anche dai commenti) i nomi degli artisti già spostati in commento nelle
-  revisioni precedenti; i nomi ancora visibili (Eminem, Chris Webby, Token,
-  NF, Dope D.O.D., Mostro, Hopsin, Snak The Ripper, Ensi, JZAC, 50 Cent) sono
-  stati messi in commento come riferimento storico (con data 07/09/2026). Al
-  posto della sezione sugli artisti ora è visibile solo la frase ``A chiunque
-  mi abbia motivato a fare di più,''. Ricompilati `tesi.pdf` e
-  `tesi_finale.pdf` (**101 pp**; 0 errori, 0 undefined, overfull solo
-  preesistenti); sincronizzati in repo (md5 verificati). Nessun'altra
-  modifica.
-- **Ultimo intervento (07/09/2026, presentazione).** **Aggiunte cinque slide e
+- **Ultimo intervento (07/09/2026, ringraziamenti).** Annullato l'intervento
+  precedente sui ringraziamenti: ripristinata la sezione come in `0f49c45`
+  (nomi degli artisti visibili e commenti originali conservati). Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**101 pp**; 0 errori, 0 undefined);
+  sincronizzati in repo (md5 verificati).
 - **Ultimo intervento (07/09/2026, presentazione).** **Aggiunte cinque slide e
   riorganizzato il discorso.** (1) Nuova SLIDE 21 ``Newton-CG $L_1$: il
   gradiente generalizzato di $F=J+\nu\|w\|_1$'' (prima di ``$z_k$, active set e
