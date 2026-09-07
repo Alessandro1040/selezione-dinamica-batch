@@ -157,6 +157,12 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, ringraziamenti).** Rimossa la frase ``e mi
+  ha insegnato quanto è importante credere in se stessi'' dal paragrafo sugli
+  artisti (ora: ``...mi ha motivato ad andare avanti nei momenti difficili, in
+  particolare:''). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**101 pp**;
+  0 errori, 0 undefined); sincronizzati in repo (md5 verificati).
+
 - **Ultimo intervento (07/09/2026, presentazione).** **Slide 43 (Tab.~6.7):
   colonna ``vitt.'' non visibile.** Le celle `0/20`, `8/20`, `12/20`, `11/20`
   erano testo nero su sfondo nero (niente sfondo cella in una tabella che
