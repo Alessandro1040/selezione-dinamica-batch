@@ -22,6 +22,28 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{colortbl}
+% --- Scala log per le tabelle colorate (identica a tesi_finale, Sez. 6) ---
+% Ancoraggi robusti agli outlier: min = 1° percentile errori (7.4e-3),
+% max = 1.4142 (errore iniziale). I valori sotto il 1° percentile
+% (fino a 1.0991e-14, precisione macchina di BB-CCV) si saturano in verde.
+\def\minLog{-2.130}
+\def\maxLog{0.1505}
+\definecolor{lowcolor}{RGB}{190,255,190}
+\definecolor{highcolor}{RGB}{140,0,0}
+% \colorcell{mantissa}{esponente}: sfondo cella = errore m*10^e, scala log globale
+\newcommand{\colorcell}[2]{%
+  \pgfmathparse{log10(#1)+(#2)}%
+  \let\colcellLog\pgfmathresult%
+  \pgfmathparse{(\colcellLog-\minLog)/(\maxLog-\minLog)}%
+  \let\colcellT\pgfmathresult%
+  \pgfmathparse{max(0,min(1,\colcellT))}%
+  \let\colcellT\pgfmathresult%
+  \pgfmathsetmacro{\colcellR}{round(190+(140-190)*\colcellT)}%
+  \pgfmathsetmacro{\colcellG}{round(255+(0-255)*\colcellT)}%
+  \pgfmathsetmacro{\colcellB}{round(190+(0-190)*\colcellT)}%
+  \edef\colcellCC{\noexpand\cellcolor[RGB]{\colcellR,\colcellG,\colcellB}}%
+  \colcellCC{\color{black}$#1\times10^{#2}$}%
+}
 
 % ---- font professionali (Times, stile tesi) ----
 \usepackage{newtxtext}
@@ -847,28 +869,60 @@
 % SLIDE 28 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
+  \footnotesize
   \begin{columns}[T]
-    \begin{column}{0.56\textwidth}
-      \begin{itemize}
+    \begin{column}{0.38\textwidth}
+      \begin{itemize}\setlength{\itemsep}{1pt}
         \item Setup: $N=200$, seed 42, $w_0=(2,-3)$, $\alpha=0.1$,
-          $\theta=0.5$, $n_0=5$, 30 iterazioni, tolleranza
-          $\|\nabla J\| < 10^{-6}$.
-        \item Preset: ben condizionato ($\kappa\approx1.1$), mal condizionato
-          ($\kappa\approx20$), molto mal condizionato ($\kappa\approx100$),
-          incrociato.
-        \item Profilo a ``scalini'' di $n_k$ confermato dagli esperimenti:
-          il batch cresce solo quando la CCV lo richiede.
-        \item BB-CCV raggiunge la precisione macchina
-          ($\approx1.1\times10^{-14}$) su $\kappa\approx100$; l'analisi
-          teorica ($\kappa$ al posto di $\kappa^2$) è confermata dai dati.
+          $\theta=0.5$, $n_0=5$, 30 iterazioni, $\|\nabla J\|_2<10^{-6}$
+          (Wolfe; Armijo per BB-CCV).
+        \item Funzioni test (5): ben condizionata ($\kappa\approx1.1$), mal
+          ($\kappa\approx20$), molto mal ($\kappa\approx100$), incrociato
+          ($\kappa\approx1.67$) e \textbf{Funzione di Rosenbrock} (non
+          quadratica, $c{=}100$); formule a slide~27.
+        \item $n_k$ a ``scalini'': il batch cresce solo se la CCV è violata
+          (Fig.~5.3).
+        \item BB-CCV su $\kappa\approx100$: $1.0991\times10^{-14}$
+          (precisione macchina, cella verde in tabella).
       \end{itemize}
     \end{column}
-    \begin{column}{0.44\textwidth}
+    \begin{column}{0.62\textwidth}
       \begin{center}
-        \includegraphics[width=\textwidth]{fig_batch_size.png}\\[0.2cm]
-        {\small\color{grigio} Fig.~5.3 --- dimensione del campione $n_k$ vs
-          iterazioni $k$}
+      {\color{black}\everymath{\color{black}}%
+        \renewcommand{\arraystretch}{0.85}%
+        \setlength{\tabcolsep}{2.5pt}%
+        \arrayrulecolor{grigio}%
+        \scriptsize
+        \scalebox{0.52}{%
+        \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \cellcolor{white}Problema & \cellcolor{white}Dynamic GD &
+        \cellcolor{white}BB-CCV & \cellcolor{white}Newton-CG &
+        \cellcolor{white}Newton-CG $L_1$\\
+        \midrule
+        \cellcolor{white}$\kappa\approx1.1$ & \colorcell{1.1895}{-1} &
+        \colorcell{1.1662}{-1} & \colorcell{4.0264}{-1} &
+        \colorcell{1.0167}{-1}\\
+        \cellcolor{white}$\kappa\approx20$ & \colorcell{4.9050}{-2} &
+        \colorcell{9.7195}{-5} & \colorcell{2.3463}{-1} &
+        \colorcell{4.8802}{-1}\\
+        \cellcolor{white}$\kappa\approx100$ & \colorcell{4.6668}{-1} &
+        \colorcell{1.0991}{-14} & \colorcell{2.0969}{-1} &
+        \colorcell{9.6954}{-1}\\
+        \cellcolor{white}incrociato ($\kappa\approx1.67$) &
+        \colorcell{9.4161}{-3} & \colorcell{6.1644}{-4} &
+        \colorcell{3.5167}{-1} & \colorcell{2.0877}{-2}\\
+        \cellcolor{white}Rosenbrock ($c{=}100$) & \colorcell{6.1354}{-4} &
+        \colorcell{1.0645}{-1} & \colorcell{2.0625}{-1} &
+        \colorcell{1.2525}{-1}\\
+        \bottomrule
+        \end{tabular}}}
+        \par
       \end{center}
+      \vspace{-0.05cm}
+      {\scriptsize\color{grigio} $e_{30}$ = errore finale (base, seed~42),
+        come in tesi\_finale (Tab.~riuso\_sintesi): sfondo su scala log,
+        verde = minimo, rosso = massimo.}
     \end{column}
   \end{columns}
 \end{frame}

@@ -157,6 +157,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 28 ``Setup e
+  risultati numerici'' rifatta: elencate tutte e 5 le funzioni test e
+  aggiunta la tabella colorata a supporto dei risultati.** Prima il bullet
+  ``Preset'' elencava solo i quattro quadratici e i numeri (BB-CCV precisione
+  macchina su $\kappa\approx100$) non erano supportati da tabelle. Ora la
+  slide elenca l'intera batteria (ben/mal/molto mal condizionata, termine
+  incrociato e Funzione di Rosenbrock non quadratica) e mostra la tabella
+  colorata dell'errore finale $e_{30}$ versione \emph{base} (seed 42),
+  5 problemi $\times$ 4 algoritmi, copiata dalla Tab.~\texttt{riuso\_sintesi}
+  di \texttt{tesi\_finale}: aggiunta al preambolo della presentazione la
+  macro \texttt{\textbackslash colorcell} identica a quella di
+  \texttt{tesi.tex} (scala log: verde chiaro = minimo, rosso scuro =
+  massimo); la cella BB-CCV su $\kappa\approx100$
+  ($1.0991\times10^{-14}$, precisione macchina) è verde. Rimossa dalla slide
+  l'immagine Fig.~5.3 (resta il rinvio testuale); nessuna variazione di
+  numerazione. Ricompilato \texttt{presentazione/presentazione.pdf}
+  (**39 pp** — invariate; 0 errori, 0 overfull, 0 undefined). Nota: le altre
+  tabelle del mazzo che riproducono tabelle della tesi (slide 31/33/35/37)
+  sono ancora in bianco/nero, da ricolorare come \texttt{tesi\_finale} in una
+  sessione dedicata. Nessun altro file toccato.
+- **Ultimo intervento (06/09/2026, tesi).** **Ringraziamenti: aggiunta la
 - **Ultimo intervento (06/09/2026, tesi).** **Ringraziamenti: aggiunta la
   frase ``...e mi ha insegnato quanto è importante credere in se stessi'' e
   commentati due artisti.** Nella pagina dei Ringraziamenti, dopo ``nei
