@@ -435,46 +435,46 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 13 — Il passo $\alpha_k$: condizioni di Armijo e Wolfe (App.~A)
+% SLIDE 13 — Condizioni di Wolfe (con $h=\alpha d$)
 % =====================================================================
-\begin{frame}{Il passo $\alpha_k$: condizioni di Armijo e Wolfe}
-  \small
-  \setlength{\abovedisplayskip}{2pt}
-  \setlength{\belowdisplayskip}{2pt}
-  \setlength{\abovedisplayshortskip}{2pt}
-  \setlength{\belowdisplayshortskip}{2pt}
+\begin{frame}{Condizioni di Wolfe (con $h=\alpha d$)}
+  \footnotesize
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
   \begin{itemize}\setlength{\itemsep}{1pt}
-    \item Il passo $\alpha_k$ è scelto da una \emph{line search} lungo la
-      direzione di discesa $p$ ($\nabla f(x_k)^Tp<0$): $\alpha$ deve ridurre
-      $f$ in modo ``sufficiente'', senza essere troppo piccolo.
-    \item \textbf{Armijo}: limite \emph{superiore} su $f$ lungo $p$: il passo
-      è accettato se $f(x_k+\alpha p)$ sta sotto la retta
-      $f(x_k)+c_1\alpha\,\nabla f(x_k)^Tp$:
+    \item $h=\alpha d$ è lo spostamento lungo una direzione di discesa:
+      $\nabla f(x)^Th<0$, quindi nelle formule i due membri sono negativi.
+    \item \textbf{Armijo} (prima condizione di Wolfe): la caduta deve essere
+      ``sufficiente'',
       \[
-        f(x_k+\alpha p)\;\le\;f(x_k)+c_1\,\alpha\,\nabla f(x_k)^Tp,
-        \qquad c_1\in(0,1)\ \ (\text{tip. }10^{-4}),
+        \boxed{\,f(x+h)-f(x)\le c_1\,\nabla f(x)^Th\,},\qquad 0<c_1<1.
       \]
-      la retta ha pendenza $c_1\nabla f(x_k)^Tp$, meno ripida della tangente in
-      $\alpha=0$: i passi che la superano vengono rifiutati e ridotti
-      (impedisce i passi \emph{troppo grandi}).
-    \item \textbf{Wolfe}: condizione di \emph{curvatura} (limite
-      \emph{inferiore} sulla derivata lungo la direzione). Con
-      $g(\alpha)=f(x_k+\alpha p)$ e $g'(\alpha)=\nabla f(x_k+\alpha p)^Tp$:
+      Moltiplicando per $-1$: la \emph{caduta effettiva} deve essere almeno
+      la frazione $c_1$ della caduta lineare prevista dal gradiente.
+      Impedisce passi troppo corti o scarsi.
+    \item \textbf{Curvatura di Wolfe}: la pendenza finale non deve essere
+      troppo ripida,
       \[
-        g'(\alpha)\;\ge\;c_2\,g'(0),
-        \qquad c_2\in(c_1,1),
-        \qquad g'(0)=\nabla f(x_k)^Tp<0,
+        \boxed{\,\nabla f(x+h)^Th\ge c_2\,\nabla f(x)^Th\,},\qquad c_1<c_2<1.
       \]
-      poiché $c_2<1$, $c_2g'(0)$ è meno negativo di $g'(0)$: la condizione
-      scarta i passi \emph{troppo piccoli} (per $\alpha\to0^+$,
-      $g'(\alpha)\to g'(0)$, che viola la disuguaglianza).
-    \item $0<c_1<c_2<1$ rende le due condizioni \emph{compatibili} (intervallo
-      non vuoto di $\alpha$ accettabili); se $c_1\ge c_2$ le condizioni
-      possono diventare contraddittorie.
+      Moltiplicando per $-1$: la \emph{pendenza residua} (in valore assoluto)
+      deve essere al più la frazione $c_2$ di quella iniziale. Se è ancora
+      molto negativa, $f$ continua a scendere: si può allungare il passo.
+      Impedisce di fermarsi troppo presto.
   \end{itemize}
-  \fonte{Dalla tesi --- Appendice~A; nei codici (Appendice~B): Wolfe con
-    $c_1{=}10^{-4}$, $c_2{=}0.9$ per Dynamic GD e Newton-CG; Armijo con
-    backtracking per BB-CCV; Armijo proiettata per Newton-CG~$L_1$}
+  \vspace{0.03cm}
+  \begin{center}
+    \boxed{\;\begin{cases}
+      f(x+h)-f(x)\le c_1\nabla f(x)^Th & \text{(caduta sufficiente)}\\[2pt]
+      \nabla f(x+h)^Th\ge c_2\nabla f(x)^Th & \text{(curvatura)}
+    \end{cases}\;}
+  \end{center}
+  \vspace{-0.05cm}
+  {\small\color{grigio} Insieme rendono il passo \emph{bilanciato}: si scende
+    abbastanza senza fermarsi troppo presto. (Dalla tesi --- Appendice~A;
+    Wolfe $c_1{=}10^{-4}$, $c_2{=}0.9$ nei codici.)}
 \end{frame}
 
 % =====================================================================

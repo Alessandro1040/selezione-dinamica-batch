@@ -157,6 +157,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 13 riscritta in
+  versione essenziale: ``Condizioni di Wolfe (con $h=\alpha d$)''** (era
+  ``Il passo $\alpha_k$: condizioni di Armijo e Wolfe'', giudicata troppo
+  tecnica). Notazione $h=\alpha d$ (spostamento lungo una direzione di
+  discesa, $\nabla f(x)^Th<0$) e stessa logica per le due condizioni: Armijo
+  (caduta sufficiente) $f(x+h)-f(x)\le c_1\nabla f(x)^Th$ con $0<c_1<1$ --
+  moltiplicando per $-1$, la caduta effettiva deve essere almeno la frazione
+  $c_1$ della caduta lineare prevista (impedisce passi troppo corti o
+  scarsi); curvatura $\nabla f(x+h)^Th\ge c_2\nabla f(x)^Th$ con
+  $c_1<c_2<1$ -- moltiplicando per $-1$, la pendenza residua in valore
+  assoluto deve essere al più la frazione $c_2$ di quella iniziale
+  (impedisce di fermarsi troppo presto). Box di riepilogo delle due
+  condizioni in fondo; font `\footnotesize`. Ricompilato
+  `presentazione/presentazione.pdf` (**39 pp** — invariate; 0 errori, 0
+  overfull, 0 undefined). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (06/09/2026, presentazione).** **Colorate come in
 - **Ultimo intervento (06/09/2026, presentazione).** **Colorate come in
   `tesi_finale` tutte le tabelle del mazzo che riproducono tabelle della
   tesi** (completa il lavoro iniziato sulla Slide 28). Convertite in celle
