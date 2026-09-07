@@ -157,6 +157,55 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, presentazione).** **Aggiunte cinque slide e
+  riorganizzato il discorso.** (1) Nuova SLIDE 21 ``Newton-CG $L_1$: il
+  gradiente generalizzato di $F=J+\nu\|w\|_1$'' (prima di ``$z_k$, active set e
+  faccia ortante'', ora SLIDE 22), fedele alla Sez.~5.3 della tesi (``Il
+  gradiente generalizzato''): parte liscia $J$ + subgradiente di $\nu|w_i|$ a
+  casi, formula per componente $[\widetilde{\nabla}F(w)]_i=\partial
+  J/\partial w_i+g_i$ con $g_i\in\{+\nu\},\{-\nu\},[-\nu,+\nu]$ e scelta
+  $g_i=\arg\min_{g\in[-\nu,\nu]}|d_i+g|$ ($d_i:=\partial J/\partial w_i$) che
+  dà i tre casi $d_i<-\nu$, $|d_i|\le\nu$, $d_i>\nu$ e garantisce
+  $\widetilde{\nabla}F(w^*)=0$; la slide su $z_k$ riformulata come codifica di
+  quella scelta di $g_i$. (2) Nuova SLIDE 30 ``Il dataset sintetico
+  ``centrato'': $J(w)$ vs $\widehat J_N(w)$'' (dopo ``Le funzioni test''),
+  fedele al paragrafo ``Costruzione del dataset sintetico centrato''
+  (Sez.~6.2): ruolo di $J(w)$, di $\ell(w;i)$, del gradiente/line search di
+  batch e di $\widehat J_N(w)$ per l'arresto ($\widehat J_N=J$ per ogni $N$).
+  (3) Nuova SLIDE 34 ``Perché il riuso è critico sui mal condizionati:
+  l'esempio $\kappa$'' (dopo ``Cosa significa riusare il batch''), dall'esempio
+  quadratico di Sez.~6.5.2 ($J=\kappa w_1^2+w_2^2$): deriva verso
+  $w^*_{\mathcal S}$ (1° ordine, CCV cieca al bias) e Hessiana obsoleta
+  (2° ordine, $e_{30}\approx1.28$). (4) Nuova SLIDE 39 ``Validation set:
+  perché evita il collasso di $M{=}\infty$'' (lettura dei risultati dopo
+  Tab.~6.3): Hessiana obsoleta e $d_k$ a $\approx90^\circ$ con $M{=}\infty$,
+  validation come giudice esterno, default vs calib. $P{=}1,p{=}10\%$,dyn
+  (5 seed: $2.04\times10^{-1}$, 12/20; Newton-CG $\kappa\approx1.1$ da $1.41$ a
+  $1.78\times10^{-1}$). (5) Nuova SLIDE 42 ``Discesa della loss: lettura dei
+  risultati'' (dopo Tab.~6.5): primo ordine $\approx M{=}\infty$, Newton
+  protetto ($\kappa\approx20$: da $1.28$ a $2.48\times10^{-1}$), limite su
+  Rosenbrock ($1.97\times10^{-1}$ base $\to$ $3.84\times10^{-1}$), su 5 seed
+  11/20 con media $2.38\times10^{-1}$ sopra la base. Rinumerati i marcatori
+  SLIDE (40 $\to$ 45) e corretto il riferimento interno ``formule a
+  slide~27'' $\to$ ``slide~28''. Ricompilato
+  `presentazione/presentazione.pdf` (**45 pp** — era 40; 0 errori,
+  0 undefined, 0 overfull). Nessun altro file toccato: la presentazione vive
+  solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (07/09/2026, presentazione).** **Slide 36 (nella
+  numerazione attuale a 45 slide i contenuti citati sono alle slide 40 e 41):
+  tolti i
+  trattini e le virgolette da ``esaurito''.** Primo punto riscritto in modo
+  più naturale: ``Stesso obiettivo dello stop adattivo: capire quando il batch
+  non porta più miglioramenti. Qui però \textbf{senza riservare dati}: si
+  osserva solo la loss sul mini-batch corrente...''. Punto 4 dello
+  pseudocodice: ``...\textbf{ricampiona} (il batch non porta più
+  miglioramenti); una $\tau$ più alta (es. $10^{-3}$) fa scattare il
+  ricampionamento prima.''. Per coerenza corretti anche lo stesso
+  ``esaurito'' virgolettato sulla slide 37 e un trattino in prosa sulla
+  slide 18 (``--- nessuna tolleranza'' → ``e nessuna tolleranza'').
+  Ricompilato `presentazione/presentazione.pdf` (**40 pp** — invariate;
+  0 errori, 0 undefined, 0 overfull). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 21 sdoppiata in
   due slide (21 e 22) e resa ``standalone''.** L'ex slide ``Newton-CG $L_1$:
   $z_k$ e la ricerca lineare proiettata'' citava le eq.~5.44--5.50 della tesi

@@ -666,7 +666,7 @@
       successiva.
     \item È un criterio \emph{automatico}: $\gamma$ è fissata dai dati
       all'inizio del CG e la soglia $\Psi(d_j)$ si aggiorna a ogni iterazione
-      con la sola $\|d_j\|_2^2$ --- nessuna tolleranza da scegliere a priori.
+      con la sola $\|d_j\|_2^2$ e nessuna tolleranza da scegliere a priori.
     \item \textbf{Perché è adattivo.}
       \begin{itemize}\setlength{\itemsep}{1pt}
         \item evita calcoli inutili quando l'approssimazione dell'Hessiana è
@@ -693,7 +693,59 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 21 — Newton-CG L1: z_k, active set e faccia ortante (eq. 5.43-5.46)
+% SLIDE 21 — Newton-CG L1: il gradiente generalizzato di F=J+nu||w||_1
+% =====================================================================
+\begin{frame}{Newton-CG $L_1$: il gradiente generalizzato di $F=J+\nu\|w\|_1$}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item $F(w)=J(w)+\nu\sum_{i=1}^{m}|w_i|$: parte liscia $J$ + parte non
+      liscia $\nu\sum_i|w_i|$. La somma si decompone per componente
+      $\Rightarrow$ il gradiente generalizzato si calcola coordinata per
+      coordinata: per la $i$-esima servono
+      \begin{enumerate}\setlength{\itemsep}{1pt}
+        \item la derivata parziale della parte liscia:
+          $\partial J(w)/\partial w_i$;
+        \item il subgradiente di $\nu|w_i|$:
+          $\partial(\nu|w_i|)=\{+\nu\}$ se $w_i>0$, $\{-\nu\}$ se $w_i<0$,
+          $[-\nu,+\nu]$ se $w_i=0$.
+      \end{enumerate}
+    \item Quindi, per ogni componente,
+      \[
+        [\widetilde{\nabla}F(w)]_i
+        =\underbrace{\frac{\partial J(w)}{\partial w_i}}_{\text{gradiente di }J}
+        +\underbrace{g_i}_{\text{subgradiente di }\nu|w_i|},\qquad
+        g_i\in\begin{cases}
+          \{+\nu\}, & w_i>0,\\
+          \{-\nu\}, & w_i<0,\\
+          [-\nu,+\nu], & w_i=0.
+        \end{cases}
+      \]
+    \item Quando $w_i=0$ c'è libertà su $g_i\in[-\nu,+\nu]$; la scelta è fatta
+      in modo che in $w^*$ valga $\widetilde{\nabla}F(w^*)=0$. Posto
+      $d_i:=\partial J(w)/\partial w_i$ (così
+      $[\widetilde{\nabla}F]_i=d_i+g_i$), si prende
+      $g_i=\arg\min_{g\in[-\nu,\nu]}|d_i+g|$: il subgradiente che rende
+      $d_i+g_i$ il più vicino possibile a zero (zero se possibile), così
+      $w_i=0$ è riconosciuto come vero minimo quando lo è. Ne derivano i tre
+      casi:
+      \begin{itemize}\setlength{\itemsep}{1pt}
+        \item $d_i<-\nu\;\Rightarrow\;g_i=+\nu\;\Rightarrow\;
+          [\widetilde{\nabla}F]_i<0$ ($w_i$ cresce);
+        \item $-\nu\le d_i\le+\nu\;\Rightarrow\;g_i=-d_i\;\Rightarrow\;
+          [\widetilde{\nabla}F]_i=0$ ($w_i=0$ stazionario);
+        \item $d_i>+\nu\;\Rightarrow\;g_i=-\nu\;\Rightarrow\;
+          [\widetilde{\nabla}F]_i>0$ ($w_i$ decresce).
+      \end{itemize}
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~5.3, ``Il gradiente generalizzato'' (eq.~5.43)}
+\end{frame}
+
+% =====================================================================
+% SLIDE 22 — Newton-CG L1: z_k, active set e faccia ortante (eq. 5.43-5.46)
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: $z_k$, active set e faccia ortante}
   \footnotesize
@@ -702,10 +754,10 @@
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
   \begin{itemize}\setlength{\itemsep}{1pt}
-    \item $F=J+\nu\|w\|_1$ non è differenziabile dove $w_i=0$: l'algoritmo
-      decide se \emph{liberare} $w_i$ o \emph{attivarla} (tenerla a zero, per
-      la sparsità). La decisione è codificata da $z_k\in\{-1,0,+1\}^m$
-      (eq.~5.44):
+    \item $F=J+\nu\|w\|_1$ non è differenziabile dove $w_i=0$: lì si sceglie
+      $g_i$ (slide precedente) e la decisione se \emph{liberare} $w_i$ o
+      \emph{attivarla} (tenerla a zero, per la sparsità) è codificata da
+      $z_k\in\{-1,0,+1\}^m$ (eq.~5.44):
       \[
         z_k^i=\begin{cases}
           +1 & w_k^i>0 \ \text{oppure}\ \bigl(w_k^i=0 \text{ e }
@@ -730,7 +782,7 @@
 
 
 % =====================================================================
-% SLIDE 22 — Newton-CG L1: ricerca lineare proiettata (eq. 5.49-5.50)
+% SLIDE 23 — Newton-CG L1: ricerca lineare proiettata (eq. 5.49-5.50)
 % =====================================================================
 \begin{frame}{Newton-CG $L_1$: la ricerca lineare proiettata}
   \footnotesize
@@ -766,7 +818,7 @@
 
 
 % =====================================================================
-% SLIDE 23 — Schema: Newton-CG L1 (Fig. 5.5)
+% SLIDE 24 — Schema: Newton-CG L1 (Fig. 5.5)
 % =====================================================================
 \begin{frame}{Schema: Newton-CG $L_1$ (Fig.~5.5)}
   \begin{center}
@@ -778,7 +830,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 24 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
+% SLIDE 25 — Il passo di Barzilai--Borwein (1/2): relazione secante e passo
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (1/2) --- relazione secante (eq.~5.52--5.54)}
   \small
@@ -808,7 +860,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 25 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
+% SLIDE 26 — Barzilai--Borwein (2/2): le due formule e la salvaguardia
 % =====================================================================
 \begin{frame}{Il passo di Barzilai--Borwein (2/2) --- minimi quadrati e salvaguardia (eq.~5.55--5.56)}
   \small
@@ -843,7 +895,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 26 — Schema: BB-CCV (Fig. 5.6)
+% SLIDE 27 — Schema: BB-CCV (Fig. 5.6)
 % =====================================================================
 \begin{frame}{Schema: BB-CCV (Fig.~5.6)}
   \begin{center}
@@ -855,7 +907,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 27 — App web interattiva
+% SLIDE 28 — App web interattiva
 % =====================================================================
 \begin{frame}{App web interattiva: esperimenti nel browser}
   \begin{itemize}
@@ -874,7 +926,7 @@
   \end{itemize}
 \end{frame}
 % =====================================================================
-% SLIDE 28 — Le funzioni test: espressioni usate negli esperimenti
+% SLIDE 29 — Le funzioni test: espressioni usate negli esperimenti
 % =====================================================================
 \begin{frame}{Le funzioni test: espressioni usate negli esperimenti}
   \footnotesize
@@ -904,10 +956,51 @@
   \fonte{Dalla tesi --- Sez.~6.1 (Setup Sperimentale)}
 \end{frame}
 
+% =====================================================================
+% SLIDE 30 — Il dataset sintetico ``centrato’’: J(w) vs hat J_N(w)
+% =====================================================================
+\begin{frame}{Il dataset sintetico ``centrato'': $J(w)$ vs $\widehat J_N(w)$}
+  \small
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item Nel codice la \textbf{superficie plottata} è la funzione obiettivo
+      teorica $J(w)$ (preset della loss): serve per disegnare il grafico,
+      calcolare il percorso e mostrare le metriche $J(w_k)$ e
+      $\|\nabla J(w_k)\|$.
+    \item L'algoritmo però \textbf{non minimizza} $J(w)$: usa un dataset
+      sintetico di $N$ funzioni di perdita individuali
+      $\ell(w;i)$, $i=1,\dots,N$, costruito \emph{perturbando i coefficienti}
+      di $J(w)$; ogni $\ell(w;i)$ è il contributo del singolo esempio $i$.
+    \item A ogni iterazione si estrae un batch $\mathcal S_k$ di dimensione
+      $n_k$ e si calcola il \textbf{gradiente del batch}
+      $g_k=\frac{1}{n_k}\sum_{i\in\mathcal S_k}\nabla\ell(w_k;i)$; la line
+      search di Armijo usa la \textbf{loss del batch}
+      $J_{\mathcal S_k}(w)=\frac{1}{n_k}\sum_{i\in\mathcal S_k}\ell(w;i)$.
+      La media su tutti gli $N$ dati è
+      $\widehat J_N(w)=\frac{1}{N}\sum_{i=1}^{N}\ell(w;i)$.
+    \item \textbf{Dataset ``centrato'':} le medie campionarie dei coefficienti
+      delle perturbazioni coincidono esattamente con i coefficienti di $J(w)$
+      $\Rightarrow$ $\widehat J_N(w)=J(w)$ e
+      $\nabla\widehat J_N(w)=\nabla J(w)$ per ogni $w$,
+      \emph{indipendentemente da $N$} (si sottrae a ogni perturbazione la
+      propria media campionaria).
+    \item Quindi $J(w)$ è la funzione plottata, ma l'algoritmo minimizza
+      $\widehat J_N(w)$ (o sue approssimazioni su batch); la loss campionaria
+      totale $\widehat J_N(w)$ è usata per la \textbf{condizione di arresto}.
+      Nel codice la coincidenza $\widehat J_N=J$ vale per ogni $N$
+      \emph{esattamente}; in un problema reale solo nel limite $N\to\infty$.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.2 (Architettura Software), ``Costruzione del
+    dataset sintetico centrato''}
+\end{frame}
+
 
 
 % =====================================================================
-% SLIDE 29 — Setup e risultati numerici
+% SLIDE 31 — Setup e risultati numerici
 % =====================================================================
 \begin{frame}{Setup e risultati numerici}
   \footnotesize
@@ -920,7 +1013,7 @@
         \item Funzioni test (5): ben condizionata ($\kappa\approx1.1$), mal
           ($\kappa\approx20$), molto mal ($\kappa\approx100$), incrociato
           ($\kappa\approx1.67$) e \textbf{Funzione di Rosenbrock} (non
-          quadratica, $c{=}100$); formule a slide~27.
+          quadratica, $c{=}100$); formule a slide~28.
         \item $n_k$ a ``scalini'': il batch cresce solo se la CCV è violata
           (Fig.~5.3).
         \item BB-CCV su $\kappa\approx100$: $1.0991\times10^{-14}$
@@ -969,7 +1062,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 30 — Riuso del mini-batch (Sez. 6.5)
+% SLIDE 32 — Riuso del mini-batch (Sez. 6.5)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch (Sez.~6.5)}
   \begin{columns}[T]
@@ -996,7 +1089,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 31 — Cosa significa riusare il batch
+% SLIDE 33 — Cosa significa riusare il batch
 % =====================================================================
 \begin{frame}{Cosa significa riusare il batch}
   \small
@@ -1028,7 +1121,46 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 32 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
+% SLIDE 34 — Perché il riuso è critico sui mal condizionati (esempio κ)
+% =====================================================================
+\begin{frame}{Perché il riuso è critico sui mal condizionati: l'esempio $\kappa$}
+  \small
+  \setlength{\abovedisplayskip}{1pt}
+  \setlength{\belowdisplayskip}{1pt}
+  \setlength{\abovedisplayshortskip}{1pt}
+  \setlength{\belowdisplayshortskip}{1pt}
+  \textbf{Modello} (Sez.~6.5.2): $J(w)=\kappa w_1^2+w_2^2$ con $w^*=(0,0)$,
+  $\ell(w;i)=\kappa(w_1+\varepsilon_1^{(i)})^2+(w_2+\varepsilon_2^{(i)})^2$
+  con $\varepsilon^{(i)}\sim\mathcal N(0,0.04\,I)$. La media sugli $N$ esempi è
+  $J(w)$, ma ogni loss è centrata in un punto diverso.
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item \textbf{Primo ordine ($d_k=-g_k$): deriva permanente.} Il gradiente
+      sul batch punta al \emph{minimo campionario}
+      $w^*_{\mathcal S}=(-\bar\varepsilon_1,-\bar\varepsilon_2)\ne w^*$:
+      \[
+        g_k=\nabla J_{\mathcal S_k}(w_k)=\bigl[2\kappa\,(w_1+\bar\varepsilon_1),\,
+        2\,(w_2+\bar\varepsilon_2)\bigr]^{\!\top},\quad
+        \bar\varepsilon_j=\frac{1}{n_k}\sum_{i\in\mathcal S_k}\varepsilon_j^{(i)}.
+      \]
+      Nella direzione quasi piatta $w_2$ il gradiente di $J$ è debolissimo:
+      anche un piccolo $\bar\varepsilon_2\approx0.09$ ($n_k=5$) sposta di molto
+      $w^*_{\mathcal S}$. Riusare lo stesso batch significa smettere di mediare
+      il rumore: l'iterato \emph{deriva} verso $w^*_{\mathcal S}$, e la CCV non
+      lo vede (misura la varianza interna, non il bias sistematico).
+    \item \textbf{Secondo ordine ($d_k=-H_k^{-1}g_k$): Hessiana obsoleta.}
+      $H_k$ compensa il condizionamento: se è stata calcolata dove il batch è
+      stato estratto ma $w_k$ si è spostato, applica una curvatura
+      \emph{vecchia} (allunga il passo dove la funzione è diventata ripida,
+      lo accorcia dove è diventata piatta). Con $\kappa$ grande $d_k$ può
+      formare $\approx90^\circ$ con la vera discesa: la line search taglia il
+      passo e il metodo si \emph{blocca} lontano dal minimo
+      ($e_{30}\approx1.28$ con $M{=}\infty$ su $\kappa\approx100$).
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.5.2, ``Meccanismo: vantaggi e limiti del riuso''}
+\end{frame}
+
+% =====================================================================
+% SLIDE 35 -- Riuso del mini-batch: sintesi dei risultati (Tab.6.1)
 % =====================================================================
 \begin{frame}{Riuso del mini-batch: sintesi dei risultati (Tab.~6.1)}
   \footnotesize
@@ -1080,7 +1212,7 @@
 \end{frame}
 
 % =====================================================================
-% SLIDE 33 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
+% SLIDE 36 -- Robustezza del riuso su 5 seed indipendenti (Tab.6.2)
 % =====================================================================
 \begin{frame}{Robustezza del riuso su 5 seed indipendenti (Tab.~6.2)}
   \footnotesize
@@ -1133,7 +1265,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 34 — Stop adattivo con validation set: come funziona
+% SLIDE 37 — Stop adattivo con validation set: come funziona
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set: come funziona}
   \small
@@ -1170,7 +1302,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 35 -- Stop adattivo con validation set (Tab.6.3)
+% SLIDE 38 -- Stop adattivo con validation set (Tab.6.3)
 % =====================================================================
 \begin{frame}{Stop adattivo con validation set (Tab.~6.3)}
   \footnotesize
@@ -1224,7 +1356,47 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 36 — Riuso per discesa della loss sul batch: come funziona
+% SLIDE 39 — Validation set: perché evita il collasso (lettura risultati)
+% =====================================================================
+\begin{frame}{Validation set: perché evita il collasso di $M{=}\infty$}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item \textbf{Perché $M{=}\infty$ collassa (Newton).} $H_k$ è calcolata nel
+      punto in cui il batch è stato estratto e ``invecchia'' mentre $w_k$ si
+      muove: curvatura vecchia su gradiente fresco $\Rightarrow$ $d_k$ quasi
+      $\perp$ alla discesa (fino a $\approx90^\circ$), la line search dimezza
+      $\alpha_k$ e l'iterato si blocca ($e_{30}$ fino a $1.41$). La CCV non lo
+      vede: controlla solo la varianza interna dei gradienti del batch.
+    \item \textbf{La validation è un giudice esterno} (i suoi dati non entrano
+      in gradiente/Hessiana): finché il batch è utile $J_{\mathrm{val}}$ scende;
+      quando $H_k$ invecchia o si deriva verso $w^*_{\mathcal S}$,
+      $J_{\mathrm{val}}$ smette di scendere (anche se $J_{\mathrm{batch}}$
+      scende ancora) $\Rightarrow$ dopo $P$ controlli si ricampiona
+      $\mathcal S_k$ (e $H_k$ legata) al punto corrente: curvatura
+      ``rinfrescata''.
+    \item \textbf{seed 42 (Tab.~6.3).} Newton-CG su $\kappa\approx1.1$:
+      $M{=}\infty$ $1.41$ $\to$ default $2.98\times10^{-1}$ $\to$ calib.
+      $P{=}1,p{=}10\%$,dyn $1.78\times10^{-1}$, migliore della base
+      ($3.73\times10^{-1}$). Con i default la media (20 casi) resta sopra la
+      base: $2.34\times10^{-1}$ vs $1.96\times10^{-1}$.
+    \item \textbf{5 seed.} Default $2.67\times10^{-1}$ (7/20), peggiore della
+      base ($2.16\times10^{-1}$); calib. $P{=}1,p{=}10\%$,dyn $2.04\times10^{-1}$
+      (12/20), sotto base e molto sotto $M{=}\infty$ ($3.84\times10^{-1}$).
+    \item \textbf{Perché $P{=}1$, $p{=}10\%$, dyn.} Pazienza bassa = criterio
+      reattivo (in 30 iterazioni i passi persi contano); $p{=}10\%$ lascia più
+      training di $p{=}20\%$; split dinamico riparte da zero la validation a
+      ogni cambio di batch. Contano pazienza e $p$; $\tau$ e strategia di split
+      hanno effetti marginali.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.5.6, Tab.~6.3 (seed 42) e robustezza su 5 seed}
+\end{frame}
+
+% =====================================================================
+% SLIDE 40 — Riuso per discesa della loss sul batch: come funziona
 % =====================================================================
 \begin{frame}{Riuso per discesa della loss sul batch: come funziona}
   \small
@@ -1233,10 +1405,10 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
   \setlength{\abovedisplayshortskip}{2pt}
   \setlength{\belowdisplayshortskip}{2pt}
   \begin{itemize}\setlength{\itemsep}{2pt}
-    \item Stesso obiettivo dello stop adattivo --- capire quando il batch è
-      ``esaurito'' --- ma \textbf{senza riservare dati}: si osserva solo la
-      loss sul mini-batch corrente, campionato dall'\emph{intero} dataset
-      (CCV con tetto $N$).
+    \item Stesso obiettivo dello stop adattivo: capire quando il batch non
+      porta più miglioramenti. Qui però \textbf{senza riservare dati}: si
+      osserva solo la loss sul mini-batch corrente, campionato
+      dall'\emph{intero} dataset (CCV con tetto $N$).
     \item Le line search garantiscono già $J_{\mathrm{batch}}$ decrescente a
       ogni passo accettato: il criterio non scatta se la loss \emph{cresce},
       ma se \emph{decresce troppo poco} (riduzione relativa sotto soglia),
@@ -1254,20 +1426,21 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
       $J_{\mathrm{batch}}(w_{k-1})-J_{\mathrm{batch}}(w_k)\ge
       \tau\,\lvert J_{\mathrm{batch}}(w_{k-1})\rvert+\epsilon_{\mathrm{abs}}$.
     \item Se per $P$ valutazioni consecutive \emph{non} c'è progresso
-      $\Rightarrow$ \textbf{ricampiona} (batch ``esaurito''); $\tau$ più alta
-      (es. $10^{-3}$) dichiara il batch esaurito prima.
+      $\Rightarrow$ \textbf{ricampiona} (il batch non porta più
+      miglioramenti); una $\tau$ più alta (es. $10^{-3}$) fa scattare il
+      ricampionamento prima.
   \end{enumerate}
   \fonte{Dalla tesi --- Sez.~6.5.7. Per Newton-CG~$L_1$ si monitora
     $F_{\mathrm{batch}}=J_{\mathrm{batch}}+\nu\lVert w\rVert_1$ sul batch.}
 \end{frame}
 
 % =====================================================================
-% SLIDE 37 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
+% SLIDE 41 -- In alternativa: riuso per discesa della loss sul batch (Tab.6.5)
 % =====================================================================
 \begin{frame}{In alternativa: riuso per discesa della loss sul batch (Tab.~6.5)}
   \footnotesize
   \begin{itemize}\setlength{\itemsep}{1.5pt}
-\item Alternativa \emph{senza} validation set: si osserva la sola loss sul batch corrente (``esaurito'' quando la riduzione relativa \`e sotto soglia).
+\item Alternativa \emph{senza} validation set: si osserva la sola loss sul batch corrente (il batch non porta più miglioramenti quando la riduzione relativa \`e sotto soglia).
 \item Per i metodi di Newton evita il collasso di $M{=}\infty$ ($\kappa\approx20$: da $1.28$ a $2.48\times10^{-1}$); per Dynamic GD/BB-CCV quasi come $M{=}\infty$.
   \end{itemize}
   \vspace{0.05cm}
@@ -1314,7 +1487,45 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 38 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
+% SLIDE 42 — Discesa della loss: lettura dei risultati
+% =====================================================================
+\begin{frame}{Discesa della loss sul batch: lettura dei risultati}
+  \footnotesize
+  \setlength{\abovedisplayskip}{2pt}
+  \setlength{\belowdisplayskip}{2pt}
+  \setlength{\abovedisplayshortskip}{2pt}
+  \setlength{\belowdisplayshortskip}{2pt}
+  \begin{itemize}\setlength{\itemsep}{2pt}
+    \item \textbf{Meccanismo (ricorda).} Nessun dato riservato: si campiona
+      dall'intero dataset (tetto $N$); la decisione usa solo $J_{\mathrm{batch}}$
+      sul batch corrente. La line search fa scendere sempre $J_{\mathrm{batch}}$:
+      il criterio scatta quando la discesa è \emph{troppo lenta} (vicino al
+      minimo campionario), non quando la loss sale.
+    \item \textbf{seed 42 (Tab.~6.5).} Primo ordine $\approx M{=}\infty$: pochi
+      ricampionamenti (BB-CCV su $\kappa\approx20$ fino a $\sim9.5\times10^{-10}$);
+      $\tau$ più alto ($10^{-3}$) $\Rightarrow$ più ricampionamenti: Dynamic GD
+      su $\kappa\approx20$ torna vicino alla base ($\approx4.9\times10^{-2}$).
+    \item \textbf{Newton protetto.} Newton-CG su $\kappa\approx20$: da $1.28$
+      ($M{=}\infty$) a $2.48\times10^{-1}$; evita il collasso anche per
+      Newton-CG $L_1$ (si monitora $F_{\mathrm{batch}}$).
+    \item \textbf{Punto debole: Rosenbrock.} Sul batch locale la loss scende
+      sempre: nessun segnale di ``deriva''; il criterio trattiene troppo il batch
+      e peggiora tutti i metodi (su Rosenbrock: $1.97\times10^{-1}$ base $\to$
+      $3.84\times10^{-1}$ con la discesa).
+    \item \textbf{5 seed (Tab.~6.7).} Discesa calib.
+      ($\tau{=}10^{-3},P{=}1,f{=}1$): vince 11/20 ma media $2.38\times10^{-1}$
+      sopra la base ($2.09\times10^{-1}$); la validation calib. resta migliore in
+      media ($2.04\times10^{-1}$, 12/20) ma ``costa'' il 10\% dei dati.
+    \item \textbf{In sintesi.} È l'alternativa alla validation \emph{senza
+      riservare dati} e protegge i metodi di Newton dal collasso; non risolve
+      Rosenbrock. Per Dynamic GD/BB-CCV resta consigliata la \emph{base}; per
+      Newton-CG la validation $P{=}1$, $p{=}10\%$.
+  \end{itemize}
+  \fonte{Dalla tesi --- Sez.~6.5.7--6.5.8, Tab.~6.5 (seed 42) e Tab.~6.7 (5 seed)}
+\end{frame}
+
+% =====================================================================
+% SLIDE 43 -- Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.6.7)
 % =====================================================================
 \begin{frame}{Confronto finale su 5 seed: base, $M{=}\infty$, validation e discesa (Tab.~6.7)}
   \footnotesize
@@ -1348,7 +1559,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 39 — Conclusioni
+% SLIDE 44 — Conclusioni
 % =====================================================================
 \begin{frame}{Conclusioni}
   \begin{itemize}
@@ -1366,7 +1577,7 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
 \end{frame}
 
 % =====================================================================
-% SLIDE 40 — Limiti e lavoro futuro
+% SLIDE 45 — Limiti e lavoro futuro
 % =====================================================================
 \begin{frame}{Limiti e lavoro futuro}
   \begin{itemize}
