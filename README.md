@@ -157,6 +157,12 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, presentazione).** **Slide 43 (Tab.~6.7):
+  colonna ``vitt.'' non visibile.** Le celle `0/20`, `8/20`, `12/20`, `11/20`
+  erano testo nero su sfondo nero (niente sfondo cella in una tabella che
+  imposta `\color{black}`): aggiunto `\cellcolor{white}` alle quattro celle.
+  Ricompilato `presentazione/presentazione.pdf` (**45 pp**; 0 errori,
+  0 undefined, 0 overfull). Nessun altro file toccato.
 - **Ultimo intervento (07/09/2026, pulizia riferimenti).** Rimossa dal deck
   (SLIDE 28 ``App web interattiva'') la menzione dello script
   ``simulazione\_batch.py'' (claim ``rigenerazione di figure e tabelle della
