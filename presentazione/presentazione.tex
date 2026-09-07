@@ -51,12 +51,12 @@
 \renewcommand{\familydefault}{\rmdefault}
 \graphicspath{{immagini/}}
 
-% ---- colori (tema scuro, sfondo nero) ----
-\definecolor{sfondo}{RGB}{0,0,0}          % sfondo nero
-\definecolor{testo}{RGB}{255,255,255}     % testo bianco
-\definecolor{acc}{RGB}{245,185,66}        % accento ambra (titoli)
-\definecolor{acc2}{RGB}{138,180,248}      % accento azzurro (secondario)
-\definecolor{grigio}{RGB}{176,176,176}    % sottotitoli / note
+% ---- colori (tema chiaro, sfondo bianco: nero su bianco) ----
+\definecolor{sfondo}{RGB}{255,255,255}    % sfondo bianco
+\definecolor{testo}{RGB}{0,0,0}           % testo nero
+\definecolor{acc}{RGB}{158,108,0}         % ambra scura (titoli / kw) — leggibile su bianco
+\definecolor{acc2}{RGB}{0,102,204}        % azzurro (secondario) — leggibile su bianco
+\definecolor{grigio}{RGB}{110,110,110}    % note (grigio scuro)
 
 \setbeamercolor{background canvas}{bg=sfondo}
 \setbeamercolor{normal text}{fg=testo}
@@ -68,7 +68,7 @@
 \setbeamercolor{enumerate item}{fg=acc}
 \setbeamercolor{footline}{fg=testo}
 
-% ogni formula (inline e display) in bianco
+% ogni formula (inline e display) in nero
 \AtBeginDocument{\everymath{\color{testo}}}
 
 % struttura e titoli in serif (Times)
@@ -115,10 +115,10 @@
     \end{beamercolorbox}}%
   \vskip0pt}
 
-% riquadro "take-away" / risultato chiave
+% riquadro "take-away" / risultato chiave (fondo ambra tenue su tema chiaro)
 \newcommand{\takeaway}[1]{%
   \begin{center}
-    \fcolorbox{acc}{sfondo}{\parbox{0.9\textwidth}{\centering\small\kw{#1}}}
+    \fcolorbox{acc}{acc!12}{\parbox{0.9\textwidth}{\centering\small\kw{#1}}}
   \end{center}}
 
 \title{Selezione Dinamica della Dimensione del Campione}

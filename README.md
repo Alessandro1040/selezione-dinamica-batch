@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, presentazione — tema chiaro).** **Invertito
+  il tema della presentazione da scuro a chiaro: nero su bianco.**
+  `sfondo` nero → bianco (RGB 255,255,255) e `testo` bianco → nero (0,0,0);
+  accenti scuriti per restare leggibili sul bianco: `acc` ambra → ambra
+  scura (158,108,0; titoli, `\kw`, riga sotto il titolo, barra di
+  avanzamento), `acc2` azzurro → azzurro scuro (0,102,204), `grigio` note →
+  grigio scuro (110,110,110). Box `\takeaway` con fondo `acc!12` (ambra
+  tenue) e bordo ambra (prima aveva fondo `sfondo` = nero). Invariati
+  volutamente: le tabelle heatmap (già celle bianche con testo nero come in
+  `tesi_finale`), gli schemi `schema_*.pdf` (già su fondo bianco) e gli
+  screenshot scuri dell'app (`fig_riuso.png`, usati anche in tesi).
+  Ricompilato `presentazione/presentazione.pdf` (**45 pp** — invariate;
+  0 errori, 0 undefined, 0 overfull). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+
 - **Ultimo intervento (07/09/2026, presentazione — grafica).** Migliorie
   grafiche: titoli con riga ambra sottostante; footer con barra di
   avanzamento colorata; macro `\kw` per parole chiave in ambra (etichette-tema
