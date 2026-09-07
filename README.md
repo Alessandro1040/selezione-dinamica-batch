@@ -157,6 +157,15 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (07/09/2026, presentazione — formule in PNG).** **Estratte
+  le 31 formule principali (display `\[…\]` + `\boxed`) della presentazione
+  come immagini PNG ad alta risoluzione** in `presentazione/formule/`
+  (`slideNN_formulaM.png`, NN = numero slide, M = ordine nella slide), con
+  `indice_formule.md` che associa ogni file al sorgente LaTeX. Metodo: ogni
+  formula è ricompilata in un mini-documento `standalone` (`varwidth`) con gli
+  stessi font del deck (`newtxtext`+`newtxmath`, Times) e convertita a 300 dpi
+  (sfondo bianco, testo nero). Nessun PDF del deck modificato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
 - **Ultimo intervento (07/09/2026, presentazione — tema chiaro).** **Invertito
   il tema della presentazione da scuro a chiaro: nero su bianco.**
   `sfondo` nero → bianco (RGB 255,255,255) e `testo` bianco → nero (0,0,0);
