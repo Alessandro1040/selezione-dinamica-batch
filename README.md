@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (06/09/2026, presentazione).** **Colorate come in
+  `tesi_finale` tutte le tabelle del mazzo che riproducono tabelle della
+  tesi** (completa il lavoro iniziato sulla Slide 28). Convertite in celle
+  colorate (macro `\colorcell`, scala log verde→rosso identica a
+  `tesi.tex`) le tabelle delle **Slide 31** (Tab. 6.1, `riuso_sintesi`),
+  **34** (Tab. 6.3, stop adattivo con validation), **36** (Tab. 6.5, riuso per
+  discesa della loss) e **37** (Tab. 6.7, confronto finale su 5 seed):
+  etichette di riga e intestazioni su `\cellcolor{white}` con testo nero
+  (come nel PDF della tesi), valori numerici avvolti in `\colorcell{m}{e}`
+  con gli stessi suffissi ($\blacktriangle$/$\blacktriangledown$/$=$ e numero
+  di ricampionamenti tra parentesi). La Slide 32 (Tab. 6.2, robustezza) resta
+  invariata perché in `tesi_finale` è una tabella di conteggi senza colori.
+  Ricompilato `presentazione/presentazione.pdf` (**39 pp** — invariate;
+  0 errori, 0 overfull, 0 undefined). Nessun altro file toccato: la
+  presentazione vive solo in repo, la copia Desktop/tesi non è coinvolta.
+- **Ultimo intervento (06/09/2026, presentazione).** **Slide 28 ``Setup e
 - **Ultimo intervento (06/09/2026, presentazione).** **Slide 28 ``Setup e
   risultati numerici'' rifatta: elencate tutte e 5 le funzioni test e
   aggiunta la tabella colorata a supporto dei risultati.** Prima il bullet

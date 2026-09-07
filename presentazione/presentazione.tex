@@ -1001,35 +1001,36 @@
       \renewcommand{\arraystretch}{0.92}
       \setlength{\tabcolsep}{3pt}
       \arrayrulecolor{grigio}
+      \color{black}\everymath{\color{black}}
       \scalebox{0.42}{%
         \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Metodo & \emph{base} & $M{=}\infty$ & $M{=}10$ & $M{=}5$ & $M{=}3$ & $M{=}2$ & $M{=}1$\\
+\cellcolor{white}Metodo & \cellcolor{white}\emph{base} & \cellcolor{white}$M{=}\infty$ & \cellcolor{white}$M{=}10$ & \cellcolor{white}$M{=}5$ & \cellcolor{white}$M{=}3$ & \cellcolor{white}$M{=}2$ & \cellcolor{white}$M{=}1$\\
 \midrule
-$\kappa\approx1.1$ - Dynamic GD & $1.1895\times10^{-1}$ & $1.1739\times10^{-1}$ $\blacktriangle$ & $1.1739\times10^{-1}$ $\blacktriangle$ & $1.1920\times10^{-1}$ $\blacktriangledown$ & $1.1903\times10^{-1}$ $\blacktriangledown$ & $1.1777\times10^{-1}$ $\blacktriangle$ & $1.1895\times10^{-1}$ $=$\\
-$\kappa\approx1.1$ - BB-CCV & $1.1662\times10^{-1}$ & $1.1662\times10^{-1}$ $\blacktriangle$ & $1.1662\times10^{-1}$ $\blacktriangle$ & $1.1662\times10^{-1}$ $\blacktriangle$ & $1.1662\times10^{-1}$ $\blacktriangle$ & $1.1662\times10^{-1}$ $\blacktriangle$ & $1.1662\times10^{-1}$ $=$\\
-$\kappa\approx1.1$ - Newton-CG & $4.0264\times10^{-1}$ & $2.2230\times10^{-1}$ $\blacktriangle$ & $3.7373\times10^{-1}$ $\blacktriangle$ & $4.1553\times10^{-1}$ $\blacktriangledown$ & $3.2913\times10^{-1}$ $\blacktriangle$ & $2.6069\times10^{-1}$ $\blacktriangle$ & $3.0560\times10^{-1}$ $\blacktriangle$\\
-$\kappa\approx1.1$ - Newton-CG $L_1$ & $1.0167\times10^{-1}$ & $8.1750\times10^{-2}$ $\blacktriangle$ & $9.2407\times10^{-2}$ $\blacktriangle$ & $1.0010\times10^{-1}$ $\blacktriangle$ & $1.0624\times10^{-1}$ $\blacktriangledown$ & $9.4078\times10^{-2}$ $\blacktriangle$ & $1.0028\times10^{-1}$ $\blacktriangle$\\
+\cellcolor{white}$\kappa\approx1.1$ - Dynamic GD& \colorcell{1.1895}{-1} & \colorcell{1.1739}{-1} $\blacktriangle$ & \colorcell{1.1739}{-1} $\blacktriangle$ & \colorcell{1.1920}{-1} $\blacktriangledown$ & \colorcell{1.1903}{-1} $\blacktriangledown$ & \colorcell{1.1777}{-1} $\blacktriangle$ & \colorcell{1.1895}{-1} $=$\\
+\cellcolor{white}$\kappa\approx1.1$ - BB-CCV& \colorcell{1.1662}{-1} & \colorcell{1.1662}{-1} $\blacktriangle$ & \colorcell{1.1662}{-1} $\blacktriangle$ & \colorcell{1.1662}{-1} $\blacktriangle$ & \colorcell{1.1662}{-1} $\blacktriangle$ & \colorcell{1.1662}{-1} $\blacktriangle$ & \colorcell{1.1662}{-1} $=$\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG& \colorcell{4.0264}{-1} & \colorcell{2.2230}{-1} $\blacktriangle$ & \colorcell{3.7373}{-1} $\blacktriangle$ & \colorcell{4.1553}{-1} $\blacktriangledown$ & \colorcell{3.2913}{-1} $\blacktriangle$ & \colorcell{2.6069}{-1} $\blacktriangle$ & \colorcell{3.0560}{-1} $\blacktriangle$\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG $L_1$& \colorcell{1.0167}{-1} & \colorcell{8.1750}{-2} $\blacktriangle$ & \colorcell{9.2407}{-2} $\blacktriangle$ & \colorcell{1.0010}{-1} $\blacktriangle$ & \colorcell{1.0624}{-1} $\blacktriangledown$ & \colorcell{9.4078}{-2} $\blacktriangle$ & \colorcell{1.0028}{-1} $\blacktriangle$\\
 \midrule
-$\kappa\approx20$ - Dynamic GD & $4.9050\times10^{-2}$ & $1.0103\times10^{-1}$ $\blacktriangledown$ & $7.6020\times10^{-2}$ $\blacktriangledown$ & $4.7211\times10^{-2}$ $\blacktriangle$ & $1.1746\times10^{-1}$ $\blacktriangledown$ & $4.2898\times10^{-2}$ $\blacktriangle$ & $4.9050\times10^{-2}$ $=$\\
-$\kappa\approx20$ - BB-CCV & $9.7195\times10^{-5}$ & $9.5364\times10^{-10}$ $\blacktriangle$ & $9.5364\times10^{-10}$ $\blacktriangle$ & $2.6835\times10^{-3}$ $\blacktriangledown$ & $3.8422\times10^{-8}$ $\blacktriangle$ & $1.5436\times10^{-10}$ $\blacktriangle$ & $9.7195\times10^{-5}$ $=$\\
-$\kappa\approx20$ - Newton-CG & $2.3463\times10^{-1}$ & $1.2807\times10^{0}$ $\blacktriangledown$ & $9.4933\times10^{-1}$ $\blacktriangledown$ & $4.1051\times10^{-1}$ $\blacktriangledown$ & $3.3396\times10^{-1}$ $\blacktriangledown$ & $4.0617\times10^{-1}$ $\blacktriangledown$ & $1.6683\times10^{-1}$ $\blacktriangle$\\
-$\kappa\approx20$ - Newton-CG $L_1$ & $4.8802\times10^{-1}$ & $7.6221\times10^{-1}$ $\blacktriangledown$ & $5.5687\times10^{-1}$ $\blacktriangledown$ & $6.2190\times10^{-1}$ $\blacktriangledown$ & $4.5512\times10^{-1}$ $\blacktriangle$ & $4.3392\times10^{-1}$ $\blacktriangle$ & $5.4573\times10^{-1}$ $\blacktriangledown$\\
+\cellcolor{white}$\kappa\approx20$ - Dynamic GD& \colorcell{4.9050}{-2} & \colorcell{1.0103}{-1} $\blacktriangledown$ & \colorcell{7.6020}{-2} $\blacktriangledown$ & \colorcell{4.7211}{-2} $\blacktriangle$ & \colorcell{1.1746}{-1} $\blacktriangledown$ & \colorcell{4.2898}{-2} $\blacktriangle$ & \colorcell{4.9050}{-2} $=$\\
+\cellcolor{white}$\kappa\approx20$ - BB-CCV& \colorcell{9.7195}{-5} & \colorcell{9.5364}{-10} $\blacktriangle$ & \colorcell{9.5364}{-10} $\blacktriangle$ & \colorcell{2.6835}{-3} $\blacktriangledown$ & \colorcell{3.8422}{-8} $\blacktriangle$ & \colorcell{1.5436}{-10} $\blacktriangle$ & \colorcell{9.7195}{-5} $=$\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG& \colorcell{2.3463}{-1} & \colorcell{1.2807}{0} $\blacktriangledown$ & \colorcell{9.4933}{-1} $\blacktriangledown$ & \colorcell{4.1051}{-1} $\blacktriangledown$ & \colorcell{3.3396}{-1} $\blacktriangledown$ & \colorcell{4.0617}{-1} $\blacktriangledown$ & \colorcell{1.6683}{-1} $\blacktriangle$\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG $L_1$& \colorcell{4.8802}{-1} & \colorcell{7.6221}{-1} $\blacktriangledown$ & \colorcell{5.5687}{-1} $\blacktriangledown$ & \colorcell{6.2190}{-1} $\blacktriangledown$ & \colorcell{4.5512}{-1} $\blacktriangle$ & \colorcell{4.3392}{-1} $\blacktriangle$ & \colorcell{5.4573}{-1} $\blacktriangledown$\\
 \midrule
-$\kappa\approx100$ - Dynamic GD & $4.6668\times10^{-1}$ & $3.7060\times10^{-1}$ $\blacktriangle$ & $3.7060\times10^{-1}$ $\blacktriangle$ & $3.7060\times10^{-1}$ $\blacktriangle$ & $3.7060\times10^{-1}$ $\blacktriangle$ & $3.7060\times10^{-1}$ $\blacktriangle$ & $4.6668\times10^{-1}$ $=$\\
-$\kappa\approx100$ - BB-CCV & $1.0991\times10^{-14}$ & $7.4538\times10^{-3}$ $\blacktriangledown$ & $7.4538\times10^{-3}$ $\blacktriangledown$ & $7.4538\times10^{-3}$ $\blacktriangledown$ & $7.4538\times10^{-3}$ $\blacktriangledown$ & $7.4538\times10^{-3}$ $\blacktriangledown$ & $1.0991\times10^{-14}$ $=$\\
-$\kappa\approx100$ - Newton-CG & $2.0969\times10^{-1}$ & $1.2807\times10^{0}$ $\blacktriangledown$ & $6.4441\times10^{-1}$ $\blacktriangledown$ & $3.3452\times10^{-1}$ $\blacktriangledown$ & $3.7338\times10^{-1}$ $\blacktriangledown$ & $4.4283\times10^{-1}$ $\blacktriangledown$ & $2.3041\times10^{-1}$ $\blacktriangledown$\\
-$\kappa\approx100$ - Newton-CG $L_1$ & $9.6954\times10^{-1}$ & $9.7065\times10^{-1}$ $\blacktriangledown$ & $8.6360\times10^{-1}$ $\blacktriangle$ & $9.6997\times10^{-1}$ $\blacktriangledown$ & $8.7711\times10^{-1}$ $\blacktriangle$ & $9.6944\times10^{-1}$ $\blacktriangle$ & $8.6562\times10^{-1}$ $\blacktriangle$\\
+\cellcolor{white}$\kappa\approx100$ - Dynamic GD& \colorcell{4.6668}{-1} & \colorcell{3.7060}{-1} $\blacktriangle$ & \colorcell{3.7060}{-1} $\blacktriangle$ & \colorcell{3.7060}{-1} $\blacktriangle$ & \colorcell{3.7060}{-1} $\blacktriangle$ & \colorcell{3.7060}{-1} $\blacktriangle$ & \colorcell{4.6668}{-1} $=$\\
+\cellcolor{white}$\kappa\approx100$ - BB-CCV& \colorcell{1.0991}{-14} & \colorcell{7.4538}{-3} $\blacktriangledown$ & \colorcell{7.4538}{-3} $\blacktriangledown$ & \colorcell{7.4538}{-3} $\blacktriangledown$ & \colorcell{7.4538}{-3} $\blacktriangledown$ & \colorcell{7.4538}{-3} $\blacktriangledown$ & \colorcell{1.0991}{-14} $=$\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG& \colorcell{2.0969}{-1} & \colorcell{1.2807}{0} $\blacktriangledown$ & \colorcell{6.4441}{-1} $\blacktriangledown$ & \colorcell{3.3452}{-1} $\blacktriangledown$ & \colorcell{3.7338}{-1} $\blacktriangledown$ & \colorcell{4.4283}{-1} $\blacktriangledown$ & \colorcell{2.3041}{-1} $\blacktriangledown$\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG $L_1$& \colorcell{9.6954}{-1} & \colorcell{9.7065}{-1} $\blacktriangledown$ & \colorcell{8.6360}{-1} $\blacktriangle$ & \colorcell{9.6997}{-1} $\blacktriangledown$ & \colorcell{8.7711}{-1} $\blacktriangle$ & \colorcell{9.6944}{-1} $\blacktriangle$ & \colorcell{8.6562}{-1} $\blacktriangle$\\
 \midrule
-incrociato ($\kappa\approx1.67$) - Dynamic GD & $9.4161\times10^{-3}$ & $5.5315\times10^{-3}$ $\blacktriangle$ & $9.9566\times10^{-3}$ $\blacktriangledown$ & $5.9490\times10^{-3}$ $\blacktriangle$ & $7.5801\times10^{-3}$ $\blacktriangle$ & $8.7213\times10^{-3}$ $\blacktriangle$ & $9.4161\times10^{-3}$ $=$\\
-incrociato ($\kappa\approx1.67$) - BB-CCV & $6.1644\times10^{-4}$ & $6.1689\times10^{-4}$ $\blacktriangledown$ & $6.1689\times10^{-4}$ $\blacktriangledown$ & $6.1689\times10^{-4}$ $\blacktriangledown$ & $6.1610\times10^{-4}$ $\blacktriangle$ & $6.1685\times10^{-4}$ $\blacktriangledown$ & $6.1644\times10^{-4}$ $=$\\
-incrociato ($\kappa\approx1.67$) - Newton-CG & $3.5167\times10^{-1}$ & $4.1026\times10^{-2}$ $\blacktriangle$ & $1.0511\times10^{-1}$ $\blacktriangle$ & $3.3540\times10^{-1}$ $\blacktriangle$ & $2.3364\times10^{-1}$ $\blacktriangle$ & $2.1820\times10^{-1}$ $\blacktriangle$ & $2.6381\times10^{-1}$ $\blacktriangle$\\
-incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & $2.0877\times10^{-2}$ & $3.8938\times10^{-2}$ $\blacktriangledown$ & $3.9410\times10^{-2}$ $\blacktriangledown$ & $2.9304\times10^{-2}$ $\blacktriangledown$ & $2.3645\times10^{-2}$ $\blacktriangledown$ & $3.8543\times10^{-2}$ $\blacktriangledown$ & $2.5154\times10^{-2}$ $\blacktriangledown$\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Dynamic GD& \colorcell{9.4161}{-3} & \colorcell{5.5315}{-3} $\blacktriangle$ & \colorcell{9.9566}{-3} $\blacktriangledown$ & \colorcell{5.9490}{-3} $\blacktriangle$ & \colorcell{7.5801}{-3} $\blacktriangle$ & \colorcell{8.7213}{-3} $\blacktriangle$ & \colorcell{9.4161}{-3} $=$\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - BB-CCV& \colorcell{6.1644}{-4} & \colorcell{6.1689}{-4} $\blacktriangledown$ & \colorcell{6.1689}{-4} $\blacktriangledown$ & \colorcell{6.1689}{-4} $\blacktriangledown$ & \colorcell{6.1610}{-4} $\blacktriangle$ & \colorcell{6.1685}{-4} $\blacktriangledown$ & \colorcell{6.1644}{-4} $=$\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG& \colorcell{3.5167}{-1} & \colorcell{4.1026}{-2} $\blacktriangle$ & \colorcell{1.0511}{-1} $\blacktriangle$ & \colorcell{3.3540}{-1} $\blacktriangle$ & \colorcell{2.3364}{-1} $\blacktriangle$ & \colorcell{2.1820}{-1} $\blacktriangle$ & \colorcell{2.6381}{-1} $\blacktriangle$\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$& \colorcell{2.0877}{-2} & \colorcell{3.8938}{-2} $\blacktriangledown$ & \colorcell{3.9410}{-2} $\blacktriangledown$ & \colorcell{2.9304}{-2} $\blacktriangledown$ & \colorcell{2.3645}{-2} $\blacktriangledown$ & \colorcell{3.8543}{-2} $\blacktriangledown$ & \colorcell{2.5154}{-2} $\blacktriangledown$\\
 \midrule
-Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & $6.1354\times10^{-4}$ & $2.5435\times10^{0}$ $\blacktriangledown$ & $2.5435\times10^{0}$ $\blacktriangledown$ & $2.5435\times10^{0}$ $\blacktriangledown$ & $2.0803\times10^{0}$ $\blacktriangledown$ & $1.4213\times10^{0}$ $\blacktriangledown$ & $6.1354\times10^{-4}$ $=$\\
-Funzione di Rosenbrock ($c{=}100$) - BB-CCV & $1.0645\times10^{-1}$ & $1.6648\times10^{-1}$ $\blacktriangledown$ & $1.6648\times10^{-1}$ $\blacktriangledown$ & $1.6648\times10^{-1}$ $\blacktriangledown$ & $1.6648\times10^{-1}$ $\blacktriangledown$ & $3.6984\times10^{-1}$ $\blacktriangledown$ & $1.0645\times10^{-1}$ $=$\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG & $2.0625\times10^{-1}$ & $1.0605\times10^{0}$ $\blacktriangledown$ & $1.1367\times10^{0}$ $\blacktriangledown$ & $1.2475\times10^{0}$ $\blacktriangledown$ & $1.1893\times10^{0}$ $\blacktriangledown$ & $1.2292\times10^{0}$ $\blacktriangledown$ & $9.3953\times10^{-1}$ $\blacktriangledown$\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $1.2525\times10^{-1}$ & $3.8199\times10^{-1}$ $\blacktriangledown$ & $2.4883\times10^{-1}$ $\blacktriangledown$ & $3.0766\times10^{-1}$ $\blacktriangledown$ & $3.1242\times10^{-1}$ $\blacktriangledown$ & $2.7111\times10^{-1}$ $\blacktriangledown$ & $2.0207\times10^{-1}$ $\blacktriangledown$\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Dynamic GD& \colorcell{6.1354}{-4} & \colorcell{2.5435}{0} $\blacktriangledown$ & \colorcell{2.5435}{0} $\blacktriangledown$ & \colorcell{2.5435}{0} $\blacktriangledown$ & \colorcell{2.0803}{0} $\blacktriangledown$ & \colorcell{1.4213}{0} $\blacktriangledown$ & \colorcell{6.1354}{-4} $=$\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - BB-CCV& \colorcell{1.0645}{-1} & \colorcell{1.6648}{-1} $\blacktriangledown$ & \colorcell{1.6648}{-1} $\blacktriangledown$ & \colorcell{1.6648}{-1} $\blacktriangledown$ & \colorcell{1.6648}{-1} $\blacktriangledown$ & \colorcell{3.6984}{-1} $\blacktriangledown$ & \colorcell{1.0645}{-1} $=$\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG& \colorcell{2.0625}{-1} & \colorcell{1.0605}{0} $\blacktriangledown$ & \colorcell{1.1367}{0} $\blacktriangledown$ & \colorcell{1.2475}{0} $\blacktriangledown$ & \colorcell{1.1893}{0} $\blacktriangledown$ & \colorcell{1.2292}{0} $\blacktriangledown$ & \colorcell{9.3953}{-1} $\blacktriangledown$\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$& \colorcell{1.2525}{-1} & \colorcell{3.8199}{-1} $\blacktriangledown$ & \colorcell{2.4883}{-1} $\blacktriangledown$ & \colorcell{3.0766}{-1} $\blacktriangledown$ & \colorcell{3.1242}{-1} $\blacktriangledown$ & \colorcell{2.7111}{-1} $\blacktriangledown$ & \colorcell{2.0207}{-1} $\blacktriangledown$\\
 \bottomrule
         \end{tabular}}
     }
@@ -1142,37 +1143,38 @@ Funzione di Rosenbrock ($c{=}100$) & Dynamic GD & 2 & 3 & 0 & 2 & 3 & 0\\
       \renewcommand{\arraystretch}{0.92}
       \setlength{\tabcolsep}{3pt}
       \arrayrulecolor{grigio}
+      \color{black}\everymath{\color{black}}
       \scalebox{0.40}{%
         \begin{tabular}{@{}lrrrrr@{}}
 \toprule
-Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,p{=}0.1$,dyn & $P{=}3,p{=}0.1$,dyn\\
+\cellcolor{white}Metodo & \cellcolor{white}\emph{base} & \cellcolor{white}$M{=}\infty$ & \cellcolor{white}def. & \cellcolor{white}$P{=}1,p{=}0.1$,dyn & \cellcolor{white}$P{=}3,p{=}0.1$,dyn\\
 \midrule
-$\kappa\approx1.1$ - Dynamic GD & $1.2412\times10^{-1}$ (29) & $1.2347\times10^{-1}$ $\blacktriangle$ (19) & $1.2347\times10^{-1}$ $\blacktriangle$ (19) & $1.1704\times10^{-1}$ $\blacktriangle$ (19) & $1.1441\times10^{-1}$ $\blacktriangle$ (18)\\
-$\kappa\approx1.1$ - BB-CCV & $1.2268\times10^{-1}$ (29) & $1.2268\times10^{-1}$ $\blacktriangledown$ (8) & $1.2268\times10^{-1}$ $\blacktriangledown$ (8) & $1.1629\times10^{-1}$ $\blacktriangle$ (26) & $1.1629\times10^{-1}$ $\blacktriangle$ (26)\\
-$\kappa\approx1.1$ - Newton-CG & $3.7346\times10^{-1}$ (29) & $1.4142\times10^{0}$ $\blacktriangledown$ (0) & $2.9780\times10^{-1}$ $\blacktriangle$ (3) & $1.7763\times10^{-1}$ $\blacktriangle$ (5) & $1.6879\times10^{-1}$ $\blacktriangle$ (6)\\
-$\kappa\approx1.1$ - Newton-CG $L_1$ & $1.1114\times10^{-1}$ (29) & $7.7838\times10^{-2}$ $\blacktriangle$ (6) & $7.7838\times10^{-2}$ $\blacktriangle$ (6) & $8.7102\times10^{-2}$ $\blacktriangle$ (13) & $8.7102\times10^{-2}$ $\blacktriangle$ (13)\\
+\cellcolor{white}$\kappa\approx1.1$ - Dynamic GD& \colorcell{1.2412}{-1} (29) & \colorcell{1.2347}{-1} $\blacktriangle$ (19) & \colorcell{1.2347}{-1} $\blacktriangle$ (19) & \colorcell{1.1704}{-1} $\blacktriangle$ (19) & \colorcell{1.1441}{-1} $\blacktriangle$ (18)\\
+\cellcolor{white}$\kappa\approx1.1$ - BB-CCV& \colorcell{1.2268}{-1} (29) & \colorcell{1.2268}{-1} $\blacktriangledown$ (8) & \colorcell{1.2268}{-1} $\blacktriangledown$ (8) & \colorcell{1.1629}{-1} $\blacktriangle$ (26) & \colorcell{1.1629}{-1} $\blacktriangle$ (26)\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG& \colorcell{3.7346}{-1} (29) & \colorcell{1.4142}{0} $\blacktriangledown$ (0) & \colorcell{2.9780}{-1} $\blacktriangle$ (3) & \colorcell{1.7763}{-1} $\blacktriangle$ (5) & \colorcell{1.6879}{-1} $\blacktriangle$ (6)\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG $L_1$& \colorcell{1.1114}{-1} (29) & \colorcell{7.7838}{-2} $\blacktriangle$ (6) & \colorcell{7.7838}{-2} $\blacktriangle$ (6) & \colorcell{8.7102}{-2} $\blacktriangle$ (13) & \colorcell{8.7102}{-2} $\blacktriangle$ (13)\\
 \midrule
-$\kappa\approx20$ - Dynamic GD & $5.6422\times10^{-2}$ (29) & $6.1835\times10^{-2}$ $\blacktriangledown$ (1) & $6.1835\times10^{-2}$ $\blacktriangledown$ (1) & $1.5675\times10^{-1}$ $\blacktriangledown$ (27) & $1.2093\times10^{-2}$ $\blacktriangle$ (8)\\
-$\kappa\approx20$ - BB-CCV & $1.7173\times10^{-3}$ (29) & $1.7173\times10^{-3}$ $\blacktriangle$ (10) & $1.7173\times10^{-3}$ $\blacktriangle$ (13) & $3.7758\times10^{-2}$ $\blacktriangledown$ (26) & $1.6199\times10^{-2}$ $\blacktriangledown$ (20)\\
-$\kappa\approx20$ - Newton-CG & $1.7217\times10^{-1}$ (29) & $6.4637\times10^{-1}$ $\blacktriangledown$ (0) & $3.6965\times10^{-1}$ $\blacktriangledown$ (6) & $1.8698\times10^{-1}$ $\blacktriangledown$ (11) & $4.0726\times10^{-1}$ $\blacktriangledown$ (5)\\
-$\kappa\approx20$ - Newton-CG $L_1$ & $4.8708\times10^{-1}$ (29) & $5.9759\times10^{-1}$ $\blacktriangledown$ (4) & $5.9759\times10^{-1}$ $\blacktriangledown$ (4) & $6.6464\times10^{-1}$ $\blacktriangledown$ (7) & $6.7171\times10^{-1}$ $\blacktriangledown$ (5)\\
+\cellcolor{white}$\kappa\approx20$ - Dynamic GD& \colorcell{5.6422}{-2} (29) & \colorcell{6.1835}{-2} $\blacktriangledown$ (1) & \colorcell{6.1835}{-2} $\blacktriangledown$ (1) & \colorcell{1.5675}{-1} $\blacktriangledown$ (27) & \colorcell{1.2093}{-2} $\blacktriangle$ (8)\\
+\cellcolor{white}$\kappa\approx20$ - BB-CCV& \colorcell{1.7173}{-3} (29) & \colorcell{1.7173}{-3} $\blacktriangle$ (10) & \colorcell{1.7173}{-3} $\blacktriangle$ (13) & \colorcell{3.7758}{-2} $\blacktriangledown$ (26) & \colorcell{1.6199}{-2} $\blacktriangledown$ (20)\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG& \colorcell{1.7217}{-1} (29) & \colorcell{6.4637}{-1} $\blacktriangledown$ (0) & \colorcell{3.6965}{-1} $\blacktriangledown$ (6) & \colorcell{1.8698}{-1} $\blacktriangledown$ (11) & \colorcell{4.0726}{-1} $\blacktriangledown$ (5)\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG $L_1$& \colorcell{4.8708}{-1} (29) & \colorcell{5.9759}{-1} $\blacktriangledown$ (4) & \colorcell{5.9759}{-1} $\blacktriangledown$ (4) & \colorcell{6.6464}{-1} $\blacktriangledown$ (7) & \colorcell{6.7171}{-1} $\blacktriangledown$ (5)\\
 \midrule
-$\kappa\approx100$ - Dynamic GD & $4.5401\times10^{-1}$ (29) & $4.7131\times10^{-1}$ $\blacktriangledown$ (26) & $4.7131\times10^{-1}$ $\blacktriangledown$ (26) & $5.4144\times10^{-1}$ $\blacktriangledown$ (27) & $4.0066\times10^{-1}$ $\blacktriangle$ (26)\\
-$\kappa\approx100$ - BB-CCV & $1.7173\times10^{-3}$ (29) & $1.4573\times10^{-3}$ $\blacktriangle$ (26) & $1.4573\times10^{-3}$ $\blacktriangle$ (26) & $3.4910\times10^{-3}$ $\blacktriangledown$ (27) & $2.2569\times10^{-1}$ $\blacktriangledown$ (25)\\
-$\kappa\approx100$ - Newton-CG & $1.8251\times10^{-1}$ (29) & $1.4142\times10^{0}$ $\blacktriangledown$ (0) & $8.2559\times10^{-1}$ $\blacktriangledown$ (8) & $1.9718\times10^{-1}$ $\blacktriangledown$ (12) & $3.9508\times10^{-1}$ $\blacktriangledown$ (5)\\
-$\kappa\approx100$ - Newton-CG $L_1$ & $8.6698\times10^{-1}$ (29) & $9.7009\times10^{-1}$ $\blacktriangledown$ (3) & $9.6923\times10^{-1}$ $\blacktriangledown$ (4) & $9.6870\times10^{-1}$ $\blacktriangledown$ (9) & $9.6870\times10^{-1}$ $\blacktriangledown$ (4)\\
+\cellcolor{white}$\kappa\approx100$ - Dynamic GD& \colorcell{4.5401}{-1} (29) & \colorcell{4.7131}{-1} $\blacktriangledown$ (26) & \colorcell{4.7131}{-1} $\blacktriangledown$ (26) & \colorcell{5.4144}{-1} $\blacktriangledown$ (27) & \colorcell{4.0066}{-1} $\blacktriangle$ (26)\\
+\cellcolor{white}$\kappa\approx100$ - BB-CCV& \colorcell{1.7173}{-3} (29) & \colorcell{1.4573}{-3} $\blacktriangle$ (26) & \colorcell{1.4573}{-3} $\blacktriangle$ (26) & \colorcell{3.4910}{-3} $\blacktriangledown$ (27) & \colorcell{2.2569}{-1} $\blacktriangledown$ (25)\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG& \colorcell{1.8251}{-1} (29) & \colorcell{1.4142}{0} $\blacktriangledown$ (0) & \colorcell{8.2559}{-1} $\blacktriangledown$ (8) & \colorcell{1.9718}{-1} $\blacktriangledown$ (12) & \colorcell{3.9508}{-1} $\blacktriangledown$ (5)\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG $L_1$& \colorcell{8.6698}{-1} (29) & \colorcell{9.7009}{-1} $\blacktriangledown$ (3) & \colorcell{9.6923}{-1} $\blacktriangledown$ (4) & \colorcell{9.6870}{-1} $\blacktriangledown$ (9) & \colorcell{9.6870}{-1} $\blacktriangledown$ (4)\\
 \midrule
-incrociato ($\kappa\approx1.67$) - Dynamic GD & $1.8709\times10^{-2}$ (29) & $1.7261\times10^{-2}$ $\blacktriangle$ (16) & $1.7261\times10^{-2}$ $\blacktriangle$ (16) & $6.1465\times10^{-3}$ $\blacktriangle$ (16) & $6.2449\times10^{-3}$ $\blacktriangle$ (15)\\
-incrociato ($\kappa\approx1.67$) - BB-CCV & $9.5580\times10^{-3}$ (29) & $9.5580\times10^{-3}$ $\blacktriangle$ (19) & $9.5580\times10^{-3}$ $\blacktriangle$ (21) & $5.3768\times10^{-4}$ $\blacktriangle$ (27) & $5.3768\times10^{-4}$ $\blacktriangle$ (27)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG & $2.8717\times10^{-1}$ (29) & $1.4142\times10^{0}$ $\blacktriangledown$ (0) & $7.8791\times10^{-2}$ $\blacktriangle$ (5) & $9.2824\times10^{-2}$ $\blacktriangle$ (11) & $1.7781\times10^{-1}$ $\blacktriangle$ (8)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & $1.0628\times10^{-2}$ (29) & $2.2289\times10^{-2}$ $\blacktriangledown$ (11) & $2.2289\times10^{-2}$ $\blacktriangledown$ (11) & $2.7610\times10^{-2}$ $\blacktriangledown$ (17) & $2.7754\times10^{-2}$ $\blacktriangledown$ (14)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Dynamic GD& \colorcell{1.8709}{-2} (29) & \colorcell{1.7261}{-2} $\blacktriangle$ (16) & \colorcell{1.7261}{-2} $\blacktriangle$ (16) & \colorcell{6.1465}{-3} $\blacktriangle$ (16) & \colorcell{6.2449}{-3} $\blacktriangle$ (15)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - BB-CCV& \colorcell{9.5580}{-3} (29) & \colorcell{9.5580}{-3} $\blacktriangle$ (19) & \colorcell{9.5580}{-3} $\blacktriangle$ (21) & \colorcell{5.3768}{-4} $\blacktriangle$ (27) & \colorcell{5.3768}{-4} $\blacktriangle$ (27)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG& \colorcell{2.8717}{-1} (29) & \colorcell{1.4142}{0} $\blacktriangledown$ (0) & \colorcell{7.8791}{-2} $\blacktriangle$ (5) & \colorcell{9.2824}{-2} $\blacktriangle$ (11) & \colorcell{1.7781}{-1} $\blacktriangle$ (8)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$& \colorcell{1.0628}{-2} (29) & \colorcell{2.2289}{-2} $\blacktriangledown$ (11) & \colorcell{2.2289}{-2} $\blacktriangledown$ (11) & \colorcell{2.7610}{-2} $\blacktriangledown$ (17) & \colorcell{2.7754}{-2} $\blacktriangledown$ (14)\\
 \midrule
-Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & $5.3698\times10^{-3}$ (29) & $5.3845\times10^{-3}$ $\blacktriangledown$ (22) & $5.3845\times10^{-3}$ $\blacktriangledown$ (22) & $1.4065\times10^{-2}$ $\blacktriangledown$ (24) & $4.7963\times10^{-3}$ $\blacktriangle$ (23)\\
-Funzione di Rosenbrock ($c{=}100$) - BB-CCV & $5.3653\times10^{-3}$ (29) & $5.3653\times10^{-3}$ $\blacktriangledown$ (26) & $5.3653\times10^{-3}$ $\blacktriangledown$ (26) & $5.0034\times10^{-3}$ $\blacktriangle$ (27) & $5.0034\times10^{-3}$ $\blacktriangle$ (27)\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG & $4.2039\times10^{-1}$ (29) & $5.6994\times10^{-1}$ $\blacktriangledown$ (2) & $4.8797\times10^{-1}$ $\blacktriangledown$ (3) & $7.2464\times10^{-2}$ $\blacktriangle$ (10) & $9.7980\times10^{-2}$ $\blacktriangle$ (7)\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0116\times10^{-1}$ (29) & $1.2973\times10^{-1}$ $\blacktriangle$ (2) & $1.2973\times10^{-1}$ $\blacktriangle$ (2) & $1.1021\times10^{-1}$ $\blacktriangle$ (3) & $1.0884\times10^{-1}$ $\blacktriangle$ (3)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Dynamic GD& \colorcell{5.3698}{-3} (29) & \colorcell{5.3845}{-3} $\blacktriangledown$ (22) & \colorcell{5.3845}{-3} $\blacktriangledown$ (22) & \colorcell{1.4065}{-2} $\blacktriangledown$ (24) & \colorcell{4.7963}{-3} $\blacktriangle$ (23)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - BB-CCV& \colorcell{5.3653}{-3} (29) & \colorcell{5.3653}{-3} $\blacktriangledown$ (26) & \colorcell{5.3653}{-3} $\blacktriangledown$ (26) & \colorcell{5.0034}{-3} $\blacktriangle$ (27) & \colorcell{5.0034}{-3} $\blacktriangle$ (27)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG& \colorcell{4.2039}{-1} (29) & \colorcell{5.6994}{-1} $\blacktriangledown$ (2) & \colorcell{4.8797}{-1} $\blacktriangledown$ (3) & \colorcell{7.2464}{-2} $\blacktriangle$ (10) & \colorcell{9.7980}{-2} $\blacktriangle$ (7)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$& \colorcell{2.0116}{-1} (29) & \colorcell{1.2973}{-1} $\blacktriangle$ (2) & \colorcell{1.2973}{-1} $\blacktriangle$ (2) & \colorcell{1.1021}{-1} $\blacktriangle$ (3) & \colorcell{1.0884}{-1} $\blacktriangle$ (3)\\
 \midrule
-Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangledown$ & $2.3383\times10^{-1}$ $\blacktriangledown$ & $1.7919\times10^{-1}$ $\blacktriangle$ & $2.0065\times10^{-1}$ $\blacktriangledown$\\
+\cellcolor{white}Media (20 casi)& \colorcell{1.9562}{-1} & \colorcell{4.0383}{-1} $\blacktriangledown$ & \colorcell{2.3383}{-1} $\blacktriangledown$ & \colorcell{1.7919}{-1} $\blacktriangle$ & \colorcell{2.0065}{-1} $\blacktriangledown$\\
 \bottomrule
         \end{tabular}}
     }
@@ -1233,35 +1235,36 @@ Media (20 casi) & $1.9562\times10^{-1}$ & $4.0383\times10^{-1}$ $\blacktriangled
       \renewcommand{\arraystretch}{0.92}
       \setlength{\tabcolsep}{3pt}
       \arrayrulecolor{grigio}
+      \color{black}\everymath{\color{black}}
       \scalebox{0.42}{%
         \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
-Metodo & \emph{base} & $M{=}\infty$ & def. & $P{=}1,\tau{=}10^{-3},f{=}1$ & $P{=}1,\tau{=}10^{-5},f{=}1$\\
+\cellcolor{white}Metodo & \cellcolor{white}\emph{base} & \cellcolor{white}$M{=}\infty$ & \cellcolor{white}def. & \cellcolor{white}$P{=}1,\tau{=}10^{-3},f{=}1$ & \cellcolor{white}$P{=}1,\tau{=}10^{-5},f{=}1$\\
 \midrule
-$\kappa\approx1.1$ - Dynamic GD & $1.1895\times10^{-1}$ (29) & $1.1739\times10^{-1}$ $\blacktriangle$ (18) & $1.1739\times10^{-1}$ $\blacktriangle$ (18) & $1.1739\times10^{-1}$ $\blacktriangle$ (18) & $1.1739\times10^{-1}$ $\blacktriangle$ (18)\\
-$\kappa\approx1.1$ - BB-CCV & $1.1662\times10^{-1}$ (11) & $1.1662\times10^{-1}$ $\blacktriangle$ (5) & $1.1662\times10^{-1}$ $\blacktriangle$ (5) & $1.1662\times10^{-1}$ $\blacktriangle$ (5) & $1.1662\times10^{-1}$ $\blacktriangle$ (5)\\
-$\kappa\approx1.1$ - Newton-CG & $3.0560\times10^{-1}$ (29) & $2.2230\times10^{-1}$ $\blacktriangle$ (2) & $1.6534\times10^{-1}$ $\blacktriangle$ (4) & $1.6534\times10^{-1}$ $\blacktriangle$ (4) & $1.6534\times10^{-1}$ $\blacktriangle$ (4)\\
-$\kappa\approx1.1$ - Newton-CG $L_1$ & $1.0028\times10^{-1}$ (29) & $8.1750\times10^{-2}$ $\blacktriangle$ (8) & $8.1750\times10^{-2}$ $\blacktriangle$ (8) & $8.1750\times10^{-2}$ $\blacktriangle$ (8) & $8.1750\times10^{-2}$ $\blacktriangle$ (8)\\
+\cellcolor{white}$\kappa\approx1.1$ - Dynamic GD& \colorcell{1.1895}{-1} (29) & \colorcell{1.1739}{-1} $\blacktriangle$ (18) & \colorcell{1.1739}{-1} $\blacktriangle$ (18) & \colorcell{1.1739}{-1} $\blacktriangle$ (18) & \colorcell{1.1739}{-1} $\blacktriangle$ (18)\\
+\cellcolor{white}$\kappa\approx1.1$ - BB-CCV& \colorcell{1.1662}{-1} (11) & \colorcell{1.1662}{-1} $\blacktriangle$ (5) & \colorcell{1.1662}{-1} $\blacktriangle$ (5) & \colorcell{1.1662}{-1} $\blacktriangle$ (5) & \colorcell{1.1662}{-1} $\blacktriangle$ (5)\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG& \colorcell{3.0560}{-1} (29) & \colorcell{2.2230}{-1} $\blacktriangle$ (2) & \colorcell{1.6534}{-1} $\blacktriangle$ (4) & \colorcell{1.6534}{-1} $\blacktriangle$ (4) & \colorcell{1.6534}{-1} $\blacktriangle$ (4)\\
+\cellcolor{white}$\kappa\approx1.1$ - Newton-CG $L_1$& \colorcell{1.0028}{-1} (29) & \colorcell{8.1750}{-2} $\blacktriangle$ (8) & \colorcell{8.1750}{-2} $\blacktriangle$ (8) & \colorcell{8.1750}{-2} $\blacktriangle$ (8) & \colorcell{8.1750}{-2} $\blacktriangle$ (8)\\
 \midrule
-$\kappa\approx20$ - Dynamic GD & $4.9050\times10^{-2}$ (29) & $1.0103\times10^{-1}$ $\blacktriangledown$ (1) & $1.0103\times10^{-1}$ $\blacktriangledown$ (1) & $4.8866\times10^{-2}$ $\blacktriangle$ (14) & $1.0103\times10^{-1}$ $\blacktriangledown$ (1)\\
-$\kappa\approx20$ - BB-CCV & $9.7195\times10^{-5}$ (29) & $9.5364\times10^{-10}$ $\blacktriangle$ (14) & $9.5364\times10^{-10}$ $\blacktriangle$ (14) & $9.5364\times10^{-10}$ $\blacktriangle$ (14) & $9.5364\times10^{-10}$ $\blacktriangle$ (14)\\
-$\kappa\approx20$ - Newton-CG & $1.6683\times10^{-1}$ (29) & $1.2807\times10^{0}$ $\blacktriangledown$ (0) & $2.4844\times10^{-1}$ $\blacktriangledown$ (8) & $2.4844\times10^{-1}$ $\blacktriangledown$ (8) & $2.4844\times10^{-1}$ $\blacktriangledown$ (8)\\
-$\kappa\approx20$ - Newton-CG $L_1$ & $5.4573\times10^{-1}$ (29) & $7.6221\times10^{-1}$ $\blacktriangledown$ (5) & $7.6221\times10^{-1}$ $\blacktriangledown$ (5) & $7.6221\times10^{-1}$ $\blacktriangledown$ (5) & $7.6221\times10^{-1}$ $\blacktriangledown$ (5)\\
+\cellcolor{white}$\kappa\approx20$ - Dynamic GD& \colorcell{4.9050}{-2} (29) & \colorcell{1.0103}{-1} $\blacktriangledown$ (1) & \colorcell{1.0103}{-1} $\blacktriangledown$ (1) & \colorcell{4.8866}{-2} $\blacktriangle$ (14) & \colorcell{1.0103}{-1} $\blacktriangledown$ (1)\\
+\cellcolor{white}$\kappa\approx20$ - BB-CCV& \colorcell{9.7195}{-5} (29) & \colorcell{9.5364}{-10} $\blacktriangle$ (14) & \colorcell{9.5364}{-10} $\blacktriangle$ (14) & \colorcell{9.5364}{-10} $\blacktriangle$ (14) & \colorcell{9.5364}{-10} $\blacktriangle$ (14)\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG& \colorcell{1.6683}{-1} (29) & \colorcell{1.2807}{0} $\blacktriangledown$ (0) & \colorcell{2.4844}{-1} $\blacktriangledown$ (8) & \colorcell{2.4844}{-1} $\blacktriangledown$ (8) & \colorcell{2.4844}{-1} $\blacktriangledown$ (8)\\
+\cellcolor{white}$\kappa\approx20$ - Newton-CG $L_1$& \colorcell{5.4573}{-1} (29) & \colorcell{7.6221}{-1} $\blacktriangledown$ (5) & \colorcell{7.6221}{-1} $\blacktriangledown$ (5) & \colorcell{7.6221}{-1} $\blacktriangledown$ (5) & \colorcell{7.6221}{-1} $\blacktriangledown$ (5)\\
 \midrule
-$\kappa\approx100$ - Dynamic GD & $4.6668\times10^{-1}$ (29) & $3.7060\times10^{-1}$ $\blacktriangle$ (27) & $3.7060\times10^{-1}$ $\blacktriangle$ (27) & $3.7060\times10^{-1}$ $\blacktriangle$ (27) & $3.7060\times10^{-1}$ $\blacktriangle$ (27)\\
-$\kappa\approx100$ - BB-CCV & $1.0991\times10^{-14}$ (10) & $7.4538\times10^{-3}$ $\blacktriangledown$ (24) & $7.4538\times10^{-3}$ $\blacktriangledown$ (24) & $7.4538\times10^{-3}$ $\blacktriangledown$ (24) & $7.4538\times10^{-3}$ $\blacktriangledown$ (24)\\
-$\kappa\approx100$ - Newton-CG & $2.3041\times10^{-1}$ (29) & $1.2807\times10^{0}$ $\blacktriangledown$ (0) & $4.2582\times10^{-1}$ $\blacktriangledown$ (11) & $4.2582\times10^{-1}$ $\blacktriangledown$ (11) & $4.2582\times10^{-1}$ $\blacktriangledown$ (11)\\
-$\kappa\approx100$ - Newton-CG $L_1$ & $8.6562\times10^{-1}$ (29) & $9.7065\times10^{-1}$ $\blacktriangledown$ (5) & $9.7065\times10^{-1}$ $\blacktriangledown$ (5) & $9.7065\times10^{-1}$ $\blacktriangledown$ (5) & $9.7065\times10^{-1}$ $\blacktriangledown$ (5)\\
+\cellcolor{white}$\kappa\approx100$ - Dynamic GD& \colorcell{4.6668}{-1} (29) & \colorcell{3.7060}{-1} $\blacktriangle$ (27) & \colorcell{3.7060}{-1} $\blacktriangle$ (27) & \colorcell{3.7060}{-1} $\blacktriangle$ (27) & \colorcell{3.7060}{-1} $\blacktriangle$ (27)\\
+\cellcolor{white}$\kappa\approx100$ - BB-CCV& \colorcell{1.0991}{-14} (10) & \colorcell{7.4538}{-3} $\blacktriangledown$ (24) & \colorcell{7.4538}{-3} $\blacktriangledown$ (24) & \colorcell{7.4538}{-3} $\blacktriangledown$ (24) & \colorcell{7.4538}{-3} $\blacktriangledown$ (24)\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG& \colorcell{2.3041}{-1} (29) & \colorcell{1.2807}{0} $\blacktriangledown$ (0) & \colorcell{4.2582}{-1} $\blacktriangledown$ (11) & \colorcell{4.2582}{-1} $\blacktriangledown$ (11) & \colorcell{4.2582}{-1} $\blacktriangledown$ (11)\\
+\cellcolor{white}$\kappa\approx100$ - Newton-CG $L_1$& \colorcell{8.6562}{-1} (29) & \colorcell{9.7065}{-1} $\blacktriangledown$ (5) & \colorcell{9.7065}{-1} $\blacktriangledown$ (5) & \colorcell{9.7065}{-1} $\blacktriangledown$ (5) & \colorcell{9.7065}{-1} $\blacktriangledown$ (5)\\
 \midrule
-incrociato ($\kappa\approx1.67$) - Dynamic GD & $9.4161\times10^{-3}$ (29) & $5.5315\times10^{-3}$ $\blacktriangle$ (16) & $5.5315\times10^{-3}$ $\blacktriangle$ (16) & $5.5315\times10^{-3}$ $\blacktriangle$ (16) & $5.5315\times10^{-3}$ $\blacktriangle$ (16)\\
-incrociato ($\kappa\approx1.67$) - BB-CCV & $6.1644\times10^{-4}$ (15) & $6.1689\times10^{-4}$ $\blacktriangledown$ (9) & $6.1689\times10^{-4}$ $\blacktriangledown$ (9) & $6.1689\times10^{-4}$ $\blacktriangledown$ (9) & $6.1689\times10^{-4}$ $\blacktriangledown$ (9)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG & $2.6381\times10^{-1}$ (29) & $4.1026\times10^{-2}$ $\blacktriangle$ (5) & $4.1026\times10^{-2}$ $\blacktriangle$ (5) & $4.1026\times10^{-2}$ $\blacktriangle$ (5) & $4.1026\times10^{-2}$ $\blacktriangle$ (5)\\
-incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$ & $2.5154\times10^{-2}$ (29) & $3.8938\times10^{-2}$ $\blacktriangledown$ (10) & $3.8938\times10^{-2}$ $\blacktriangledown$ (10) & $3.8938\times10^{-2}$ $\blacktriangledown$ (10) & $3.8938\times10^{-2}$ $\blacktriangledown$ (10)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Dynamic GD& \colorcell{9.4161}{-3} (29) & \colorcell{5.5315}{-3} $\blacktriangle$ (16) & \colorcell{5.5315}{-3} $\blacktriangle$ (16) & \colorcell{5.5315}{-3} $\blacktriangle$ (16) & \colorcell{5.5315}{-3} $\blacktriangle$ (16)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - BB-CCV& \colorcell{6.1644}{-4} (15) & \colorcell{6.1689}{-4} $\blacktriangledown$ (9) & \colorcell{6.1689}{-4} $\blacktriangledown$ (9) & \colorcell{6.1689}{-4} $\blacktriangledown$ (9) & \colorcell{6.1689}{-4} $\blacktriangledown$ (9)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG& \colorcell{2.6381}{-1} (29) & \colorcell{4.1026}{-2} $\blacktriangle$ (5) & \colorcell{4.1026}{-2} $\blacktriangle$ (5) & \colorcell{4.1026}{-2} $\blacktriangle$ (5) & \colorcell{4.1026}{-2} $\blacktriangle$ (5)\\
+\cellcolor{white}incrociato ($\kappa\approx1.67$) - Newton-CG $L_1$& \colorcell{2.5154}{-2} (29) & \colorcell{3.8938}{-2} $\blacktriangledown$ (10) & \colorcell{3.8938}{-2} $\blacktriangledown$ (10) & \colorcell{3.8938}{-2} $\blacktriangledown$ (10) & \colorcell{3.8938}{-2} $\blacktriangledown$ (10)\\
 \midrule
-Funzione di Rosenbrock ($c{=}100$) - Dynamic GD & $6.1354\times10^{-4}$ (29) & $2.5435\times10^{0}$ $\blacktriangledown$ (25) & $2.5435\times10^{0}$ $\blacktriangledown$ (25) & $2.5435\times10^{0}$ $\blacktriangledown$ (25) & $2.5435\times10^{0}$ $\blacktriangledown$ (25)\\
-Funzione di Rosenbrock ($c{=}100$) - BB-CCV & $1.0645\times10^{-1}$ (29) & $1.6648\times10^{-1}$ $\blacktriangledown$ (10) & $1.6648\times10^{-1}$ $\blacktriangledown$ (10) & $1.6648\times10^{-1}$ $\blacktriangledown$ (10) & $1.6648\times10^{-1}$ $\blacktriangledown$ (10)\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG & $9.3953\times10^{-1}$ (29) & $1.0605\times10^{0}$ $\blacktriangledown$ (0) & $1.0247\times10^{0}$ $\blacktriangledown$ (4) & $1.0247\times10^{0}$ $\blacktriangledown$ (4) & $1.0247\times10^{0}$ $\blacktriangledown$ (4)\\
-Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29) & $3.8199\times10^{-1}$ $\blacktriangledown$ (0) & $3.8199\times10^{-1}$ $\blacktriangledown$ (0) & $3.8199\times10^{-1}$ $\blacktriangledown$ (0) & $3.8199\times10^{-1}$ $\blacktriangledown$ (0)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Dynamic GD& \colorcell{6.1354}{-4} (29) & \colorcell{2.5435}{0} $\blacktriangledown$ (25) & \colorcell{2.5435}{0} $\blacktriangledown$ (25) & \colorcell{2.5435}{0} $\blacktriangledown$ (25) & \colorcell{2.5435}{0} $\blacktriangledown$ (25)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - BB-CCV& \colorcell{1.0645}{-1} (29) & \colorcell{1.6648}{-1} $\blacktriangledown$ (10) & \colorcell{1.6648}{-1} $\blacktriangledown$ (10) & \colorcell{1.6648}{-1} $\blacktriangledown$ (10) & \colorcell{1.6648}{-1} $\blacktriangledown$ (10)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG& \colorcell{9.3953}{-1} (29) & \colorcell{1.0605}{0} $\blacktriangledown$ (0) & \colorcell{1.0247}{0} $\blacktriangledown$ (4) & \colorcell{1.0247}{0} $\blacktriangledown$ (4) & \colorcell{1.0247}{0} $\blacktriangledown$ (4)\\
+\cellcolor{white}Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$& \colorcell{2.0207}{-1} (29) & \colorcell{3.8199}{-1} $\blacktriangledown$ (0) & \colorcell{3.8199}{-1} $\blacktriangledown$ (0) & \colorcell{3.8199}{-1} $\blacktriangledown$ (0) & \colorcell{3.8199}{-1} $\blacktriangledown$ (0)\\
 \bottomrule
         \end{tabular}}
     }
@@ -1285,16 +1288,17 @@ Funzione di Rosenbrock ($c{=}100$) - Newton-CG $L_1$ & $2.0207\times10^{-1}$ (29
       \renewcommand{\arraystretch}{0.92}
       \setlength{\tabcolsep}{3pt}
       \arrayrulecolor{grigio}
+      \color{black}\everymath{\color{black}}
       \scalebox{0.58}{%
         \begin{tabular}{@{}lrrrrrrr@{}}
 \toprule
-Strategia & $\overline{e}_{30}$ & \emph{vitt.} & $\kappa{\approx}1.1$ & $\kappa{\approx}20$ & $\kappa{\approx}100$ & incr. ($\kappa{\approx}1.67$) & Funzione di Rosenbrock ($c{=}100$)\\
+\cellcolor{white}Strategia & \cellcolor{white}$\overline{e}_{30}$ & \cellcolor{white}\emph{vitt.} & \cellcolor{white}$\kappa{\approx}1.1$ & \cellcolor{white}$\kappa{\approx}20$ & \cellcolor{white}$\kappa{\approx}100$ & \cellcolor{white}incr. ($\kappa{\approx}1.67$) & \cellcolor{white}Funzione di Rosenbrock ($c{=}100$)\\
 \midrule
-\emph{base} & $2.0909\times10^{-1}$ & 0/20 & $1.7930\times10^{-1}$ & $1.7595\times10^{-1}$ & $4.1162\times10^{-1}$ & $8.1419\times10^{-2}$ & $1.9719\times10^{-1}$\\
-$M{=}\infty$ & $3.7299\times10^{-1}$ & 8/20 & $1.9159\times10^{-1}$ & $5.0123\times10^{-1}$ & $6.6432\times10^{-1}$ & $9.8773\times10^{-2}$ & $4.0901\times10^{-1}$\\
+\cellcolor{white}\emph{base}& \colorcell{2.0909}{-1} & 0/20 & \colorcell{1.7930}{-1} & \colorcell{1.7595}{-1} & \colorcell{4.1162}{-1} & \colorcell{8.1419}{-2} & \colorcell{1.9719}{-1}\\
+\cellcolor{white}$M{=}\infty$& \colorcell{3.7299}{-1} & 8/20 & \colorcell{1.9159}{-1} & \colorcell{5.0123}{-1} & \colorcell{6.6432}{-1} & \colorcell{9.8773}{-2} & \colorcell{4.0901}{-1}\\
 \midrule
-Validation calib. ($P{=}1,p{=}0.1$,dyn) & $2.0375\times10^{-1}$ & 12/20 & $1.4045\times10^{-1}$ & $2.1065\times10^{-1}$ & $4.5437\times10^{-1}$ & $3.9223\times10^{-2}$ & $1.7407\times10^{-1}$\\
-Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$) & $2.3817\times10^{-1}$ & 11/20 & $1.1855\times10^{-1}$ & $2.3416\times10^{-1}$ & $4.2013\times10^{-1}$ & $3.4413\times10^{-2}$ & $3.8362\times10^{-1}$\\
+\cellcolor{white}Validation calib. ($P{=}1,p{=}0.1$,dyn)& \colorcell{2.0375}{-1} & 12/20 & \colorcell{1.4045}{-1} & \colorcell{2.1065}{-1} & \colorcell{4.5437}{-1} & \colorcell{3.9223}{-2} & \colorcell{1.7407}{-1}\\
+\cellcolor{white}Discesa calib. ($\tau{=}10^{-3},P{=}1,f{=}1$)& \colorcell{2.3817}{-1} & 11/20 & \colorcell{1.1855}{-1} & \colorcell{2.3416}{-1} & \colorcell{4.2013}{-1} & \colorcell{3.4413}{-2} & \colorcell{3.8362}{-1}\\
 \bottomrule
         \end{tabular}}
     }
