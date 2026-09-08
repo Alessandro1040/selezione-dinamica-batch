@@ -157,14 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
-- **Ultimo intervento (08/09/2026, tesi — rumore nei preset, riscrittura).** Su
-  richiesta (i simboli $a_i,b_i$ non erano definiti nei bullet quadratici) la
-  specifica del rumore è stata resa autocontenuta in ciascun bullet del Setup
-  (Sez. 6.1): ``ogni perdita individuale $\ell(w;i)$ ha i termini quadratici
-  centrati in un punto $(a_i,b_i)$, campionato con rumore $\sigma=0.2$ attorno a
-  $w^*=(1,-2)$ e poi ricentrato sulla media''; nei due preset con accoppiamento
-  (ben condizionata, termine incrociato) aggiunto anche ``il coefficiente $c_i$
-  è campionato con rumore $\sigma=0.05$''. Ricompilati `tesi.pdf` e
+- **Ultimo intervento (08/09/2026, tesi — rumore nei preset, formula esplicita).**
+  Nei bullet quadratici del Setup (Sez. 6.1) il rumore è ora descritto con la
+  **formula esplicita della perdita individuale** $\ell(w;i)$ (le costanti di
+  $J$ sostituite dalle variabili casuali): es. per la mal condizionata
+  $\ell(w;i) = 20\,(w_1-a_i)^2 + (w_2-b_i)^2$, dove $a_i$ e $b_i$ sono variabili
+  casuali indipendenti di media $1$ e $-2$ e deviazione standard $\sigma=0.2$
+  (varianza $\sigma^2=(0.2)^2$), valori poi ricentrati sulla media campionaria
+  (dataset ``centrato''). Per i due preset con accoppiamento (ben condizionata:
+  $\ell(w;i) = (w_1-a_i)^2+(w_2-b_i)^2+c_i w_1 w_2$; termine incrociato:
+  $\ell(w;i) = (w_1-a_i)^2+(w_2-b_i)^2+c_i(w_1-a_i)(w_2-b_i)$) aggiunto $c_i$ di
+  media $0.1$/$0.5$ e deviazione standard $0.05$. Ricompilati `tesi.pdf` e
   `tesi_finale.pdf` (**101 pp**; 0 errori, 0 undefined); sincronizzati in repo
   (md5 verificati).
 
