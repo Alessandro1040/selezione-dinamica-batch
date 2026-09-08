@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, tesi — rumore nei preset).** Nel Setup
+  Sperimentale (Sez. 6.1) ora il rumore del dataset sintetico centrato è
+  esplicitato per **ogni** preset e non solo per la Rosenbrock: rumore
+  $\sigma = 0.2$ sulle coordinate $a_i,b_i$ in tutti i preset (ben condizionata,
+  mal condizionata, molto mal condizionata, termine incrociato, Rosenbrock); per
+  i due preset con accoppiamento (ben condizionata e termine incrociato) anche
+  il coefficiente $c_i$ ha rumore $\sigma = 0.05$ (valori verificati su app
+  `visualizzazione.html` e script di riproduzione). Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**101 pp**, +1 per le righe aggiunte; 0 errori, 0
+  undefined); sincronizzati in repo (md5 verificati).
+
 - **Ultimo intervento (08/09/2026, ringraziamenti).** Riformulata la frase di
   apertura dei Ringraziamenti: rimossi ``i miei genitori e i nonni'', ora
   ``Ringrazio tutte le persone con cui ho studiato, i miei insegnanti e la mia
