@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, tesi).** **Appendice Newton-L1: eliminati
+  tutti i riferimenti ``Nel nostro caso''.** Il 08/09 (commit `c46d708`) erano
+  stati rimossi i 6 paragrafi esemplificativi che iniziavano con ``Nel nostro
+  caso:'' dal commento del codice Newton-L1; in questa sessione è stato rimosso
+  anche l'ultimo residuo, la frase ``Nel nostro caso specifico, $m = 1$.''
+  (spezzata su due righe nel sorgente, per questo invisibile al grep su riga
+  singola), che introduceva un esempio 1D non più presente nella sezione dopo
+  la rimozione dei 6 paragrafi. Ora nel paragrafo Newton-L1 non resta nessuna
+  occorrenza di ``nel nostro caso'' (l'unica altra occorrenza del documento,
+  ~riga 3868, è ``al nostro caso specifico'' nella Sezione FPC/CCV ed è estranea
+  al codice). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**100 pp**; 0 errori,
+  0 undefined); sincronizzati in repo (md5 verificati). Nessun altro file
+  toccato.
+
 - **Ultimo intervento (07/09/2026, presentazione — formule in PNG).** **Estratte
   le 31 formule principali (display `\[…\]` + `\boxed`) della presentazione
   come immagini PNG ad alta risoluzione** in `presentazione/formule/`
