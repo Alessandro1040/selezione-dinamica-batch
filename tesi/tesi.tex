@@ -2690,9 +2690,9 @@ l'errore finale è $\approx6.1\times10^{-4}$, e sui 5 seed la mediana è la
 stessa ($6.1\times10^{-4}$, con il minimo a $\approx1.3\times10^{-6}$ e il
 massimo a $\approx2.8\times10^{-1}$). BB-CCV, il metodo più robusto sui
 problemi quadratici, è qui il più sensibile all'istanza: al seed 42 il passo
-di Barzilai--Borwein stenta a stimare la curvatura --- la ``secante''
+di Barzilai--Borwein stenta a stimare la curvatura (la ``secante''
 confronta gradienti calcolati su batch diversi di una funzione fortemente non
-quadratica --- e in 30 iterazioni l'errore è ancora $\approx1.1\times10^{-1}$;
+quadratica) e in 30 iterazioni l'errore è ancora $\approx1.1\times10^{-1}$;
 sugli altri seed invece converge in poche iterazioni, tanto che la mediana sui
 5 seed è $5.6\times10^{-9}$. I metodi del secondo ordine convergono
 lentamente: Newton-CG termina con errore $\approx2.1\times10^{-1}$ e
@@ -3314,7 +3314,7 @@ Lo stop adattivo con validation set
 (Sezione~\ref{app:riuso-validation}) tiene fuori dal campionamento una
 frazione $p$ degli esempi, riducendo il training set disponibile. Il
 \emph{riuso per discesa della loss sul batch} persegue lo stesso obiettivo
---- decidere automaticamente quando ricampionare il mini-batch --- senza
+(decidere automaticamente quando ricampionare il mini-batch), senza
 riservare alcun dato: la decisione è presa osservando esclusivamente
 l'andamento di $J_{\mathrm{batch}}$ sul mini-batch corrente.
 
@@ -3597,10 +3597,10 @@ in cui la configurazione consigliata migliora la \emph{base}. Includendo la
 Funzione di Rosenbrock nella ricerca, le uniche configurazioni ammissibili restano lo stop
 adattivo ($P{=}1$, $f{=}1$, $p{=}10\%$, split fissa) per Newton-CG e il riuso
 $M{=}3$ per Newton-CG~$L_1$; per Dynamic GD e BB-CCV nessuna configurazione
-testata migliora la mediana della \emph{base} su tutti e cinque i problemi ---
-sulla Funzione di Rosenbrock la base di Dynamic GD è già $\approx6.1\times10^{-4}$ e ogni
+testata migliora la mediana della \emph{base} su tutti e cinque i problemi
+(sulla Funzione di Rosenbrock la base di Dynamic GD è già $\approx6.1\times10^{-4}$ e ogni
 variante la peggiora, mentre BB-CCV è già alla precisione macchina sui problemi
-molto mal condizionati e ha mediana $5.6\times10^{-9}$ sulla Funzione di Rosenbrock --- e quindi
+molto mal condizionati e ha mediana $5.6\times10^{-9}$ sulla Funzione di Rosenbrock) e quindi
 la \emph{base} resta la configurazione consigliata. Il totale di vittorie su 25
 combinazioni problema$\times$seed è Newton-CG 16/25 e Newton-CG~$L_1$ 16/25.
 

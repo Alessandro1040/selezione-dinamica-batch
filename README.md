@@ -157,6 +157,18 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, tesi — em-dash in prosa).** Rimossi i
+  trattini lunghi `---` usati come inciso parentetico in tre passi in prosa,
+  sostituiti da parentesi: (1) Sez. 6.3, BB-CCV sulla Rosenbrock (``la secante
+  confronta gradienti calcolati su batch diversi…''); (2) riuso per discesa
+  della loss (``…lo stesso obiettivo (decidere automaticamente quando
+  ricampionare il mini-batch), senza riservare alcun dato…''); (3)
+  configurazioni consigliate (``…su tutti e cinque i problemi (sulla Funzione
+  di Rosenbrock…), e quindi la base resta…''). Lasciati i `---` tipografici
+  (significato ``non applicabile'') nelle celle della colonna vittorie della
+  Tabella~6.14. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**101 pp**; 0
+  errori, 0 undefined); sincronizzati in repo (md5 verificati).
+
 - **Ultimo intervento (08/09/2026, tesi — rumore nei preset).** Nel Setup
   Sperimentale (Sez. 6.1) ora il rumore del dataset sintetico centrato è
   esplicitato per **ogni** preset e non solo per la Rosenbrock: rumore
