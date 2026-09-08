@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, tesi — rumore nei preset, riscrittura).** Su
+  richiesta (i simboli $a_i,b_i$ non erano definiti nei bullet quadratici) la
+  specifica del rumore è stata resa autocontenuta in ciascun bullet del Setup
+  (Sez. 6.1): ``ogni perdita individuale $\ell(w;i)$ ha i termini quadratici
+  centrati in un punto $(a_i,b_i)$, campionato con rumore $\sigma=0.2$ attorno a
+  $w^*=(1,-2)$ e poi ricentrato sulla media''; nei due preset con accoppiamento
+  (ben condizionata, termine incrociato) aggiunto anche ``il coefficiente $c_i$
+  è campionato con rumore $\sigma=0.05$''. Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**101 pp**; 0 errori, 0 undefined); sincronizzati in repo
+  (md5 verificati).
+
 - **Ultimo intervento (08/09/2026, tesi — em-dash in prosa).** Rimossi i
   trattini lunghi `---` usati come inciso parentetico in tre passi in prosa,
   sostituiti da parentesi: (1) Sez. 6.3, BB-CCV sulla Rosenbrock (``la secante

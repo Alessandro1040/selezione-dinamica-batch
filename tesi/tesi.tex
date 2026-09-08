@@ -2460,28 +2460,34 @@ consigliati (Sezioni~\ref{app:riuso-validation}--\ref{app:riuso-consigliati}).
   condizionata ($\kappa \approx 1.1$)''). Il termine $0.1\,w_1w_2$ è un piccolo
   accoppiamento tra le variabili: la Hessiana $\nabla^2 J$ ha autovalori $2.1$
   e $1.9$, da cui $\kappa = 2.1/1.9 \approx 1.1$. Il dataset è stocastico
-  centrato (Sezione~\ref{sec:architettura}), con rumore $\sigma = 0.2$ sulle
-  coordinate $a_i, b_i$ e rumore $\sigma = 0.05$ sul coefficiente
-  dell'accoppiamento $c_i$.
+  centrato (Sezione~\ref{sec:architettura}): ogni perdita individuale
+  $\ell(w;i)$ ha i termini quadratici centrati in un punto $(a_i,b_i)$,
+  campionato con rumore $\sigma = 0.2$ attorno a $w^*=(1,-2)$ e poi ricentrato
+  sulla media; anche il coefficiente dell'accoppiamento $c_i$ è campionato con
+  rumore $\sigma = 0.05$.
   \item Quadratica mal condizionata ($\kappa \approx 20$):
   $J(w) = 20\,(w_1 - 1)^2 + (w_2 + 2)^2$ (preset ``Quadratica mal condizionata
   ($\kappa \approx 20$)''), usata negli esperimenti della
   Sezione~\ref{app:riuso}. Il dataset è stocastico centrato
-  (Sezione~\ref{sec:architettura}), con rumore $\sigma = 0.2$ sulle coordinate
-  $a_i, b_i$.
+  (Sezione~\ref{sec:architettura}): ogni perdita individuale $\ell(w;i)$ ha i
+  termini quadratici centrati in un punto $(a_i,b_i)$, campionato con rumore
+  $\sigma = 0.2$ attorno a $w^*=(1,-2)$ e poi ricentrato sulla media.
   \item Quadratica molto mal condizionata ($\kappa \approx 100$):
   $J(w) = 100\,(w_1 - 1)^2 + (w_2 + 2)^2$ (preset ``Quadratica molto mal
   condizionata ($\kappa \approx 100$)''). Il dataset è stocastico centrato
-  (Sezione~\ref{sec:architettura}), con rumore $\sigma = 0.2$ sulle coordinate
-  $a_i, b_i$.
+  (Sezione~\ref{sec:architettura}): ogni perdita individuale $\ell(w;i)$ ha i
+  termini quadratici centrati in un punto $(a_i,b_i)$, campionato con rumore
+  $\sigma = 0.2$ attorno a $w^*=(1,-2)$ e poi ricentrato sulla media.
   \item Quadratica con termine incrociato:
   $J(w) = (w_1 - 1)^2 + (w_2 + 2)^2 + 0.5\,(w_1 - 1)(w_2 + 2)$ (preset
   ``Quadratica con termine incrociato''). Qui l'accoppiamento è la
   caratteristica dominante: la Hessiana $\nabla^2 J$ ha autovalori $2.5$ e
   $1.5$, quindi $\kappa = 2.5/1.5 \approx 1.67$. Il dataset è stocastico
-  centrato (Sezione~\ref{sec:architettura}), con rumore $\sigma = 0.2$ sulle
-  coordinate $a_i, b_i$ e rumore $\sigma = 0.05$ sul coefficiente
-  dell'accoppiamento $c_i$.
+  centrato (Sezione~\ref{sec:architettura}): ogni perdita individuale
+  $\ell(w;i)$ ha i termini quadratici centrati in un punto $(a_i,b_i)$,
+  campionato con rumore $\sigma = 0.2$ attorno a $w^*=(1,-2)$ e poi ricentrato
+  sulla media; anche il coefficiente dell'accoppiamento $c_i$ è campionato con
+  rumore $\sigma = 0.05$.
   \item Funzione di Rosenbrock (non quadratica):
   \[
   J(w) = \frac{1}{N}\sum_{i=1}^{N}\left[(w_1 - a_i)^2
