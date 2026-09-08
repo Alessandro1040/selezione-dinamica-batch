@@ -157,6 +157,13 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, ringraziamenti).** Riformulata la frase di
+  apertura dei Ringraziamenti: rimossi ``i miei genitori e i nonni'', ora
+  ``Ringrazio tutte le persone con cui ho studiato, i miei insegnanti e la mia
+  famiglia per il supporto; in particolare, ringrazio:''. Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**100 pp**; 0 errori, 0 undefined);
+  sincronizzati in repo (md5 verificati). Nessun altro file toccato.
+
 - **Ultimo intervento (08/09/2026, tesi).** **Appendice Newton-L1: eliminati
   tutti i riferimenti ``Nel nostro caso''.** Il 08/09 (commit `c46d708`) erano
   stati rimossi i 6 paragrafi esemplificativi che iniziavano con ``Nel nostro
