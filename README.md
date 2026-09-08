@@ -163,8 +163,9 @@ Da tenere presente nelle sessioni di lavoro successive:
   $J$ sostituite dalle variabili casuali): es. per la mal condizionata
   $\ell(w;i) = 20\,(w_1-a_i)^2 + (w_2-b_i)^2$, dove $a_i$ e $b_i$ sono variabili
   casuali indipendenti di media $1$ e $-2$ e deviazione standard $\sigma=0.2$
-  (varianza $\sigma^2=(0.2)^2$), valori poi ricentrati sulla media campionaria
-  (dataset ``centrato''). Per i due preset con accoppiamento (ben condizionata:
+  (la varianza non è indicata perché ridondante: $\sigma^2=(0.2)^2$), valori poi
+  ricentrati sulla media campionaria (dataset ``centrato''). Per i due preset
+  con accoppiamento (ben condizionata:
   $\ell(w;i) = (w_1-a_i)^2+(w_2-b_i)^2+c_i w_1 w_2$; termine incrociato:
   $\ell(w;i) = (w_1-a_i)^2+(w_2-b_i)^2+c_i(w_1-a_i)(w_2-b_i)$) aggiunto $c_i$ di
   media $0.1$/$0.5$ e deviazione standard $0.05$. Ricompilati `tesi.pdf` e
