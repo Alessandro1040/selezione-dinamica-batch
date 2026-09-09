@@ -157,6 +157,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi — lavori futuri).** Aggiunta in
+  ``Conclusioni e Lavoro Futuro'' (Sez. 7, ``Direzioni per lavoro futuro'') una
+  terza direzione: confronto sistematico empirico con GD, SGD, SVRG e SAGA,
+  implementati nella stessa piattaforma dell'app (Pyodide/NumPy) e confrontati
+  con il campionamento dinamico in termini di costo computazionale totale
+  (valutazioni di gradienti individuali oppure tempo di esecuzione), non a
+  parità di iterazioni. Ricompilati `tesi.pdf` e `tesi_finale.pdf`
+  (**100 pp**, invariate; 0 errori, 0 undefined); sincronizzati in repo (md5
+  verificati). Nessun altro file toccato.
+
 - **Ultimo intervento (09/09/2026, tesi).** Rimossi "50 Cent" dai
   Ringraziamenti (l'ultimo nome è ora JZAC). Aggiunto un `\newpage` subito
   prima della `thmbox` del Teorema 5.1 (Convergenza in aspettativa), che ora

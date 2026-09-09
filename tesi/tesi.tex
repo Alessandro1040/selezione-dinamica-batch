@@ -3749,6 +3749,20 @@ futuro.
   cambia rapidamente o quando il criterio di arresto del CG richiede troppe
   iterazioni interne, bilanciando il costo dei prodotti Hessiana-vettore con la
   qualità della direzione di Newton.
+  \item Confronto sistematico con GD, SGD, SVRG e SAGA. Gli esperimenti del
+  Capitolo~\ref{sec:esperimenti} confrontano tra loro i quattro metodi a
+  campionamento dinamico e, sul piano teorico, con i bound di complessità di
+  SGD, ma non includono un confronto empirico diretto con i metodi stocastici
+  classici descritti nel Capitolo~\ref{sec:lavori}, in particolare GD, SGD e i
+  metodi a varianza ridotta SVRG~\cite{johnson2013} e SAGA~\cite{defazio2014}.
+  Una direzione naturale è implementare questi metodi nella stessa piattaforma
+  (Pyodide/NumPy) dell'applicazione web sviluppata in questa tesi, così da
+  misurarli nelle identiche condizioni sperimentali, e confrontarli con il
+  campionamento dinamico in termini di costo computazionale totale — numero di
+  valutazioni di gradienti individuali $\nabla\ell(w;i)$ oppure tempo di
+  esecuzione — anziché a parità di iterazioni, che non riflette il lavoro
+  effettivamente svolto a ogni iterazione e favorirebbe i metodi dal costo per
+  iterazione più basso.
 \end{enumerate}
 
 \appendix
