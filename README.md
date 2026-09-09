@@ -157,6 +157,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, visualizzazione.html).** Rimossi dal Test
+  batch i due formati ``Sensibilità iperparametri'' (validation e discesa), che
+  riproducevano le tabelle ex 6.28/6.31 (`tab:riuso_valid_iper`,
+  `tab:riuso_desc_iper`) eliminate da `tesi.tex` nel taglio 44→8 tabelle del
+  06/09/2026. Rimossi: opzioni UI, dispatch, branch in `batchRunSpecial` e
+  `batchSpecialRunCount`, costanti `BATCH_SENS_VAL/DESC_DEFS`, helper
+  (`batchSensCombos`, `batchSensAggregate`, `batchRenderSens`,
+  `batchLatexSens`, `batchSci`/`batchSciLatex`). Aggiornati i riferimenti di
+  numerazione obsoleti dei formati rimasti (``stile Tab. 6.21/6.28/6.29'' →
+  6.2/6.7/6.8; ``Sez. 6.7'' → Sez. 6.5; ``Robustezza (sintesi)'' → Tabb.
+  6.4/6.6). I formati dedicati rimasti (Robustezza riuso, Confronto finale,
+  Sintesi consigliati) riproducono le Tabelle 6.2, 6.7 e 6.8 della tesi
+  attuale. Nessun altro file toccato: la riproduzione delle griglie di
+  sensibilità resta possibile con lo script
+  `altro/script/gen_tabelle_riuso_validation.py`. L'app vive solo in repo
+  (nessuna copia Desktop/PDF coinvolta).
+
 - **Ultimo intervento (08/09/2026, tesi — rumore nei preset, formula esplicita).**
   Nei bullet quadratici del Setup (Sez. 6.1) il rumore è ora descritto con la
   **formula esplicita della perdita individuale** $\ell(w;i)$ (le costanti di

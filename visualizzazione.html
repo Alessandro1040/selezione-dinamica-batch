@@ -189,7 +189,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
 .colab-zoom-row input[type="range"]{flex:1;margin:0}
 .colab-zoom-row .zoom-value{font-family:var(--font-mono);font-size:10.5px;color:var(--gold);min-width:36px;text-align:right}
 .colab-warning{margin:0 18px;padding:8px 12px;border:1px solid rgba(245,166,35,.35);border-radius:var(--radius-sm);background:rgba(245,166,35,.08);color:var(--amber);font-size:11px;line-height:1.55}
-/* ── Test batch (esperimenti e tabelle in stile Sez. 6.7) ── */
+/* ── Test batch (esperimenti e tabelle in stile Sez. 6.5) ── */
 .batch-modal{position:fixed;inset:0;background:rgba(5,8,18,.82);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px}
 .batch-modal-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow);width:min(1000px,100%);max-height:94vh;display:flex;flex-direction:column}
 .batch-modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:16px 20px;border-bottom:1px solid var(--border-soft);background:var(--surface-2)}
@@ -584,7 +584,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
     <!-- EXPERIMENTS BATCH -->
     <div class="sidebar-section">
       <div class="section-label">Esperimenti batch (tabelle tesi)</div>
-      <p class="field-hint" style="margin-bottom:10px">Esegue il prodotto cartesiano di pi&ugrave; configurazioni e genera le tabelle e30 in stile Sez. 6.7. Dimensioni marcate <strong>media</strong> = mediate sui valori inseriti.</p>
+      <p class="field-hint" style="margin-bottom:10px">Esegue il prodotto cartesiano di pi&ugrave; configurazioni e genera le tabelle e30 in stile Sez. 6.5. Dimensioni marcate <strong>media</strong> = mediate sui valori inseriti.</p>
       <div class="btn-row" style="grid-template-columns:1fr">
         <button class="btn btn-accent" id="batchTestBtn">🧪 Test batch</button>
       </div>
@@ -1446,7 +1446,7 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
     <div class="batch-modal-header">
       <div>
         <div class="batch-modal-title">🧪 Test batch — esperimenti di riuso</div>
-        <div class="batch-modal-sub">Genera il prodotto cartesiano delle dimensioni e le tabelle e30 come nella Sez. 6.7 della tesi. Per ogni dimensione inserisci i valori separati da virgola; se spunti <strong>media</strong> i risultati vengono mediati su quei valori (e la dimensione sparisce dalla tabella). Le colonne sono le strategie di riuso, le righe le combinazioni delle altre dimensioni non-media. I formati aggiuntivi (Robustezza riuso, Sensibilità iperparametri, Confronto finale, Sintesi consigliati) riproducono le Tabelle 6.21, 6.23, 6.26, 6.28 e 6.29 della tesi: usano le dimensioni loss/algo (con i relativi default) e gli altri parametri ai default della finestra.</div>
+        <div class="batch-modal-sub">Genera il prodotto cartesiano delle dimensioni e le tabelle e30 come nella Sez. 6.5 della tesi. Per ogni dimensione inserisci i valori separati da virgola; se spunti <strong>media</strong> i risultati vengono mediati su quei valori (e la dimensione sparisce dalla tabella). Le colonne sono le strategie di riuso, le righe le combinazioni delle altre dimensioni non-media. I formati dedicati (Robustezza riuso, Confronto finale, Sintesi consigliati) riproducono le Tabelle 6.2, 6.7 e 6.8 della tesi: usano le dimensioni loss/algo (con i relativi default) e gli altri parametri ai default della finestra.</div>
       </div>
       <button class="btn-icon-sm" id="batchCloseBtn">✕ Chiudi</button>
     </div>
@@ -1458,11 +1458,9 @@ history, batch_sizes = mio_algoritmo(w0, alpha, max_iter, theta, batch0, ...)
           <select id="batchTableFormat" style="width:auto;padding:3px 24px 3px 8px;font-size:10.5px">
             <option value="matrice">Matrice (confronto)</option>
             <option value="robustezza">Robustezza (sintesi)</option>
-            <option value="rob_riuso">Robustezza riuso Migl./Pegg./Ug. (stile Tab. 6.21)</option>
-            <option value="sens_val">Sensibilità iperparametri (validation, stile Tab. 6.23)</option>
-            <option value="sens_desc">Sensibilità iperparametri (discesa, stile Tab. 6.26)</option>
-            <option value="confronto_finale">Confronto finale (stile Tab. 6.28)</option>
-            <option value="consigliati">Sintesi consigliati (stile Tab. 6.29)</option>
+            <option value="rob_riuso">Robustezza riuso Migl./Pegg./Ug. (Tab. 6.2)</option>
+            <option value="confronto_finale">Confronto finale (Tab. 6.7)</option>
+            <option value="consigliati">Sintesi consigliati (Tab. 6.8)</option>
           </select>
         </label>
         <span class="batch-media-note" id="batchMediaNote"></span>
@@ -6456,7 +6454,7 @@ document.getElementById('colabZoomReset').addEventListener('click', () => {
 });
 
 /* =====================================================================
-   TEST BATCH — esperimenti e tabelle in stile Sez. 6.7 (riuso)
+   TEST BATCH — esperimenti e tabelle in stile Sez. 6.5 (riuso)
    ---------------------------------------------------------------------
    Un "esperimento batch" e' il prodotto cartesiano delle dimensioni
    (loss, algoritmo, strategia di riuso, iperparametri...). Ogni run
@@ -6812,15 +6810,14 @@ function batchBuildGrid(dims){
   return combos.map(c=>{ const cfg={}; for(const x of c) cfg[x.key]=x.value; return cfg; });
 }
 /* =====================================================================
-   FORMATI DEDICATI (stile Tabelle 6.21, 6.23, 6.26, 6.28, 6.29)
+   FORMATI DEDICATI (stile Tabelle 6.2, 6.7 e 6.8)
    ---------------------------------------------------------------------
    La griglia cartesiana non può esprimere:
-     (1) la robustezza per-seed del riuso (Migl./Pegg./Uguale, Tab. 6.21);
-     (2) la sensibilità marginale agli iperparametri (Tabb. 6.23 e 6.26);
-     (3) il confronto finale che mescola le famiglie validation e discesa
-         (Tab. 6.28);
-     (4) la sintesi dei consigliati con mediana su 5 seed e vittorie
-         per-seed (Tab. 6.29).
+     (1) la robustezza per-seed del riuso (Migl./Pegg./Uguale, Tab. 6.2);
+     (2) il confronto finale che mescola le famiglie validation e discesa
+         (Tab. 6.7);
+     (3) la sintesi dei consigliati con mediana su 5 seed e vittorie
+         per-seed (Tab. 6.8).
    Questi runner costruiscono i cfg direttamente ed eseguono lo STESSO
    codice generato dall'app (batchBuildFullCode): i valori coincidono con
    quelli delle altre run a meno dei soli errori numerici (runtime
@@ -6860,44 +6857,7 @@ function batchBaseCfg(dims){
     eta:batchDimVal(dims,'eta','0.5')
   };
 }
-function batchSensCombos(defs){
-  return batchCartesian(defs.dims.map(d=>d.values)).map(vs=>{
-    const hp={};
-    defs.dims.forEach((d,i)=>{ hp[d.key]=vs[i]; });
-    return hp;
-  });
-}
-function batchSciLatex(x){
-  if(x===0) return '$0$';
-  const a=Math.abs(x);
-  if(a>=1e-3 && a<1e6) return '$'+String(+x.toPrecision(4))+'$';
-  const e=Math.floor(Math.log10(a));
-  const m=x/Math.pow(10,e);
-  return m===1 ? '$10^{'+e+'}$' : '$'+m.toPrecision(2)+'\\times10^{'+e+'}$';
-}
-function batchSci(x){ return fmtNum(x); }
-const BATCH_SENS_VAL_DEFS = {
-  label:'tab:riuso_valid_iper',
-  dims:[
-    {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),             latexVal:v=>'$'+v+'$'},
-    {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),          latexVal:v=>batchSciLatex(v)},
-    {key:'p',    label:'Percentuale p',   latex:'Percentuale $p$',     values:[0.1,0.2,0.3], fmt:v=>Math.round(v*100)+'%',  latexVal:v=>Math.round(v*100)+'\\%'},
-    {key:'f',    label:'Frequenza f',     latex:'Frequenza $f$',       values:[1,3],         fmt:v=>String(v),             latexVal:v=>'$'+v+'$'},
-    {key:'strat',label:'Strategia di split', latex:'Strategia di split', values:['fixed','dynamic'], fmt:v=>v==='fixed'?'fisso':'dinamico', latexVal:v=>'\\emph{'+(v==='fixed'?'fisso':'dinamico')+'}'}
-  ],
-  make:hp=>'val P='+hp.P+';p='+hp.p+';tau='+hp.tau+';f='+hp.f+';strat='+hp.strat,
-  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri dello stop adattivo con validation set: media di $e_{30}$ e del numero di ricampionamenti sulle 20 combinazioni problema$\times$algoritmo (seed 42).'
-};
-const BATCH_SENS_DESC_DEFS = {
-  label:'tab:riuso_desc_iper',
-  dims:[
-    {key:'P',    label:'Pazienza P',      latex:'Pazienza $P$',        values:[1,3,8],       fmt:v=>String(v),     latexVal:v=>'$'+v+'$'},
-    {key:'tau',  label:'Tolleranza τ',    latex:'Tolleranza $\\tau$',  values:[1e-5,1e-4,1e-3], fmt:v=>batchSci(v),   latexVal:v=>batchSciLatex(v)},
-    {key:'f',    label:'Frequenza f',     latex:'Frequenza $f$',       values:[1,3],          fmt:v=>String(v),     latexVal:v=>'$'+v+'$'}
-  ],
-  make:hp=>'desc P='+hp.P+';tau='+hp.tau+';f='+hp.f,
-  caption:'Sensibilità dell\'errore finale $e_{30}$ agli iperparametri del criterio di discesa: media di $e_{30}$ e del numero di ricampionamenti sulle 20 combinazioni problema$\times$algoritmo (seed 42).'
-};
+
 const CONFRONTO_CFGS=[
   {key:'base', strategy:'desc base', ref:'base', hidden:false, html:'base', latex:'\\emph{base}'},
   {key:'minf', strategy:'desc P=9999;tau=1e-4;f=1', ref:'base', hidden:false, html:'M=∞', latex:'$M{=}\\infty$'},
@@ -6964,11 +6924,6 @@ async function batchRunSpecial(fmt, dims){
     for(const loss of losses) for(const algo of algos) for(const s of SEEDS)
       for(const c of ROB_RIUSO_CFGS)
         cfgs.push(Object.assign({}, base, {loss, algo, seed:String(s), strategia:c.strategy, cfgKey:c.key}));
-  }else if(fmt==='sens_val' || fmt==='sens_desc'){
-    const defs=fmt==='sens_val'?BATCH_SENS_VAL_DEFS:BATCH_SENS_DESC_DEFS;
-    for(const hp of batchSensCombos(defs))
-      for(const loss of losses) for(const algo of algos)
-        cfgs.push(Object.assign({}, base, {loss, algo, strategia:defs.make(hp), hp}));
   }else if(fmt==='confronto_finale'){
     for(const loss of losses) for(const algo of algos) for(const s of SEEDS)
       for(const c of CONFRONTO_CFGS)
@@ -6997,7 +6952,7 @@ async function batchRunAll(){
   if(errs.length){ alert('Problemi nella configurazione:\n• '+errs.join('\n• ')); return; }
   const fmtEl=document.getElementById('batchTableFormat');
   const fmt=fmtEl?fmtEl.value:'matrice';
-  if(fmt==='rob_riuso' || fmt==='sens_val' || fmt==='sens_desc' || fmt==='confronto_finale' || fmt==='consigliati'){ await batchRunSpecial(fmt, dims); return; }
+  if(fmt==='rob_riuso' || fmt==='confronto_finale' || fmt==='consigliati'){ await batchRunSpecial(fmt, dims); return; }
   const cfgs = batchBuildGrid(dims);
   const total = cfgs.length;
   if(total===0){ alert('Nessuna run da eseguire.'); return; }
@@ -7132,8 +7087,6 @@ function batchRenderResults(dims, results){
   const fmt = fmtEl ? fmtEl.value : 'matrice';
   if (fmt === 'robustezza') { batchRenderRobustezza(dims, results); return; }
   if (fmt === 'rob_riuso') { batchRenderRobRiuso(dims, results); return; }
-  if (fmt === 'sens_val') { batchRenderSens(dims, results, BATCH_SENS_VAL_DEFS); return; }
-  if (fmt === 'sens_desc') { batchRenderSens(dims, results, BATCH_SENS_DESC_DEFS); return; }
   if (fmt === 'confronto_finale') { batchRenderConfronto(dims, results); return; }
   if (fmt === 'consigliati') { batchRenderConsigliati(dims, results); return; }
   const t = batchBuildTable(dims, results);
@@ -7199,7 +7152,7 @@ function batchShowFirstCode(){
   div.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
 
-/* ── Formato "Robustezza" (sintesi, stile Tabella 6.27/6.24/6.21) ──
+/* ── Formato "Robustezza" (sintesi, stile Tabelle 6.4/6.6) ──
    Quando seed è su media, per ogni configurazione (colonna della matrice)
    calcola: ē30 = media di e30 su tutte le caselle (problema×algoritmo),
    vitt. = numero di caselle in cui la media è minore di quella di base,
@@ -7343,7 +7296,7 @@ function batchLatexExport(t){
   return L.join('\n');
 }
 
-/* ── Renderer dei formati dedicati (stile Tabelle 6.21, 6.23, 6.26, 6.28, 6.29) ── */
+/* ── Renderer dei formati dedicati (stile Tabelle 6.2, 6.7 e 6.8) ── */
 function batchResultTools(){
   return '<div class="batch-tools">'
     +'<button class="btn-icon-sm" id="batchCopyLatexBtn">📋 Copia LaTeX</button>'
@@ -7358,84 +7311,8 @@ function batchMedian(arr){
   return s.length%2 ? s[m] : (s[m-1]+s[m])/2;
 }
 
-/* 6.23 / 6.26 — sensibilità marginale agli iperparametri */
-function batchSensAggregate(results, defs){
-  const byDimVal={};
-  for(const d of defs.dims) byDimVal[d.key]={};
-  let used=0;
-  for(const r of results){
-    if(r.error||!r.metrics||!r.cfg.hp) continue;
-    used++;
-    const hp=r.cfg.hp;
-    for(const d of defs.dims){
-      const k=String(hp[d.key]);
-      (byDimVal[d.key][k]=byDimVal[d.key][k]||[]).push(r.metrics);
-    }
-  }
-  const rows=defs.dims.map(d=>({
-    label:d.label,
-    latex:d.latex,
-    group:d.values.map(v=>{
-      const arr=byDimVal[d.key][String(v)]||[];
-      return {vlabel:d.fmt(v), vlatex:d.latexVal(v), e30:batchAvgMetric(arr,m=>m.e30), res:batchAvgMetric(arr,m=>m.resamples), count:arr.length};
-    })
-  }));
-  return {rows, used};
-}
-function batchRenderSens(dims, results, defs){
-  const agg=batchSensAggregate(results, defs);
-  const seed=batchDimVal(dims,'seed','42');
-  const isVal=defs===BATCH_SENS_VAL_DEFS;
-  const el=document.getElementById('batchResults');
-  let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Sensibilità iperparametri ('+(isVal?'validation':'discesa')+')</strong> — stile Tabella '+(isVal?'6.23':'6.26')+': media di e₃₀ e ricampionamenti su 20 caselle problema×algoritmo un iperparametro e mediando sugli altri · seed '+batchEsc(seed)+' · '+agg.used.toLocaleString('it-IT')+' run valide</div>';
-  html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Iperparametro</th><th>Valore</th><th>ē₃₀ (media)</th><th>ricampionamenti</th></tr></thead><tbody>';
-  for(const row of agg.rows){
-    row.group.forEach((g,i)=>{
-      html+='<tr><td class="rowlab">'+(i===0?batchEsc(row.label):'')+'</td>';
-      html+='<td>'+batchEsc(g.vlabel)+'</td><td>'+(g.e30===null?'—':batchFmt3(g.e30))+'</td><td>'+(g.res===null?'—':g.res.toFixed(1))+'</td></tr>';
-    });
-  }
-  html+='</tbody></table></div>';
-  html+=batchResultTools();
-  el.innerHTML=html;
-  document.getElementById('batchCopyLatexBtn').addEventListener('click', ()=>batchCopy(batchLatexSens(agg, defs)));
-  document.getElementById('batchDlJsonBtn').addEventListener('click', ()=>batchDownloadJson(dims, results));
-  document.getElementById('batchCodeBtn').addEventListener('click', batchShowFirstCode);
-}
-function batchLatexSens(agg, defs){
-  const L=[];
-  L.push('% =====================================================================');
-  L.push('% Tabella generata da visualizzazione.html (Test batch, formato sensibilità) - NON modificare a mano.');
-  L.push('% =====================================================================');
-  L.push('\\begin{table}[H]');
-  L.push('\\centering');
-  L.push('\\footnotesize');
-  L.push('\\renewcommand{\\arraystretch}{1.1}');
-  L.push('\\setlength{\\tabcolsep}{6pt}');
-  L.push('\\caption{'+defs.caption+'}');
-  L.push('\\label{'+defs.label+'}');
-  L.push('\\begin{tabular}{@{}llrr@{}}');
-  L.push('\\toprule');
-  L.push('Iperparametro & Valore & $e_{30}$ & Ricampionamenti\\\\');
-  L.push('\\midrule');
-  agg.rows.forEach((row,ri)=>{
-    row.group.forEach((g,gi)=>{
-      const cells=[gi===0?row.latex:'', g.vlatex,
-                   (g.e30===null||g.e30===undefined)?'---':batchFmt3Latex(g.e30),
-                   (g.res===null||g.res===undefined)?'---':g.res.toFixed(1)];
-      L.push(cells.join(' & ')+'\\\\');
-    });
-    if(ri<agg.rows.length-1) L.push('\\midrule');
-  });
-  L.push('\\bottomrule');
-  L.push('\\end{tabular}');
-  L.push('\\end{table}');
-  return L.join('\n');
-}
 
-
-/* 6.21 — robustezza per-seed del riuso (Migl./Pegg./Uguale per M=∞ e M=10) */
+/* 6.2 — robustezza per-seed del riuso (Migl./Pegg./Uguale per M=∞ e M=10) */
 function batchRobRiusoAggregate(results){
   const cell={};
   for(const r of results){
@@ -7465,7 +7342,7 @@ function batchRenderRobRiuso(dims, results){
   const r=batchRobRiusoAggregate(results);
   const el=document.getElementById('batchResults');
   let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Robustezza del riuso su 5 seed</strong> — stile Tabella 6.21: per ogni coppia problema×algoritmo, seed su 5 in cui $e_{30}$ è minore/maggiore/uguale della base, per M=∞ e M=10</div>';
+  html+='<div class="cap"><strong>Robustezza del riuso su 5 seed</strong> — stile Tabella 6.2: per ogni coppia problema×algoritmo, seed su 5 in cui $e_{30}$ è minore/maggiore/uguale della base, per M=∞ e M=10</div>';
   html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Problema</th><th>Algoritmo</th><th colspan="3">M=∞</th><th colspan="3">M=10</th></tr>';
   html+='<tr><th></th><th></th><th>Migl.</th><th>Pegg.</th><th>Ug.</th><th>Migl.</th><th>Pegg.</th><th>Ug.</th></tr></thead><tbody>';
   let lastP=null;
@@ -7516,7 +7393,7 @@ function batchLatexRobRiuso(r){
 }
 
 
-/* 6.28 — confronto finale (base, M=∞, validation calibrata, discesa calibrata) */
+/* 6.7 — confronto finale (base, M=∞, validation calibrata, discesa calibrata) */
 function batchConfrontoAggregate(results){
   const cell={};
   let nRuns=0;
@@ -7557,7 +7434,7 @@ function batchRenderConfronto(dims, results){
   const r=batchConfrontoAggregate(results);
   const el=document.getElementById('batchResults');
   let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Confronto finale su 5 seed</strong> — stile Tabella 6.28: 20 caselle problema×algoritmo × 5 seed ('+r.nRuns.toLocaleString('it-IT')+' run)</div>';
+  html+='<div class="cap"><strong>Confronto finale su 5 seed</strong> — stile Tabella 6.7: 20 caselle problema×algoritmo × 5 seed ('+r.nRuns.toLocaleString('it-IT')+' run)</div>';
   html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Strategia</th><th>ē₃₀</th><th>vitt.</th>';
   for(const p of r.presets) html+='<th>'+batchEsc(batchValueLabel('loss',p))+'</th>';
   html+='</tr></thead><tbody>';
@@ -7606,7 +7483,7 @@ function batchLatexConfronto(r){
 }
 
 
-/* 6.29 — sintesi degli iperparametri consigliati */
+/* 6.8 — sintesi degli iperparametri consigliati */
 function batchConsigliatiAggregate(results){
   const cell={};
   for(const r of results){
@@ -7644,7 +7521,7 @@ function batchRenderConsigliati(dims, results){
   const r=batchConsigliatiAggregate(results);
   const el=document.getElementById('batchResults');
   let html='<div class="batch-result-card">';
-  html+='<div class="cap"><strong>Sintesi degli iperparametri consigliati</strong> — stile Tabella 6.29: configurazione consigliata, mediana di e₃₀ su 5 seed della base e della consigliata, e seed su 5 in cui la consigliata migliora la base</div>';
+  html+='<div class="cap"><strong>Sintesi degli iperparametri consigliati</strong> — stile Tabella 6.8: configurazione consigliata, mediana di e₃₀ su 5 seed della base e della consigliata, e seed su 5 in cui la consigliata migliora la base</div>';
   html+='<div class="batch-table-wrap"><table class="batch-tbl"><thead><tr><th>Problema</th><th>Algoritmo</th><th>Configurazione consigliata</th><th>e₃₀ base</th><th>e₃₀ consigliato</th><th>vitt. (su 5)</th></tr></thead><tbody>';
   let lastP=null;
   for(const row of r.rows){
@@ -7801,8 +7678,6 @@ function batchSpecialRunCount(fmt){
   const losses=batchDimList(dims,'loss',['quad_well','quad_ill','quad_very_ill','quad_offdiag','rosenbrock']).length;
   const algos=batchDimList(dims,'algo',['gd','bb','newton_cg','newton_l1']);
   if(fmt==='rob_riuso') return losses*algos.length*15;
-  if(fmt==='sens_val') return losses*algos.length*108;
-  if(fmt==='sens_desc') return losses*algos.length*18;
   if(fmt==='confronto_finale') return losses*algos.length*25;
   if(fmt==='consigliati'){
     let per=0; for(const a of algos) per += RECOMMENDED_STRATEGY[a]==='base'?1:2;
