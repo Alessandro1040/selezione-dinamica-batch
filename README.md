@@ -163,8 +163,9 @@ Da tenere presente nelle sessioni di lavoro successive:
   Teorema di Convergenza Deterministica e le tabelle di confronto con Nocedal
   et al. (2012). In aspettativa: PL in forma forte, soluzione esatta della
   ricorrenza, costante C esplicita, complessità invariata. In deterministica:
-  unica differenza = disuguaglianza più forte (PL in forma forte). Nessun file
-  di `tesi/` coinvolto.
+  unica differenza = disuguaglianza più forte (PL in forma forte), con bound
+  esplicito su $k$ che dimezza il coefficiente ($2L$ vs.\ $L$). Nessun file di
+  `tesi/` coinvolto.
 
 - **Ultimo intervento (09/09/2026, tesi — lavori futuri).** Aggiunta in
   ``Conclusioni e Lavoro Futuro'' (Sez. 7, ``Direzioni per lavoro futuro'') una

@@ -110,7 +110,7 @@ k\;\le\;\frac{L}{(1-\theta)\lambda}\,\log\!\left(\frac{J(w_0)-J(w_*)}{\varepsilo
 
 \renewcommand{\arraystretch}{1.5}
 \scriptsize
-\begin{tabular}{@{}p{3.0cm}p{4.2cm}p{4.2cm}@{}}
+\begin{tabular}{@{}p{2.6cm}p{4.6cm}p{4.6cm}@{}}
 \toprule
 \textbf{Aspetto} & \textbf{Nocedal et al.\ (2012)} & \textbf{Questa tesi} \\
 \midrule
@@ -121,12 +121,12 @@ Effetto: contrazione per iterazione
   & $1-(1-\theta)\lambda/(2L)$
   & $1-(1-\theta)\lambda/L$ \\
 Effetto: iterazioni per $\varepsilon$
-  & $O\bigl(L/(\lambda)\log(1/\varepsilon)\bigr)$
-  & stessa complessità, costante dimezzata \\
+  & $k\;\le\;\dfrac{2L}{(1-\theta)\lambda}\,\log\!\Bigl(\dfrac{\Delta_0}{\varepsilon}\Bigr)$
+  & $k\;\le\;\dfrac{L}{(1-\theta)\lambda}\,\log\!\Bigl(\dfrac{\Delta_0}{\varepsilon}\Bigr)$ \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.7em}
-\noindent{\footnotesize \textit{Unica differenza di partenza:} la disuguaglianza più forte (Polyak--Lojasiewicz in forma forte); il fattore di contrazione e le iterazioni ne sono la conseguenza.}
+\noindent{\footnotesize Con $\Delta_0=J(w_0)-J(w_*)$. \textit{Unica differenza di partenza:} la disuguaglianza più forte (Polyak--Lojasiewicz in forma forte); contrazione e bound su $k$ (fattore 2 sul coefficiente) ne sono la conseguenza.}
 
 \end{document}
