@@ -157,6 +157,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi).** Rimossi "50 Cent" dai
+  Ringraziamenti (l'ultimo nome è ora JZAC). Aggiunto un `\newpage` subito
+  prima della `thmbox` del Teorema 5.1 (Convergenza in aspettativa), che ora
+  inizia in cima alla pagina 27 (prima iniziava in fondo alla 26 e proseguiva
+  nella 27). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**100 pp**, invariate;
+  0 errori, 0 undefined); sincronizzati in repo (md5 verificati). Nessun altro
+  file toccato.
+
 - **Ultimo intervento (08/09/2026, tesi — impaginazione Sez. 5.1.4).** Lo
   pseudocodice ``Gradiente a Campione Dinamico'' (Sez. 5.1.4) ora sta tutto in
   fondo alla pagina che contiene la seconda Nota e la Figura 5.3 (prima
