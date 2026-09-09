@@ -3696,7 +3696,7 @@ dall'utente.
 
 Lo studio presenta alcuni limiti che è importante esplicitare.
 
-\begin{enumerate}
+\begin{enumerate}\setlength{\itemsep}{1pt}\setlength{\topsep}{3pt}\setlength{\parskip}{0pt}
   \item Ipotesi di convessità forte. L'analisi di convergenza richiede
   che $J$ sia $\lambda$-fortemente convessa, un'ipotesi non sempre verificata
   nei problemi reali. Come discusso
@@ -3722,7 +3722,7 @@ Lo studio presenta alcuni limiti che è importante esplicitare.
 Dai limiti appena discussi emergono naturalmente alcune direzioni di lavoro
 futuro.
 
-\begin{enumerate}
+\begin{enumerate}\setlength{\itemsep}{1pt}\setlength{\topsep}{3pt}\setlength{\parskip}{0pt}
   \item Rilassamento dell'ipotesi di convessità forte. Nella nostra analisi
   la condizione di Polyak--Lojasiewicz (PL) interviene solo come conseguenza
   della convessità forte: l'ipotesi $\nabla^2 J(w) \succeq \lambda I$ implica
@@ -3750,18 +3750,17 @@ futuro.
   iterazioni interne, bilanciando il costo dei prodotti Hessiana-vettore con la
   qualità della direzione di Newton.
   \item Confronto sistematico con GD, SGD, SVRG e SAGA. Gli esperimenti del
-  Capitolo~\ref{sec:esperimenti} confrontano tra loro i quattro metodi a
-  campionamento dinamico e, sul piano teorico, con i bound di complessità di
-  SGD, ma non includono un confronto empirico diretto con i metodi stocastici
-  classici descritti nel Capitolo~\ref{sec:lavori}, in particolare GD, SGD e i
-  metodi a varianza ridotta SVRG~\cite{johnson2013} e SAGA~\cite{defazio2014}.
-  Una direzione naturale è implementare questi metodi nella stessa piattaforma
-  (Pyodide/NumPy) dell'applicazione web sviluppata in questa tesi, così da
-  misurarli nelle identiche condizioni sperimentali, e confrontarli con il
-  campionamento dinamico in termini di costo computazionale totale — numero di
-  valutazioni di gradienti individuali $\nabla\ell(w;i)$ oppure tempo di
-  esecuzione — anziché a parità di iterazioni, che non riflette il lavoro
-  effettivamente svolto a ogni iterazione e favorirebbe i metodi dal costo per
+  Capitolo~\ref{sec:esperimenti} confrontano i quattro metodi a campionamento
+  dinamico tra loro e, sul piano teorico, con i bound di complessità di SGD, ma
+  non includono un confronto empirico diretto con i metodi stocastici classici
+  del Capitolo~\ref{sec:lavori}, in particolare GD, SGD e i metodi a varianza
+  ridotta SVRG~\cite{johnson2013} e SAGA~\cite{defazio2014}. Una direzione
+  naturale è implementarli nella stessa piattaforma (Pyodide/NumPy)
+  dell'applicazione web di questa tesi, per misurarli nelle identiche condizioni
+  sperimentali e confrontarli con il campionamento dinamico in termini di costo
+  computazionale totale, numero di valutazioni di gradienti individuali
+  $\nabla\ell(w;i)$ oppure tempo di esecuzione, anziché a parità di iterazioni,
+  che non riflette il lavoro effettivo e favorirebbe i metodi dal costo per
   iterazione più basso.
 \end{enumerate}
 

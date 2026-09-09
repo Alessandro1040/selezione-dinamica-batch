@@ -157,6 +157,20 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi — impaginazione Sez. 7).** Nel bullet
+  ``Confronto sistematico con GD, SGD, SVRG e SAGA`` (Sez. 7, ``Direzioni per
+  lavoro futuro``) eliminate le 3 righe che sforavano a pag.~71: rimossi i due
+  trattini lunghi ``---`` (sostituiti da virgole) e accorciata la frase
+  (``descritti nel Capitolo`` → ``del Capitolo``, ``implementare questi metodi
+  … sviluppata in questa tesi, così da`` → ``implementarli … di questa tesi,
+  per``, ``lavoro effettivamente svolto a ogni iterazione`` → ``lavoro
+  effettivo``); compattate anche le due enumerate della Sez. 7
+  (``\itemsep 1pt, \topsep 3pt``) per recuperare spazio verticale. Il bullet ora
+  termina tutto a pag.~70 e l'Appendice A inizia regolarmente a pag.~71.
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**100 pp**, invariate; 0 errori,
+  0 undefined); sincronizzati in repo (md5 verificati). Nessun altro file
+  toccato.
+
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1).** Aggiunta in repo la
   cartella `teorema_convergenza_aspettativa/` (`.tex` + `.pdf`): documento
   minimale (2 pagine) con il Teorema 3.1 (Convergenza in aspettativa), il
