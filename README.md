@@ -159,10 +159,12 @@ Da tenere presente nelle sessioni di lavoro successive:
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1).** Aggiunta in repo la
   cartella `teorema_convergenza_aspettativa/` (`.tex` + `.pdf`): documento
-  minimale con il Teorema 3.1 (Convergenza in aspettativa) e una tabella di
-  confronto con Nocedal et al. (2012) che riassume i miglioramenti teorici
-  della tesi (PL in forma forte, soluzione esatta della ricorrenza, costante C
-  esplicita, complessità invariata). Nessun file di `tesi/` coinvolto.
+  minimale (2 pagine) con il Teorema 3.1 (Convergenza in aspettativa), il
+  Teorema di Convergenza Deterministica e le tabelle di confronto con Nocedal
+  et al. (2012). In aspettativa: PL in forma forte, soluzione esatta della
+  ricorrenza, costante C esplicita, complessità invariata. In deterministica:
+  unica differenza = disuguaglianza più forte (PL in forma forte). Nessun file
+  di `tesi/` coinvolto.
 
 - **Ultimo intervento (09/09/2026, tesi — lavori futuri).** Aggiunta in
   ``Conclusioni e Lavoro Futuro'' (Sez. 7, ``Direzioni per lavoro futuro'') una

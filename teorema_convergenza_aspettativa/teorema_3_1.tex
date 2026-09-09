@@ -82,4 +82,51 @@ Complessità per $\varepsilon$
 \vspace{0.6em}
 \noindent{\footnotesize Note: $\Delta_0=J(w_0)-J(w_*)$; $M_{\mathrm N}=\max\{\Delta_0,\,2\omega/\lambda\}$; $M_{\mathrm T}=\max\{\Delta_0,\,\omega/\lambda\}$. Esito: tasso $\lambda/L$ vs.\ $\lambda/(4L)$; complessità invariata.}
 
+\newpage
+
+\vspace{0.6em}
+
+\begin{center}
+  {\large\bfseries Convergenza deterministica vs.\ Nocedal et al.\ (2012)}
+\end{center}
+
+\vspace{0.6em}
+
+\begin{thmbox}
+\textbf{Teorema (Convergenza deterministica).}
+Sia $J:\mathbb{R}^m\to\mathbb{R}$ $\lambda$-fortemente convessa ($\nabla^2 J(w)\succeq\lambda I$) e con gradiente $L$-Lipschitz ($\nabla^2 J(w)\preceq LI$). Se a ogni iterazione vale la condizione di accuratezza e il passo è $\alpha=(1-\theta)/L$, allora
+\[
+\varepsilon_{k+1}\;\le\;\left(1-\frac{(1-\theta)\lambda}{L}\right)\varepsilon_k,
+\qquad \varepsilon_k:=J(w_k)-J(w_*).
+\]
+Di conseguenza il fattore di riduzione per iterazione è $\rho=1-\frac{(1-\theta)\lambda}{L}$, e il numero di iterazioni per ottenere $J(w_k)-J(w_*)\le\varepsilon$ è
+\[
+k\;\le\;\frac{L}{(1-\theta)\lambda}\,\log\!\left(\frac{J(w_0)-J(w_*)}{\varepsilon}\right)
+= O\!\left(\frac{L}{\lambda}\,\log\frac{1}{\varepsilon}\right).
+\]
+\end{thmbox}
+
+\vspace{1.0em}
+
+\renewcommand{\arraystretch}{1.5}
+\scriptsize
+\begin{tabular}{@{}p{3.0cm}p{4.2cm}p{4.2cm}@{}}
+\toprule
+\textbf{Aspetto} & \textbf{Nocedal et al.\ (2012)} & \textbf{Questa tesi} \\
+\midrule
+Disuguaglianza usata
+  & $\|\nabla J\|^2 \ge \lambda\,(J-J_*)$ \newline (debole)
+  & $\|\nabla J\|^2 \ge 2\lambda\,(J-J_*)$ \newline (forma forte) \\
+Effetto: contrazione per iterazione
+  & $1-(1-\theta)\lambda/(2L)$
+  & $1-(1-\theta)\lambda/L$ \\
+Effetto: iterazioni per $\varepsilon$
+  & $O\bigl(L/(\lambda)\log(1/\varepsilon)\bigr)$
+  & stessa complessità, costante dimezzata \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.7em}
+\noindent{\footnotesize \textit{Unica differenza di partenza:} la disuguaglianza più forte (Polyak--Lojasiewicz in forma forte); il fattore di contrazione e le iterazioni ne sono la conseguenza.}
+
 \end{document}
