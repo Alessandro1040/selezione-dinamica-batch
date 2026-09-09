@@ -911,14 +911,13 @@ precisione.}
 \label{fig:batch_qualitativa}
 \end{figure}
 
-\newpage
 \subsubsection{Pseudocodice (Algoritmo)}
 
 \begin{actionbox}
-  Gradiente a Campione Dinamico\\[0.3cm]
-  \textit{Input:} $w_0$ (punto iniziale), $\mathcal{S}_0$ (batch iniziale), $\theta \in (0,1)$ (tolleranza).\\[0.1cm]
+  Gradiente a Campione Dinamico\\[0.1cm]
+  \textit{Input:} $w_0$ (punto iniziale), $\mathcal{S}_0$ (batch iniziale), $\theta \in (0,1)$ (tolleranza).\\[0.05cm]
   \textit{Ripeti per ogni } $k \in \mathbb{N}$ \textit{ fino a convergenza:}
-  \begin{enumerate}
+  \begin{enumerate}\setlength{\itemsep}{1pt}\setlength{\topsep}{3pt}\setlength{\parskip}{0pt}
     \item $g_k = \nabla J_{\mathcal{S}_k}(w_k)$.
     \item $\widehat{\mathcal{V}} = \Var_{i \in \mathcal{S}_k}(\nabla \ell(w_k;i)) = \frac{1}{n_k - 1} \sum_{i \in S_k} \bigl(\nabla \ell_i(w_k) - g_k\bigr)^2
 $.

@@ -157,6 +157,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (08/09/2026, tesi — impaginazione Sez. 5.1.4).** Lo
+  pseudocodice ``Gradiente a Campione Dinamico'' (Sez. 5.1.4) ora sta tutto in
+  fondo alla pagina che contiene la seconda Nota e la Figura 5.3 (prima
+  occupava da solo una pagina nuova). Nessuna parola rimossa: eliminato il
+  `\newpage` prima della sottosezione e ridotte solo le spaziature interne
+  dell'`actionbox` (a-capo dopo titolo/riga Input e
+  `itemsep`/`topsep`/`parskip` dell'enumerate); larghezza Figura 5.3 invariata
+  (0.78\textwidth). Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**100 pp**,
+  −1; 0 errori, 0 undefined); sincronizzati in repo (md5 verificati).
+
 - **Ultimo intervento (08/09/2026, visualizzazione.html).** Rimossi dal Test
   batch i due formati ``Sensibilità iperparametri'' (validation e discesa), che
   riproducevano le tabelle ex 6.28/6.31 (`tab:riuso_valid_iper`,
