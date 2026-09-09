@@ -157,6 +157,13 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, extra — teorema_3_1).** Aggiunta in repo la
+  cartella `teorema_convergenza_aspettativa/` (`.tex` + `.pdf`): documento
+  minimale con il Teorema 3.1 (Convergenza in aspettativa) e una tabella di
+  confronto con Nocedal et al. (2012) che riassume i miglioramenti teorici
+  della tesi (PL in forma forte, soluzione esatta della ricorrenza, costante C
+  esplicita, complessità invariata). Nessun file di `tesi/` coinvolto.
+
 - **Ultimo intervento (09/09/2026, tesi — lavori futuri).** Aggiunta in
   ``Conclusioni e Lavoro Futuro'' (Sez. 7, ``Direzioni per lavoro futuro'') una
   terza direzione: confronto sistematico empirico con GD, SGD, SVRG e SAGA,
