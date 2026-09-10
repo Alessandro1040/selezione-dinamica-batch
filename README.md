@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, extra — teorema_3_1, ripristino tabella).** Su
+  richiesta, annullata la versione con la colonna ``Guadagno'' (commit 3d785c9):
+  `teorema_3_1.tex` è stato riportato esattamente alla versione del commit
+  **56cae1d** (tabella a 3 colonne con le righe ``Convergenza deterministica'',
+  ``Ricorrenza in aspettativa'' (sole ricorrenze), ``Metodo'', ``Tasso di
+  convergenza'', ``Intervallo per a'', ``Costante C'', ``Complessità''); resta il
+  box ``Ipotesi del Teorema 3.1''. Ricompilato `teorema_3_1.pdf` (**3 pp**,
+  0 errori). Nota: con il ripristino torna anche il preesistente overfull di
+  ~17pt nel margine destro della tabella deterministica di pag.~3 (non visibile,
+  mascherato da `\hfuzz=20pt`).
+
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1, tabella del guadagno).**
   Resa più intuitiva la tabella ``Teorema 3.1 vs. Nocedal et al. (2012)'':
   aggiunta una quarta colonna **Guadagno** e una riga finale ``Lettura del
