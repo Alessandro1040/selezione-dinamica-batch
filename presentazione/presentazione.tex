@@ -392,7 +392,8 @@
         \;\le\; \theta^2\,\|g_k\|_2^2,
         \qquad \theta\in(0,1)
       \]
-    \item Se la CCV è violata si ricampiona con un batch più grande:
+    \item Se la CCV è violata il batch cresce per il campione successivo
+      (l'iterazione corrente si completa con il campione già estratto):
       \[
         n_k^{\mathrm{new}}
         \;=\; \left\lceil
@@ -510,8 +511,9 @@
   \begin{center}
     \includegraphics[height=0.67\paperheight]{schema_dynamic_gd.pdf}\\[0.2cm]
     {\small\color{grigio} Flusso CCV: se la varianza campionaria è troppo
-      grande rispetto a $\theta^2\|g_k\|^2$, $n_k$ cresce e si ricampiona;
-      altrimenti line search di Wolfe e aggiornamento.}
+      grande rispetto a $\theta^2\|g_k\|^2$, $n_k$ cresce e il nuovo valore è
+      usato dalla prossima estrazione; line search e aggiornamento si eseguono
+      comunque con il campione corrente.}
   \end{center}
 \end{frame}
 

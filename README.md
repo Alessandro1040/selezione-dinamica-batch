@@ -157,6 +157,22 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (10/09/2026, tesi/presentazione/schemi — semantica della CCV
+  negli schemi).** Resi non ambigui gli schemi del campionamento dinamico: ora dicono
+  esplicitamente che **l'aumento di $n_k$ vale per il campione successivo** e che
+  l'iterazione corrente si completa con il campione già estratto (prima la didascalia
+  della fig.~5.1 diceva ``si ripete l'estrazione'' e la nota della slide suggeriva un
+  ``if/else'' con il passo eseguito solo a CCV soddisfatta, cioè un ciclo interno che
+  l'implementazione non ha). Modifiche: nelle figg.~5.1, 5.4 e 5.6 la freccia
+  ``soddisfatta''/``si'' è ora ``in ogni caso'', il nodo di aumento batch dice
+  ``(vale per la prossima estrazione)'' e la freccia di ritorno ``nuovo $n_k$
+  (prossima estrazione)''; didascalie delle tre figure riscritte di conseguenza;
+  nello pseudocodice Newton-CG ``aumenta il batch per la prossima estrazione'';
+  stessi ritocchi nei tre schemi della presentazione (`schema_dynamic_gd`,
+  `schema_newton_cg`, `schema_bbccv`) e nelle slide 10 e 14. Ricompilati: `tesi.pdf`/
+  `tesi_finale.pdf` (**102 pp**), i tre schemi, `immagini/*.pdf` e `presentazione.pdf`
+  (**45 pp**). 0 errori, 0 `Float too large`, nessun nuovo overfull.
+
 - **Ultimo intervento (10/09/2026, tesi — ringraziamenti).** Rimossi due nomi
   dall'elenco dei Ringraziamenti in `tesi.tex`; la riga è ora
   ``Cristina Pesci, Emmanuel Nsia,'' (seguita da ``Gaia Facioni, \dots'').

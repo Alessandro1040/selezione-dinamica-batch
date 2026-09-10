@@ -42,7 +42,8 @@
   % Nodo laterale (aumento batch)
   \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
     CCV violata:\\[2pt]
-    aumento del batch\\[2pt]
+    aumento del batch\\[1pt]
+    (vale per la prossima estrazione)\\[2pt]
     $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
   };
 
@@ -50,7 +51,7 @@
   \draw[arrow] (init) -- (batch);
   \draw[arrow] (batch) -- (grad);
   \draw[arrow] (grad) -- (ccv);
-  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {in ogni caso};
   \draw[arrow] (bb) -- (ls);
   \draw[arrow] (ls) -- (upd);
   \draw[arrow] (upd) -- (conv);
@@ -63,7 +64,7 @@
 
   % Loop ritorno da grow a batch (percorso esterno destro)
   \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
-    node[label, pos=0.25, right] {nuovo $n_k$};
+    node[label, pos=0.25, right] {nuovo $n_k$ (prossima estrazione)};
 
   % Loop ritorno da conv a batch (percorso esterno sinistro)
   \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)

@@ -40,9 +40,10 @@
 
   % Nodo laterale (aumento batch)
   \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
-    CCV violata:\\[2pt]
-    $|\mathcal{S}_{k+1}| \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_{k+1}\|^2} \right\rceil$\\[2pt]
-    Riseleziona $\mathcal{H}_{k+1}$
+    CCV violata: aumento del batch\\[1pt]
+    (vale per la prossima estrazione;\\[1pt]
+    anche $\mathcal{H}_{k+1}$ è riscalato)\\[2pt]
+    $|\mathcal{S}_{k+1}| \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_{k+1}\|^2} \right\rceil$
   };
 
   % Frecce verticali principali
@@ -51,7 +52,7 @@
   \draw[arrow] (ls) -- (upd);
   \draw[arrow] (upd) -- (recamp);
   \draw[arrow] (recamp) -- (ccv);
-  \draw[arrow] (ccv) -- (conv) node[label, midway, right] {si};
+  \draw[arrow] (ccv) -- (conv) node[label, midway, right] {in ogni caso};
   \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
 
   % Freccia CCV violata
@@ -59,7 +60,7 @@
 
   % Loop ritorno da grow a recamp (percorso esterno destro)
   \draw[arrow] (grow.east) -- ++(0.8,0) |- ($(recamp.east)+(0.8,0)$) -- (recamp.east)
-    node[label, pos=0.25, right] {nuovo $n_{k+1}$};
+    node[label, pos=0.25, right] {nuovo $n_{k+1}$ (prossima estrazione)};
 
   % Loop ritorno da conv a cg (percorso esterno sinistro)
   \draw[arrow] (conv.west) -- ++(-1.6,0) |- (cg.west)

@@ -721,7 +721,8 @@ metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
   % Nodo laterale (aumento batch)
   \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
     CCV violata:\\[2pt]
-    aumento del batch\\[2pt]
+    aumento del batch\\[1pt]
+    (vale per la prossima estrazione)\\[2pt]
     $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
   };
 
@@ -729,7 +730,7 @@ metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
   \draw[arrow] (init) -- (batch);
   \draw[arrow] (batch) -- (grad);
   \draw[arrow] (grad) -- (ccv);
-  \draw[arrow] (ccv) -- (ls) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (ccv) -- (ls) node[label, midway, right] {in ogni caso};
   \draw[arrow] (ls) -- (upd);
   \draw[arrow] (upd) -- (conv);
 
@@ -741,7 +742,7 @@ metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 
   % Loop ritorno da grow a batch (percorso esterno destro)
   \draw[arrow] (grow.east) -- ++(0.8,0) |- ($(batch.east)+(0.8,0)$) -- (batch.east)
-    node[label, pos=0.25, right] {nuovo $n_k$};
+    node[label, pos=0.25, right] {nuovo $n_k$ (prossima estrazione)};
 
   % Loop ritorno da conv a batch (percorso esterno sinistro)
   \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
@@ -751,8 +752,10 @@ metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
 \caption{Schema dell'algoritmo con controllo della varianza campionaria (CCV):
 il flusso principale segue inizializzazione $\to$ estrazione batch $\to$
 calcolo di gradiente e varianza $\to$ verifica della CCV $\to$ line search
-$\to$ aggiornamento; quando la CCV \`e violata la dimensione del batch viene
-aumentata e si ripete l'estrazione.}
+$\to$ aggiornamento. La verifica della CCV non interrompe l'iterazione corrente,
+che si completa con il campione gi\`a estratto: se la CCV \`e violata la
+dimensione del batch viene aumentata e il nuovo valore \`e usato dalla
+estrazione del campione successivo.}
 \label{fig:block_diagram}
 \end{figure}
 
@@ -1707,7 +1710,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
     \setlength{\itemsep}{0pt}\setlength{\topsep}{0pt}\setlength{\parskip}{0pt}
       \item Seleziona un nuovo campione $\mathcal{S}_{k+1}$ della stessa dimensione di $\mathcal{S}_k$.
       \item Calcola la varianza campionaria $\widehat{\mathcal{V}} = \Var_{i \in \mathcal{S}_{k+1}}(\nabla \ell(w_{k+1};i))$.
-      \item Se $\dfrac{\|\widehat{\mathcal{V}}\|_1}{|\mathcal{S}_{k+1}|} > \theta^2 \|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_2^2$, aumenta il batch:
+      \item Se $\dfrac{\|\widehat{\mathcal{V}}\|_1}{|\mathcal{S}_{k+1}|} > \theta^2 \|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_2^2$, aumenta il batch per la prossima estrazione:
       \[
       |\mathcal{S}_{k+1}| \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|\nabla J_{\mathcal{S}_{k+1}}(w_{k+1})\|_2^2} \right\rceil.
       \]
@@ -1753,9 +1756,10 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 
   % Nodo laterale (aumento batch)
   \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
-    CCV violata:\\[2pt]
-    $|\mathcal{S}_{k+1}| \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_{k+1}\|^2} \right\rceil$\\[2pt]
-    Riseleziona $\mathcal{H}_{k+1}$
+    CCV violata: aumento del batch\\[1pt]
+    (vale per la prossima estrazione;\\[1pt]
+    anche $\mathcal{H}_{k+1}$ è riscalato)\\[2pt]
+    $|\mathcal{S}_{k+1}| \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_{k+1}\|^2} \right\rceil$
   };
 
   % Frecce verticali principali
@@ -1764,7 +1768,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
   \draw[arrow] (ls) -- (upd);
   \draw[arrow] (upd) -- (recamp);
   \draw[arrow] (recamp) -- (ccv);
-  \draw[arrow] (ccv) -- (conv) node[label, midway, right] {si};
+  \draw[arrow] (ccv) -- (conv) node[label, midway, right] {in ogni caso};
   \draw[arrow] (conv) -- (end) node[label, midway, above] {sì};
 
   % Freccia CCV violata
@@ -1772,7 +1776,7 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 
   % Loop ritorno da grow a recamp (percorso esterno destro)
   \draw[arrow] (grow.east) -- ++(0.8,0) |- ($(recamp.east)+(0.8,0)$) -- (recamp.east)
-    node[label, pos=0.25, right] {nuovo $n_{k+1}$};
+    node[label, pos=0.25, right] {nuovo $n_{k+1}$ (prossima estrazione)};
 
   % Loop ritorno da conv a cg (percorso esterno sinistro)
   \draw[arrow] (conv.west) -- ++(-1.6,0) |- (cg.west)
@@ -1782,7 +1786,9 @@ L'algoritmo quindi calcola $\gamma$ una volta sola all'inizio del CG, e poi ad o
 \caption{Schema del metodo Newton-CG con campionamento dinamico: ad ogni
 iterazione il gradiente coniugato risolve (in modo Hessian free) il sistema di
 Newton con un criterio di arresto adattivo; dopo l'aggiornamento e il
-ricampionamento, la CCV decide se aumentare la dimensione del batch.}
+ricampionamento, la CCV decide la dimensione del campione per l'iterazione
+successiva, mentre l'iterazione corrente si completa comunque con il campione
+gi\`a estratto.}
 \label{fig:newton_cg}
 \end{figure}
 
@@ -2429,7 +2435,8 @@ raggiunge la precisione macchina sui problemi mal condizionati.
   % Nodo laterale (aumento batch)
   \node[box, right=2.1cm of ccv, text width=4.6cm, minimum height=1.6cm] (grow) {
     CCV violata:\\[2pt]
-    aumento del batch\\[2pt]
+    aumento del batch\\[1pt]
+    (vale per la prossima estrazione)\\[2pt]
     $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$
   };
 
@@ -2437,7 +2444,7 @@ raggiunge la precisione macchina sui problemi mal condizionati.
   \draw[arrow] (init) -- (batch);
   \draw[arrow] (batch) -- (grad);
   \draw[arrow] (grad) -- (ccv);
-  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {soddisfatta};
+  \draw[arrow] (ccv) -- (bb) node[label, midway, right] {in ogni caso};
   \draw[arrow] (bb) -- (ls);
   \draw[arrow] (ls) -- (upd);
   \draw[arrow] (upd) -- (conv);
@@ -2450,7 +2457,7 @@ raggiunge la precisione macchina sui problemi mal condizionati.
 
   % Loop ritorno da grow a batch (percorso esterno destro)
   \draw[arrow] (grow.east) -- ++(1.2,0) |- ($(batch.east)+(1.2,0)$) -- (batch.east)
-    node[label, pos=0.25, right] {nuovo $n_k$};
+    node[label, pos=0.25, right] {nuovo $n_k$ (prossima estrazione)};
 
   % Loop ritorno da conv a batch (percorso esterno sinistro)
   \draw[arrow] (conv.west) -- ++(-1.3,0) |- ($(batch.west)+(-1.8,0)$) -- (batch.west)
@@ -2461,7 +2468,8 @@ raggiunge la precisione macchina sui problemi mal condizionati.
 passo di Barzilai--Borwein). Il flusso è quello del Dynamic GD
 (Figura~\ref{fig:block_diagram}): estrazione del batch $\mathcal{S}_k$, calcolo
 di gradiente e varianza campionaria $\widehat{\mathcal{V}}$, verifica della CCV
-con eventuale aumento di $n_k$. La differenza è nel passo: per $k > 0$ si stima
+con eventuale aumento di $n_k$ per il campione successivo (l'iterazione corrente
+si completa con il campione gi\`a estratto). La differenza è nel passo: per $k > 0$ si stima
 la curvatura di $J$ usando solo i gradienti già calcolati, $s = w_k - w_{k-1}$
 e $y = g_k - g_{k-1}$, con la formula $\alpha_k^{BB} = \frac{s^T s}{s^T y}$ di
 Barzilai--Borwein (per $k = 0$, $\alpha_0 = \alpha$); il passo è salvaguardato in
