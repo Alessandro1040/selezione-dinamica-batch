@@ -2053,7 +2053,17 @@ Il vettore $z_k$ definisce l'ortante
 \Omega_k = \{ d \in \mathbb{R}^m : \operatorname{sign}(d^i) = \operatorname{sign}(z_k^i) \}, \tag{5.45}\label{eq:5_45}
 \]
 all'interno del quale la funzione $\|w\|_1$ è differenziabile e il suo gradiente
-è esattamente $z_k$. L'algoritmo ha scelto quella posizione basandosi sulla condizione di stazionarietà:
+è esattamente $z_k$. Per le variabili libere ($z_k^i \neq 0$) il subgradiente
+scelto è $g_k^i = \nu\,z_k^i$, mentre per le variabili dell'active set
+($z_k^i = 0$) è $g_k^i = -\partial J_{\mathcal{S}_k}(w_k)/\partial w_i$,
+cosicché la corrispondente componente del gradiente generalizzato è nulla.
+In forma compatta si scrive quindi
+\[
+\widetilde{\nabla}F_{\mathcal{S}_k}(w_k) = \nabla J_{\mathcal{S}_k}(w_k) + g_k,
+\]
+con $g_k^i = \nu\,z_k^i$ quando $z_k^i \neq 0$: la scrittura
+$\nabla J_{\mathcal{S}_k}(w_k) + \nu z_k$ vale solo sulle coordinate libere,
+non su quelle dell'active set. L'algoritmo ha scelto quella posizione basandosi sulla condizione di stazionarietà:
 \begin{itemize}
   \item Se $w_i$ è già a destra ($w_i > 0$), allora deve restare a destra.
   \item Se $w_i$ è già a sinistra ($w_i < 0$), allora deve restare a sinistra.
@@ -2138,7 +2148,7 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
     
     \item Minimizzazione nel sottospazio
     \begin{enumerate}
-      \item Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k) = \nabla J_{\mathcal{S}_k}(w_k) + \nu z_k$.
+      \item Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k) = \nabla J_{\mathcal{S}_k}(w_k) + g_k$, dove $g_k$ è il subgradiente scelto dalla regola di proiezione \eqref{eq:5_43}; sulle coordinate libere $g_k^i = \nu z_k^i$.
       \item Applica il gradiente coniugato al sistema \eqref{eq:5_48}. Termina quando
       il residuo $r_k$ soddisfa
       \[
@@ -2185,7 +2195,7 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 
   % Nodi principali (colonna centrale)
   \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $\nu$, $\eta$, $\sigma$};
-  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
+  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+g_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
   \node[box, below=of subgrad, text width=4.8cm, minimum height=1.6cm] (cg) {CG nel sottospazio libero\\[2pt] ($Y_k$: versori delle coordinate libere)\\[2pt] $[Y_k^T H_k Y_k]\,d^Y = -Y_k^T \widetilde{\nabla}F$\\[1pt] Arresto: $\|r\| \le \eta\|Y_k^T \widetilde{\nabla}F\|$};
   \node[box, below=of cg, text width=4.6cm, minimum height=1.4cm] (ls) {Ricerca lineare proiettata\\[1pt] (Armijo, $\sigma$)\\[2pt] Trova $\alpha_k$\\[1pt] $w_{k+1} = P[w_k + \alpha_k d_k]$};
   \node[box, below=of ls] (recamp) {Ricampionamento\\[2pt] $\mathcal{S}_{k+1}$, $\mathcal{H}_{k+1}$ (fissi)};

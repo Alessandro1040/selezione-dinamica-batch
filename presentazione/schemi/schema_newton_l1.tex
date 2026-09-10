@@ -30,7 +30,7 @@
 
   % Nodi principali (colonna centrale)
   \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $\nu$, $\eta$, $\sigma$};
-  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
+  \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+g_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
   \node[box, below=of subgrad, text width=4.8cm, minimum height=1.6cm] (cg) {CG nel sottospazio libero\\[2pt] ($Y_k$: versori delle coordinate libere)\\[2pt] $[Y_k^T H_k Y_k]\,d^Y = -Y_k^T \widetilde{\nabla}F$\\[1pt] Arresto: $\|r\| \le \eta\|Y_k^T \widetilde{\nabla}F\|$};
   \node[box, below=of cg, text width=4.6cm, minimum height=1.4cm] (ls) {Ricerca lineare proiettata\\[1pt] (Armijo, $\sigma$)\\[2pt] Trova $\alpha_k$\\[1pt] $w_{k+1} = P[w_k + \alpha_k d_k]$};
   \node[box, below=of ls] (recamp) {Ricampionamento\\[2pt] $\mathcal{S}_{k+1}$, $\mathcal{H}_{k+1}$ (fissi)};

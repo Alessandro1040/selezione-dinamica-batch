@@ -1224,7 +1224,7 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             Il vettore \(z_k\) definisce l'ortante \(\Omega_k=\{d\in\mathbb{R}^m:\operatorname{sign}(d^i)=\operatorname{sign}(z_k^i)\}\),
             all'interno del quale \(\|w\|_1\) è differenziabile e il suo gradiente è esattamente \(z_k\). Le variabili con \(z_k^i=0\)
             costituiscono l'<strong>active set</strong> \(\mathcal{A}_k=\{i\mid z_k^i=0\}\), mantenute a zero durante la minimizzazione;
-            le rimanenti sono dette <em>libere</em>.
+            le rimanenti sono dette <em>libere</em>. In forma compatta si scrive \(\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+g_k\): per le coordinate libere (\(z_k^i\neq0\)) si ha \(g_k^i=\nu z_k^i\), mentre per quelle bloccate (\(z_k^i=0\)) il subgradiente scelto è \(g_k^i=-\partial_i J_{\mathcal{S}_k}(w_k)\) e la componente del gradiente generalizzato è nulla; la scrittura \(\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k\) vale quindi solo sulle variabili libere.
           </p>
 
           <h4>4. Minimizzazione nel sottospazio</h4>
@@ -4580,7 +4580,7 @@ function pseudoNewtonL1(o) {
       '\\textbf{for}\\; k=0,\\dots,K-1: \\\\',
       '\\quad \\mathcal{S}_k \\sim \\mathcal{U}(N,|\\mathcal{S}_k|) \\\\',
       '\\quad ' + Hline + ' \\\\',
-      '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+\\nu z_k \\\\',
+      '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+g_k \\\\',
       ...(dyn ? [
         '\\quad \\widehat{\\mathcal{V}}_k = \\operatorname{Var}_{i\\in\\mathcal{S}_k}[\\nabla\\ell_i(w_k)] \\\\',
         '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito} \\\\',
@@ -4615,7 +4615,7 @@ function pseudoNewtonL1(o) {
       : [
         '\\quad\\quad \\textbf{if}\\; \\texttt{legato}: \\;' + Hline + ',\\; j_{\\mathcal{H}}=0 \\\\'
       ]),
-    '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+\\nu z_k \\\\',
+    '\\quad \\widetilde{\\nabla}F_{\\mathcal{S}_k}(w_k)=\\nabla J_{\\mathcal{S}_k}(w_k)+g_k \\\\',
     ...(dyn ? [
       '\\quad \\textbf{if}\\; \\|\\widehat{\\mathcal{V}}_k\\|_1/|\\mathcal{S}_k| > \\theta^{2}\\|g_k\\|^{2}: \\qquad \\text{batch esaurito (CCV al punto corrente)} \\\\',
       '\\quad\\quad |\\mathcal{S}_{k+1}| = \\bigl\\lceil\\|\\widehat{\\mathcal{V}}_k\\|_1/(\\theta^{2}\\|g_k\\|^{2})\\bigr\\rceil+1 \\\\',

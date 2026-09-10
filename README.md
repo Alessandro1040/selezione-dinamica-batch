@@ -157,6 +157,25 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi/presentazione/app — forma compatta di
+  $\widetilde{\nabla}F$ per $L_1$).** Chiarita la scrittura del gradiente
+  generalizzato: dove compariva
+  $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+\nu z_k$
+  ora si usa $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)+g_k$,
+  con $g_k$ il subgradiente scelto dalla regola di proiezione
+  ($g_k^i=\nu z_k^i$ se $z_k^i\neq0$; $g_k^i=-\partial J_{\mathcal{S}_k}(w_k)/\partial w_i$
+  se $z_k^i=0$, dove la componente del gradiente generalizzato è nulla).
+  **Segno invariato** ($+$): la forma con $\nu z_k$ era imprecisa solo per le
+  coordinate dell'active set. Modificati: `tesi/tesi.tex` (pseudocodice
+  dell'algoritmo, schema TikZ `fig:newton_l1` e precisazione dopo l'eq.~5.45),
+  `presentazione/presentazione.tex` (slide 22),
+  `presentazione/schemi/schema_newton_l1.tex` (+ copia in
+  `presentazione/immagini/schema_newton_l1.pdf`), `visualizzazione.html`
+  (2 pannelli pseudocodice + nota nel pannello teorico). Ricompilati `tesi.pdf` e
+  `tesi_finale.pdf` (**100 pp**), `presentazione.pdf` (**45 pp**). Restano
+  invariate (materiale storico, non usato) le occorrenze in `altro/bozza.tex` e
+  `altro/tesi_sapthesis.tex`.
+
 - **Ultimo intervento (09/09/2026, tesi — bibliografia).** Audit della
   bibliografia di `tesi.tex` (13 voci): tutte citate nel testo (0 voci orfane,
   0 citazioni senza `\bibitem`, 0 undefined); nessuna voce superflua. Correzione

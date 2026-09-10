@@ -798,7 +798,10 @@
       $\Omega_k=\{d:\operatorname{sign}(d^i)=\operatorname{sign}(z_k^i)\}$,
       dove $\|w\|_1$ è lineare e il gradiente generalizzato è
       $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)=\nabla J_{\mathcal{S}_k}(w_k)
-      +\nu z_k$ (eq.~5.43); su $\Omega_k$ si minimizza il modello quadratico
+      +g_k$ (eq.~5.43), con $g_k$ il subgradiente scelto dalla regola di
+      proiezione: $g_k^i=\nu z_k^i$ se $z_k^i\neq0$, mentre per le variabili
+      bloccate ($z_k^i=0$) la componente di $\widetilde{\nabla}F$ è nulla; su
+      $\Omega_k$ si minimizza il modello quadratico
       ristretto alle variabili libere.
   \end{itemize}
   \fonte{Dalla tesi --- Sez.~5.3, eq.~5.43--5.47}
