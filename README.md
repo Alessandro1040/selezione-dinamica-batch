@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi — contributi, pag. 6).** Resa più
+  dettagliata e completa la voce ``Miglioramento dei teoremi di convergenza''
+  nel punto 2 dei ``Contributi del lavoro'' (Sez.~1.4): il raffinamento non
+  riguarda solo il fattore di contrazione deterministico, ma anche il tasso di
+  convergenza in aspettativa ($\rho=\max\{1-\lambda/L,\,1/a\}$ al posto di
+  $\max\{1-\lambda/(4L),\,1/a\}$, con costante $C$ esplicita) e il Corollario~5.2
+  sulla complessità totale (intervallo di ammissibilità per $a$ più ampio,
+  costante migliore); esplicitato inoltre che il contributo non è solo l'uso
+  della PL in forma forte, ma anche la risoluzione in forma chiusa della
+  ricorrenza (senza il fattore $1/2$ dell'argomento induttivo di
+  byrd2012~[1]); aggiunti i riferimenti a byrd2012~[1] e Nocedal e
+  Wright~[3]. Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**100 pp**, invariate;
+  0 errori, 0 undefined); sincronizzati in repo (md5 verificati). Nessun altro
+  file toccato.
+
 - **Ultimo intervento (09/09/2026, tesi — impaginazione Sez. 7).** Nel bullet
   ``Confronto sistematico con GD, SGD, SVRG e SAGA`` (Sez. 7, ``Direzioni per
   lavoro futuro``) eliminate le 3 righe che sforavano a pag.~71: rimossi i due

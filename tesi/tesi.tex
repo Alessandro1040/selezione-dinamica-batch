@@ -366,13 +366,23 @@ risultati di convergenza e l'implementazione:
   deterministica e in aspettativa, e si ricava una stima della complessità
   totale competitiva con quella di SGD e migliore sui problemi mal
   condizionati.
-  \item Miglioramento dei teoremi di convergenza. Alcuni risultati
-  vengono raffinati mediante l'uso di disuguaglianze più strette. In
+  \item Miglioramento dei teoremi di convergenza. I risultati di convergenza
+  dei metodi a campione dinamico sono raffinati rispetto al lavoro
+  originale~\cite{byrd2012} e a Nocedal e Wright~\cite{nocedal2006}, e il
+  contributo non è solo l'impiego della disuguaglianza di Polyak--Lojasiewicz
+  nella forma forte $\|\nabla J(w)\|^2 \ge 2\lambda J(w)$: la ricorrenza di
+  convergenza in aspettativa è anche risolta in forma chiusa, senza il fattore
+  $1/2$ che l'argomento induttivo del lavoro originale introduce. In
   particolare, il fattore di contrazione del metodo del gradiente a campione
   dinamico passa da $1-\frac{(1-\theta)\lambda}{2L}$ a
-  $1-\frac{(1-\theta)\lambda}{L}$ usando la disuguaglianza di
-  Polyak--Lojasiewicz nella forma forte
-  (Sezione~\ref{sec:convergenza-deterministica}).
+  $1-\frac{(1-\theta)\lambda}{L}$, con il dimezzamento delle iterazioni
+  necessarie per raggiungere l'accuratezza $\varepsilon$
+  (Sezione~\ref{sec:convergenza-deterministica}); il tasso di convergenza in
+  aspettativa diventa $\rho = \max\{1-\lambda/L,\, 1/a\}$ (da
+  $\max\{1-\lambda/(4L),\, 1/a\}$), con costante $C$ esplicita; di conseguenza
+  l'intervallo di ammissibilità per la crescita geometrica del batch è più
+  ampio e il bound di complessità totale ha una costante migliore
+  (Corollario~5.2).
   \item Implementazioni. I quattro algoritmi (Dynamic GD, Newton-CG,
   Newton-CG~$L_1$ e BB-CCV) sono implementati in Python e disponibili
   nell'applicazione web interattiva, con esperimenti numerici
