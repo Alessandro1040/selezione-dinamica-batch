@@ -157,6 +157,19 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, extra — teorema_3_1, tabella).** Nella
+  tabella ``Teorema 3.1 vs. Nocedal et al. (2012)'' la riga ``Ricorrenza in
+  aspettativa'' ora mostra, oltre alla ricorrenza, anche la sua soluzione: per
+  Nocedal la maggiorazione induttiva
+  $\varepsilon_k\le M_{\mathrm N}\rho^k$ con
+  $\rho=\max\{1-\lambda/(4L),\,1/a\}$; per questa tesi la forma chiusa
+  $\varepsilon_k\le\alpha^k\varepsilon_0+\beta a\,\frac{\alpha^k-a^{-k}}{\alpha
+  a-1}$ (col fattore di somma geometrica). Aggiunte nella nota le definizioni
+  $\alpha=1-\lambda/L$, $\beta=\omega/(2L)$ e la precisazione che il termine
+  $a(\alpha^k-a^{-k})/(\alpha a-1)$ è la somma geometrica della ricorrenza.
+  Ricompilato `teorema_3_1.pdf` (**3 pp**, 0 errori). Nessun file di `tesi/`
+  coinvolto.
+
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1, ipotesi).** In
   `teorema_convergenza_aspettativa/teorema_3_1.tex` aggiunto, subito dopo
   l'enunciato del Teorema 3.1, il box ``Ipotesi del Teorema 3.1'' (stile
