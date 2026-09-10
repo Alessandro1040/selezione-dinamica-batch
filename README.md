@@ -157,6 +157,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, extra — teorema_3_1, ipotesi).** In
+  `teorema_convergenza_aspettativa/teorema_3_1.tex` aggiunto, subito dopo
+  l'enunciato del Teorema 3.1, il box ``Ipotesi del Teorema 3.1'' (stile
+  notebox della tesi): (i) struttura di $J$ (convessità forte + $L$-liscia, con
+  maggiorazione di Taylor e PL in forma forte $\|\nabla J\|^2\ge2\lambda J$);
+  (ii) campionamento/stimatore non distorto
+  ($\mathbb{E}[g_k\mid w_k]=\nabla J(w_k)$); (iii) varianza limitata uniforme
+  $\|\mathrm{Var}(\nabla\ell(w_k;I))\|_1\le\omega$; (iv) scelte algoritmiche
+  (passo $1/L$, $n_k=\lceil a^k\rceil$, $a>1$); (v) ipotesi ausiliarie
+  (condizione di accuratezza con $\theta$, intervallo per $a$ nella complessità
+  totale), con nota che $\theta$ non compare nell'enunciato e che $\omega$ in
+  pratica è stimata. Aggiunto un `\newpage` prima della tabella di confronto con
+  Nocedal, per non lasciare orfana l'intestazione a fondo pagina. PDF passato da
+  2 a 3 pagine (0 errori). Nessun file di `tesi/` coinvolto.
+
 - **Ultimo intervento (09/09/2026, tesi — contributi, pag. 6).** Resa più
   dettagliata e completa la voce ``Miglioramento dei teoremi di convergenza''
   nel punto 2 dei ``Contributi del lavoro'' (Sez.~1.4): il raffinamento non

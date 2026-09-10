@@ -14,6 +14,12 @@
   fonttitle=\bfseries, title=Teorema, breakable
 }
 
+% ── Box "Ipotesi" (stile tesi_finale) ──────────────────────────────
+\newtcolorbox{ipotesibox}{%
+  colback=yellow!10, colframe=yellow!60!black,
+  fonttitle=\bfseries, title=Ipotesi del Teorema 3.1, breakable
+}
+
 \pagestyle{empty}
 \hfuzz=20pt
 \overfullrule=0pt
@@ -34,7 +40,43 @@ Di conseguenza, posto $\rho := \max\{\alpha,\,1/a\}$, se $a>1$ si ha $\rho<1$ ed
 \]
 \end{thmbox}
 
-\vspace{1.2em}
+\vspace{0.8em}
+
+\begin{ipotesibox}
+\begin{itemize}
+  \setlength{\itemsep}{2pt}\setlength{\topsep}{2pt}\setlength{\parskip}{0pt}
+  \item \textbf{Struttura di $J$.} $J$ è $\lambda$-fortemente convessa
+  ($\nabla^2 J(w)\succeq\lambda I$, $\lambda>0$, con minimo unico $w_*$) e
+  $L$-liscia ($\nabla^2 J(w)\preceq LI$). Ne seguono la maggiorazione di Taylor
+  e la disuguaglianza di Polyak--Lojasiewicz in forma forte
+  $\|\nabla J(w)\|^2\ge 2\lambda J(w)$ (con $J(w_*)=0$).
+  \item \textbf{Campionamento e stimatore.} Dataset finito,
+  $J(w)=\frac{1}{N}\sum_{i=1}^{N}\ell(w;i)$ con indice $I$ uniforme su
+  $\{1,\dots,N\}$; lo stimatore
+  $g_k=\frac{1}{n_k}\sum_{i\in\mathcal{S}_k}\nabla\ell(w_k;i)$ è non distorto:
+  $\mathbb{E}[g_k\mid w_k]=\nabla J(w_k)$.
+  \item \textbf{Varianza limitata} (uniformemente in $w_k$):
+  $\|\mathrm{Var}(\nabla\ell(w_k;I))\|_1\le\omega$ con $\omega>0$; di conseguenza
+  $\|\mathrm{Var}(g_k)\|_1\le\omega/n_k$.
+  \item \textbf{Algoritmo.} Passo fisso $1/L$:
+  $w_{k+1}=w_k-\frac{1}{L}g_k$; dimensione del batch geometrica
+  $n_k=\lceil a^k\rceil$ con $a>1$ (è quanto basta perché
+  $\rho=\max\{1-\lambda/L,\,1/a\}<1$).
+  \item \textbf{Ipotesi ausiliarie} (non nell'enunciato). Condizione di
+  accuratezza $\|g_k-\nabla J(w_k)\|\le\theta\|g_k\|$, $\theta\in[0,1)$, usata
+  solo per giustificare la crescita geometrica del batch; per la complessità
+  totale $a\le(1-\lambda/L)^{-1}$.
+\end{itemize}
+\vspace{0.3em}
+\noindent{\footnotesize La tolleranza $\theta$ non compare nell'enunciato: nel
+caso in aspettativa il controllo puntuale dell'errore è sostituito dall'ipotesi
+di varianza limitata. La costante $\omega$ è un parametro dell'analisi; in
+pratica è ignota e viene stimata dalla varianza campionaria.}
+\end{ipotesibox}
+
+\vspace{1.0em}
+
+\newpage
 
 \begin{center}
   {\large\bfseries Teorema 3.1 vs.\ Nocedal et al.\ (2012)}

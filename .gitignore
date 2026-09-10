@@ -16,6 +16,13 @@ tesi/frontespizio.pdf
 __pycache__/
 *.pyc
 
+# Artefatti di build del documento teorema_convergenza_aspettativa
+teorema_convergenza_aspettativa/*.aux
+teorema_convergenza_aspettativa/*.log
+teorema_convergenza_aspettativa/*.fls
+teorema_convergenza_aspettativa/*.out
+teorema_convergenza_aspettativa/*.fdb_latexmk
+
 # Artefatti di build della presentazione
 presentazione/*.aux
 presentazione/*.log
