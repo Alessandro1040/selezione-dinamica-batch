@@ -166,18 +166,16 @@ Da tenere presente nelle sessioni di lavoro successive:
   rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
   e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
   beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
-- **Ultimo intervento (11/09/2026, presentazione — PDF del deck finale).** Aggiunto alla
-  root della repo `presentazione_riformattata.pdf` (3.335.031 byte, **23 pagine**, 16:9):
-  il PDF della presentazione finale, generato dal deck `presentazione.pptx` esportato da
-  Keynote (la versione con i **titoli rimessi** su tutte le slide e lo **schema BB-CCV
-  corretto in place**, cioe' con ``in ogni caso'' e ``(prossima estrazione)'' al posto di
-  ``soddisfatta''), poi convertito con LibreOffice. Verificato pagina per pagina: titoli
-  di slide 12/15/18 presenti, slide 14 con le etichette corrette (OCR), 23 pagine, formato
-  16:9. Il `.pptx` della root e' momentaneamente la versione precedente (v4, con
-  l'immagine dello schema rigenerata dalla fig. 5.7): va allineato al deck esportato da
-  Keynote, insieme ai 4 ritocchi ancora aperti (spaziatura slide 8 dalla riga
-  ``$\exists a \in \mathbb{R}$'' in giu', titolo slide 17 ``minibatch'' -> ``mini-batch'',
-  ``J(w):'' in slide 8, doppi spazi e caratteri invisibili).
+- **Ultimo intervento (11/09/2026, presentazione — PDF del deck finale).** In root
+  `presentazione_riformattata.pdf` = l'**export nativo PDF da Keynote** del deck finale
+  (`presentazione (7).pdf`, 2.306.285 byte, **23 pagine**, 16:9): qui la matematica e'
+  **vettoriale** (non immagini), i titoli ci sono su tutte le slide e lo schema BB-CCV ha
+  ``in ogni caso'' / ``(prossima estrazione)''. Verificato pagina per pagina. Restano
+  aperti, presenti anche in questo PDF: la **spaziatura di slide 8** (la riga
+  ``$\exists a \in \mathbb{R}$'' e' ancora attaccata a ``Ipotesi stocastiche'', distacco
+  0,01 in), il titolo di slide 17 ``minibatch'' -> ``mini-batch'', ``J(w) :'' in slide 8,
+  i doppi spazi (slide 5, 13, 15) e i caratteri invisibili. Il `.pptx` della root e' ancora
+  la v4 (immagine dello schema rigenerata dalla fig. 5.7): da allineare al deck Keynote.
 - **Ultimo intervento (10/09/2026, tesi — Ringraziamenti).** Aggiunto ``Silvio Zylfi''
   in coda all'elenco dei Ringraziamenti (dopo ``Maria Antonietta Palladino'', riga 247
   di `tesi.tex`). Ricompilati `tesi.pdf` (**102 pp**, 0 errori) e `tesi_finale.pdf`
