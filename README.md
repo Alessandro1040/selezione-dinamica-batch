@@ -165,6 +165,22 @@ Da tenere presente nelle sessioni di lavoro successive:
   rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
   e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
   beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
+- **Ultimo intervento (10/09/2026, presentazione PowerPoint — spaziatura slide 8).**
+  Nella slide ``Analisi Stocastica'' l'equazione $\varepsilon_k \le c\rho^k$ risultava
+  troppo appiccicata alla riga soprastante (``Migliorata con PL (il coefficiente di
+  $\varepsilon_k$ e' piu' piccolo: $\alpha=1-\lambda/L$ invece di $1-\lambda/(2L)$)''):
+  il distacco misurato sull'inchiostro era 0,18 in (13 pt), mentre sotto c'erano 0,29 in.
+  Spostate in basso di 0,12 in **sia** l'equazione **sia** la riga ``Migliorata
+  risolvendo la ricorrenza (soluzione in forma chiusa, senza induzione)'' (cosi' il
+  distacco fra le due resta identico), nel ramo `mc:Choice` e nel fallback (2+1
+  occorrenze di `a:off`, sostituzioni verificate): il distacco sopra passa a **0,30 in
+  (22 pt)** e quello sotto resta **0,29 in (21 pt)**; l'ultimo elemento finisce a 5,50 in
+  su una slide alta 7,50 in (nessuna collisione, nessun altro elemento toccato).
+  Verificato misurando l'inchiostro elemento per elemento sul PDF renderizzato, prima e
+  dopo. Nota (non modificata): la formula della slide omette il fattore $(1-\theta)$
+  rispetto alla tesi (Sez.~5.2: $1-(1-\theta)\lambda/L$ contro $1-(1-\theta)\lambda/(2L)$);
+  essendo quel testo dentro un paragrafo con matematica (immagine di fallback), una
+  modifica si vedrebbe solo in PowerPoint.
 - **Ultimo intervento (10/09/2026, presentazione PowerPoint — correzioni).** Controllo
   completo di `presentazione_riformattata.pptx` (23 slide: estrazione XML, validazione
   delle 118 parti XML, 180 relazioni immagine, geometria di ogni forma in EMU, resa
