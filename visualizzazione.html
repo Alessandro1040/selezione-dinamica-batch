@@ -506,10 +506,10 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
       <div class="field-row" id="lineSearchRow" style="margin-top:10px">
         <label class="field-label" for="lineSearchMode">Line search — GD, Newton-CG, BB</label>
         <select id="lineSearchMode">
-          <option value="wolfe">Condizioni di Wolfe (default)</option>
+          <option value="wolfe">Condizioni di Wolfe</option>
           <option value="armijo">Solo Armijo</option>
         </select>
-        <p class="field-hint" id="lineSearchHint">Default: Wolfe (sufficienza discesa + curvatura), come da pseudocodice LaTeX.</p>
+        <p class="field-hint" id="lineSearchHint">Default per algoritmo, come da pseudocodice della tesi: Wolfe per Dynamic GD e Newton-CG, Armijo per BB-CCV. (Newton-L1 usa sempre la sua Armijo proiettata.)</p>
       </div>
       <div class="field-row" id="hkSubsetRow" style="margin-top:10px">
         <label class="field-label" for="hkSubsetMode">Sottocampionamento Hessiana — Newton-CG, Newton-L1</label>
@@ -5794,7 +5794,15 @@ resetLossBtn.addEventListener('click', () => {
   if(pyodideReady) renderSurfacePreview();
 });
 
-algoSelect.addEventListener('change', () => { updateParamsVisibility(); loadAlgoPreset(); });
+// Default di line search per algoritmo, coerenti con la tesi
+// (Wolfe per Dynamic GD e Newton-CG, Armijo per BB-CCV; Newton-L1 ha la sua Armijo proiettata).
+// Il selettore resta comunque modificabile dall'utente dopo la selezione.
+const LS_DEFAULT = { gd: 'wolfe', newton_cg: 'wolfe', bb: 'armijo', newton_l1: 'armijo' };
+algoSelect.addEventListener('change', () => {
+  updateParamsVisibility();
+  if (LS_DEFAULT[algoSelect.value]) document.getElementById('lineSearchMode').value = LS_DEFAULT[algoSelect.value];
+  loadAlgoPreset();
+});
 resetAlgoBtn.addEventListener('click', loadAlgoPreset);
 
 runBtn.addEventListener('click', () => { if(isPlaying) pausePlay(); runAlgorithm(); });

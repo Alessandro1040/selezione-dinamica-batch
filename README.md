@@ -157,6 +157,17 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (10/09/2026, app — line search di default per algoritmo).** In
+  `visualizzazione.html` il selettore di line search ("GD, Newton-CG, BB") aveva un
+  default globale Wolfe: selezionando **BB-CCV** si eseguiva quindi Wolfe, mentre la
+  tesi (fig.~5.6, Sez.~5.4 e Cap.~6) documenta **Armijo** per BB-CCV (e i risultati sono
+  stati prodotti con `bb=armijo`, come indicato dal batch runner). Aggiunto
+  `LS_DEFAULT` e applicato al cambio di algoritmo: `gd/newton_cg → wolfe`,
+  `bb → armijo` (Newton-L1 usa la sua Armijo proiettata); aggiornato l'hint fuorviante
+  ("come da pseudocodice LaTeX"). Il selettore resta modificabile dall'utente dopo la
+  selezione. Nessuna modifica all'algoritmo eseguito: cambia solo il default
+  dell'interfaccia. Nessun PDF coinvolto (l'app vive solo in repo).
+
 - **Ultimo intervento (09/09/2026, tesi/presentazione/app — forma compatta di
   $\widetilde{\nabla}F$ per $L_1$).** Chiarita la scrittura del gradiente
   generalizzato: dove compariva
