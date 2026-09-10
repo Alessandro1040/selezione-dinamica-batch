@@ -157,6 +157,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, tesi — bibliografia).** Audit della
+  bibliografia di `tesi.tex` (13 voci): tutte citate nel testo (0 voci orfane,
+  0 citazioni senza `\bibitem`, 0 undefined); nessuna voce superflua. Correzione
+  di un errore nei dati: nella voce `byrd2011` (Byrd, Chin, Neveitt, Nocedal,
+  SIAM J. Optim. 21(3), 2011) le pagine erano `894--1009`, ora **`977--995`**
+  (verificato su OpenAlex; DOI 10.1137/10079923X). Nessun'altra modifica: le voci
+  facoltative `shewchuk1994` e `bottou2018` sono state mantenute. Ricompilati
+  `tesi.pdf` e `tesi_finale.pdf` (**100 pp**, 0 errori); sincronizzati in repo
+  (md5 verificati).
+
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1, ripristino tabella).** Su
   richiesta, annullata la versione con la colonna ``Guadagno'' (commit 3d785c9):
   `teorema_3_1.tex` è stato riportato esattamente alla versione del commit
