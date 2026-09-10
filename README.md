@@ -12,6 +12,7 @@ Roma (A.A. 2025–2026).
 ├── README.md                      questo file
 ├── visualizzazione.html           applicazione web interattiva (Pyodide + Plotly)
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
+├── presentazione_riformattata.pptx  presentazione della tesi in PowerPoint (23 slide, riformattata)
 ├── figure_sim/                    figure generate da simulazione_batch.py
 ├── tesi/                          SOLO ciò che serve a compilare tesi_finale.pdf
 │   ├── tesi.tex                   documento di lavoro (article, con copertina; contiene anche la Sez. 6.7 sul riuso del mini-batch)
@@ -157,6 +158,13 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (10/09/2026, presentazione PowerPoint).** Aggiunta alla root
+  della repo `presentazione_riformattata.pptx` (23 slide): la presentazione della
+  tesi in formato PowerPoint, versione riformattata, presa dall'ultimo file
+  scaricato (`tesi2_riformattata (1).pptx`, revisione 14 del 10/09/2026) e
+  rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
+  e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
+  beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
 - **Ultimo intervento (10/09/2026, tesi/presentazione/schemi — semantica della CCV
   negli schemi).** Resi non ambigui gli schemi del campionamento dinamico: ora dicono
   esplicitamente che **l'aumento di $n_k$ vale per il campione successivo** e che
