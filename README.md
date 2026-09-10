@@ -13,6 +13,7 @@ Roma (A.A. 2025–2026).
 ├── visualizzazione.html           applicazione web interattiva (Pyodide + Plotly)
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── presentazione_riformattata.pptx  presentazione della tesi in PowerPoint (23 slide, riformattata)
+├── presentazione_riformattata.pdf   PDF della presentazione (23 slide, 16:9) - stessa versione del .pptx
 ├── figure_sim/                    figure generate da simulazione_batch.py
 ├── tesi/                          SOLO ciò che serve a compilare tesi_finale.pdf
 │   ├── tesi.tex                   documento di lavoro (article, con copertina; contiene anche la Sez. 6.7 sul riuso del mini-batch)
@@ -165,6 +166,18 @@ Da tenere presente nelle sessioni di lavoro successive:
   rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
   e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
   beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
+- **Ultimo intervento (11/09/2026, presentazione — PDF del deck finale).** Aggiunto alla
+  root della repo `presentazione_riformattata.pdf` (3.335.031 byte, **23 pagine**, 16:9):
+  il PDF della presentazione finale, generato dal deck `presentazione.pptx` esportato da
+  Keynote (la versione con i **titoli rimessi** su tutte le slide e lo **schema BB-CCV
+  corretto in place**, cioe' con ``in ogni caso'' e ``(prossima estrazione)'' al posto di
+  ``soddisfatta''), poi convertito con LibreOffice. Verificato pagina per pagina: titoli
+  di slide 12/15/18 presenti, slide 14 con le etichette corrette (OCR), 23 pagine, formato
+  16:9. Il `.pptx` della root e' momentaneamente la versione precedente (v4, con
+  l'immagine dello schema rigenerata dalla fig. 5.7): va allineato al deck esportato da
+  Keynote, insieme ai 4 ritocchi ancora aperti (spaziatura slide 8 dalla riga
+  ``$\exists a \in \mathbb{R}$'' in giu', titolo slide 17 ``minibatch'' -> ``mini-batch'',
+  ``J(w):'' in slide 8, doppi spazi e caratteri invisibili).
 - **Ultimo intervento (10/09/2026, tesi — Ringraziamenti).** Aggiunto ``Silvio Zylfi''
   in coda all'elenco dei Ringraziamenti (dopo ``Maria Antonietta Palladino'', riga 247
   di `tesi.tex`). Ricompilati `tesi.pdf` (**102 pp**, 0 errori) e `tesi_finale.pdf`
