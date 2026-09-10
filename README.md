@@ -157,6 +157,14 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (10/09/2026, tesi — ringraziamenti).** Rimossi due nomi
+  dall'elenco dei Ringraziamenti in `tesi.tex`; la riga è ora
+  ``Cristina Pesci, Emmanuel Nsia,'' (seguita da ``Gaia Facioni, \dots'').
+  Ricompilati `tesi.pdf` e `tesi_finale.pdf` (**101 pp**, 0 errori); sincronizzati
+  in repo (md5 verificati). I due nomi restano citati in una voce storica di questo
+  README (29/08/2026, ``Ringraziamenti estesi con l'elenco completo dei nomi''):
+  se preferisci, ripulisco anche quella nota.
+
 - **Ultimo intervento (10/09/2026, tesi/schema/presentazione/app — $L_1$ e CCV,
   variante dinamica "B").** Allineata la descrizione del metodo Newton-CG~$L_1$
   all'implementazione (quella con cui sono state prodotte le tabelle): il campione è
