@@ -165,6 +165,39 @@ Da tenere presente nelle sessioni di lavoro successive:
   rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
   e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
   beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
+- **Ultimo intervento (10/09/2026, presentazione PowerPoint — correzioni).** Controllo
+  completo di `presentazione_riformattata.pptx` (23 slide: estrazione XML, validazione
+  delle 118 parti XML, 180 relazioni immagine, geometria di ogni forma in EMU, resa
+  LibreOffice -> PDF e ``profilo di inchiostro'' per scoprire testo tagliato, confronto
+  dei numeri con `tesi.tex`) e correzioni applicate nell'XML, con verifica della resa
+  prima e dopo ogni modifica:
+  * *slide 15 (layout)*: il riquadro dei parametri cadeva fuori schermo (l'ottava riga,
+    ``tolleranza = 1e-6'', stava a 7,56--7,81 in su una slide alta 7,50 in). Spostati
+    in alto di 0,45 in **sia** il riquadro dei parametri **sia** la lista delle loss
+    (che altrimenti si sovrapponeva), nel ramo `mc:Choice` e nel fallback: ora le 8
+    righe dei parametri sono tutte visibili (ultima riga a 503 pt su 540).
+  * *slide 19 (layout)*: l'immagine della tabella sforava di ~5 pt sotto il bordo
+    inferiore (contenuto tagliato); spostata in alto di 0,12 in (ultima riga a 529 pt).
+  * *refusi*: slide 2 ``esempi e m grande'' (era ``ed''), periodo staccato da
+    ``costa $O(Nm)$'' (-> ``per iterazione: proibitivo''); slide 3 spazio dopo
+    ``iterazioni.''; slide 7 ``usata da Nocedal e Wright'' (era ``dal Nocedal'');
+    slide 8 ``soluzione in forma chiusa, senza induzione''; slide 13 ``Lo risolviamo ai
+    minimi quadrati:'' (era minuscolo dopo il punto) e ``Barzilai-Borwein'' (col
+    trattino, come nella tesi); slide 22 ``un insieme più ampio'' (era ``un'insieme''),
+    ``dell'Hessiana'' maiuscolo e ``si potrebbe aumentarlo quando la varianza
+    dell'Hessiana cresce''.
+  * *coerenza*: ``Newton CG'' -> ``Newton-CG'' nei titoli delle slide 9--12 (slide 21
+    già corretta); slide 1 ``Relatore: Prof. Marco Sciandrone'', ``A.A. 2025/2026'' e
+    ``Scienze Matematiche per l'Intelligenza Artificiale'' come nel frontespizio.
+  Nota: i paragrafi con matematica sono avvolti in `mc:AlternateContent` (testo+OMML per
+  PowerPoint, immagine di fallback per LibreOffice/Keynote/Google Slides): le correzioni
+  di slide 2, 3 e 13 agiscono sul ramo testuale, quindi **si vedono in PowerPoint** mentre
+  le immagini di fallback restano col testo precedente. Verificati e scartati come falsi
+  allarmi: il ``taglio'' a destra della figura di slide 17 (LibreOffice ignora
+  `a:srcRect`) e il ``9'' presente nelle note (è il campo automatico `slidenum`).
+  Titolo di slide 1 lasciato invariato: la forma breve usata nella presentazione va
+  scelta dall'autore (frontespizio e copertina di `tesi.tex` hanno due formulazioni
+  diverse, vedi la voce sui titoli).
 - **Ultimo intervento (10/09/2026, tesi/presentazione/schemi — semantica della CCV
   negli schemi).** Resi non ambigui gli schemi del campionamento dinamico: ora dicono
   esplicitamente che **l'aumento di $n_k$ vale per il campione successivo** e che
