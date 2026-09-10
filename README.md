@@ -157,6 +157,27 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (10/09/2026, tesi/schema/presentazione/app — $L_1$ e CCV,
+  variante dinamica "B").** Allineata la descrizione del metodo Newton-CG~$L_1$
+  all'implementazione (quella con cui sono state prodotte le tabelle): il campione è
+  aggiornato **dinamicamente** con la CCV applicata al **gradiente liscio**
+  ($\theta^2\|g_k\|^2$), mentre byrd2012 (Alg.~6.1) usa dimensioni fisse e, nel suo
+  esperimento, $|\mathcal{S}_k|=N$ sottocampionando solo l'Hessiana. Modifiche:
+  **tesi** §5.3 (pseudocodice $L_1$: aggiunti $R$, $\theta$ e il passo "Verifica della
+  CCV e ricampionamento"; nuova nota con la giustificazione: la parte non liscia è
+  deterministica in $w$, la soglia $\theta^2\|g_k\|^2$ evita la degenerazione vicino
+  alla soluzione sparsa; fig.~5.5: nodo "Verifica CCV e ricampionamento" con $n_k$ e
+  $|\mathcal{H}_{k+1}|=R|\mathcal{S}_{k+1}|$, inizializzazione con $R,\theta$);
+  **Cap.~6**: la frase "la CCV estesa al subgradiente per $L_1$" è ora "l'impiego della
+  CCV anche nel metodo $L_1$", con la spiegazione (soglia su $\nabla J$; la variante
+  con soglia $\|\widetilde\nabla F\|^2$ è indicata come lavoro futuro). **Schema della
+  presentazione** `schema_newton_l1.tex` riallineato alla figura e ricompilato in
+  `immagini/`; **presentazione** ricompilata (45~pp). **App**
+  `visualizzazione.html`: pannello teoria $L_1$ §6 riscritto (ora descrive
+  l'estensione CCV al posto della sola versione a campione fisso del paper).
+  Ricompilati `tesi.pdf`/`tesi_finale.pdf`: **101~pp** (+1 per i contenuti aggiunti;
+  0 errori, 0 `Float too large`, nessun nuovo overfull).
+
 - **Ultimo intervento (10/09/2026, app — line search di default per algoritmo).** In
   `visualizzazione.html` il selettore di line search ("GD, Newton-CG, BB") aveva un
   default globale Wolfe: selezionando **BB-CCV** si eseguiva quindi Wolfe, mentre la

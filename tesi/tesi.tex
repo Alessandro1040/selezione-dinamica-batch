@@ -2135,13 +2135,20 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 \begin{actionbox}
   Newton-CG per Problemi $L_1$-Regolarizzati\\[0.3cm]
   \textit{Input:} $w_0$ (punto iniziale, tipicamente $w_0=0$),
-  $\mathcal{H}_0, \mathcal{S}_0$ con $|\mathcal{H}_0| < |\mathcal{S}_0|$,
+  $\mathcal{S}_0$ (batch iniziale per il gradiente) e
+  $\mathcal{H}_0 \subset \mathcal{S}_0$ con $|\mathcal{H}_0| < |\mathcal{S}_0|$,
+  $R = |\mathcal{H}_0|/|\mathcal{S}_0|$ (rapporto costante),
+  $\theta \in (0,1)$ (tolleranza per la varianza del gradiente),
   $\nu > 0$ (parametro di regolarizzazione),
   $\eta, \sigma \in (0,1)$,
   $\operatorname{max}_{cg}$ (limite iterazioni CG).\\[0.1cm]
   
   \textit{Per ogni iterazione $k = 0, 1, \dots$ fino a convergenza:}
   \begin{enumerate}
+    \item
+    Calcola $g_k = \nabla J_{\mathcal{S}_k}(w_k)$ e la varianza campionaria
+    $\widehat{\mathcal{V}} = \Var_{i \in \mathcal{S}_k}(\nabla \ell(w_k;i))$.
+
     \item
     Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$ tramite \eqref{eq:5_43} e
     determina $z_k$ con \eqref{eq:5_44}. Definisci l'active set $\mathcal{A}_k$ con \eqref{eq:5_46}.
@@ -2165,12 +2172,34 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
     w_{k+1} = P[w_k + \alpha_k d_k].
     \]
     
-    \item Ricampionamento.
-    Scegli $\mathcal{H}_{k+1}, \mathcal{S}_{k+1}$ con
-    $|\mathcal{H}_{k+1}| = |\mathcal{H}_0|$ e
-    $|\mathcal{S}_{k+1}| = |\mathcal{S}_0|$.
+    \item Verifica della CCV e ricampionamento.
+    Se $\dfrac{\|\widehat{\mathcal{V}}\|_1}{n_k} > \theta^2 \|g_k\|_2^2$, aumenta il batch:
+    \[
+    n_k \leftarrow \left\lceil \frac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|_2^2} \right\rceil ,
+    \]
+    dove $\widehat{\mathcal{V}}$ e $g_k$ sono quelli del campione corrente, e la
+    nuova dimensione è usata per $\mathcal{S}_{k+1}$. Scegli quindi
+    $\mathcal{S}_{k+1}$ di dimensione $n_k$ e
+    $\mathcal{H}_{k+1} \subseteq \mathcal{S}_{k+1}$ con
+    $|\mathcal{H}_{k+1}| = R\,|\mathcal{S}_{k+1}|$.
   \end{enumerate}
 \end{actionbox}
+
+\begin{notebox}
+  Campionamento dinamico nel caso $L_1$. L'Algoritmo~6.1 di~\cite{byrd2012}
+  mantiene fisse le dimensioni dei campioni ($|\mathcal{S}_{k+1}|=|\mathcal{S}_0|$)
+  e, nell'esperimento, usa $|\mathcal{S}_k|=N$ sottocampionando soltanto
+  l'Hessiana. L'implementazione qui presentata estende il metodo aggiornando
+  $n_k$ con la stessa condizione di controllo della varianza usata per il
+  gradiente a campione dinamico, applicata al gradiente liscio: la parte non
+  liscia di $F$ è deterministica in $w$, quindi l'unica sorgente di rumore è
+  $\nabla J_{\mathcal{S}_k}(w_k)$. La soglia $\theta^2\|g_k\|^2$ (anziché
+  $\theta^2\|\widetilde{\nabla}F\|^2$) evita che la condizione degeneri in
+  prossimità della soluzione sparsa, dove $\widetilde{\nabla}F$ è nullo sulle
+  coordinate dell'active set mentre $\nabla J$ resta non nullo su quelle attive;
+  la variante con soglia $\theta^2\|\widetilde{\nabla}F\|^2$ è lasciata a lavoro
+  futuro.
+\end{notebox}
 
 % Figura 5.5 - schema a blocchi del metodo Newton-CG per problemi L1 regolarizzati
 \begin{figure}[H]
@@ -2194,11 +2223,11 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 ]
 
   % Nodi principali (colonna centrale)
-  \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $\nu$, $\eta$, $\sigma$};
+  \node[io] (init) {Inizializzazione\\[2pt] $w_0=0$, $\mathcal{S}_0$, $\mathcal{H}_0$, $R$, $\theta$, $\nu$, $\eta$, $\sigma$};
   \node[box, below=of init, text width=4.6cm, minimum height=1.4cm] (subgrad) {Calcola $\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)$\\[1pt] $=\nabla J_{\mathcal{S}_k}(w_k)+g_k$\\[1pt] e determina $z_k$, $\mathcal{A}_k$};
   \node[box, below=of subgrad, text width=4.8cm, minimum height=1.6cm] (cg) {CG nel sottospazio libero\\[2pt] ($Y_k$: versori delle coordinate libere)\\[2pt] $[Y_k^T H_k Y_k]\,d^Y = -Y_k^T \widetilde{\nabla}F$\\[1pt] Arresto: $\|r\| \le \eta\|Y_k^T \widetilde{\nabla}F\|$};
   \node[box, below=of cg, text width=4.6cm, minimum height=1.4cm] (ls) {Ricerca lineare proiettata\\[1pt] (Armijo, $\sigma$)\\[2pt] Trova $\alpha_k$\\[1pt] $w_{k+1} = P[w_k + \alpha_k d_k]$};
-  \node[box, below=of ls] (recamp) {Ricampionamento\\[2pt] $\mathcal{S}_{k+1}$, $\mathcal{H}_{k+1}$ (fissi)};
+  \node[box, below=of ls, text width=5.6cm, minimum height=2.2cm] (recamp) {Verifica CCV e ricampionamento\\[2pt] se $\dfrac{\|\widehat{\mathcal{V}}\|_1}{n_k} > \theta^2 \|g_k\|^2$: \ $n_k \leftarrow \left\lceil \dfrac{\|\widehat{\mathcal{V}}\|_1}{\theta^2 \|g_k\|^2} \right\rceil$\\[2pt] $\mathcal{S}_{k+1}$ con $|\mathcal{S}_{k+1}| = n_k$; \ $\mathcal{H}_{k+1} \subseteq \mathcal{S}_{k+1}$ con $|\mathcal{H}_{k+1}| = R\,|\mathcal{S}_{k+1}|$};
   \node[io, below=of recamp] (conv) {Convergenza?\\[2pt] $\|\widetilde{\nabla}F_{\mathcal{S}_k}(w_k)\| < \mathrm{tol}$};
   \node[io, right=2.1cm of conv] (end) {Fine:\\[2pt] $w^* \approx w_k$};
 
@@ -2220,7 +2249,9 @@ $w_{k+1} = P[w_k + \alpha_k d_k]$.
 \caption{Schema del metodo Newton-CG per problemi con regolarizzazione $L_1$:
 il gradiente generalizzato determina l'active set e la faccia ortante, il CG
 risolve il sistema ridotto sulle variabili libere e la ricerca lineare
-proiettata mantiene le variabili dell'active set a zero.}
+proiettata mantiene le variabili dell'active set a zero; la dimensione del
+campione è aggiornata dalla stessa condizione di controllo della varianza usata
+dagli altri metodi (applicata al gradiente liscio).}
 \label{fig:newton_l1}
 \end{figure}
 
@@ -2631,8 +2662,15 @@ $g_k$ per l'aggiornamento dei pesi.
 
 L'implementazione segue la struttura algoritmica del
 Capitolo~\ref{sec:algoritmi}, con due estensioni rispetto alla formulazione
-originale~\cite{byrd2012}: la CCV estesa al subgradiente per $L_1$ e il dataset
-sintetico centrato descritto sopra. Per il resto, l'implementazione è fedele
+originale~\cite{byrd2012}: l'impiego della CCV anche nel metodo $L_1$ e il dataset
+sintetico centrato descritto sopra. Nel caso $L_1$ la CCV è applicata al
+gradiente liscio $\nabla J_{\mathcal{S}_k}(w_k)$: la parte non liscia
+dell'obiettivo è deterministica in $w$, quindi l'unica sorgente di rumore è
+$\nabla J_{\mathcal{S}_k}(w_k)$; la soglia $\theta^2\|g_k\|^2$ evita inoltre che
+la condizione degeneri in prossimità della soluzione sparsa, dove
+$\widetilde{\nabla}F$ è nullo sulle coordinate dell'active set mentre $\nabla J$
+resta non nullo su quelle attive. La variante con soglia
+$\theta^2\|\widetilde{\nabla}F\|^2$ è lasciata a lavoro futuro. Per il resto, l'implementazione è fedele
 al paper: l'Hessiana nel Newton-CG è calcolata su un sottocampione di
 dimensione $|\mathcal{H}_k| = R \cdot |\mathcal{S}_k|$; il CG per il caso
 $L_1$ usa la tolleranza fissa $\eta$ della \eqref{eq:cg_l1}; la line search

@@ -1265,11 +1265,18 @@ mjx-container[display="true"]{margin:8px 0!important;overflow-x:auto}
             dove \(\sigma\in(0,1)\) è una costante prefissata. Il nuovo iterato è \(w_{k+1}=P[w_k+\alpha_k d_k]\).
           </p>
 
-          <h4>6. Re-campionamento</h4>
+          <h4>6. Verifica CCV e re-campionamento</h4>
           <p>
-            A differenza dei metodi dinamici precedenti, nel caso \(L_1\) il paper assume la dimensione del campione <strong>fissa</strong>:
-            a ogni iterazione si scelgono \(\mathcal{H}_{k+1},\mathcal{S}_{k+1}\) tali che \(|\mathcal{H}_{k+1}|=|\mathcal{H}_0|\) e
-            \(|\mathcal{S}_{k+1}|=|\mathcal{S}_0|\). L'estensione al caso dinamico (CCV) è lasciata come lavoro futuro dagli autori.
+            L'Algoritmo 6.1 del paper assume la dimensione del campione <strong>fissa</strong>
+            (\(|\mathcal{H}_{k+1}|=|\mathcal{H}_0|\), \(|\mathcal{S}_{k+1}|=|\mathcal{S}_0|\)) e lascia il campionamento
+            dinamico per \(L_1\) come lavoro futuro. Questa implementazione lo estende: se
+            \(\frac{\|\widehat{\mathcal{V}}\|_1}{n_k}>\theta^{2}\|g_k\|_2^{2}\) la dimensione cresce a
+            \(n_k\leftarrow\lceil\,\|\widehat{\mathcal{V}}\|_1/(\theta^{2}\|g_k\|_2^{2})\,\rceil\), e il nuovo \(n_k\) vale
+            per il campione successivo \(\mathcal{S}_{k+1}\) con \(|\mathcal{H}_{k+1}|=R\,|\mathcal{S}_{k+1}|\).
+            La CCV è applicata al <strong>gradiente liscio</strong>: la parte non liscia di \(F\) è deterministica in \(w\),
+            quindi l'unica sorgente di rumore è \(\nabla J_{\mathcal{S}_k}(w_k)\); la soglia \(\theta^{2}\|g_k\|_2^{2}\)
+            evita che la condizione degeneri in prossimità della soluzione sparsa, dove \(\widetilde{\nabla}F\) è nullo
+            sulle coordinate dell'active set. La variante con soglia \(\theta^{2}\|\widetilde{\nabla}F\|^{2}\) resta lavoro futuro.
           </p>
         </div>
 
