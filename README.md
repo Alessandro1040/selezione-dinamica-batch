@@ -165,6 +165,13 @@ Da tenere presente nelle sessioni di lavoro successive:
   rinominata. È un file autonomo, non derivato dai sorgenti LaTeX: non si compila
   e non va sincronizzato con la copia Desktop. `presentazione/` resta la versione
   beamer in LaTeX (`presentazione.tex` -> `presentazione.pdf`, 45 pp).
+- **Ultimo intervento (10/09/2026, tesi — Ringraziamenti).** Aggiunto ``Silvio Zylfi''
+  in coda all'elenco dei Ringraziamenti (dopo ``Maria Antonietta Palladino'', riga 247
+  di `tesi.tex`). Ricompilati `tesi.pdf` (**102 pp**, 0 errori) e `tesi_finale.pdf`
+  (**102 pp**, con `./compila_tesi.sh tesi`); verificata la presenza del nome a pagina 2
+  di entrambi i PDF. Sincronizzati in repo `tesi/tesi.tex`, `tesi/tesi.pdf`,
+  `tesi/tesi_finale.pdf` (md5 verificati). `bozza.tex` non toccata (i ringraziamenti
+  non sono presenti in bozza).
 - **Ultimo intervento (10/09/2026, presentazione PowerPoint — spaziatura slide 8).**
   Nella slide ``Analisi Stocastica'' l'equazione $\varepsilon_k \le c\rho^k$ risultava
   troppo appiccicata alla riga soprastante (``Migliorata con PL (il coefficiente di
