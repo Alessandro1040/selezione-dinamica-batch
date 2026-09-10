@@ -88,43 +88,51 @@ pratica è ignota e viene stimata dalla varianza campionaria.}
 
 \vspace{0.3em}
 
-\renewcommand{\arraystretch}{1.55}
+\renewcommand{\arraystretch}{1.4}
 \scriptsize
-\begin{tabular}{@{}p{2.6cm}p{4.5cm}p{4.5cm}@{}}
+\begin{tabular}{@{}p{0.15\textwidth}p{0.26\textwidth}p{0.28\textwidth}p{0.16\textwidth}@{}}
 \toprule
-\textbf{Aspetto} & \textbf{Nocedal et al.\ (2012)} & \textbf{Questa tesi (Teor.\ 3.1)} \\
+\textbf{Aspetto} & \textbf{Nocedal et al.\ (2012)} & \textbf{Questa tesi (Teor.\ 3.1)} & \textbf{Guadagno} \\
 \midrule
 Stima del gradiente
-  & $\|\nabla J\|^2 \ge \lambda\,(J-J_*)$ \newline (perde un fattore 2)
-  & $\|\nabla J\|^2 \ge 2\lambda\,(J-J_*)$ \newline (convessità forte) \\
-Convergenza deterministica
-  & $1-(1-\theta)\lambda/(2L)$
-  & $1-(1-\theta)\lambda/L$ \\
+  & $\|\nabla J\|^2\ge\lambda\,(J-J_*)$ \newline (forma debole)
+  & $\|\nabla J\|^2\ge 2\lambda\,(J-J_*)$ \newline (forma forte)
+  & $\times 2$ \\[2pt]
 Ricorrenza in aspettativa
-  & $\varepsilon_{k+1}\le(1-\lambda/2L)\varepsilon_k$ \newline $+\ \omega/(2L n_k)$ \newline
-    (induzione) $\varepsilon_k\le M_{\mathrm N}\rho^k$, \newline $\rho=\max\{1-\lambda/(4L),\,1/a\}$
-  & $\varepsilon_{k+1}\le(1-\lambda/L)\varepsilon_k$ \newline $+\ \omega/(2L n_k)$ \newline
-    (forma chiusa) $\varepsilon_k\le\alpha^k\varepsilon_0$ \newline $+\ \beta a\,\dfrac{\alpha^k-a^{-k}}{\alpha a-1}$ \\
-Metodo
-  & induzione (maggiorazioni)
-  & soluzione esatta (forma chiusa) \\
-Tasso di convergenza $\rho$
-  & $1-\lambda/(4L)$
-  & $1-\lambda/L$ \\
+  & $\varepsilon_{k+1}\le(1-\lambda/2L)\varepsilon_k$ \newline $+\ \omega/(2L n_k)$ \newline (eq.~4.27)
+  & $\varepsilon_{k+1}\le(1-\lambda/L)\varepsilon_k$ \newline $+\ \omega/(2L n_k)$
+  & gap $\lambda/(2L)$ \newline $\to\ \lambda/L$ \\[2pt]
+Come si risolve
+  & per induzione: \newline $\varepsilon_k\le M_{\mathrm N}\rho_{\mathrm N}^k$ \newline (serve slack $\lambda/(4L)$)
+  & in forma chiusa: \newline $\varepsilon_k\le\alpha^k\varepsilon_0$ \newline $+\ \beta a\,\frac{\alpha^k-a^{-k}}{\alpha a-1}$
+  & nessuno slack: \newline l'induzione \newline arretra \\[2pt]
+\textbf{Tasso finale $\rho$}
+  & $\rho_{\mathrm N}=\max\{1-\lambda/(4L),$ \newline $1/a\}$ \newline gap $\lambda/(4L)$
+  & $\rho_{\mathrm T}=\max\{1-\lambda/L,$ \newline $1/a\}$ \newline gap $\lambda/L$
+  & $\mathbf{\times\,4}$ \\[2pt]
+Iterazioni per $\varepsilon$
+  & $\approx\frac{4L}{\lambda}\log\frac1\varepsilon$
+  & $\approx\frac{L}{\lambda}\log\frac1\varepsilon$
+  & $4\times$ meno \\[2pt]
 Intervallo per $a$
   & $1<a\le(1-\lambda/4L)^{-1}$
-  & $1<a\le(1-\lambda/L)^{-1}$ \newline (più ampio) \\
+  & $1<a\le(1-\lambda/L)^{-1}$
+  & più ampio \\[2pt]
 Costante $C$
-  & $C=M_{\mathrm N}$
-  & $C=C(\varepsilon_0,\omega,\lambda,L,a)$, esplicita \\
+  & $C=\max\{\Delta_0,$ \newline $2\omega/\lambda\}$
+  & $C=\varepsilon_0+\frac{\omega}{2L}$ \newline $\cdot\,\frac{a}{|1-\alpha a|}$
+  & esplicita, \newline minore \\[2pt]
 Complessità per $\varepsilon$
-  & gradienti $O(L/\lambda\varepsilon)$; \newline lavoro $O(Lm/(\lambda\varepsilon)\,M_{\mathrm N})$
-  & stesso ordine; \newline lavoro $O(Lm/(\lambda\varepsilon)\,M_{\mathrm T})$, $M_{\mathrm T}<M_{\mathrm N}$ \\
+  & $O\!\left(\frac{Lm}{\lambda\varepsilon}M_{\mathrm N}\right)$
+  & $O\!\left(\frac{Lm}{\lambda\varepsilon}M_{\mathrm T}\right)$ \newline $M_{\mathrm T}<M_{\mathrm N}$
+  & stesso $O$ \\
+\midrule
+\multicolumn{4}{@{}p{\dimexpr0.85\textwidth+28pt\relax}@{}}{\textbf{Lettura del guadagno.} Le due garanzie hanno la stessa forma $\varepsilon_k\le C\rho^k$: il gap $1-\rho$ passa da $\lambda/(4L)$ a $\lambda/L$, cioè $\times4$, per due cause indipendenti: la PL in forma forte ($\times2$ sul gap della ricorrenza) e l'assenza dello slack che l'induzione deve lasciare ($\times2$). A parità di $a$ servono $\sim4$ volte meno iterazioni e $a$ può crescere di più.}\\
 \bottomrule
 \end{tabular}
 
 \vspace{0.6em}
-\noindent{\footnotesize Note: $\Delta_0=J(w_0)-J(w_*)$; $\alpha=1-\lambda/L$, $\beta=\omega/(2L)$; $M_{\mathrm N}=\max\{\Delta_0,\,2\omega/\lambda\}$; $M_{\mathrm T}=\max\{\Delta_0,\,\omega/\lambda\}$. Il termine $a(\alpha^k-a^{-k})/(\alpha a-1)$ è la somma geometrica della ricorrenza. Esito: tasso $\lambda/L$ vs.\ $\lambda/(4L)$; complessità invariata.}
+\noindent{\footnotesize Note: $\Delta_0=J(w_0)-J(w_*)$; $\alpha=1-\lambda/L$, $\beta=\omega/(2L)$; $M_{\mathrm N}=\max\{\Delta_0,\,2\omega/\lambda\}$, $M_{\mathrm T}=\max\{\Delta_0,\,\omega/\lambda\}$; $\rho_{\mathrm N},\rho_{\mathrm T}$ sono i tassi delle due garanzie. Il termine $a(\alpha^k-a^{-k})/(\alpha a-1)$ è la somma geometrica della ricorrenza. Riferimenti del paper: Teor.~4.2 (eq.~4.27 e 4.29) e Cor.~4.3.}
 
 \newpage
 
@@ -154,7 +162,7 @@ k\;\le\;\frac{L}{(1-\theta)\lambda}\,\log\!\left(\frac{J(w_0)-J(w_*)}{\varepsilo
 
 \renewcommand{\arraystretch}{1.5}
 \scriptsize
-\begin{tabular}{@{}p{2.6cm}p{4.6cm}p{4.6cm}@{}}
+\begin{tabular}{@{}p{0.18\textwidth}p{0.33\textwidth}p{0.33\textwidth}@{}}
 \toprule
 \textbf{Aspetto} & \textbf{Nocedal et al.\ (2012)} & \textbf{Questa tesi} \\
 \midrule
@@ -165,8 +173,8 @@ Effetto: contrazione per iterazione
   & $1-(1-\theta)\lambda/(2L)$
   & $1-(1-\theta)\lambda/L$ \\
 Effetto: iterazioni per $\varepsilon$
-  & $k\;\le\;\dfrac{2L}{(1-\theta)\lambda}\,\log\!\Bigl(\dfrac{\Delta_0}{\varepsilon}\Bigr)$
-  & $k\;\le\;\dfrac{L}{(1-\theta)\lambda}\,\log\!\Bigl(\dfrac{\Delta_0}{\varepsilon}\Bigr)$ \\
+  & $k\le\frac{2L}{(1-\theta)\lambda}\,\log\!\left(\frac{\Delta_0}{\varepsilon}\right)$
+  & $k\le\frac{L}{(1-\theta)\lambda}\,\log\!\left(\frac{\Delta_0}{\varepsilon}\right)$ \\
 \bottomrule
 \end{tabular}
 

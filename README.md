@@ -157,6 +157,23 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (09/09/2026, extra — teorema_3_1, tabella del guadagno).**
+  Resa più intuitiva la tabella ``Teorema 3.1 vs. Nocedal et al. (2012)'':
+  aggiunta una quarta colonna **Guadagno** e una riga finale ``Lettura del
+  guadagno''. Le due colonne danno la garanzia nella stessa forma
+  $C\rho^k$; le righe seguono la catena: PL ($\lambda\to2\lambda$, $\times2$)
+  $\to$ ricorrenza ($1-\lambda/2L\to1-\lambda/L$) $\to$ risoluzione (induzione
+  con slack $\lambda/(4L)$ vs. forma chiusa senza perdita) $\to$ tasso finale
+  $\rho$ (gap $\lambda/(4L)\to\lambda/L$, $\times4$) $\to$ iterazioni
+  ($4\times$ meno), più intervallo di $a$, costante $C$, complessità. Rimossa da
+  questa tabella la riga ``Convergenza deterministica'' (ridondante con la
+  tabella dedicata di pag.~3). Aggiunti i rimandi alle eq.~4.27--4.29 e al
+  Cor.~4.3 del paper (controllati sul PDF ``dss.pdf'' del sito di Nocedal).
+  Larghezze delle due tabelle portate in frazioni di `\textwidth`: eliminato
+  l'overfull di ~17pt che la tabella deterministica aveva nel margine destro
+  (era mascherato da `\hfuzz=20pt`). PDF **3 pp**, 0 errori, 0 overfull. Nessun
+  file di `tesi/` coinvolto.
+
 - **Ultimo intervento (09/09/2026, extra — teorema_3_1, tabella).** Nella
   tabella ``Teorema 3.1 vs. Nocedal et al. (2012)'' la riga ``Ricorrenza in
   aspettativa'' ora mostra, oltre alla ricorrenza, anche la sua soluzione: per
