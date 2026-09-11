@@ -10,6 +10,7 @@ Roma (A.A. 2025–2026).
 ```
 .
 ├── README.md                      questo file
+├── README_visualizzazione.md      guida utente dell'applicazione web (visualizzazione.html)
 ├── visualizzazione.html           applicazione web interattiva (Pyodide + Plotly)
 ├── simulazione_batch.py           simulazione autonoma della Figura 5.3 (n_k vs k)
 ├── presentazione_riformattata.pptx  presentazione della tesi in PowerPoint (23 slide, riformattata)
@@ -58,9 +59,14 @@ Roma (A.A. 2025–2026).
 Apri `visualizzazione.html` in un browser moderno (Chrome, Firefox, Safari,
 Edge). L'app esegue Python nel browser tramite **Pyodide** e consente di:
 - scegliere/modificare la funzione obiettivo (preset 1D/2D o codice custom),
-- eseguire i tre algoritmi: Dynamic GD, Newton-CG, Newton-CG $L_1$,
+- eseguire i quattro algoritmi: Dynamic GD, Newton-CG, Newton-CG $L_1$,
+  BB-CCV (più l'algoritmo personalizzato, in Python, scritto dall'utente),
 - osservare il percorso su Plotly, la dimensione del batch ($n_k$ vs $a^k$)
   e l'analisi di convergenza.
+
+👉 **Guida utente completa: [`README_visualizzazione.md`](README_visualizzazione.md)** —
+pannelli, ogni controllo, tutti i grafici, gli esperimenti guidati e la mappa
+delle sezioni della tesi.
 
 ## Simulazione (come l'applicazione web)
 
@@ -159,6 +165,16 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (11/09/2026, README — nuova guida utente dell'applicazione web).**
+  Aggiunto `README_visualizzazione.md`: guida utente *solo* dell'app `visualizzazione.html`
+  (come aprirla, mappa dell'interfaccia, i pannelli e ogni controllo, le otto leve
+  sperimentali, i grafici uno per uno, le metriche, la tabella di convergenza, il Test batch
+  con i suoi formati, la teoria per algoritmo, l'algoritmo personalizzato, otto esperimenti
+  guidati, come leggere i risultati, la mappa delle sezioni della tesi, note e limiti).
+  Nessuna modifica ai sorgenti della tesi: `tesi.tex`/`tesi.pdf`/`tesi_finale.pdf` invariati
+  (101 pp). Aggiornato `README.md` con il rimando alla guida, la voce nell'elenco dei file e
+  la correzione «i tre algoritmi» → «i quattro algoritmi + personalizzato» (l'app ha anche
+  BB-CCV).
 - **Ultimo intervento (11/09/2026, tesi — "Lavori Correlati" §4.3–§4.4 compattati: ora stanno tutti in pagina 12).**
   Il capitolo 4 sforava di **3 righe** sulla pagina stampata 12: la coda di §4.4
   ("...zero se possibile. Così $w_i=0$ ... Newton-CG-$L_1$ del Capitolo 5") finiva
