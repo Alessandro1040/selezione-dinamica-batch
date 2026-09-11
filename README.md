@@ -159,6 +159,28 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (11/09/2026, tesi — Ringraziamenti: Zylfi spostato, Lausi aggiunto).**
+  In `tesi.tex` **``Silvio Zylfi'' e' stato spostato** dalla coda dell'elenco (dove
+  stava dopo ``Maria Antonietta Palladino'') **subito dopo ``Sofia De Angelis''**, e
+  **``Lorenzo Lausi'' e' stato aggiunto subito dopo**. Riga 240 ora:
+  ``Mariagiusi Nicodemo, Aurora Di Giovanna, Sofia De Angelis, Silvio Zylfi,
+  Lorenzo Lausi,'' ; riga 247 chiude con ``Maria Antonietta Palladino'' (niente
+  piu' ``Silvio Zylfi''). Nessun altro nome toccato; diff del sorgente = 2 righe.
+  Ricompilati `tesi.pdf` (**102 pp**, 0 errori, 0 undefined, 8 overfull
+  invariati, con `latexmk -pdf -shell-escape tesi.tex`) e `tesi_finale.pdf`
+  (**102 pp**, con `./compila_tesi.sh tesi`). Verificata a **pagina 2** di
+  entrambi i PDF la sequenza ``... Sofia De Angelis, Silvio Zylfi, Lorenzo
+  Lausi, Giovanni Gigante ...'' e la chiusura su ``Maria Antonietta Palladino''
+  (Zylfi: 1 occorrenza, Lausi: 1). Sincronizzati in repo `tesi/tesi.tex`,
+  `tesi/tesi.pdf`, `tesi/tesi_finale.pdf` con **md5 verificati** tra copia
+  Desktop e repo (`8b9e8541b694e17014611a439071dac9`,
+  `646b520388642423dbcae22c3de3e955`, `40e8067a9ae9cf2ace04066351414619`).
+  `bozza.tex` non toccata (i ringraziamenti non vi compaiono); `frontespizio.pdf`
+  rigenerato dallo script ma **e' in `.gitignore`** (non tracciato). Nota di
+  stato: la modifica **preesistente e non committata** di
+  `presentazione_riformattata.pptx` (working tree diverso da HEAD: 7 slide +
+  `ppt/media/image31.png`) **non e' stata toccata** in questo intervento e resta
+  da chiarire/allineare al deck Keynote.
 - **Ultimo intervento (10/09/2026, presentazione PowerPoint).** Aggiunta alla root
   della repo `presentazione_riformattata.pptx` (23 slide): la presentazione della
   tesi in formato PowerPoint, versione riformattata, presa dall'ultimo file
