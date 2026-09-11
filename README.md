@@ -165,6 +165,21 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (11/09/2026, README — formule esplicite di loss e rumore nella guida
+  dell'app).** In `README_visualizzazione.md` aggiunta la **§5.5** «Le formule esplicite: loss e
+  rumore, preset per preset»: schema comune del rumore (z ~ N(0,1) i.i.d., coefficienti grezzi
+  `mu + sigma*z`, centratura che fissa le medie a 1, −2 e 0.1/0.5), tabella delle deviazioni
+  standard per preset (sigma_a = sigma_b = 0.2, sigma_c = 0.05; sigma_a = 0.2 nei 1D), tabella
+  della loss per esempio e della J nominale di tutti e 10 i preset, conseguenze della centratura
+  (scarto costante somma_j c_j sigma_j^2 = 0.073270 / 0.728720 / 3.488510 con seed 42 e N = 200,
+  con gradiente e Hessiana identici a ~1e-16; caso affine del termine incrociato con delta ~
+  (3.2e-4, 1.24e-3); non quadratici identici solo asintoticamente, per questo w* e' numerico),
+  le formule esatte dell'implementazione (campionamento senza reinserimento, g_k media dei
+  gradienti per esempio, varianza campionaria con ddof = 1, test V_k/n_k > theta^2 ||g_k||^2 e
+  regola n_{k+1} = min(N, ceil(V_k/(theta^2 ||g_k||^2)) + 1)) e il caso Custom (nessun dataset,
+  scheletro deterministico con batch_sizes = [1]). Precisata anche la §5.4 e aggiornati i rimandi
+  in §5.1, §7.1 e §19. Nessuna modifica ai sorgenti: `tesi.tex`/`tesi.pdf`/`tesi_finale.pdf`
+  invariati (101 pp).
 - **Ultimo intervento (11/09/2026, README — nuova guida utente dell'applicazione web).**
   Aggiunto `README_visualizzazione.md`: guida utente *solo* dell'app `visualizzazione.html`
   (come aprirla, mappa dell'interfaccia, i pannelli e ogni controllo, le otto leve

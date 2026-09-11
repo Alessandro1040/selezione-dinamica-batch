@@ -179,6 +179,8 @@ scrivere la tua loss da zero.
 
 I preset **1D** mostrano una sezione nel piano $(w, J)$ invece della superficie: sono il modo
 più veloce per capire *dove* il batch decide di crescere lungo una valle.
+Le **formule esplicite** della loss di ogni preset e del rumore aggiunto a ogni esempio sono in
+**§5.5**.
 
 ### 5.2 Modalità gradiente / Hessiana
 
@@ -218,11 +220,175 @@ Il pulsante **↻ Ripristina** rimette il preset selezionato al suo codice origi
 ### 5.4 Il dataset sintetico «centrato»
 
 Nei preset il dataset non è una tabella di dati, ma **$N$ esempi generati** con
-`np.random.seed(seed)` e poi **centrati**: le medie campionarie dei coefficienti vengono
-sottratte, così la loss media sul dataset coincide *esattamente* con la funzione obiettivo
-$J(w)$ scritta nell'editor. È il trucco che rende possibile confrontare l'errore
-$\|w_k-w_\*\|$ con il minimo vero, e che nell'app corrisponde a $N$ e `seed` del pannello
-*Parametri*.
+`np.random.seed(seed)` e poi **centrati**: da ogni coefficiente viene sottratta la propria media
+campionaria, così che le medie campionarie siano **esattamente** i valori nominali
+($\bar a = 1$, $\bar b = -2$, $\bar c = 0.1$ oppure $0.5$). È il trucco che rende confrontabile
+l'errore $\|w_k-w_\*\|$ con il minimo vero: per i preset quadratici la $J$ *campionaria*
+coincide con quella *nominale* a meno di una costante (e con gradiente identico), mentre per i
+preset non quadratici la coincidenza vale solo nel limite $N\to\infty$ — in quel caso l'app
+calcola $w_\*$ numericamente. Tutte le formule sono in **§5.5**.
+
+### 5.5 Le formule esplicite: loss e rumore, preset per preset
+
+Qui c'è tutto quello che serve per **riprodurre a mano** (o citare in tesi) ciò che l'app fa.
+
+#### 5.5.1 Il rumore: lo schema comune
+
+Il rumore è **solo** quello dei dati, e viene generato una volta sola all'avvio di ogni
+esecuzione. Con $z_{a,i}, z_{b,i}, z_{c,i} \sim \mathcal{N}(0,1)$ indipendenti
+(`np.random.randn`), $i = 1,\dots,N$:
+
+$$
+\tilde a_i = \mu_a + \sigma_a\,z_{a,i},\qquad
+\tilde b_i = \mu_b + \sigma_b\,z_{b,i},\qquad
+\tilde c_i = \mu_c + \sigma_c\,z_{c,i}
+$$
+
+e poi la **centratura** che fissa esattamente le medie:
+
+$$
+a_i = \tilde a_i - \frac1N\sum_{j=1}^N \tilde a_j + \mu_a
+\qquad\Longrightarrow\qquad \frac1N\sum_{i=1}^N a_i = \mu_a
+$$
+
+(analogamente per $b_i$ e $c_i$). I valori nominali sono $\mu_a = 1$ e $\mu_b = -2$ per tutti i
+preset, con $\mu_c = 0.1$ per *quad_well* e $\mu_c = 0.5$ per *quad_offdiag*. Le deviazioni
+standard **sono il rumore aggiunto a ogni esempio**:
+
+| Preset | $\sigma_a$ | $\sigma_b$ | $\sigma_c$ | dimensione |
+|---|---|---|---|---|
+| Quadratica ben condizionata | **0.2** | **0.2** | **0.05** | 2 |
+| Quadratica mal condizionata | **0.2** | **0.2** | — | 2 |
+| Quadratica molto mal condizionata | **0.2** | **0.2** | — | 2 |
+| Quadratica con termine incrociato | **0.2** | **0.2** | **0.05** | 2 |
+| Rosenbrock | **0.2** | **0.2** | — | 2 |
+| 1D Quadratica / Quartica / Sinusoidale / Esponenziale | **0.2** | — | — | 1 |
+| ✏️ Custom | nessun rumore | — | — | 1 o 2 |
+
+Il `seed` del pannello *Parametri* è esattamente il seme di `np.random.seed(...)`: cambiarlo
+cambia **la realizzazione del rumore** (cioè i numeri $a_i, b_i, c_i$), non gli iperparametri.
+
+#### 5.5.2 La loss per esempio, preset per preset
+
+Ogni preset definisce la sua **loss di un singolo esempio** $\ell_i(w)$; la funzione obiettivo
+che l'app calcola e disegna è sempre la media
+
+$$J(w) \;=\; \hat J_N(w) \;=\; \frac1N\sum_{i=1}^N \ell_i(w).$$
+
+| Preset | loss per esempio $\ell_i(w)$ | $J$ nominale (con $a_i\to\mu_a$, $b_i\to\mu_b$, $c_i\to\mu_c$) |
+|---|---|---|
+| ben condizionata | $(w_1-a_i)^2+(w_2-b_i)^2+c_i\,w_1w_2$ | $(w_1-1)^2+(w_2+2)^2+0.1\,w_1w_2$ |
+| mal condizionata | $20\,(w_1-a_i)^2+(w_2-b_i)^2$ | $20\,(w_1-1)^2+(w_2+2)^2$ |
+| molto mal condizionata | $100\,(w_1-a_i)^2+(w_2-b_i)^2$ | $100\,(w_1-1)^2+(w_2+2)^2$ |
+| termine incrociato | $(w_1-a_i)^2+(w_2-b_i)^2+c_i(w_1-a_i)(w_2-b_i)$ | $(w_1-1)^2+(w_2+2)^2+0.5(w_1-1)(w_2+2)$ |
+| Rosenbrock | $x_i^2+C\,z_i^2$ con $x_i=w_1-a_i$, $z_i=(w_2-b_i)-x_i^2$, $C=100$ | $(w_1-1)^2+100\big[(w_2+2)-(w_1-1)^2\big]^2$ |
+| 1D Quadratica | $(w-a_i)^2$ | $(w-1)^2$ |
+| 1D Quartica | $(w-a_i)^4+0.1\,(w-a_i)^2$ | $(w-1)^4+0.1\,(w-1)^2$ |
+| 1D Sinusoidale | $1-\cos(w-a_i)+0.1\,(w-a_i)^2$ | $1-\cos(w-1)+0.1\,(w-1)^2$ |
+| 1D Esponenziale | $e^{\frac12(w-a_i)^2}-1$ | $e^{\frac12(w-1)^2}-1$ |
+| Custom | quella che scrivi tu | la tua $J(w)$ |
+
+> 🧩 Nei preset 1D la variabile è una sola, ma il codice lavora comunque in $\mathbb{R}^2$: la
+> seconda componente è fittizia (le funzioni `grad_i`/`hess_i` restituiscono `[·, 0.0]`).
+
+#### 5.5.3 Che cosa comporta la centratura
+
+La centratura fissa le medie ma **non** le varianze campionarie: $\hat\sigma_a^2 \approx 0.2^2$,
+$\hat\sigma_b^2 \approx 0.2^2$, $\hat\sigma_c^2 \approx 0.05^2$. Ne segue, per i preset
+quadratici in cui il rumore entra solo nei termini del tipo $(w_j-a_i)^2$,
+
+$$
+\hat J_N(w) \;=\; J_{\text{nom}}(w) + \sum_j c_j\,\hat\sigma_j^2
+\qquad\text{(scarto costante, indipendente da } w\text{)}
+$$
+
+| Preset | $\hat J_N(w)-J_{\text{nom}}(w)$ con seed 42 e $N=200$ |
+|---|---|
+| ben condizionata | $\hat\sigma_a^2+\hat\sigma_b^2 = 0.073270$ |
+| mal condizionata | $20\,\hat\sigma_a^2+\hat\sigma_b^2 = 0.728720$ |
+| molto mal condizionata | $100\,\hat\sigma_a^2+\hat\sigma_b^2 = 3.488510$ |
+| 1D Quadratica | $\hat\sigma_a^2 = 0.034497$ |
+
+Poiché la costante non dipende da $w$, **gradiente, Hessiana e minimizzatore coincidono
+esattamente** con quelli nominali (verificato numericamente: scarto $\sim 10^{-16}$).
+
+Due eccezioni da conoscere:
+
+- **termine incrociato**: qui $c_i$ moltiplica $(w_1-a_i)(w_2-b_i)$, quindi la coincidenza è
+  affine, non solo costante:
+  $\hat J_N(w) = J_{\text{nom}}(w) + c_0 + \delta^{\mathsf T}w$ con, al seed 42,
+  $\delta \simeq (3.2\cdot10^{-4},\;1.24\cdot10^{-3})$. Il gradiente è quindi sfasato di una
+  costante e il minimo è spostato di una quantità $O(1/\sqrt N)$;
+- **preset non quadratici** (Rosenbrock e i tre 1D non quadratici): l'identità non vale, perché
+  la media di una funzione non lineare dei coefficienti non è la funzione delle medie. Lo scarto
+  è $O(1/\sqrt N)$ e dipende da $w$ — è esattamente il motivo per cui in quei preset il codice
+  calcola $w_\*$ **numericamente** (`_wstar()`: Newton con differenze finite su $\hat J_N$).
+
+#### 5.5.4 Il rumore che l'algoritmo vede davvero (mini-batch e CCV)
+
+Per completezza, le formule esatte dell'implementazione (sono le stesse dello pseudocodice
+generato nell'editor):
+
+$$
+\mathcal S_k = \{i_1,\dots,i_{n_k}\} \ \text{estratto} \ \textbf{senza reinserimento} \
+\text{da } \{1,\dots,N\}
+\qquad(\texttt{np.random.choice(N, size=n, replace=False)})
+$$
+
+$$
+g_k = \frac{1}{n_k}\sum_{i\in\mathcal S_k}\nabla\ell_i(w_k),
+\qquad
+\hat s_j^2 = \frac{1}{n_k-1}\sum_{i\in\mathcal S_k}\big(g_{ij}-\bar g_j\big)^2,
+\qquad
+\hat V_k = \sum_{j=1}^{d}\hat s_j^2
+$$
+
+dove $\hat s_j^2$ è la varianza campionaria **non distorta** (`ddof=1`) della $j$-esima
+coordinata dei gradienti del mini-batch e $\hat V_k$ è quindi la **traccia della covarianza
+campionaria**. Il test di CCV implementato è la versione *plug-in* della condizione
+$\operatorname{tr}(\Sigma)/n \le \theta^2\|g\|^2$:
+
+$$
+\text{se}\quad \frac{\hat V_k}{n_k} \;>\; \theta^2\,\|g_k\|^2
+\qquad\Longrightarrow\qquad
+n_{k+1} = \min\!\left(N,\ \left\lceil \frac{\hat V_k}{\theta^2\,\|g_k\|^2}\right\rceil + 1\right)
+$$
+
+e l'iterazione corrente si completa comunque con il campione già estratto (il nuovo $n_{k+1}$
+vale per l'estrazione successiva). Per i metodi di Newton il secondo campione — l'Hessiana — ha
+dimensione $n_h = R\,|\mathcal S_k|$ ed è estratto anch'esso senza reinserimento, da
+$\mathcal S_k$ (default) oppure da tutto il dataset.
+
+> 📐 Queste due formule sono il motivo per cui il grafico $n_k$ vs $a^k$ ha la forma che ha: la
+> regola $n_{k+1}\propto \hat V_k/\|g_k\|^2$ fa crescere il batch **solo quando serve**, e il
+> fattore $\theta^2$ al denominatore regola quanto.
+
+#### 5.5.5 E con «✏️ Custom»?
+
+Il preset *Custom* **non genera alcun dataset**: niente rumore, niente media su esempi. Lo
+scheletro che l'app mette nell'editor è un metodo deterministico:
+
+```python
+def my_algorithm(w0, alpha, max_iter):
+    w = np.array(w0, dtype=float)
+    history = [w.copy().tolist()]
+    batch_sizes = [1]
+    for k in range(max_iter):
+        g = gradJ(w)                     # gradiente esatto: nessun campionamento
+        if np.linalg.norm(g) < 1e-10:
+            break
+        w = w - alpha * g
+        history.append(w.copy().tolist())
+        batch_sizes.append(1)
+    return history, batch_sizes
+```
+
+Con Custom, quindi, la CCV **non entra in gioco** (la varianza campionaria è nulla) e il grafico
+$n_k$ resta piatto a 1. Se vuoi studiarci una variante dinamica, definisci tu `loss_i`/`grad_i`
+e campiona — oppure parti da uno dei quattro metodi generati (che hanno già la CCV) e
+modificalo.
+
+
 
 ## 6. Pannello «Algoritmo»
 
@@ -249,7 +415,7 @@ campione dinamico e controllo della varianza»*).
 | **max_iter** | 30 | 5–200 (passo 5) | numero massimo di iterazioni |
 | **α** | 0.1 | 0.001–2 | passo base della line search |
 | **N (dataset)** | 200 | 10–2000 | quanti esempi contiene il dataset sintetico |
-| **seed** | 42 | 0–9999 | seme del generatore: cambia i dati, non gli iperparametri |
+| **seed** | 42 | 0–9999 | seme del generatore: cambia la realizzazione del rumore (§5.5.1), non gli iperparametri |
 | **θ (toll. CCV)** | 0.5 | 0.01–0.99 | soglia della condizione di controllo della varianza: **piccolo ⇒ batch grandi** |
 | **batch0** | 5 | 1–50 | dimensione del primo mini-batch |
 | **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($|H_k|=R\,|S_k|$) |
@@ -793,10 +959,12 @@ giusta: prepara la griglia e lascia lavorare la barra di avanzamento.
 chiusa: l'app lo calcola **numericamente** con un Newton su differenze finite, come si vede nel
 codice del preset. È il motivo per cui nello script Python 1D compare la funzione `_wstar()`.
 
-**🧪 Il dataset è sintetico e «centrato».** Le medie campionarie dei coefficienti vengono
-sottratte, così la media sul dataset coincide con $J$ scritta a mano. È una comodità
-sperimentale — nel machine learning reale $J$ è una *stima* del rischio vero, e questo è
-esattamente uno dei motivi per cui il campione deve essere scelto con cura.
+**🧪 Il dataset è sintetico e «centrato».** Da ogni coefficiente viene sottratta la sua media
+campionaria, così le medie sono *esattamente* quelle nominali e, per i preset quadratici, la $J$
+campionaria coincide con quella nominale a meno di una costante: le formule esatte (loss e
+rumore, preset per preset) sono in **§5.5**. È una comodità sperimentale — nel machine learning
+reale $J$ è una *stima* del rischio vero, e questo è uno dei motivi per cui il campione deve
+essere scelto con cura.
 
 **💾 Lo storico del Test batch** vive nel `localStorage` del browser: se lui è pieno, l'app
 avvisa e lo storico non viene salvato (l'esperimento resta comunque valido e scaricabile in
