@@ -159,6 +159,40 @@ Da tenere presente nelle sessioni di lavoro successive:
 - **Bozza.** `altro/bozza.tex` (+ `altro/bozza.pdf`) è la versione bozza storica:
   numerazione ed equazioni diverse. Non serve a compilare `tesi_finale.pdf`
   (che usa solo `tesi.tex`); è in `altro/` come riferimento.
+- **Ultimo intervento (11/09/2026, tesi — "Lavori Correlati" §4.3–§4.4 compattati: ora stanno tutti in pagina 12).**
+  Il capitolo 4 sforava di **3 righe** sulla pagina stampata 12: la coda di §4.4
+  ("...zero se possibile. Così $w_i=0$ ... Newton-CG-$L_1$ del Capitolo 5") finiva
+  a pagina 13. Recuperate **3 righe senza togliere alcuna informazione** (nessuna
+  frase, nessuna citazione, nessun nome di metodo). Tagli di prosa: §4.2 "da un
+  lato ... dall'altro ..." → "... e ..."; §4.3 "incorporano l'informazione di
+  curvatura" → "incorporano la curvatura", "a costo ... ad ogni" → "al costo ...
+  a ogni", "impraticabile, e sono stati sviluppati metodi che ne usano soltanto
+  approssimazioni" → "impraticabile e si usano quindi sue approssimazioni", "in
+  modo da non sprecare" → "così da non sprecare"; §4.4 "è un coefficiente che ne
+  controlla l'intensità" → "ne controlla l'intensità", "da un lato ...; dall'altro,
+  ed è la proprietà più importante, ..." → "i coefficienti grandi vengono
+  penalizzati, ... e la soluzione risulta sparsa ..." (tolto l'inciso "ed è la
+  proprietà più importante", ripristinabile se si libera spazio altrove), "ed è
+  per questo che" → ": per questo", "richiede però di adattare" → "richiede di
+  adattare", "si identifica l'insieme delle variabili che all'ottimo saranno nulle
+  e si minimizza la funzione obiettivo solo sulle variabili libere" → "si
+  identificano le variabili nulle all'ottimo e si minimizza la funzione obiettivo
+  solo su quelle libere", "mantenendo le altre esattamente a zero" → "mentre le
+  altre vengono mantenute a zero", "un vero minimo del problema ogni volta che lo
+  è, e l'algoritmo" → "un vero minimo ogni volta che lo è e l'algoritmo", "È la
+  strategia ... descritto nel Capitolo 5" → ": è la strategia ... del Capitolo 5".
+  Inoltre ridotti gli skip del display di §4.4 ($\nu\|w\|_1$:
+  `abovedisplayskip`/`belowdisplayskip` a 4pt, shortskip a 2pt, tecnica già usata
+  nel file per l'eq. 5.43). Il riferimento "si veda il testo di Nocedal e
+  Wright~\cite{nocedal2006}" è stato **ripristinato** dopo prova (ci sta ancora).
+  **Esito**: pagina stampata 12 = tutto §4.3 + tutto §4.4 (ultima riga
+  "Newton-CG-$L_1$ del Capitolo 5."), Capitolo 5 a pagina 13; documento da
+  **102 a 101 pp** (sparisce la pagina che conteneva solo le 3 righe orfane).
+  0 errori, 0 undefined, 8 overfull / 9 underfull invariati. Ricompilati
+  `tesi.pdf` (**101 pp**) e `tesi_finale.pdf` (**101 pp**, con
+  `./compila_tesi.sh tesi`). Sincronizzati in repo `tesi/tesi.tex`, `tesi/tesi.pdf`,
+  `tesi/tesi_finale.pdf` con **md5 verificati** (`edc9d657461b8a840a895a10e48dfd6a`,
+  `5da8c83bd117ce116152ece369604cfc`, `d5f6daa635803370bce7be73235b7305`).
 - **Ultimo intervento (11/09/2026, tesi — Ringraziamenti: Zylfi spostato, Lausi aggiunto).**
   In `tesi.tex` **``Silvio Zylfi'' e' stato spostato** dalla coda dell'elenco (dove
   stava dopo ``Maria Antonietta Palladino'') **subito dopo ``Sofia De Angelis''**, e

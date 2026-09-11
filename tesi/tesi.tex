@@ -616,22 +616,22 @@ conoscenza (o una stima) del numero di condizionamento $\kappa$. Alcuni metodi
 propongono invece di adattare la dimensione del batch in modo euristico in base
 all'andamento della funzione obiettivo o della perdita di validazione, senza
 una garanzia teorica. Il vantaggio dell'approccio basato sulla varianza è
-duplice: da un lato fornisce una giustificazione statistica alla regola
-di aggiornamento, dall'altro si adatta automaticamente alla difficoltà locale
-del problema, senza richiedere la stima di $\kappa$.
+duplice: fornisce una giustificazione statistica alla regola di aggiornamento
+e si adatta automaticamente alla difficoltà locale del problema, senza
+richiedere la stima di $\kappa$.
 
 \subsection{Metodi di secondo ordine stocastici}
 
 I metodi del primo ordine convergono lentamente su problemi mal condizionati,
 poiché il numero di condizionamento $\kappa$ del problema entra nel tasso di
-convergenza. I metodi di Newton incorporano l'informazione di curvatura
-dell'Hessiana e raggiungono un tasso di convergenza locale quadratico (o
-superlineare), a costo di risolvere ad ogni iterazione un sistema lineare
+convergenza. I metodi di Newton incorporano la curvatura dell'Hessiana e
+raggiungono un tasso di convergenza locale quadratico (o superlineare), al
+costo di risolvere a ogni iterazione un sistema lineare
 $H_k d = -g_k$; si veda il testo di Nocedal e Wright~\cite{nocedal2006} per
 una trattazione completa.
 
-Su larga scala la costruzione esplicita dell'Hessiana è impraticabile, e sono
-stati sviluppati metodi che ne usano soltanto approssimazioni. I metodi
+Su larga scala la costruzione esplicita dell'Hessiana è impraticabile e si
+usano quindi sue approssimazioni. I metodi
 inexact Newton~\cite{dembo1982} risolvono il sistema di Newton in modo
 approssimato, controllando il residuo del risolutore interno tramite un
 parametro di forcing; il metodo del gradiente coniugato (CG) applicato al
@@ -642,45 +642,45 @@ un metodo che sottocampiona sia il gradiente sia l'Hessiana, mostrando che un
 numero di iterazioni del CG che cresce con la precisione desiderata mantiene la
 convergenza. Il metodo Newton-CG presentato in questa tesi si colloca in questa
 linea di ricerca, con due innovazioni rispetto ai lavori precedenti: la
-dimensione del campione per il gradiente è regolata dinamicamente dalla CCV, e
+dimensione del campione per il gradiente è regolata dinamicamente dalla CCV e
 il criterio di arresto del CG interno è adattivo, basato sulla varianza
-campionaria dei prodotti Hessiana-vettore, in modo da non sprecare iterazioni
+campionaria dei prodotti Hessiana-vettore, così da non sprecare iterazioni
 interne quando l'approssimazione dell'Hessiana è limitata dal sottocampionamento.
 
 \subsection{Regolarizzazione $L_1$ in ottimizzazione}
 
 La regolarizzazione $L_1$ consiste nell'aggiungere alla funzione obiettivo un
 termine di penalità proporzionale alla norma $L_1$ dei parametri,
+{\setlength{\abovedisplayskip}{4pt}\setlength{\belowdisplayskip}{4pt}%
+\setlength{\abovedisplayshortskip}{2pt}\setlength{\belowdisplayshortskip}{2pt}%
 \[
 \nu\|w\|_1 = \nu \sum_{i=1}^{m} |w_i|,
-\]
-dove $\nu > 0$ è un coefficiente che ne controlla l'intensità. L'effetto è
-duplice: da un lato i coefficienti grandi vengono penalizzati, scoraggiando
-l'adattamento eccessivo ai dati; dall'altro, ed è la proprietà più
-importante, la soluzione risulta \emph{sparsa}, cioè con molti coefficienti
-esattamente nulli. L'intuizione è la seguente: a differenza della norma $L_2$,
-il cui costo marginale tende a zero per coefficienti piccoli, la norma $L_1$
-``costa'' sempre $\nu$ per ogni unità di coefficiente, anche vicino a zero.
-Conviene quindi azzerare le variabili il cui contributo alla perdita non
-supera tale costo, ed è per questo che la $L_1$ è uno strumento fondamentale
-per l'interpretabilità dei modelli ad alta dimensionalità (è il principio alla
+\]}
+dove $\nu > 0$ ne controlla l'intensità. L'effetto è
+duplice: i coefficienti grandi vengono penalizzati, scoraggiando
+l'adattamento eccessivo ai dati, e la soluzione risulta \emph{sparsa}, cioè con
+molti coefficienti esattamente nulli. L'intuizione è la seguente: a differenza
+della norma $L_2$, il cui costo marginale tende a zero per coefficienti piccoli,
+la norma $L_1$ ``costa'' sempre $\nu$ per ogni unità di coefficiente, anche
+vicino a zero. Conviene quindi azzerare le variabili il cui contributo alla
+perdita non supera tale costo: per questo la $L_1$ è uno strumento fondamentale
+per l'interpretabilità dei modelli ad alta dimensionalità (il principio alla
 base del LASSO).
 
 La non differenziabilità della norma $L_1$ nei punti in cui un coefficiente si
-annulla richiede però di adattare i metodi classici del primo ordine. In questa
+annulla richiede di adattare i metodi classici del primo ordine. In questa
 tesi si segue la strategia dell'\emph{active set} (o delle facce ortanti): si
-identifica l'insieme delle variabili che all'ottimo saranno nulle e si minimizza
-la funzione obiettivo solo sulle variabili libere, dove la $L_1$ è
-differenziabile, mantenendo le altre esattamente a zero tramite una ricerca
-lineare proiettata.
+identificano le variabili nulle all'ottimo e si minimizza la funzione obiettivo
+solo su quelle libere, dove la $L_1$ è differenziabile, mentre le altre vengono
+mantenute a zero tramite una ricerca lineare proiettata.
 
 Le variabili da tenere a zero sono individuate tramite il gradiente
 generalizzato (Sezione~\ref{sec:l1}): quando $w_i = 0$, tra tutti i
 subgradienti possibili in $[-\nu,+\nu]$ viene selezionato quello che rende
 minima la componente del gradiente generalizzato, zero se possibile. Così
-$w_i = 0$ viene riconosciuto come un vero minimo del problema ogni volta che lo
-è, e l'algoritmo non rischia di allontanarsene. È la strategia adottata dal
-metodo Newton-CG-$L_1$ descritto nel Capitolo~\ref{sec:algoritmi}.
+$w_i = 0$ viene riconosciuto come un vero minimo ogni volta che lo è e
+l'algoritmo non rischia di allontanarsene: è la strategia adottata dal metodo
+Newton-CG-$L_1$ del Capitolo~\ref{sec:algoritmi}.
 
 \section{Algoritmi Proposti}\label{sec:algoritmi}
 % ═══════════════════════════════════════════════════════════════════════════
