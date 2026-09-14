@@ -463,12 +463,15 @@ si ricampiona quando la loss sul validation set non migliora.*
 | min_abs | `0.0` | soglia assoluta di progresso |
 
 Criterio esatto mostrato dall'app:
+
 $$J_{val}(w_{k+1}) \le J_{val}^{best}\cdot(1-\text{tol}) - \text{min}_\text{abs}.$$
 
 **④ Riuso per discesa della loss sul batch — tutti gli algoritmi**
 `☐ Usa la discesa della loss sul batch per lo stop del riuso`
 Criterio (la loss è calcolata **sullo stesso mini-batch in uso**, non su un insieme esterno):
+
 $$J_{batch}(w_{k+1}) \le J_{batch}(w_k) - \text{tol}\cdot|J_{batch}(w_k)| - \text{min}_\text{abs}.$$
+
 Sotto-controlli: tolleranza (`1e-4`), min_abs (`0.0`), pazienza (`1`), frequenza (`1`).
 
 **⑤ Riuso dell'Hessiana (Newton)**
