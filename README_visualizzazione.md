@@ -485,13 +485,13 @@ Con **Max riusi consecutivi Hessiana** `Illimitato`/`Personalizzato` (default 10
 *Default per algoritmo, come da pseudocodice della tesi: Wolfe per Dynamic GD e Newton-CG,
 Armijo per BB-CCV. (Newton-L1 usa sempre la sua ricerca proiettata.)*
 
-**⑦ Sottocampionamento dell'Hessiana — Newton-CG, Newton-$L_1$**
+**⑦ Sottocampionamento dell'Hessiana — Newton-CG, Newton-L<sub>1</sub>**
 `H_k ⊆ S_k (default teoria)` · `H_k indipendente da S_k`
-*Default: $H_k$ è estratto come sottoinsieme di $S_k$, coerente con il paper.*
+*Default: H<sub>k</sub> è estratto come sottoinsieme di S<sub>k</sub>, coerente con il paper.*
 
 **⑧ Hessian-free in Newton $L_1$**
 `Attivo (default teoria)` · `Hessiana esplicita`
-*Default: CG Hessian-free anche per $L_1$, senza costruire $H$ esplicita.*
+*Default: CG Hessian-free anche per L<sub>1</sub>, senza costruire H esplicita.*
 
 Il pulsante **↻ Ripristina** in fondo al pannello rimette tutti i parametri e le leve ai
 valori di default.
@@ -510,7 +510,7 @@ tutte le combinazioni previste:
 - versione con **riuso** del mini-batch,
 - versione con **stop adattivo su validation set**,
 
-per ciascuno dei metodi: GD, Newton-CG, Newton-$L_1$, BB-CCV. Il pulsante **↻ Ripristina**
+per ciascuno dei metodi: GD, Newton-CG, Newton-L<sub>1</sub>, BB-CCV. Il pulsante **↻ Ripristina**
 rigenera il testo dai parametri correnti se lo hai modificato; accanto c'è il badge di stato
 **`Python`**, che segnala l'inizializzazione dell'interprete.
 
@@ -560,7 +560,7 @@ quando hanno senso:
 | **J(w)** | $J(w_k)$ | valore dell'obiettivo (verde/blu/ambra a seconda della scheda) |
 | **‖∇J‖** | $\|\nabla J(w_k)\|$ | norma del gradiente esatto: quanto sei vicino alla stazionarietà |
 | **‖w − w\*‖** | $\|w_k-w_\*\|$ | distanza dal minimo vero (il miglior indicatore di convergenza) |
-| **‖∂F‖ (subgrad. $L_1$)** | $\|\partial F(w_k)\|$ | norma del subgradiente, **solo** con Newton-$L_1$ |
+| **‖∂F‖ (subgrad. $L_1$)** | $\|\partial F(w_k)\|$ | norma del subgradiente, **solo** con Newton-L<sub>1</sub> |
 | **Batch size $n_k$** | $n_k$ | dimensione dell'ultimo mini-batch estratto |
 | **M_actual** | $M$ effettivo | quante iterazioni consecutive hai davvero fatto sullo stesso mini-batch |
 | **J_val (ultima valutazione)** | $J_{val}$ | ultima loss di validazione (riuso con validation set) |
@@ -583,7 +583,7 @@ Il grafico principale. Mostra:
 - il **percorso** $w_0 \to w_1 \to \dots \to w_k$ con i singoli punti $w_k$;
 - il punto di partenza $w_0$ e il minimo $w_\*$ (★);
 - se hai spuntato **Mostra anche F(w)**, la superficie/curva dell'obiettivo regolarizzato
-  $F(w)=J(w)+\nu\|w\|_1$ con il percorso su $F$ (utile con Newton-$L_1$, dove i due obiettivi
+  $F(w)=J(w)+\nu\|w\|_1$ con il percorso su $F$ (utile con Newton-L<sub>1</sub>, dove i due obiettivi
   hanno minimi diversi).
 
 Nella **legenda della testata** hai il codice colori: il punto ★ segna i pesi ottimali.
@@ -599,7 +599,7 @@ $\lbrace w_k\rbrace$ e — soprattutto — due marcatori distinti:
 | **CCV violata (batch aumentato)** | qui il batch è stato **ingrandito** perché la condizione di varianza non era soddisfatta |
 | **Ricampionamento (non-CCV)** | qui il campione è stato **ricambiato** per altre ragioni (riuso, fine pazienza, cambio di Hessiana…) |
 
-Con Newton-$L_1$ compaiono anche le curve di livello di $F$ e il minimo di $F$.
+Con Newton-L<sub>1</sub> compaiono anche le curve di livello di $F$ e il minimo di $F$.
 
 Come si usa:
 
@@ -656,7 +656,7 @@ l'algoritmo, l'app risponde *«⚠ Esegui prima Ricalcola.»*
 
 La finestra mostra una tabella con una riga per iterazione:
 
-| iter | ‖w−w\*‖ | J(w) | (con Newton-$L_1$: anche ‖∂F‖) |
+| iter | ‖w−w\*‖ | J(w) | (con Newton-L<sub>1</sub>: anche ‖∂F‖) |
 |---|---|---|---|
 | 0 | … | … | … |
 | 1 | … | … | … |
@@ -666,7 +666,7 @@ La finestra mostra una tabella con una riga per iterazione:
 - **✓ Convergenza raggiunta · ‖w−w\*‖ = …** se la metrica di arresto è sotto $10^{-4}$;
 - **⚠ Convergenza parziale · …** altrimenti.
 
-Per Newton-$L_1$ la metrica usata è **‖∂F‖** (la norma del subgradiente, che va a zero nel
+Per Newton-L<sub>1</sub> la metrica usata è **‖∂F‖** (la norma del subgradiente, che va a zero nel
 minimo di $F$), non ‖w−w\*‖, che è riferita al minimo di $J$ — un dettaglio che l'app spiega
 essa stessa nel pannello.
 
@@ -688,7 +688,7 @@ Ogni dimensione è una casella con elenco di valori separati da virgola, un'etic
 | Dimensione | Default | Note |
 |---|---|---|
 | **Loss (preset)** | `quad_well,quad_ill,quad_very_ill,quad_offdiag,rosenbrock` | chiavi dei preset |
-| **Algoritmo** | `gd,bb,newton_cg,newton_l1` | Dynamic GD, BB-CCV, Newton-CG, Newton-$L_1$ |
+| **Algoritmo** | `gd,bb,newton_cg,newton_l1` | Dynamic GD, BB-CCV, Newton-CG, Newton-L<sub>1</sub> |
 | **Strategia di riuso (colonne)** | `base,M=inf,M=10,M=5,M=2,H ind M_H=inf` | vedi §13.2: diventano le **colonne** della tabella |
 | **Seed** | `42` | più seed con `media` ⇒ **robustezza** (es. i 5 seed della tesi) |
 | **max_iter** | `30` | $e_{30}$ = errore all'ultima iterazione |
@@ -780,7 +780,7 @@ Formule:
 ### 14.2 Newton-CG con Campionamento Dinamico
 
 Descrizione — *Residuo del CG vs errore di Hessiana*, *Stima dell'errore di Hessiana*,
-*Coefficiente $\gamma$ e soglia adattiva*, *Test di arresto del CG*, *Line search e
+*Coefficiente γ e soglia adattiva*, *Test di arresto del CG*, *Line search e
 aggiornamento*, *Aggiornamento batch (CCV sul gradiente)*, *Batch fisso*, *Pseudocodice*.
 Formule:
 
@@ -873,7 +873,7 @@ salva. Poi sperimenta `R = 0.05, 0.2, 0.5`.
 ($|H_k| = R\ |S_k|$) senza perdere convergenza.
 
 **⑥ $L_1$, faccia ortante e Hessian-free.**
-Algoritmo *Newton-CG con Regolarizzazione $L_1$* con $\nu = 0.1$ e poi $\nu = 0.5$,
+Algoritmo *Newton-CG con Regolarizzazione L<sub>1</sub>* con $\nu = 0.1$ e poi $\nu = 0.5$,
 **Mostra anche F(w)** spuntato. Poi confronta **Hessian-free** vs **Hessiana esplicita**.
 👉 Guarda: la scheda **‖∂F‖**, la traiettoria sulla faccia ortante e la differenza tra minimo di
 $J$ e minimo di $F$.
@@ -910,7 +910,7 @@ esempi consumati* ($\sum_k n_k$).
 |---|---|---|
 | Convergenza generale | $\|w_k-w_\*\|$ | distanza dal minimo vero: la più onesta |
 | Vicinanza alla stazionarietà | $\|\nabla J(w_k)\|$ | indipendente dal minimo di riferimento |
-| Newton-$L_1$ | $\|\partial F(w_k)\|$ | è il criterio corretto: $w_\*$ è il minimo di $F$, non di $J$ |
+| Newton-L<sub>1</sub> | $\|\partial F(w_k)\|$ | è il criterio corretto: $w_\*$ è il minimo di $F$, non di $J$ |
 | Qualità della soluzione | $J(w_k)$ | ma è «schiacciata» vicino al minimo: usala in scala logaritmica |
 
 **I due tipi di ricampionamento.** Nei marcatori distingui **CCV violata (batch aumentato)**
