@@ -172,8 +172,8 @@ scrivere la tua loss da zero.
 | Quadratica con termine incrociato | $J=(w_1-1)^2+(w_2+2)^2+0.5(w_1-1)(w_2+2)$ | 2 | Hessiana non diagonale |
 | Funzione di Rosenbrock ($c=100$) | $J=\frac1N\sum_i\big[(w_1-a_i)^2+100\big((w_2-b_i)-(w_1-a_i)^2\big)^2\big]$ | 2 | **non** quadratica |
 | 1D Quadratica | $J=\frac1N\sum_i(w-a_i)^2$ | 1 | valle parabolica |
-| 1D Quartica + quadratica | forma quartica con minimo interno | 1 | |
-| 1D Sinusoidale + quadratica | oscillazioni + termine quadratico | 1 | |
+| 1D Quartica + quadratica | $J=\frac1N\sum_i\big[(w-a_i)^4+0.1\thinspace(w-a_i)^2\big]$ | 1 | forma quartica con minimo interno |
+| 1D Sinusoidale + quadratica | $J=\frac1N\sum_i\big[1-\cos(w-a_i)+0.1\thinspace(w-a_i)^2\big]$ | 1 | oscillazioni + termine quadratico |
 | 1D Esponenziale + quadratica | $J=\frac1N\sum_i\big[e^{0.5(w-a_i)^2}-1\big]$ | 1 | |
 | ✏️ **Custom** | quello che scrivi tu | 1 o 2 | vedi §5.3 |
 
