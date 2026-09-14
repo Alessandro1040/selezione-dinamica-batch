@@ -134,7 +134,7 @@ a destra i **risultati**.
 
 I pannelli che compaiono **solo quando servono**: la card *Traiettoria 2D* si apre col
 pulsante dedicato, la card *Confronto immagini salvate* quando salvi almeno un'immagine, le
-card *J_val(w_k)* e *J_batch(w_k)* quando accendi rispettivamente lo **stop adattivo con
+card *J<sub>val</sub>(w<sub>k</sub>)* e *J<sub>batch</sub>(w<sub>k</sub>)* quando accendi rispettivamente lo **stop adattivo con
 validation set** e il **riuso per discesa della loss**.
 
 ## 4. Percorso guidato in 60 secondi
@@ -152,7 +152,7 @@ validation set** e il **riuso per discesa della loss**.
 7. Cambia algoritmo in **Newton-CG**: il codice Python, la teoria, lo pseudocodice e i
    parametri **si aggiornano da soli**. Premi di nuovo **Ricalcola** e confronta.
 8. Attiva **Iterazioni consecutive sullo stesso mini-batch** e premi **Ricalcola**: si
-   aprono le card *J_val(w_k)*/*J_batch(w_k)* e il batch smette di crescere a ogni
+   aprono le card *J<sub>val</sub>(w<sub>k</sub>)*/*J<sub>batch</sub>(w<sub>k</sub>)* e il batch smette di crescere a ogni
    iterazione.
 9. Apri **🧪 Test batch** e premi **▶ Avvia** per generare le tabelle in stile Sezione 6
    della tesi.
@@ -622,7 +622,7 @@ galleria.
 Il grafico della tesi: sull'asse $x$ l'iterazione $k$, sull'asse $y$ la **dimensione del
 batch** $n_k$.
 
-- la traccia **`n_k (batch effettivo)`** è la dimensione realmente usata a ogni iterazione —
+- la traccia **`nₖ (batch effettivo)`** è la dimensione realmente usata a ogni iterazione —
   una scaletta, perché il batch cresce e poi resta costante;
 - la traccia **`aᵏ`** è il fit geometrico: l'app stima l'esponente $a$ che meglio approssima
   i dati risolvendo un problema ai minimi quadrati **in scala logaritmica**
