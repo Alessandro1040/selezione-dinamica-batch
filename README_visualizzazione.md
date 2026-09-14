@@ -446,7 +446,7 @@ riusato per più iterazioni consecutive.*
 Con **Max iterazioni consecutive per mini-batch**: `Illimitato` (si riusa finché la CCV resta
 soddisfatta, con limite naturale `max_iter`) oppure `Personalizzato` (valore $k$). Con $k=1$
 si ricampiona a ogni iterazione; valgono i criteri di stop adattivo descritti sotto.
-Quando il riuso è attivo compaiono le card **$J_{val}(w_k)$** e **$J_{batch}(w_k)$**.
+Quando il riuso è attivo compaiono le card **J_val(w_k)** e **J_batch(w_k)**.
 
 **③ Stop adattivo con validation set — tutti gli algoritmi**
 `☐ Usa validation set per stop adattivo`
@@ -631,7 +631,7 @@ batch** $n_k$.
   piccolo, la crescita del tuo esperimento è davvero geometrica, come previsto dalla teoria;
 - un marcatore verticale indica l'**iterazione corrente** dell'animazione.
 
-### 11.5 «$J_{val}(w_k)$ — stop adattivo»
+### 11.5 «J_val(w_k) — stop adattivo»
 
 Compare quando attivi **Usa validation set per stop adattivo**. Ogni punto è una valutazione
 di $J_{val}$: quando la loss non migliora per **pazienza** valutazioni consecutive il
@@ -639,7 +639,7 @@ mini-batch viene **ricampionato** (e l'Hessiana, se legata). Dal grafico si vede
 sega» classico: discesa, plateau, ricampionamento, nuova discesa. Il marcatore `val corrente`
 lega il grafico all'iterazione dell'animazione.
 
-### 11.6 «$J_{batch}(w_k)$ — riuso per discesa»
+### 11.6 «J_batch(w_k) — riuso per discesa»
 
 Compare quando attivi **Riuso per discesa della loss sul batch**. Ogni punto è una valutazione
 di $J_{batch}$: quando la riduzione relativa scende sotto la soglia per **pazienza**
@@ -789,7 +789,7 @@ Formule:
 6. Line search (Wolfe / Armijo)
 7. Aggiornamento batch (CCV sul gradiente)
 
-### 14.3 Newton-CG con Regolarizzazione $L_1$
+### 14.3 Newton-CG con Regolarizzazione L_1
 
 Descrizione — *Gradiente generalizzato (subgradiente)*, *Faccia ortante e active set*,
 *Minimizzazione nel sottospazio libero*, *Proiezione ortante e aggiornamento*, *Pseudocodice*.
