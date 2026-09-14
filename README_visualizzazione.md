@@ -644,6 +644,12 @@ batch** $n_k$.
   piccolo, la crescita del tuo esperimento è davvero geometrica, come previsto dalla teoria;
 - un marcatore verticale indica l'**iterazione corrente** dell'animazione.
 
+**A che cosa serve questo confronto.** È la controprova empirica dell'ipotesi
+$n_k = \lceil a^k \rceil$, $a>1$, che l'analisi stocastica adotta (Sezione 5.1.5 e
+Figura 5.3 della tesi): mostra che la crescita geometrica del batch non è un'ipotesi
+arbitraria, ma il comportamento effettivo del metodo. Va letta **in aggiunta** alla
+dimostrazione matematica della tesi, non al posto suo.
+
 ### 11.5 «J<sub>val</sub>(w<sub>k</sub>) — stop adattivo»
 
 Compare quando attivi **Usa validation set per stop adattivo**. Ogni punto è una valutazione
