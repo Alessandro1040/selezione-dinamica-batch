@@ -395,7 +395,7 @@ modificalo.
 | Metodo | In due parole | Usa |
 |---|---|---|
 | **Gradiente a Campione Dinamico (GD)** | discesa più ripida con passo scelto da line search (Wolfe di default) | $\theta$, `batch0`, line search |
-| **Newton-CG con Campionamento Dinamico** | direzione di Newton risolta dal CG su un'Hessiana *sottocampionata* ($H_k\subseteq S_k$, $|H_k|=R\ |S_k|$) e prodotta Hessiana-vettore | $R$, `max CG iter`, sottocampionamento, riuso Hessiana |
+| **Newton-CG con Campionamento Dinamico** | direzione di Newton risolta dal CG su un'Hessiana *sottocampionata* ($H_k\subseteq S_k$, $\|H_k\|=R\ \|S_k\|$) e prodotta Hessiana-vettore | $R$, `max CG iter`, sottocampionamento, riuso Hessiana |
 | **Newton-CG con Regolarizzazione $L_1$** | come sopra ma su $F(w)=J(w)+\nu\|w\|_1$, con faccia ortante, active set e ricerca lineare **proiettata** | $\nu$, $\sigma$, $\eta$, Hessian-free |
 | **Barzilai–Borwein con Campionamento Dinamico (BB-CCV)** | passo BB *clippato* + Armijo, senza Hessiana | come GD |
 | ✏️ **Algoritmo personalizzato** | il tuo algoritmo in Python | vedi §15 |
@@ -418,7 +418,7 @@ campione dinamico e controllo della varianza»*).
 | **seed** | 42 | 0–9999 | seme del generatore: cambia la realizzazione del rumore (§5.5.1), non gli iperparametri |
 | **θ (toll. CCV)** | 0.5 | 0.01–0.99 | soglia della condizione di controllo della varianza: **piccolo ⇒ batch grandi** |
 | **batch0** | 5 | 1–50 | dimensione del primo mini-batch |
-| **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($|H_k|=R\ |S_k|$) |
+| **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($\|H_k\|=R\ \|S_k\|$) |
 | **max CG iter** | 10 | 1–50 | Newton: iterazioni massime del gradiente coniugato |
 | **ν (penalità $L_1$)** | 0.1 | 0.001–1 | $L_1$: peso della regolarizzazione |
 | **σ (Armijo)** | 0.1 | 0.001–0.5 | $L_1$: parametro del backtracking |
