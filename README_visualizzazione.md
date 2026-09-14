@@ -46,7 +46,7 @@ rumorosa. La domanda centrale della tesi è: **quanto grande deve essere il camp
 iterazione?** La risposta dei metodi *dinamici* è: *tanto quanto basta* perché il gradiente
 campionario soddisfi la condizione di accuratezza
 
-$$\|g_k - \nabla J(w_k)\| \le \theta\thinspace\|g_k\|, \qquad 0<\theta<1,$$
+$$\|g_k - \nabla J(w_k)\| \le \theta\ \|g_k\|, \qquad 0<\theta<1,$$
 
 cioè la **CCV**. Quando la CCV è violata, il batch viene **aumentato**; quando è
 soddisfatta, si procede con il campione già estratto.
@@ -166,14 +166,14 @@ scrivere la tua loss da zero.
 
 | Preset | Funzione | Dim. | Note |
 |---|---|---|---|
-| Quadratica ben condizionata ($\kappa\approx1.1$) | $J=(w_1-1)^2+(w_2+2)^2+0.1\thinspacew_1w_2$ | 2 | default dell'app |
+| Quadratica ben condizionata ($\kappa\approx1.1$) | $J=(w_1-1)^2+(w_2+2)^2+0.1\ w_1w_2$ | 2 | default dell'app |
 | Quadratica mal condizionata ($\kappa\approx20$) | $J=20(w_1-1)^2+(w_2+2)^2$ | 2 | il batch cresce molto di più |
 | Quadratica molto mal condizionata ($\kappa\approx100$) | $J=100(w_1-1)^2+(w_2+2)^2$ | 2 | caso severo, ottimo per vedere la CCV scattare |
 | Quadratica con termine incrociato | $J=(w_1-1)^2+(w_2+2)^2+0.5(w_1-1)(w_2+2)$ | 2 | Hessiana non diagonale |
 | Funzione di Rosenbrock ($c=100$) | $J=\frac1N\sum_i\big[(w_1-a_i)^2+100\big((w_2-b_i)-(w_1-a_i)^2\big)^2\big]$ | 2 | **non** quadratica |
 | 1D Quadratica | $J=\frac1N\sum_i(w-a_i)^2$ | 1 | valle parabolica |
-| 1D Quartica + quadratica | $J=\frac1N\sum_i\big[(w-a_i)^4+0.1\thinspace(w-a_i)^2\big]$ | 1 | forma quartica con minimo interno |
-| 1D Sinusoidale + quadratica | $J=\frac1N\sum_i\big[1-\cos(w-a_i)+0.1\thinspace(w-a_i)^2\big]$ | 1 | oscillazioni + termine quadratico |
+| 1D Quartica + quadratica | $J=\frac1N\sum_i\big[(w-a_i)^4+0.1\ (w-a_i)^2\big]$ | 1 | forma quartica con minimo interno |
+| 1D Sinusoidale + quadratica | $J=\frac1N\sum_i\big[1-\cos(w-a_i)+0.1\ (w-a_i)^2\big]$ | 1 | oscillazioni + termine quadratico |
 | 1D Esponenziale + quadratica | $J=\frac1N\sum_i\big[e^{0.5(w-a_i)^2}-1\big]$ | 1 | |
 | ✏️ **Custom** | quello che scrivi tu | 1 o 2 | vedi §5.3 |
 
@@ -239,9 +239,9 @@ esecuzione. Con $z_{a,i}, z_{b,i}, z_{c,i} \sim \mathcal{N}(0,1)$ indipendenti
 (`np.random.randn`), $i = 1,\dots,N$:
 
 $$
-\tilde a_i = \mu_a + \sigma_a\thinspacez_{a,i},\qquad
-\tilde b_i = \mu_b + \sigma_b\thinspacez_{b,i},\qquad
-\tilde c_i = \mu_c + \sigma_c\thinspacez_{c,i}
+\tilde a_i = \mu_a + \sigma_a\ z_{a,i},\qquad
+\tilde b_i = \mu_b + \sigma_b\ z_{b,i},\qquad
+\tilde c_i = \mu_c + \sigma_c\ z_{c,i}
 $$
 
 e poi la **centratura** che fissa esattamente le medie:
@@ -273,18 +273,18 @@ cambia **la realizzazione del rumore** (cioè i numeri $a_i, b_i, c_i$), non gli
 Ogni preset definisce la sua **loss di un singolo esempio** $\ell_i(w)$; la funzione obiettivo
 che l'app calcola e disegna è sempre la media
 
-$$J(w) \thickspace=\thickspace \hat J_N(w) \thickspace=\thickspace \frac1N\sum_{i=1}^N \ell_i(w).$$
+$$J(w) \ =\  \hat J_N(w) \ =\  \frac1N\sum_{i=1}^N \ell_i(w).$$
 
 | Preset | loss per esempio $\ell_i(w)$ | $J$ nominale (con $a_i\to\mu_a$, $b_i\to\mu_b$, $c_i\to\mu_c$) |
 |---|---|---|
-| ben condizionata | $(w_1-a_i)^2+(w_2-b_i)^2+c_i\thinspacew_1w_2$ | $(w_1-1)^2+(w_2+2)^2+0.1\thinspacew_1w_2$ |
-| mal condizionata | $20\thinspace(w_1-a_i)^2+(w_2-b_i)^2$ | $20\thinspace(w_1-1)^2+(w_2+2)^2$ |
-| molto mal condizionata | $100\thinspace(w_1-a_i)^2+(w_2-b_i)^2$ | $100\thinspace(w_1-1)^2+(w_2+2)^2$ |
+| ben condizionata | $(w_1-a_i)^2+(w_2-b_i)^2+c_i\ w_1w_2$ | $(w_1-1)^2+(w_2+2)^2+0.1\ w_1w_2$ |
+| mal condizionata | $20\ (w_1-a_i)^2+(w_2-b_i)^2$ | $20\ (w_1-1)^2+(w_2+2)^2$ |
+| molto mal condizionata | $100\ (w_1-a_i)^2+(w_2-b_i)^2$ | $100\ (w_1-1)^2+(w_2+2)^2$ |
 | termine incrociato | $(w_1-a_i)^2+(w_2-b_i)^2+c_i(w_1-a_i)(w_2-b_i)$ | $(w_1-1)^2+(w_2+2)^2+0.5(w_1-1)(w_2+2)$ |
-| Rosenbrock | $x_i^2+C\thinspacez_i^2$ con $x_i=w_1-a_i$, $z_i=(w_2-b_i)-x_i^2$, $C=100$ | $(w_1-1)^2+100\big[(w_2+2)-(w_1-1)^2\big]^2$ |
+| Rosenbrock | $x_i^2+C\ z_i^2$ con $x_i=w_1-a_i$, $z_i=(w_2-b_i)-x_i^2$, $C=100$ | $(w_1-1)^2+100\big[(w_2+2)-(w_1-1)^2\big]^2$ |
 | 1D Quadratica | $(w-a_i)^2$ | $(w-1)^2$ |
-| 1D Quartica | $(w-a_i)^4+0.1\thinspace(w-a_i)^2$ | $(w-1)^4+0.1\thinspace(w-1)^2$ |
-| 1D Sinusoidale | $1-\cos(w-a_i)+0.1\thinspace(w-a_i)^2$ | $1-\cos(w-1)+0.1\thinspace(w-1)^2$ |
+| 1D Quartica | $(w-a_i)^4+0.1\ (w-a_i)^2$ | $(w-1)^4+0.1\ (w-1)^2$ |
+| 1D Sinusoidale | $1-\cos(w-a_i)+0.1\ (w-a_i)^2$ | $1-\cos(w-1)+0.1\ (w-1)^2$ |
 | 1D Esponenziale | $e^{\frac12(w-a_i)^2}-1$ | $e^{\frac12(w-1)^2}-1$ |
 | Custom | quella che scrivi tu | la tua $J(w)$ |
 
@@ -298,15 +298,15 @@ $\hat\sigma_b^2 \approx 0.2^2$, $\hat\sigma_c^2 \approx 0.05^2$. Ne segue, per i
 quadratici in cui il rumore entra solo nei termini del tipo $(w_j-a_i)^2$,
 
 $$
-\hat J_N(w) \thickspace=\thickspace J_{\text{nom}}(w) + \sum_j c_j\thinspace\hat\sigma_j^2
+\hat J_N(w) \ =\  J_{\text{nom}}(w) + \sum_j c_j\ \hat\sigma_j^2
 \qquad\text{(scarto costante, indipendente da } w\text{)}
 $$
 
 | Preset | $\hat J_N(w)-J_{\text{nom}}(w)$ con seed 42 e $N=200$ |
 |---|---|
 | ben condizionata | $\hat\sigma_a^2+\hat\sigma_b^2 = 0.073270$ |
-| mal condizionata | $20\thinspace\hat\sigma_a^2+\hat\sigma_b^2 = 0.728720$ |
-| molto mal condizionata | $100\thinspace\hat\sigma_a^2+\hat\sigma_b^2 = 3.488510$ |
+| mal condizionata | $20\ \hat\sigma_a^2+\hat\sigma_b^2 = 0.728720$ |
+| molto mal condizionata | $100\ \hat\sigma_a^2+\hat\sigma_b^2 = 3.488510$ |
 | 1D Quadratica | $\hat\sigma_a^2 = 0.034497$ |
 
 Poiché la costante non dipende da $w$, **gradiente, Hessiana e minimizzatore coincidono
@@ -316,8 +316,8 @@ Due eccezioni da conoscere:
 
 - **termine incrociato**: qui $c_i$ moltiplica $(w_1-a_i)(w_2-b_i)$, quindi la coincidenza è
   affine, non solo costante:
-  $\hat J_N(w) = J_{\text{nom}}(w) + c_0 + \delta^{\mathsf T}w$ con, al seed 42,
-  $\delta \simeq (3.2\cdot10^{-4},\thickspace1.24\cdot10^{-3})$. Il gradiente è quindi sfasato di una
+  $\hat J_N(w) = J_{\text{nom}}(w) + c_0 + \delta^{\text{T}}w$ con, al seed 42,
+  $\delta \simeq (3.2\cdot10^{-4},\ 1.24\cdot10^{-3})$. Il gradiente è quindi sfasato di una
   costante e il minimo è spostato di una quantità $O(1/\sqrt N)$;
 - **preset non quadratici** (Rosenbrock e i tre 1D non quadratici): l'identità non vale, perché
   la media di una funzione non lineare dei coefficienti non è la funzione delle medie. Lo scarto
@@ -330,7 +330,7 @@ Per completezza, le formule esatte dell'implementazione (sono le stesse dello ps
 generato nell'editor):
 
 $$
-\mathcal S_k = \lbracei_1,\dots,i_{n_k}\rbrace \ \text{estratto} \ \textbf{senza reinserimento} \
+\mathcal S_k = \lbrace i_1,\dots,i_{n_k}\rbrace \ \text{estratto} \ \textbf{senza reinserimento} \
 \text{da } \lbrace1,\dots,N\rbrace
 \qquad(\texttt{np.random.choice(N, size=n, replace=False)})
 $$
@@ -346,17 +346,17 @@ $$
 dove $\hat s_j^2$ è la varianza campionaria **non distorta** (`ddof=1`) della $j$-esima
 coordinata dei gradienti del mini-batch e $\hat V_k$ è quindi la **traccia della covarianza
 campionaria**. Il test di CCV implementato è la versione *plug-in* della condizione
-$\operatorname{tr}(\Sigma)/n \le \theta^2\|g\|^2$:
+$\text{tr}(\Sigma)/n \le \theta^2\|g\|^2$:
 
 $$
-\text{se}\quad \frac{\hat V_k}{n_k} \thickspace>\thickspace \theta^2\thinspace\|g_k\|^2
+\text{se}\quad \frac{\hat V_k}{n_k} \ >\  \theta^2\ \|g_k\|^2
 \qquad\Longrightarrow\qquad
-n_{k+1} = \min\left(N,\ \left\lceil \frac{\hat V_k}{\theta^2\thinspace\|g_k\|^2}\right\rceil + 1\right)
+n_{k+1} = \min\left(N,\ \left\lceil \frac{\hat V_k}{\theta^2\ \|g_k\|^2}\right\rceil + 1\right)
 $$
 
 e l'iterazione corrente si completa comunque con il campione già estratto (il nuovo $n_{k+1}$
 vale per l'estrazione successiva). Per i metodi di Newton il secondo campione — l'Hessiana — ha
-dimensione $n_h = R\thinspace|\mathcal S_k|$ ed è estratto anch'esso senza reinserimento, da
+dimensione $n_h = R\ |\mathcal S_k|$ ed è estratto anch'esso senza reinserimento, da
 $\mathcal S_k$ (default) oppure da tutto il dataset.
 
 > 📐 Queste due formule sono il motivo per cui il grafico $n_k$ vs $a^k$ ha la forma che ha: la
@@ -395,7 +395,7 @@ modificalo.
 | Metodo | In due parole | Usa |
 |---|---|---|
 | **Gradiente a Campione Dinamico (GD)** | discesa più ripida con passo scelto da line search (Wolfe di default) | $\theta$, `batch0`, line search |
-| **Newton-CG con Campionamento Dinamico** | direzione di Newton risolta dal CG su un'Hessiana *sottocampionata* ($H_k\subseteq S_k$, $|H_k|=R\thinspace|S_k|$) e prodotta Hessiana-vettore | $R$, `max CG iter`, sottocampionamento, riuso Hessiana |
+| **Newton-CG con Campionamento Dinamico** | direzione di Newton risolta dal CG su un'Hessiana *sottocampionata* ($H_k\subseteq S_k$, $|H_k|=R\ |S_k|$) e prodotta Hessiana-vettore | $R$, `max CG iter`, sottocampionamento, riuso Hessiana |
 | **Newton-CG con Regolarizzazione $L_1$** | come sopra ma su $F(w)=J(w)+\nu\|w\|_1$, con faccia ortante, active set e ricerca lineare **proiettata** | $\nu$, $\sigma$, $\eta$, Hessian-free |
 | **Barzilai–Borwein con Campionamento Dinamico (BB-CCV)** | passo BB *clippato* + Armijo, senza Hessiana | come GD |
 | ✏️ **Algoritmo personalizzato** | il tuo algoritmo in Python | vedi §15 |
@@ -418,7 +418,7 @@ campione dinamico e controllo della varianza»*).
 | **seed** | 42 | 0–9999 | seme del generatore: cambia la realizzazione del rumore (§5.5.1), non gli iperparametri |
 | **θ (toll. CCV)** | 0.5 | 0.01–0.99 | soglia della condizione di controllo della varianza: **piccolo ⇒ batch grandi** |
 | **batch0** | 5 | 1–50 | dimensione del primo mini-batch |
-| **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($|H_k|=R\thinspace|S_k|$) |
+| **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($|H_k|=R\ |S_k|$) |
 | **max CG iter** | 10 | 1–50 | Newton: iterazioni massime del gradiente coniugato |
 | **ν (penalità $L_1$)** | 0.1 | 0.001–1 | $L_1$: peso della regolarizzazione |
 | **σ (Armijo)** | 0.1 | 0.001–0.5 | $L_1$: parametro del backtracking |
@@ -592,7 +592,7 @@ Nella **legenda della testata** hai il codice colori: il punto ★ segna i pesi 
 
 Si apre con il pulsante **🖼️ Traiettoria 2D**. È la vista più *narrativa* dell'app: le
 **curve di livello** di $J(w)$ nel piano $(w_1,w_2)$ con sopra la traiettoria, i punti
-$\lbracew_k\rbrace$ e — soprattutto — due marcatori distinti:
+$\lbrace w_k\rbrace$ e — soprattutto — due marcatori distinti:
 
 | Marcatore | Significato |
 |---|---|
@@ -847,7 +847,7 @@ prova anche per varianti **non** presenti nella tesi.
 Otto ricette pronte: parametri concreti e cosa guardare. Tutte partono dai default dell'app.
 
 **① Quanto conta la soglia $\theta$?**
-Preset *Quadratica mal condizionata* · algoritmo *Dynamic GD* · $\theta = 0.1,\thinspace0.3,\thinspace0.5,\thinspace0.7$
+Preset *Quadratica mal condizionata* · algoritmo *Dynamic GD* · $\theta = 0.1,\ 0.3,\ 0.5,\ 0.7$
 (uno per volta, premendo **Ricalcola** e salvando l'immagine con 📌).
 👉 Guarda: il valore finale di $n_k$, l'esponente $a$ e i punti «CCV violata».
 
@@ -870,7 +870,7 @@ vedi come cambia la frequenza dei ricampionamenti.
 Preset $\kappa\approx100$ · esegui *Dynamic GD*, salva l'immagine; passa a *Newton-CG*, esegui,
 salva. Poi sperimenta `R = 0.05, 0.2, 0.5`.
 👉 Guarda: il percorso, il numero di iterazioni, e quanto piccola può restare l'Hessiana
-($|H_k| = R\thinspace|S_k|$) senza perdere convergenza.
+($|H_k| = R\ |S_k|$) senza perdere convergenza.
 
 **⑥ $L_1$, faccia ortante e Hessian-free.**
 Algoritmo *Newton-CG con Regolarizzazione $L_1$* con $\nu = 0.1$ e poi $\nu = 0.5$,
