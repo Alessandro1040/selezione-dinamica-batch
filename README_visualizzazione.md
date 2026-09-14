@@ -44,12 +44,22 @@ I metodi di ottimizzazione per il machine learning calcolano il gradiente su un
 **mini-batch** invece che sull'intero dataset: ogni iterazione costa poco, ma la stima è
 rumorosa. La domanda centrale della tesi è: **quanto grande deve essere il campione a ogni
 iterazione?** La risposta dei metodi *dinamici* è: *tanto quanto basta* perché il gradiente
-campionario soddisfi la condizione di accuratezza
+campionario resti abbastanza vicino a quello esatto. La condizione puntuale usata
+nell'analisi deterministica sarebbe
 
 $$\|g_k - \nabla J(w_k)\| \le \theta\ \|g_k\|, \qquad 0<\theta<1,$$
 
-cioè la **CCV**. Quando la CCV è violata, il batch viene **aumentato**; quando è
-soddisfatta, si procede con il campione già estratto.
+ma $\nabla J(w_k)$ **non è noto** — non possiamo calcolare il gradiente esatto — quindi la
+disuguaglianza **non è verificabile** su una singola iterazione. Quello che i metodi
+controllano davvero è la sua versione **in valore atteso**: l'errore quadratico medio dello
+stimatore, non l'errore del singolo campione. È la **Condizione di Controllo della
+Varianza (CCV)**,
+
+$$\frac{\|\widehat{\mathcal V}_k\|_1}{n_k} \le \theta^2\ \|g_k\|_2^2,$$
+
+dove $\widehat{\mathcal V}_k$ è la varianza campionaria dei gradienti sul batch corrente
+(la formula esatta è nella Sezione 5.5.4). Quando la CCV è violata, il batch viene
+**aumentato**; quando è soddisfatta, si procede con il campione già estratto.
 
 L'app rende tutto questo **visibile e manipolabile**. In particolare puoi:
 
@@ -175,12 +185,12 @@ scrivere la tua loss da zero.
 | 1D Quartica + quadratica | $J=\frac1N\sum_i\big[(w-a_i)^4+0.1\ (w-a_i)^2\big]$ | 1 | forma quartica con minimo interno |
 | 1D Sinusoidale + quadratica | $J=\frac1N\sum_i\big[1-\cos(w-a_i)+0.1\ (w-a_i)^2\big]$ | 1 | oscillazioni + termine quadratico |
 | 1D Esponenziale + quadratica | $J=\frac1N\sum_i\big[e^{0.5(w-a_i)^2}-1\big]$ | 1 | |
-| ✏️ **Custom** | quello che scrivi tu | 1 o 2 | vedi §5.3 |
+| ✏️ **Custom** | quello che scrivi tu | 1 o 2 | vedi Sezione 5.3 |
 
 I preset **1D** mostrano una sezione nel piano $(w, J)$ invece della superficie: sono il modo
 più veloce per capire *dove* il batch decide di crescere lungo una valle.
 Le **formule esplicite** della loss di ogni preset e del rumore aggiunto a ogni esempio sono in
-**§5.5**.
+**Sezione 5.5**.
 
 ### 5.2 Modalità gradiente / Hessiana
 
@@ -226,7 +236,7 @@ campionaria, così che le medie campionarie siano **esattamente** i valori nomin
 l'errore $\|w_k-w_\*\|$ con il minimo vero: per i preset quadratici la $J$ *campionaria*
 coincide con quella *nominale* a meno di una costante (e con gradiente identico), mentre per i
 preset non quadratici la coincidenza vale solo nel limite $N\to\infty$ — in quel caso l'app
-calcola $w_\*$ numericamente. Tutte le formule sono in **§5.5**.
+calcola $w_\*$ numericamente. Tutte le formule sono in **Sezione 5.5**.
 
 ### 5.5 Le formule esplicite: loss e rumore, preset per preset
 
@@ -398,7 +408,7 @@ modificalo.
 | **Newton-CG con Campionamento Dinamico** | direzione di Newton risolta dal CG su un'Hessiana *sottocampionata* ($H_k\subseteq S_k$, $\|H_k\|=R\ \|S_k\|$) e prodotta Hessiana-vettore | $R$, `max CG iter`, sottocampionamento, riuso Hessiana |
 | **Newton-CG con Regolarizzazione $L_1$** | come sopra ma su $F(w)=J(w)+\nu\|w\|_1$, con faccia ortante, active set e ricerca lineare **proiettata** | $\nu$, $\sigma$, $\eta$, Hessian-free |
 | **Barzilai–Borwein con Campionamento Dinamico (BB-CCV)** | passo BB *clippato* + Armijo, senza Hessiana | come GD |
-| ✏️ **Algoritmo personalizzato** | il tuo algoritmo in Python | vedi §15 |
+| ✏️ **Algoritmo personalizzato** | il tuo algoritmo in Python | vedi Sezione 15 |
 
 Ogni volta che cambi metodo **cambiano automaticamente**: le righe di parametri visibili, il
 codice Python generato, lo pseudocodice e i blocchi di teoria/formule a destra. Il testo sotto
@@ -415,7 +425,7 @@ campione dinamico e controllo della varianza»*).
 | **max_iter** | 30 | 5–200 (passo 5) | numero massimo di iterazioni |
 | **α** | 0.1 | 0.001–2 | passo base della line search |
 | **N (dataset)** | 200 | 10–2000 | quanti esempi contiene il dataset sintetico |
-| **seed** | 42 | 0–9999 | seme del generatore: cambia la realizzazione del rumore (§5.5.1), non gli iperparametri |
+| **seed** | 42 | 0–9999 | seme del generatore: cambia la realizzazione del rumore (Sezione 5.5.1), non gli iperparametri |
 | **θ (toll. CCV)** | 0.5 | 0.01–0.99 | soglia della condizione di controllo della varianza: **piccolo ⇒ batch grandi** |
 | **batch0** | 5 | 1–50 | dimensione del primo mini-batch |
 | **R ($\|H\|/\|S\|$)** | 0.2 | 0.05–0.9 | Newton: quanta parte del batch serve per l'Hessiana ($\|H_k\|=R\ \|S_k\|$) |
@@ -525,9 +535,9 @@ esecuzioni con leve diverse si spiegano leggendo il codice che l'app ti mette da
 |---|---|
 | **⟳ Ricalcola** | esegue l'algoritmo con i parametri correnti e ridisegna tutti i grafici |
 | **⟲ Default** | riporta *tutti* i parametri ai valori di default |
-| **🧪 Analisi** | apre la tabella di convergenza (§12) |
-| **🖼️ Traiettoria 2D** | apre il grafico con le curve di livello (§11.2) |
-| **🧪 Test batch** | apre gli esperimenti a griglia con le tabelle della tesi (§13) |
+| **🧪 Analisi** | apre la tabella di convergenza (Sezione 12) |
+| **🖼️ Traiettoria 2D** | apre il grafico con le curve di livello (Sezione 11.2) |
+| **🧪 Test batch** | apre gli esperimenti a griglia con le tabelle della tesi (Sezione 13) |
 
 Il badge di stato (`pronto` / `▶ play`) e la riga di diagnostica sotto il grafico principale
 ti dicono se il calcolo è concluso e riassumono l'esecuzione.
@@ -689,7 +699,7 @@ Ogni dimensione è una casella con elenco di valori separati da virgola, un'etic
 |---|---|---|
 | **Loss (preset)** | `quad_well,quad_ill,quad_very_ill,quad_offdiag,rosenbrock` | chiavi dei preset |
 | **Algoritmo** | `gd,bb,newton_cg,newton_l1` | Dynamic GD, BB-CCV, Newton-CG, Newton-L<sub>1</sub> |
-| **Strategia di riuso (colonne)** | `base,M=inf,M=10,M=5,M=2,H ind M_H=inf` | vedi §13.2: diventano le **colonne** della tabella |
+| **Strategia di riuso (colonne)** | `base,M=inf,M=10,M=5,M=2,H ind M_H=inf` | vedi Sezione 13.2: diventano le **colonne** della tabella |
 | **Seed** | `42` | più seed con `media` ⇒ **robustezza** (es. i 5 seed della tesi) |
 | **max_iter** | `30` | $e_{30}$ = errore all'ultima iterazione |
 | **alpha (passo)** | `0.1` | |
@@ -812,7 +822,7 @@ clippato, la line search di Armijo e il meccanismo di ricampionamento.
 
 ### 14.5 Algoritmo personalizzato
 
-Card *Algoritmo Personalizzato* con *Interfaccia richiesta* e *Variabili disponibili* (§15).
+Card *Algoritmo Personalizzato* con *Interfaccia richiesta* e *Variabili disponibili* (Sezione 15).
 
 > 🔎 **Il dettaglio che fa la differenza:** lo *pseudocodice* si adatta alle leve che accendi.
 > Con il **riuso** attivo compare la versione con il ciclo interno sullo stesso mini-batch; con
@@ -929,23 +939,23 @@ perfettamente sensato: guarda la colonna `iter` e l'andamento di $J(w_k)$.
 
 | Cosa vedi nell'app | Dove è descritto nella tesi |
 |---|---|
-| Il problema, la dimensione del mini-batch, il campionamento dinamico | Cap. 1 (§1.2–§1.3) |
-| Preset e funzione obiettivo $J$, ipotesi su $J$ | Cap. 3 (§3.1–§3.2) |
-| Perché i metodi stocastici, SVRG/SAGA, campionamento dinamico, $L_1$ | Cap. 4 (§4.1–§4.4) |
-| **Dynamic GD**: CCV, regola di aggiornamento del batch, pseudocodice, convergenza | §5.1 (incl. §5.1.2 condizione di accettazione, §5.1.3 regola di aggiornamento, §5.1.4 pseudocodice, §5.1.5–§5.1.6 analisi e complessità) |
-| **$n_k$ vs $a^k$**, stima dell'esponente $a$, complessità | §5.1.5 (analisi stocastica e complessità) e Figura 5.3 |
-| **Newton-CG**: sistema Hessian-free, criterio di arresto del CG, $\gamma$, $R$, pseudocodice | §5.2 (incl. §5.2.1 struttura, §5.2.2 criterio di terminazione, §5.2.3 pseudocodice) |
-| **Newton-CG $L_1$**: subgradiente, active set, faccia ortante, proiezioni, ricerca proiettata | §5.3 (tutte le sottosezioni) |
-| **BB-CCV** (passo Barzilai–Borwein + CCV) | §5.4 (incl. §5.4.1 il metodo BB, §5.4.2 schema dell'algoritmo) |
-| Setup sperimentale ($N$, seed, $w_0$, iperparametri) | §6.1 |
-| Architettura software (algoritmi e dati) | §6.2 |
-| Risultati numerici ($e_{30}$ e confronti) | §6.3 |
-| **L'applicazione web stessa** (questa app) | §6.4 *Visualizzazione Interattiva* |
-| **Leve di riuso**: $M$, $M_H$, riuso dell'Hessiana, stop adattivo con validation set, riuso per discesa della loss, iperparametri consigliati | §6.5 (Riuso del mini-batch) — sottosezioni: descrizione, meccanismo, setup, risultati, sintesi, stop adattivo, discesa, consigliati |
-| Formati delle tabelle del **Test batch** | Tabelle 6.2, 6.7, 6.8 di §6.5 |
+| Il problema, la dimensione del mini-batch, il campionamento dinamico | Cap. 1 (Sezioni 1.2–1.3) |
+| Preset e funzione obiettivo $J$, ipotesi su $J$ | Cap. 3 (Sezioni 3.1–3.2) |
+| Perché i metodi stocastici, SVRG/SAGA, campionamento dinamico, $L_1$ | Cap. 4 (Sezioni 4.1–4.4) |
+| **Dynamic GD**: CCV, regola di aggiornamento del batch, pseudocodice, convergenza | Sezione 5.1 (incluse le sottosezioni 5.1.2 condizione di accettazione, 5.1.3 regola di aggiornamento, 5.1.4 pseudocodice, 5.1.5–5.1.6 analisi e complessità) |
+| **$n_k$ vs $a^k$**, stima dell'esponente $a$, complessità | Sezione 5.1.5 (analisi stocastica e complessità) e Figura 5.3 |
+| **Newton-CG**: sistema Hessian-free, criterio di arresto del CG, $\gamma$, $R$, pseudocodice | Sezione 5.2 (incluse le sottosezioni 5.2.1 struttura, 5.2.2 criterio di terminazione, 5.2.3 pseudocodice) |
+| **Newton-CG $L_1$**: subgradiente, active set, faccia ortante, proiezioni, ricerca proiettata | Sezione 5.3 (tutte le sottosezioni) |
+| **BB-CCV** (passo Barzilai–Borwein + CCV) | Sezione 5.4 (incluse le sottosezioni 5.4.1 il metodo BB, 5.4.2 schema dell'algoritmo) |
+| Setup sperimentale ($N$, seed, $w_0$, iperparametri) | Sezione 6.1 — *Setup Sperimentale* |
+| Architettura software (algoritmi e dati) | Sezione 6.2 — *Architettura Software* |
+| Risultati numerici ($e_{30}$ e confronti) | Sezione 6.3 — *Risultati Numerici* |
+| **L'applicazione web stessa** (questa app) | Sezione 6.4 — *Visualizzazione Interattiva* |
+| **Leve di riuso**: $M$, $M_H$, riuso dell'Hessiana, stop adattivo con validation set, riuso per discesa della loss, iperparametri consigliati | Sezione 6.5 — *Riuso del mini-batch* — sottosezioni: descrizione, meccanismo, setup, risultati, sintesi, stop adattivo, discesa, consigliati |
+| Formati delle tabelle del **Test batch** | Tabelle 6.2, 6.7, 6.8 della Sezione 6.5 |
 | Codice Python degli algoritmi (l'editor modificabile) | Appendice B (B.1 Dynamic GD, B.2 Newton-CG, B.3 Newton-CG $L_1$, B.4 BB-CCV) |
 | Requisiti, installazione, avvio dell'app | Appendice C (in particolare C.5 «Avvio dell'applicazione web») |
-| Riassunto dei risultati, limiti e direzioni future | §7.1–§7.3 |
+| Riassunto dei risultati, limiti e direzioni future | Sezione 7.1–7.3 |
 
 ## 19. Note, limiti e piccoli trucchi
 
@@ -965,7 +975,7 @@ codice del preset. È il motivo per cui nello script Python 1D compare la funzio
 **🧪 Il dataset è sintetico e «centrato».** Da ogni coefficiente viene sottratta la sua media
 campionaria, così le medie sono *esattamente* quelle nominali e, per i preset quadratici, la $J$
 campionaria coincide con quella nominale a meno di una costante: le formule esatte (loss e
-rumore, preset per preset) sono in **§5.5**. È una comodità sperimentale — nel machine learning
+rumore, preset per preset) sono in **Sezione 5.5**. È una comodità sperimentale — nel machine learning
 reale $J$ è una *stima* del rischio vero, e questo è uno dei motivi per cui il campione deve
 essere scelto con cura.
 
