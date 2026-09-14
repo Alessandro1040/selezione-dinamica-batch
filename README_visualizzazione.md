@@ -446,7 +446,7 @@ riusato per più iterazioni consecutive.*
 Con **Max iterazioni consecutive per mini-batch**: `Illimitato` (si riusa finché la CCV resta
 soddisfatta, con limite naturale `max_iter`) oppure `Personalizzato` (valore $k$). Con $k=1$
 si ricampiona a ogni iterazione; valgono i criteri di stop adattivo descritti sotto.
-Quando il riuso è attivo compaiono le card **J_val(w_k)** e **J_batch(w_k)**.
+Quando il riuso è attivo compaiono le card **J<sub>val</sub>(w<sub>k</sub>)** e **J<sub>batch</sub>(w<sub>k</sub>)**.
 
 **③ Stop adattivo con validation set — tutti gli algoritmi**
 `☐ Usa validation set per stop adattivo`
@@ -572,7 +572,7 @@ Tutti i grafici sono Plotly: puoi zoomare (trascinando o con la rotella), passar
 i valori esatti, **cliccare le voci di legenda** per accendere/spegnere curve, ed esportare
 l'immagine (icona della fotocamera nella barra in alto a destra del grafico).
 
-### 11.1 «Superficie J(w) e percorso J(w_k)»
+### 11.1 «Superficie J(w) e percorso J(w<sub>k</sub>)»
 
 Il grafico principale. Mostra:
 
@@ -585,7 +585,7 @@ Il grafico principale. Mostra:
 
 Nella **legenda della testata** hai il codice colori: il punto ★ segna i pesi ottimali.
 
-### 11.2 «Traiettoria 2D — J(w) e percorso J(w_k)»
+### 11.2 «Traiettoria 2D — J(w) e percorso J(w<sub>k</sub>)»
 
 Si apre con il pulsante **🖼️ Traiettoria 2D**. È la vista più *narrativa* dell'app: le
 **curve di livello** di $J(w)$ nel piano $(w_1,w_2)$ con sopra la traiettoria, i punti
@@ -617,7 +617,7 @@ a numeri: *dove* il batch è cresciuto, *quanto* è diverso il percorso tra GD e
 *come cambia* la traiettoria aumentando $\theta$. Il pulsante **🗑️ Rimuovi tutte** svuota la
 galleria.
 
-### 11.4 «Analisi stocastica: n_k vs a^k»
+### 11.4 «Analisi stocastica: n<sub>k</sub> vs a<sup>k</sup>»
 
 Il grafico della tesi: sull'asse $x$ l'iterazione $k$, sull'asse $y$ la **dimensione del
 batch** $n_k$.
@@ -631,7 +631,7 @@ batch** $n_k$.
   piccolo, la crescita del tuo esperimento è davvero geometrica, come previsto dalla teoria;
 - un marcatore verticale indica l'**iterazione corrente** dell'animazione.
 
-### 11.5 «J_val(w_k) — stop adattivo»
+### 11.5 «J<sub>val</sub>(w<sub>k</sub>) — stop adattivo»
 
 Compare quando attivi **Usa validation set per stop adattivo**. Ogni punto è una valutazione
 di $J_{val}$: quando la loss non migliora per **pazienza** valutazioni consecutive il
@@ -639,7 +639,7 @@ mini-batch viene **ricampionato** (e l'Hessiana, se legata). Dal grafico si vede
 sega» classico: discesa, plateau, ricampionamento, nuova discesa. Il marcatore `val corrente`
 lega il grafico all'iterazione dell'animazione.
 
-### 11.6 «J_batch(w_k) — riuso per discesa»
+### 11.6 «J<sub>batch</sub>(w<sub>k</sub>) — riuso per discesa»
 
 Compare quando attivi **Riuso per discesa della loss sul batch**. Ogni punto è una valutazione
 di $J_{batch}$: quando la riduzione relativa scende sotto la soglia per **pazienza**
@@ -789,7 +789,7 @@ Formule:
 6. Line search (Wolfe / Armijo)
 7. Aggiornamento batch (CCV sul gradiente)
 
-### 14.3 Newton-CG con Regolarizzazione L_1
+### 14.3 Newton-CG con Regolarizzazione L<sub>1</sub>
 
 Descrizione — *Gradiente generalizzato (subgradiente)*, *Faccia ortante e active set*,
 *Minimizzazione nel sottospazio libero*, *Proiezione ortante e aggiornamento*, *Pseudocodice*.
