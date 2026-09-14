@@ -450,7 +450,7 @@ Quando il riuso è attivo compaiono le card **J<sub>val</sub>(w<sub>k</sub>)** e
 
 **③ Stop adattivo con validation set — tutti gli algoritmi**
 `☐ Usa validation set per stop adattivo`
-*Quando attivo, M (e $M_H$ per i metodi di Newton) non si impostano più a mano: il mini-batch
+*Quando attivo, M (e M<sub>H</sub> per i metodi di Newton) non si impostano più a mano: il mini-batch
 si ricampiona quando la loss sul validation set non migliora.*
 
 | Sotto-controllo | Default | Significato |
@@ -476,8 +476,8 @@ Sotto-controlli: tolleranza (`1e-4`), min_abs (`0.0`), pazienza (`1`), frequenza
 
 **⑤ Riuso dell'Hessiana (Newton)**
 `Legato a S_k (default teoria)` · `Indipendente da S_k`
-*Legato: $H_k$ viene riusato insieme a $S_k$ finché la CCV è soddisfatta. Indipendente: $H_k$
-viene riusato per $M_H$ iterazioni.*
+*Legato: H<sub>k</sub> viene riusato insieme a S<sub>k</sub> finché la CCV è soddisfatta. Indipendente: H<sub>k</sub>
+viene riusato per M<sub>H</sub> iterazioni.*
 Con **Max riusi consecutivi Hessiana** `Illimitato`/`Personalizzato` (default 10).
 
 **⑥ Line search — GD, Newton-CG, BB**
